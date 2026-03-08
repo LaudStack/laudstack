@@ -67,8 +67,8 @@ export default function Home() {
       <section className="relative overflow-hidden bg-[#F8F9FA]" style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
         {/* ── Main hero content ── */}
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 relative w-full">
-          <div className="flex flex-col items-center">
+        <div className="w-full max-w-3xl mx-auto px-6 lg:px-10 relative">
+          <div className="flex flex-col items-center text-center">
 
             {/* ── HEADLINE ── */}
             <motion.h1
