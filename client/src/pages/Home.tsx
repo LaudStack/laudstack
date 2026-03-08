@@ -426,8 +426,9 @@ export default function Home() {
             </button>
           </div>
 
-          {/* ── Category pills ── */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '36px', paddingBottom: '28px', borderBottom: '1px solid #E2E8F0' }}>
+          {/* ── Category pills — single-row scroll on mobile, wrap on desktop ── */}
+          <div style={{ marginBottom: '36px', paddingBottom: '28px', borderBottom: '1px solid #E2E8F0' }}>
+          <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
             {CATEGORIES.map(({ name, icon, count }) => {
               const active = selectedCategory === name;
               return (
@@ -438,6 +439,7 @@ export default function Home() {
                     display: 'flex', alignItems: 'center', gap: '7px',
                     padding: '8px 14px', borderRadius: '10px', cursor: 'pointer',
                     fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
+                    flexShrink: 0,
                     border: active ? '1.5px solid #0F172A' : '1.5px solid #E2E8F0',
                     background: active ? '#0F172A' : '#FFFFFF',
                     color: active ? '#FFFFFF' : '#374151',
@@ -456,6 +458,7 @@ export default function Home() {
                 </button>
               );
             })}
+          </div>
           </div>
 
           {/* ── Two-column layout: tools grid + sidebar ── */}
