@@ -407,8 +407,8 @@ export default function Home() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
                       <div style={{ width: '46px', height: '46px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E2E8F0', flexShrink: 0, background: '#F8FAFC' }}>
-                        <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
+                        <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
+                       </div>
                       <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</h3>
                     </div>
                     <button
@@ -579,8 +579,8 @@ export default function Home() {
                           }
                         </div>
                         <div style={{ width: '34px', height: '34px', borderRadius: '10px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0, border: '1px solid #E2E8F0' }}>
-                          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
+                           <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
+                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
                           <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.category}</p>

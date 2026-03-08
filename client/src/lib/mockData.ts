@@ -4,7 +4,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '1', slug: 'writesonic', name: 'Writesonic', tagline: 'AI writing assistant for teams',
     description: 'Writesonic is an AI-powered writing platform that helps you create SEO-optimized content, ads, emails, and more in seconds.',
-    logo_url: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/writesonic.com',
     website_url: 'https://writesonic.com', category: 'AI Writing', pricing_model: 'Freemium',
     tags: ['writing', 'SEO', 'content', 'AI'], badges: ['top_rated', 'featured'],
     upvote_count: 1284, review_count: 342, average_rating: 4.7, rank_score: 9820,
@@ -15,7 +15,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '2', slug: 'notion-ai', name: 'Notion AI', tagline: 'Your AI-powered workspace',
     description: 'Notion AI brings the power of AI directly into your Notion workspace, helping you write, summarize, brainstorm, and more.',
-    logo_url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/notion.so',
     website_url: 'https://notion.so', category: 'AI Productivity', pricing_model: 'Freemium',
     tags: ['productivity', 'notes', 'AI', 'workspace'], badges: ['editors_pick'],
     upvote_count: 2156, review_count: 891, average_rating: 4.8, rank_score: 9650,
@@ -25,7 +25,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '3', slug: 'midjourney', name: 'Midjourney', tagline: 'AI image generation for creatives',
     description: 'Midjourney is an independent research lab exploring new mediums of thought and expanding the imaginative powers of the human species.',
-    logo_url: 'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/midjourney.com',
     website_url: 'https://midjourney.com', category: 'AI Image', pricing_model: 'Paid',
     tags: ['image', 'art', 'creative', 'AI'], badges: ['top_rated', 'community_pick'],
     upvote_count: 3421, review_count: 1204, average_rating: 4.9, rank_score: 9580,
@@ -35,7 +35,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '4', slug: 'linear', name: 'Linear', tagline: 'The issue tracker for modern teams',
     description: 'Linear is the new standard for modern software development. Streamline issues, sprints, and product roadmaps.',
-    logo_url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/linear.app',
     website_url: 'https://linear.app', category: 'Project Management', pricing_model: 'Freemium',
     tags: ['project management', 'issues', 'sprints', 'roadmap'], badges: ['laudstack_pick'],
     upvote_count: 1876, review_count: 654, average_rating: 4.8, rank_score: 9420,
@@ -45,7 +45,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '5', slug: 'cursor-ai', name: 'Cursor', tagline: 'The AI-first code editor',
     description: 'Cursor is the AI-first code editor. Build software faster in an editor designed for pair-programming with AI.',
-    logo_url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/cursor.com',
     website_url: 'https://cursor.sh', category: 'AI Code', pricing_model: 'Freemium',
     tags: ['coding', 'AI', 'editor', 'developer'], badges: ['trending', 'new_launch'],
     upvote_count: 2890, review_count: 743, average_rating: 4.7, rank_score: 9380,
@@ -55,7 +55,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '6', slug: 'descript', name: 'Descript', tagline: 'Edit video like a doc',
     description: 'Descript is the only tool you need to write, record, transcribe, edit, collaborate, and share your videos and podcasts.',
-    logo_url: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/descript.com',
     website_url: 'https://descript.com', category: 'AI Video', pricing_model: 'Freemium',
     tags: ['video', 'podcast', 'editing', 'transcription'], badges: ['verified'],
     upvote_count: 987, review_count: 312, average_rating: 4.5, rank_score: 8920,
@@ -65,7 +65,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '7', slug: 'perplexity', name: 'Perplexity AI', tagline: 'AI-powered search engine',
     description: 'Perplexity AI is a conversational search engine that uses AI to provide direct answers to questions with cited sources.',
-    logo_url: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/perplexity.ai',
     website_url: 'https://perplexity.ai', category: 'AI Analytics', pricing_model: 'Freemium',
     tags: ['search', 'research', 'AI', 'answers'], badges: ['best_value'],
     upvote_count: 1543, review_count: 421, average_rating: 4.6, rank_score: 8750,
@@ -75,7 +75,7 @@ export const MOCK_TOOLS: Tool[] = [
   {
     id: '8', slug: 'loom', name: 'Loom', tagline: 'Async video messaging for work',
     description: 'Loom is a video messaging tool that helps you get your message across through instantly shareable videos.',
-    logo_url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=80&h=80&fit=crop&crop=center',
+    logo_url: 'https://logo.clearbit.com/loom.com',
     website_url: 'https://loom.com', category: 'AI Video', pricing_model: 'Freemium',
     tags: ['video', 'async', 'communication', 'screen recording'], badges: [],
     upvote_count: 876, review_count: 289, average_rating: 4.4, rank_score: 8320,

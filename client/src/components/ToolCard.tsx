@@ -126,7 +126,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       >
         {rank && <RankBadge rank={rank} />}
         <div style={{ width: '36px', height: '36px', borderRadius: '9px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
-          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:18px;font-weight:800;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif">${tool.name.charAt(0)}</span>`; } }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -198,7 +198,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
 
         {/* Logo */}
         <div style={{ width: '54px', height: '54px', borderRadius: '13px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
-          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:18px;font-weight:800;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif">${tool.name.charAt(0)}</span>`; } }} />
         </div>
 
         {/* Info */}
