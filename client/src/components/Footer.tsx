@@ -14,12 +14,12 @@ const FOOTER_LINKS = {
     { label: 'Discover Tools', href: '/discover' },
     { label: 'Leaderboard', href: '/leaderboard' },
     { label: 'Categories', href: '/categories' },
-    { label: 'Submit a Tool', href: '/submit' },
+    { label: 'LaunchPad', href: '/launchpad' },
     { label: 'Compare Tools', href: '/compare' },
   ],
   Founders: [
-    { label: 'Claim Your Page', href: '/pro' },
-    { label: 'Pro Subscription', href: '/pro' },
+    { label: 'Claim Your Page', href: '/launchpad' },
+    { label: 'LaunchPad', href: '/launchpad' },
     { label: 'Founder Dashboard', href: '/dashboard' },
     { label: 'Analytics', href: '/dashboard/analytics' },
     { label: 'Affiliate Program', href: '/affiliates' },
@@ -61,10 +61,10 @@ export default function Footer() {
               <Button
                 onClick={handleComingSoon}
                 className="border-0 font-semibold px-6"
-                style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100)', color: 'white' }}
+                style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
               >
                 <Zap className="h-4 w-4 mr-2" />
-                Go Pro — $97/mo
+                Go to LaunchPad
               </Button>
               <Button
                 variant="outline"
@@ -84,7 +84,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-2">
             <Link href="/">
-              <img src="/logo-dark.png" alt="LaudStack" className="h-8 w-auto mb-4 opacity-90" />
+              <img src="/logo-dark-transparent.png" alt="LaudStack" className="h-8 w-auto mb-4 opacity-90" />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
               The trusted community platform where founders launch their AI and SaaS tools, users discover the best software, and the community curates quality.
