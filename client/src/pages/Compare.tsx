@@ -2,13 +2,14 @@
  * Compare.tsx — LaudStack Tool Comparison Page
  * Design: Clean white, enterprise-grade, G2-inspired
  * Shows a side-by-side table for 2–3 selected tools.
- * Sections: Hero header, key metrics, pricing, features, ratings breakdown, CTA row
+ * Supports shareable URLs: /compare?tools=slug1,slug2,slug3
  */
 
+import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import {
   Star, ExternalLink, ShieldCheck, ArrowLeft, CheckCircle2,
-  XCircle, GitCompareArrows, ChevronRight, Minus
+  XCircle, GitCompareArrows, ChevronRight, Minus, Share2, Check, Link2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -38,7 +39,7 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
-function Check({ val }: { val: boolean | null }) {
+function CheckCell({ val }: { val: boolean | null }) {
   if (val === null) return <Minus style={{ width: '16px', height: '16px', color: '#CBD5E1' }} />;
   return val
     ? <CheckCircle2 style={{ width: '16px', height: '16px', color: '#10B981' }} />
@@ -90,10 +91,54 @@ const SECTION_ROWS: { section: string; rows: { label: string; key: string }[] }[
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Compare() {
-  const [, navigate] = useLocation();
-  const { selected, remove, clear } = useCompare();
+  const [location, navigate] = useLocation();
+  const { selected, remove, clear, toggle } = useCompare();
+  const [copied, setCopied] = useState(false);
 
-  // Redirect if fewer than 2 tools
+  // ── Hydrate from URL query params (?tools=slug1,slug2,slug3) ──────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slugsParam = params.get('tools');
+    if (!slugsParam) return;
+
+    const slugs = slugsParam.split(',').filter(Boolean).slice(0, 3);
+    if (slugs.length < 2) return;
+
+    // Only hydrate if the context is currently empty (avoid overwriting user selection)
+    if (selected.length === 0) {
+      const toolsFromUrl = slugs
+        .map(slug => MOCK_TOOLS.find(t => t.slug === slug))
+        .filter((t): t is Tool => Boolean(t));
+
+      toolsFromUrl.forEach(tool => toggle(tool));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
+
+  // ── Build shareable URL ───────────────────────────────────────────────────
+  function buildShareUrl(tools: Tool[]): string {
+    const slugs = tools.map(t => t.slug).join(',');
+    const base = window.location.origin;
+    return `${base}/compare?tools=${slugs}`;
+  }
+
+  function handleShare() {
+    if (selected.length < 2) return;
+    const url = buildShareUrl(selected);
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      toast.success('Comparison link copied to clipboard!', {
+        description: `Share this link to let others see your ${selected.length}-tool comparison.`,
+        duration: 4000,
+      });
+      setTimeout(() => setCopied(false), 2500);
+    }).catch(() => {
+      // Fallback: show the URL in a toast
+      toast.info('Share this link:', { description: url, duration: 8000 });
+    });
+  }
+
+  // ── Empty state ───────────────────────────────────────────────────────────
   if (selected.length < 2) {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
@@ -137,14 +182,14 @@ export default function Compare() {
       case 'average_rating': return <StarRow rating={tool.average_rating} />;
       case 'review_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{tool.review_count.toLocaleString()}</span>;
       case 'upvote_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{tool.upvote_count.toLocaleString()}</span>;
-      case 'feat_free':         return <Check val={featMap['Free Plan Available']} />;
-      case 'feat_api':          return <Check val={featMap['API Access']} />;
-      case 'feat_integrations': return <Check val={featMap['Integrations']} />;
-      case 'feat_mobile':       return <Check val={featMap['Mobile App']} />;
-      case 'feat_team':         return <Check val={featMap['Team Collaboration']} />;
-      case 'feat_analytics':    return <Check val={featMap['Analytics & Reporting']} />;
-      case 'feat_ai':           return <Check val={featMap['AI-Powered']} />;
-      case 'feat_verified':     return <Check val={featMap['Verified Tool']} />;
+      case 'feat_free':         return <CheckCell val={featMap['Free Plan Available']} />;
+      case 'feat_api':          return <CheckCell val={featMap['API Access']} />;
+      case 'feat_integrations': return <CheckCell val={featMap['Integrations']} />;
+      case 'feat_mobile':       return <CheckCell val={featMap['Mobile App']} />;
+      case 'feat_team':         return <CheckCell val={featMap['Team Collaboration']} />;
+      case 'feat_analytics':    return <CheckCell val={featMap['Analytics & Reporting']} />;
+      case 'feat_ai':           return <CheckCell val={featMap['AI-Powered']} />;
+      case 'feat_verified':     return <CheckCell val={featMap['Verified Tool']} />;
       default: return null;
     }
   }
@@ -166,7 +211,7 @@ export default function Compare() {
 
       {/* ── Breadcrumb ── */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ padding: '12px 40px' }}>
+        <div className="max-w-[1200px] mx-auto" style={{ padding: '12px 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
             <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
             <ChevronRight style={{ width: '12px', height: '12px' }} />
@@ -177,7 +222,7 @@ export default function Compare() {
 
       {/* ── Page header ── */}
       <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '32px 0 28px' }}>
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto" style={{ padding: '0 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -191,6 +236,26 @@ export default function Compare() {
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* Share button */}
+              <button
+                onClick={handleShare}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '7px',
+                  padding: '9px 18px', borderRadius: '10px',
+                  border: copied ? '1.5px solid #BBF7D0' : '1.5px solid #E2E8F0',
+                  background: copied ? '#F0FDF4' : '#F8FAFC',
+                  color: copied ? '#15803D' : '#374151',
+                  fontWeight: 700, fontSize: '13px', cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => { if (!copied) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; } }}
+                onMouseLeave={e => { if (!copied) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; } }}
+              >
+                {copied
+                  ? <><Check style={{ width: '13px', height: '13px' }} /> Copied!</>
+                  : <><Share2 style={{ width: '13px', height: '13px' }} /> Share Comparison</>
+                }
+              </button>
               <button
                 onClick={() => { clear(); navigate('/'); }}
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#374151', fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}
@@ -201,11 +266,25 @@ export default function Compare() {
               </button>
             </div>
           </div>
+
+          {/* Shareable URL preview bar */}
+          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', maxWidth: '600px' }}>
+            <Link2 style={{ width: '14px', height: '14px', color: '#94A3B8', flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', color: '#64748B', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
+              {buildShareUrl(tools)}
+            </span>
+            <button
+              onClick={handleShare}
+              style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0 4px' }}
+            >
+              {copied ? '✓ Copied' : 'Copy'}
+            </button>
+          </div>
         </div>
       </section>
 
       {/* ── Main content ── */}
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ padding: '40px 40px 80px', width: '100%', boxSizing: 'border-box' }}>
+      <div className="max-w-[1200px] mx-auto" style={{ padding: '40px 40px 80px', width: '100%', boxSizing: 'border-box' }}>
 
         {/* ── Tool header cards ── */}
         <motion.div
@@ -361,7 +440,17 @@ export default function Compare() {
             <p style={{ fontSize: '16px', fontWeight: 800, color: '#F1F5F9', margin: '0 0 4px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Ready to decide?</p>
             <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Visit each tool's page to read full reviews and make your choice.</p>
           </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Share button in CTA row */}
+            <button
+              onClick={handleShare}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', color: '#CBD5E1', fontWeight: 700, fontSize: '13px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(245,158,11,0.15)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(245,158,11,0.3)'; (e.currentTarget as HTMLButtonElement).style.color = '#F59E0B'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = '#CBD5E1'; }}
+            >
+              <Share2 style={{ width: '13px', height: '13px' }} />
+              Share
+            </button>
             {tools.map((tool, i) => (
               <a
                 key={tool.id}
