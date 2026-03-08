@@ -10,6 +10,7 @@
  */
 
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { Star, ExternalLink, ChevronUp, ShieldCheck, Zap, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Tool, BadgeType } from '@/lib/types';
@@ -102,6 +103,10 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
     }
   };
 
+  const [, navigate] = useLocation();
+
+  const handleCardClick = () => navigate(`/tools/${tool.slug}`);
+
   const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -114,7 +119,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
   if (compact) {
     return (
       <div
-        onClick={() => toast.info('Tool detail page coming soon!')}
+        onClick={handleCardClick}
         style={{
           display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 14px',
           background: hovered ? '#FAFAFA' : '#fff',
@@ -159,7 +164,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
   // ─── FULL CARD ────────────────────────────────────────────────────────────
   return (
     <div
-      onClick={() => toast.info('Tool detail page coming soon!')}
+      onClick={handleCardClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{

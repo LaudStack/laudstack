@@ -29,7 +29,8 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ToolCard from '@/components/ToolCard';
-import { MOCK_TOOLS, MOCK_LEADERBOARD, MOCK_REVIEWS, CATEGORIES } from '@/lib/mockData';
+import { useLocation } from 'wouter';
+import { MOCK_TOOLS, MOCK_REVIEWS, MOCK_LEADERBOARD, CATEGORIES } from '@/lib/mockData';
 
 // ─── Animation variants ────────────────────────────────────────────────────
 const fadeUp = {
@@ -115,7 +116,9 @@ export default function Home() {
   const [searchQuery, setSearchQuery]           = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [bannerVisible, setBannerVisible]        = useState(true);
+  const [, navigate] = useLocation();
   const go = () => toast.info('Feature coming soon!');
+  const goToTool = (slug: string) => navigate(`/tools/${slug}`);
 
   const filteredBase = selectedCategory === 'All'
     ? MOCK_TOOLS
@@ -417,7 +420,7 @@ export default function Home() {
               <motion.div
                 key={tool.id}
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}
-                onClick={go}
+                onClick={() => goToTool(tool.slug)}
                 style={{
                   background: '#FFFFFF', borderRadius: '18px', border: '1px solid #E2E8F0',
                   overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column',
@@ -592,10 +595,10 @@ export default function Home() {
                     >Full Board →</button>
                   </div>
                   <div>
-                    {leaderboard.map(({ rank, tool, rank_change }, idx) => (
+                    {leaderboard.map(({ rank, tool, rank_change }: { rank: number; tool: import('@/lib/types').Tool; rank_change: number }, idx: number) => (
                       <div
                         key={tool.id}
-                        onClick={go}
+                        onClick={() => goToTool(tool.slug)}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 18px', cursor: 'pointer', borderBottom: idx < leaderboard.length - 1 ? '1px solid #F8FAFC' : 'none', transition: 'background 0.12s' }}
                         onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
