@@ -74,8 +74,9 @@ export default function Navbar() {
 
   const go = () => toast.info('Feature coming soon!');
 
-  const navText   = scrolled ? 'text-slate-700 hover:text-slate-900' : 'text-white/90 hover:text-white';
-  const navHoverBg = scrolled ? 'hover:bg-slate-50' : 'hover:bg-white/10';
+  // Hero is now light (G2-style), so nav text is always dark
+  const navText   = 'text-slate-700 hover:text-slate-900';
+  const navHoverBg = 'hover:bg-slate-50';
 
   return (
     <>
@@ -84,25 +85,19 @@ export default function Navbar() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-white/97 backdrop-blur-xl shadow-[0_1px_0_0_rgba(0,0,0,0.06)]'
-            : 'bg-transparent'
+            : 'bg-white/80 backdrop-blur-md border-b border-slate-100/60'
         }`}
       >
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-center h-[72px] gap-6">
 
             {/* ── Logo ── */}
-            <Link href="/" className="flex items-center shrink-0 relative h-8 w-40">
-              {/* Dark logo (shown on white bg after scroll) */}
+            <Link href="/" className="flex items-center shrink-0 h-8">
+              {/* Always use light-background logo since hero is now light */}
               <img
                 src="/logo-light-transparent.png"
                 alt="LaudStack"
-                className={`absolute inset-0 h-8 w-auto transition-all duration-300 ${scrolled ? 'opacity-100' : 'opacity-0'}`}
-              />
-              {/* Light logo (shown on dark hero) */}
-              <img
-                src="/logo-dark-transparent.png"
-                alt="LaudStack"
-                className={`absolute inset-0 h-8 w-auto transition-all duration-300 ${scrolled ? 'opacity-0' : 'opacity-100'}`}
+                className="h-8 w-auto"
               />
             </Link>
 
@@ -166,21 +161,17 @@ export default function Navbar() {
               {/* Search pill */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm transition-all border ${
-                  scrolled
-                    ? 'text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 border-slate-200'
-                    : 'text-white/70 hover:text-white bg-white/8 hover:bg-white/15 border-white/20'
-                }`}
+                className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm transition-all border text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 border-slate-200"
               >
                 <Search className="h-4 w-4" />
                 <span className="hidden xl:inline">Search tools...</span>
-                <kbd className={`hidden xl:inline text-[10px] px-1.5 py-0.5 rounded font-mono ${scrolled ? 'bg-slate-200 text-slate-400' : 'bg-white/15 text-white/50'}`}>⌘K</kbd>
+                <kbd className="hidden xl:inline text-[10px] px-1.5 py-0.5 rounded font-mono bg-slate-200 text-slate-400">⌘K</kbd>
               </button>
 
               {/* Sign In */}
               <button
                 onClick={go}
-                className={`text-sm font-medium px-4 py-2 rounded-xl transition-all ${navText} ${navHoverBg}`}
+                className="text-sm font-medium px-4 py-2 rounded-xl transition-all text-slate-700 hover:text-slate-900 hover:bg-slate-50"
               >
                 Sign In
               </button>
@@ -199,9 +190,7 @@ export default function Navbar() {
             {/* ── Mobile Toggle ── */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`lg:hidden ml-auto p-2.5 rounded-xl transition-colors ${
-                scrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'
-              }`}
+              className="lg:hidden ml-auto p-2.5 rounded-xl transition-colors text-slate-700 hover:bg-slate-100"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
