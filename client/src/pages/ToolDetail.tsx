@@ -11,7 +11,7 @@
  *   7. Related Tools
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import {
@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import Footer from '@/components/Footer';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
@@ -122,6 +123,12 @@ export default function ToolDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [, navigate] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { recordVisit } = useRecentlyViewed();
+
+  // Record this tool as visited whenever the slug changes
+  useEffect(() => {
+    if (slug) recordVisit(slug);
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
   const [upvoted, setUpvoted] = useState(false);
   const [upvoteCount, setUpvoteCount] = useState(0);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});

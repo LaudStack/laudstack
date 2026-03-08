@@ -31,6 +31,8 @@ import Footer from '@/components/Footer';
 import ToolCard from '@/components/ToolCard';
 import { useLocation } from 'wouter';
 import { MOCK_TOOLS, MOCK_REVIEWS, MOCK_LEADERBOARD, CATEGORIES } from '@/lib/mockData';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
 // ─── Animation variants ────────────────────────────────────────────────────
 const fadeUp = {
@@ -117,6 +119,11 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [bannerVisible, setBannerVisible]        = useState(true);
   const [, navigate] = useLocation();
+  const { isAuthenticated, user } = useAuth();
+  const { slugs: recentSlugs } = useRecentlyViewed();
+  const recentTools = recentSlugs
+    .map(s => MOCK_TOOLS.find(t => t.slug === s))
+    .filter(Boolean) as typeof MOCK_TOOLS;
   const go = () => navigate('/launchpad');
   const goToTool = (slug: string) => navigate(`/tools/${slug}`);
   const handleSearch = () => {
@@ -298,6 +305,110 @@ export default function Home() {
           </svg>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════════════════
+          1b. RECENTLY VIEWED — only for authenticated users with history
+      ══════════════════════════════════════════════════════ */}
+      {isAuthenticated && recentTools.length > 0 && (
+        <section style={{ background: '#FFFFFF', padding: '40px 0 36px', borderBottom: '1px solid #F1F5F9' }}>
+          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+            {/* Header row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Eye style={{ width: '15px', height: '15px', color: '#fff' }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 1px' }}>Continue exploring</p>
+                  <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+                    Recently Viewed
+                  </h2>
+                </div>
+              </div>
+              {user && (
+                <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                  Welcome back, <strong style={{ color: '#0F172A' }}>{user.name.split(' ')[0]}</strong>
+                </span>
+              )}
+            </div>
+
+            {/* Horizontal scroll row */}
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${recentTools.length}, minmax(220px, 1fr))`, gap: '16px', overflowX: 'auto' }}>
+              {recentTools.map((tool, i) => (
+                <motion.div
+                  key={tool.slug}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.35 }}
+                  onClick={() => goToTool(tool.slug)}
+                  style={{
+                    background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px',
+                    padding: '16px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '10px',
+                    boxShadow: '0 1px 3px rgba(15,23,42,0.04)', transition: 'all 0.2s ease',
+                    position: 'relative', overflow: 'hidden',
+                  }}
+                  whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(15,23,42,0.09)', borderColor: '#FDE68A' }}
+                >
+                  {/* Amber top bar on hover */}
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #F59E0B, #EA580C)', opacity: 0, transition: 'opacity 0.2s' }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+                  />
+
+                  {/* Logo + name row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#F8FAFC', overflow: 'hidden', flexShrink: 0 }}>
+                      <img
+                        src={tool.logo_url}
+                        alt={tool.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        onError={e => {
+                          const t = e.currentTarget;
+                          t.style.display = 'none';
+                          const p = t.parentElement;
+                          if (p) {
+                            p.style.background = '#F1F5F9';
+                            p.style.display = 'flex';
+                            p.style.alignItems = 'center';
+                            p.style.justifyContent = 'center';
+                            p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
+                          }
+                        }}
+                      />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</div>
+                      <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>{tool.category}</div>
+                    </div>
+                  </div>
+
+                  {/* Rating row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '1px' }}>
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} style={{ width: '11px', height: '11px', fill: s <= Math.round(tool.average_rating) ? '#F59E0B' : 'transparent', color: s <= Math.round(tool.average_rating) ? '#F59E0B' : '#CBD5E1' }} />
+                      ))}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A' }}>{tool.average_rating.toFixed(1)}</span>
+                    <span style={{ fontSize: '11px', color: '#94A3B8' }}>({tool.review_count})</span>
+                  </div>
+
+                  {/* Tagline */}
+                  <p style={{ fontSize: '12px', color: '#475569', margin: 0, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tool.tagline}</p>
+
+                  {/* Pricing badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #F1F5F9' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0' }}>{tool.pricing_model}</span>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      View <ArrowRight style={{ width: '10px', height: '10px' }} />
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ══════════════════════════════════════════════════════
           2. THREE PILLARS — Discover · Review · Launch
