@@ -15,6 +15,7 @@
  */
 
 import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -88,6 +89,7 @@ const LAUNCH_ACCENTS = [
 export default function Home() {
   const [searchQuery, setSearchQuery]           = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [bannerVisible, setBannerVisible]        = useState(true);
   const go = () => toast.info('Feature coming soon!');
 
   const allTools = selectedCategory === 'All'
@@ -99,6 +101,41 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
+
+      {/* ══════════════════════════════════════════════════════
+          ANNOUNCEMENT BANNER — dismissible, below navbar
+      ══════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {bannerVisible && (
+          <motion.div
+            key="banner"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{ overflow: 'hidden', background: 'linear-gradient(90deg, #0F172A 0%, #1E293B 100%)', borderBottom: '1px solid rgba(245,158,11,0.2)' }}
+          >
+            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '44px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'center' }}>
+                <span style={{ fontSize: '14px' }}>🎉</span>
+                <p style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: 500, margin: 0 }}>
+                  <strong style={{ color: '#F59E0B', fontWeight: 700 }}>50 new tools</strong> added this month — including AI coding, design, and analytics tools.
+                  <button onClick={go} style={{ marginLeft: '10px', fontSize: '12px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', padding: 0 }}>Browse what's new →</button>
+                </p>
+              </div>
+              <button
+                onClick={() => setBannerVisible(false)}
+                aria-label="Dismiss announcement"
+                style={{ flexShrink: 0, width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', lineHeight: 1, transition: 'background 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.14)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; }}
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ══════════════════════════════════════════════════════
           1. HERO
@@ -315,67 +352,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          5. TOP RATED
-          Trust validation — show the best before the newest.
-          Users need evidence of quality before exploring more.
-      ══════════════════════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-100">
-                  <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest">Highest Rated</p>
-                </div>
-              </div>
-              <h2 className="text-3xl font-extrabold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.025em' }}>
-                Top rated by the community
-              </h2>
-              <p className="text-slate-500 mt-2 text-sm font-medium">Tools with the highest verified review scores across all categories.</p>
-            </div>
-            <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors group">
-              View All Ratings <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-            {topRated.map((tool, i) => (
-              <motion.div
-                key={tool.id}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.1}
-                className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-amber-200 transition-all cursor-pointer group"
-                onClick={go}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                    <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-slate-900 text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</h3>
-                    <p className="text-xs text-slate-400 truncate">{tool.category}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <div className="flex items-center gap-0.5">
-                    {[1,2,3,4,5].map(j => (
-                      <Star key={j} className={`h-3.5 w-3.5 ${j <= Math.round(tool.average_rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
-                    ))}
-                  </div>
-                  <span className="text-sm font-bold text-slate-900">{tool.average_rating.toFixed(1)}</span>
-                </div>
-                <p className="text-xs text-slate-500 font-medium mb-3">{tool.review_count.toLocaleString()} verified reviews</p>
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">{tool.pricing_model}</span>
-                  <span className="text-xs text-amber-700 font-bold group-hover:underline">View →</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════
-          6. FRESH LAUNCHES
+          5. FRESH LAUNCHES
           Novelty signal — after trust is established, show new.
           Founders' tools get visibility; users get first-mover edge.
       ══════════════════════════════════════════════════════ */}
