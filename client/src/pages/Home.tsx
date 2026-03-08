@@ -67,8 +67,7 @@ const THREE_PILLARS = [
   },
 ];
 
-const trendingTools = MOCK_TOOLS.filter(t => t.badges.includes('trending') || t.badges.includes('top_rated')).slice(0, 4);
-const newLaunches   = MOCK_TOOLS.slice(4, 8);
+// trendingTools and newLaunches are now computed inside the component (reactive to selectedCategory)
 
 const LAUNCH_ACCENTS = [
   { from: '#3B82F6', to: '#6366F1' },
@@ -118,9 +117,22 @@ export default function Home() {
   const [bannerVisible, setBannerVisible]        = useState(true);
   const go = () => toast.info('Feature coming soon!');
 
-  const allTools = selectedCategory === 'All'
+  const filteredBase = selectedCategory === 'All'
     ? MOCK_TOOLS
     : MOCK_TOOLS.filter(t => t.category === selectedCategory);
+
+  const allTools = filteredBase;
+
+  // Trending: tools with trending/top_rated badges, filtered by category
+  const trendingTools = (selectedCategory === 'All'
+    ? MOCK_TOOLS.filter(t => t.badges.includes('trending') || t.badges.includes('top_rated'))
+    : filteredBase.filter(t => t.badges.includes('trending') || t.badges.includes('top_rated') || true)
+  ).slice(0, 4);
+
+  // Fresh Launches: newest tools (by launched_at), filtered by category
+  const newLaunches = [...filteredBase]
+    .sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime())
+    .slice(0, 4);
 
   const leaderboard = MOCK_LEADERBOARD.slice(0, 5);
 
@@ -358,13 +370,20 @@ export default function Home() {
             ctaColor="#C2410C"
             onCta={go}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '14px' }}>
-            {trendingTools.map((tool, i) => (
-              <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}>
-                <ToolCard tool={tool} />
-              </motion.div>
-            ))}
-          </div>
+          {trendingTools.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
+              <p style={{ fontSize: '15px', fontWeight: 500 }}>No trending tools in this category yet.</p>
+              <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>View all categories</button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '14px' }}>
+              {trendingTools.map((tool, i) => (
+                <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}>
+                  <ToolCard tool={tool} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -386,6 +405,13 @@ export default function Home() {
             onCta={go}
           />
 
+          {newLaunches.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
+              <p style={{ fontSize: '15px', fontWeight: 500 }}>No recent launches in this category yet.</p>
+              <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#1D4ED8', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>View all categories</button>
+            </div>
+          ) : (
+          <>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" style={{ gap: '16px' }}>
             {newLaunches.map((tool, i) => (
               <motion.div
@@ -440,6 +466,8 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+          </>
+          )}
         </div>
       </section>
 
