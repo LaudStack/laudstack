@@ -5,6 +5,8 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from './contexts/AuthContext';
+import { CompareProvider } from './contexts/CompareContext';
+import CompareBar from './components/CompareBar';
 import Home from "./pages/Home";
 import ToolDetail from "./pages/ToolDetail";
 import SearchResults from './pages/SearchResults';
@@ -12,6 +14,7 @@ import LaunchPad from './pages/LaunchPad';
 import Categories from './pages/Categories';
 import Reviews from './pages/Reviews';
 import SignIn from './pages/SignIn';
+import Compare from './pages/Compare';
 import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
@@ -26,9 +29,11 @@ function Router() {
         <Route path="/categories" component={Categories} />
         <Route path="/reviews" component={Reviews} />
         <Route path="/signin" component={SignIn} />
+        <Route path="/compare" component={Compare} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
+      <CompareBar />
     </>
   );
 }
@@ -38,10 +43,12 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <AuthProvider>
-          <TooltipProvider>
-            <Toaster richColors position="top-right" />
-            <Router />
-          </TooltipProvider>
+          <CompareProvider>
+            <TooltipProvider>
+              <Toaster richColors position="top-right" />
+              <Router />
+            </TooltipProvider>
+          </CompareProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

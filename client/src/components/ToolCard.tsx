@@ -11,9 +11,10 @@
 
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Star, ExternalLink, ChevronUp, ShieldCheck, Zap, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Star, ExternalLink, ChevronUp, ShieldCheck, Zap, TrendingUp, TrendingDown, Minus, GitCompareArrows } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Tool, BadgeType } from '@/lib/types';
+import { useCompare } from '@/contexts/CompareContext';
 
 const BADGE_CONFIG: Record<BadgeType, { label: string; bg: string; color: string; border: string }> = {
   top_rated:      { label: 'Top Rated',      bg: '#FFFBEB', color: '#B45309', border: '#FDE68A' },
@@ -89,6 +90,19 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
   const [upvoted, setUpvoted] = useState(false);
   const [upvoteCount, setUpvoteCount] = useState(tool.upvote_count);
   const [hovered, setHovered] = useState(false);
+  const { toggle, isSelected, canAdd } = useCompare();
+  const comparing = isSelected(tool.id);
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!comparing && !canAdd) {
+      toast.error('You can compare up to 3 tools at a time');
+      return;
+    }
+    toggle(tool);
+    if (!comparing) toast.success(`${tool.name} added to comparison`);
+  };
 
   const handleUpvote = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -285,14 +299,33 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
           })}
         </div>
 
-        <button
-          onClick={handleVisit}
-          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0, padding: '0 0 0 8px' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'; }}
-        >
-          Visit <ExternalLink style={{ width: '12px', height: '12px' }} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Compare toggle */}
+          <button
+            onClick={handleCompare}
+            title={comparing ? 'Remove from comparison' : canAdd ? 'Add to comparison' : 'Max 3 tools'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700,
+              padding: '4px 10px', borderRadius: '7px', border: '1.5px solid', cursor: 'pointer', transition: 'all 0.15s',
+              background: comparing ? '#EFF6FF' : '#F8FAFC',
+              borderColor: comparing ? '#BFDBFE' : '#E2E8F0',
+              color: comparing ? '#1D4ED8' : '#64748B',
+            }}
+            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; if (!comparing) { b.style.borderColor = '#BFDBFE'; b.style.color = '#1D4ED8'; b.style.background = '#EFF6FF'; } }}
+            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; if (!comparing) { b.style.borderColor = '#E2E8F0'; b.style.color = '#64748B'; b.style.background = '#F8FAFC'; } }}
+          >
+            <GitCompareArrows style={{ width: '11px', height: '11px' }} />
+            {comparing ? 'Comparing' : 'Compare'}
+          </button>
+          <button
+            onClick={handleVisit}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0, padding: '0' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'; }}
+          >
+            Visit <ExternalLink style={{ width: '12px', height: '12px' }} />
+          </button>
+        </div>
       </div>
     </div>
   );

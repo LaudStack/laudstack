@@ -18,13 +18,14 @@ import {
   Star, ExternalLink, ChevronUp, ShieldCheck, ArrowLeft,
   ThumbsUp, MessageSquare, ChevronRight, Flame, Sparkles,
   Globe, Tag, Calendar, Award, CheckCircle2, AlertCircle,
-  Quote, Building2, User2
+  Quote, Building2, User2, GitCompareArrows
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { useCompare } from '@/contexts/CompareContext';
 import Footer from '@/components/Footer';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
@@ -124,6 +125,7 @@ export default function ToolDetail() {
   const [, navigate] = useLocation();
   const { isAuthenticated } = useAuth();
   const { recordVisit } = useRecentlyViewed();
+  const { toggle: compareToggle, isSelected: isComparing, canAdd: canCompare } = useCompare();
 
   // Record this tool as visited whenever the slug changes
   useEffect(() => {
@@ -308,6 +310,31 @@ export default function ToolDetail() {
               >
                 <ChevronUp style={{ width: '16px', height: '16px' }} />
                 {upvoted ? 'Upvoted' : 'Upvote'}
+              </button>
+              {/* Compare toggle */}
+              <button
+                onClick={() => {
+                  if (!isComparing(tool.id) && !canCompare) {
+                    toast.error('You can compare up to 3 tools at a time');
+                    return;
+                  }
+                  compareToggle(tool);
+                  if (!isComparing(tool.id)) toast.success(`${tool.name} added to comparison`);
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '10px 24px', borderRadius: '12px',
+                  border: isComparing(tool.id) ? '1.5px solid #BFDBFE' : '1.5px solid #E2E8F0',
+                  background: isComparing(tool.id) ? '#EFF6FF' : '#FFFFFF',
+                  color: isComparing(tool.id) ? '#1D4ED8' : '#374151',
+                  fontWeight: 700, fontSize: '14px', cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => { if (!isComparing(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#BFDBFE'; (e.currentTarget as HTMLButtonElement).style.color = '#1D4ED8'; (e.currentTarget as HTMLButtonElement).style.background = '#EFF6FF'; } }}
+                onMouseLeave={e => { if (!isComparing(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
+              >
+                <GitCompareArrows style={{ width: '15px', height: '15px' }} />
+                {isComparing(tool.id) ? 'Comparing' : 'Compare'}
               </button>
               {/* Write a Review — auth-gated */}
               <button
