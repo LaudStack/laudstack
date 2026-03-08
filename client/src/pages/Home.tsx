@@ -68,85 +68,7 @@ export default function Home() {
 
         {/* ── Main hero content ── */}
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10 relative">
-          <div className="relative flex flex-col items-center">
-
-            {/* Floating review card — LEFT */}
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="hidden lg:block absolute left-0 top-8 w-[220px] bg-white rounded-2xl shadow-lg shadow-slate-200/80 border border-slate-100 p-4 z-10"
-            >
-              <div className="flex items-center gap-2.5 mb-2">
-                <img src="https://i.pravatar.cc/36?img=12" alt="" className="w-9 h-9 rounded-full" />
-                <div>
-                  <div className="text-xs font-bold text-slate-800">Marcus T.</div>
-                  <div className="text-[10px] text-slate-400">Startup Founder</div>
-                </div>
-              </div>
-              <div className="flex gap-0.5 mb-1.5">
-                {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
-              </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">"Found the perfect AI writing tool in minutes. This platform is a game changer."</p>
-              <div className="mt-2 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Verified Review
-              </div>
-            </motion.div>
-
-            {/* Floating review card — RIGHT */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="hidden lg:block absolute right-0 top-4 w-[220px] bg-white rounded-2xl shadow-lg shadow-slate-200/80 border border-slate-100 p-4 z-10"
-            >
-              <div className="flex items-center gap-2.5 mb-2">
-                <img src="https://i.pravatar.cc/36?img=25" alt="" className="w-9 h-9 rounded-full" />
-                <div>
-                  <div className="text-xs font-bold text-slate-800">Priya K.</div>
-                  <div className="text-[10px] text-slate-400">Product Manager</div>
-                </div>
-              </div>
-              <div className="flex gap-0.5 mb-1.5">
-                {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
-              </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">"The leaderboard rankings helped us shortlist 3 tools in one afternoon."</p>
-              <div className="mt-2 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Verified Review
-              </div>
-            </motion.div>
-
-            {/* Floating rank badge — bottom left */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0, duration: 0.5 }}
-              className="hidden lg:flex absolute left-8 bottom-28 items-center gap-2 bg-white rounded-xl shadow-md border border-slate-100 px-3 py-2 z-10"
-            >
-              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
-                <Trophy className="h-4 w-4 text-amber-500" />
-              </div>
-              <div>
-                <div className="text-[10px] text-slate-400">This week's #1</div>
-                <div className="text-xs font-bold text-slate-800">ChatGPT</div>
-              </div>
-            </motion.div>
-
-            {/* Floating new launch badge — bottom right */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1, duration: 0.5 }}
-              className="hidden lg:flex absolute right-8 bottom-28 items-center gap-2 bg-white rounded-xl shadow-md border border-slate-100 px-3 py-2 z-10"
-            >
-              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
-                <Rocket className="h-4 w-4 text-blue-500" />
-              </div>
-              <div>
-                <div className="text-[10px] text-slate-400">Just launched</div>
-                <div className="text-xs font-bold text-slate-800">Cursor AI</div>
-              </div>
-            </motion.div>
+          <div className="flex flex-col items-center">
 
             {/* ── HEADLINE ── */}
             <motion.h1
@@ -249,30 +171,7 @@ export default function Home() {
 
 
 
-      {/* ═══════════════════════════════════════════════════
-          STATS BAR
-      ═══════════════════════════════════════════════════ */}
-      <section className="py-12 bg-slate-50 border-b border-slate-100">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {STATS.map(({ value, label, icon: Icon }, i) => (
-              <motion.div
-                key={label}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
-                className="flex items-center gap-4"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-                  <Icon className="h-6 w-6 text-amber-600" />
-                </div>
-                <div>
-                  <div className="text-3xl font-black text-slate-900 leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{value}</div>
-                  <div className="text-sm text-slate-500 mt-1">{label}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ═══════════════════════════════════════════════════
           DISCOVER — TRENDING THIS WEEK
