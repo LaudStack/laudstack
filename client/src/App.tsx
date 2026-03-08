@@ -25,6 +25,10 @@ import FounderDashboard from './pages/FounderDashboard';
 import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import Welcome from './pages/Welcome';
+import Pricing from './pages/Pricing';
+import ClaimTool from './pages/ClaimTool';
+import Templates from './pages/Templates';
+import Deals from './pages/Deals';
 import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
@@ -50,6 +54,10 @@ function Router() {
         <Route path="/verify-email" component={VerifyEmail} />
         <Route path="/reset-password" component={ResetPassword} />
         <Route path="/welcome" component={Welcome} />
+        <Route path="/pricing" component={Pricing} />
+        <Route path="/claim" component={ClaimTool} />
+        <Route path="/templates" component={Templates} />
+        <Route path="/deals" component={Deals} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

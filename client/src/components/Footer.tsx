@@ -14,18 +14,18 @@ import {
 
 const FOOTER_LINKS = {
   Discover: [
-    { label: 'Browse All Tools', href: '/tools', live: false },
+    { label: 'Browse All Tools', href: '/', live: true },
     { label: 'Categories', href: '/categories', live: true },
     { label: 'Launches & Leaderboard', href: '/launches', live: true },
     { label: 'Compare Tools', href: '/compare', live: true },
-    { label: 'Saved Tools', href: '/saved', live: true },
-    { label: 'Reviews', href: '/reviews', live: true },
+    { label: 'SaaS Deals', href: '/deals', live: true },
+    { label: 'Templates', href: '/templates', live: true },
   ],
   Founders: [
     { label: 'Submit Your Tool', href: '/launchpad', live: true },
+    { label: 'Claim Your Tool', href: '/claim', live: true },
     { label: 'Founder Dashboard', href: '/dashboard/founder', live: true },
-    { label: 'Upcoming Launches', href: '/launches', live: true },
-    { label: 'Analytics', href: '/dashboard/founder', live: true },
+    { label: 'Pricing', href: '/pricing', live: true },
     { label: 'Affiliate Program', href: '/affiliates', live: false },
   ],
   Company: [

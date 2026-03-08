@@ -4,6 +4,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
+import {
   BarChart3, Star, MessageSquare, TrendingUp, Eye, ChevronRight,
   Settings, Zap, Bell, Shield, Edit3, ExternalLink, CheckCircle,
   AlertCircle, Clock, ArrowUpRight, ArrowDownRight, Users,
@@ -281,82 +285,165 @@ function ReviewsTab() {
 }
 
 function AnalyticsTab() {
-  const months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-  const viewData = [1200, 1850, 2100, 1900, 2800, 3400];
-  const maxViews = Math.max(...viewData);
+  const viewsData = [
+    { month: 'Oct', views: 1200, clicks: 340, upvotes: 28 },
+    { month: 'Nov', views: 1850, clicks: 520, upvotes: 45 },
+    { month: 'Dec', views: 2100, clicks: 610, upvotes: 52 },
+    { month: 'Jan', views: 1900, clicks: 490, upvotes: 41 },
+    { month: 'Feb', views: 2800, clicks: 780, upvotes: 67 },
+    { month: 'Mar', views: 3400, clicks: 940, upvotes: 89 },
+  ];
+
+  const trafficData = [
+    { name: 'Search', value: 42, color: '#F59E0B' },
+    { name: 'Direct', value: 28, color: '#6366F1' },
+    { name: 'Browse', value: 18, color: '#10B981' },
+    { name: 'Leaderboard', value: 12, color: '#3B82F6' },
+  ];
+
+  const sentimentData = [
+    { month: 'Oct', positive: 72, neutral: 18, negative: 10 },
+    { month: 'Nov', positive: 68, neutral: 22, negative: 10 },
+    { month: 'Dec', positive: 75, neutral: 17, negative: 8 },
+    { month: 'Jan', positive: 70, neutral: 20, negative: 10 },
+    { month: 'Feb', positive: 78, neutral: 15, negative: 7 },
+    { month: 'Mar', positive: 82, neutral: 12, negative: 6 },
+  ];
+
+  const ratingDist = [5,4,3,2,1].map(stars => ({
+    stars: `${stars}★`,
+    count: MOCK_REVIEWS.filter(r => r.rating === stars).length,
+    fill: stars >= 4 ? '#F59E0B' : stars === 3 ? '#94A3B8' : '#EF4444',
+  }));
 
   return (
     <div className="space-y-6">
-      {/* Views chart */}
+      {/* Views + Clicks Area Chart */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6">
         <h3 className="text-slate-900 font-bold mb-1 flex items-center gap-2">
           <Eye className="w-4 h-4 text-sky-500" />
-          Profile Views (Last 6 Months)
+          Profile Views & Click-throughs (Last 6 Months)
         </h3>
-        <p className="text-slate-500 text-sm mb-6">Combined views across all your tool listings</p>
-        <div className="flex items-end gap-3 h-40">
-          {viewData.map((v, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-slate-500 text-xs">{v.toLocaleString()}</span>
-              <div
-                className="w-full bg-amber-400 rounded-t-lg transition-all"
-                style={{ height: `${(v / maxViews) * 120}px`, opacity: i === viewData.length - 1 ? 1 : 0.5 + (i / viewData.length) * 0.5 }}
-              />
-              <span className="text-slate-400 text-xs">{months[i]}</span>
+        <p className="text-slate-500 text-sm mb-4">Combined across all your tool listings</p>
+        <ResponsiveContainer width="100%" height={200}>
+          <AreaChart data={viewsData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="clicksGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '12px' }} />
+            <Legend wrapperStyle={{ fontSize: '12px' }} />
+            <Area type="monotone" dataKey="views" stroke="#F59E0B" strokeWidth={2} fill="url(#viewsGrad)" name="Views" />
+            <Area type="monotone" dataKey="clicks" stroke="#6366F1" strokeWidth={2} fill="url(#clicksGrad)" name="Clicks" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Traffic Sources Pie */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <h3 className="text-slate-900 font-bold mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4 text-amber-400" />
+            Traffic Sources
+          </h3>
+          <div className="flex items-center gap-4">
+            <ResponsiveContainer width={120} height={120}>
+              <PieChart>
+                <Pie data={trafficData} cx={55} cy={55} innerRadius={30} outerRadius={55} dataKey="value" paddingAngle={3}>
+                  {trafficData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="space-y-2 flex-1">
+              {trafficData.map(item => (
+                <div key={item.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
+                    <span className="text-slate-600 text-xs">{item.name}</span>
+                  </div>
+                  <span className="text-slate-900 font-bold text-xs">{item.value}%</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* Rating Distribution Bar */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <h3 className="text-slate-900 font-bold mb-4 flex items-center gap-2">
+            <Star className="w-4 h-4 text-amber-400" />
+            Rating Distribution
+          </h3>
+          <ResponsiveContainer width="100%" height={120}>
+            <BarChart data={ratingDist} margin={{ top: 0, right: 0, left: -30, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+              <XAxis dataKey="stars" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '11px' }} />
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Reviews">
+                {ratingDist.map((entry, index) => (
+                  <Cell key={index} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Traffic sources */}
+      {/* Review Sentiment Stacked Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6">
-        <h3 className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-          <Users className="w-4 h-4 text-amber-400" />
-          Traffic Sources
+        <h3 className="text-slate-900 font-bold mb-1 flex items-center gap-2">
+          <MessageSquare className="w-4 h-4 text-emerald-500" />
+          Review Sentiment Trend
         </h3>
-        <div className="space-y-3">
-          {[
-            { source: 'LaudStack Search', pct: 42, color: '#F59E0B' },
-            { source: 'Direct / Referral', pct: 28, color: '#6366F1' },
-            { source: 'Category Browse', pct: 18, color: '#10B981' },
-            { source: 'Leaderboard', pct: 12, color: '#3B82F6' },
-          ].map(item => (
-            <div key={item.source}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-slate-700 text-sm">{item.source}</span>
-                <span className="text-slate-900 font-semibold text-sm">{item.pct}%</span>
-              </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{ width: `${item.pct}%`, background: item.color }} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="text-slate-500 text-sm mb-4">Positive, neutral, and negative review breakdown over time</p>
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={sentimentData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '12px' }} />
+            <Legend wrapperStyle={{ fontSize: '12px' }} />
+            <Bar dataKey="positive" stackId="a" fill="#10B981" name="Positive" radius={[0,0,0,0]} />
+            <Bar dataKey="neutral" stackId="a" fill="#94A3B8" name="Neutral" />
+            <Bar dataKey="negative" stackId="a" fill="#EF4444" name="Negative" radius={[4,4,0,0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
-      {/* Rating breakdown */}
+      {/* Upvote trend */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6">
-        <h3 className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-          <Star className="w-4 h-4 text-amber-400" />
-          Rating Distribution (All Tools)
+        <h3 className="text-slate-900 font-bold mb-1 flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-amber-400" />
+          Upvote Trend
         </h3>
-        <div className="space-y-2">
-          {[5,4,3,2,1].map(stars => {
-            const count = MOCK_REVIEWS.filter(r => r.rating === stars).length;
-            const pct = Math.round((count / MOCK_REVIEWS.length) * 100);
-            return (
-              <div key={stars} className="flex items-center gap-3">
-                <div className="flex items-center gap-0.5 w-20 flex-shrink-0">
-                  {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= stars ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}
-                </div>
-                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
-                </div>
-                <span className="text-slate-500 text-xs w-8 text-right">{pct}%</span>
-              </div>
-            );
-          })}
-        </div>
+        <p className="text-slate-500 text-sm mb-4">Monthly upvotes across all your tools</p>
+        <ResponsiveContainer width="100%" height={160}>
+          <AreaChart data={viewsData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="upvoteGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '12px' }} />
+            <Area type="monotone" dataKey="upvotes" stroke="#10B981" strokeWidth={2} fill="url(#upvoteGrad)" name="Upvotes" />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
