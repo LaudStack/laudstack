@@ -217,7 +217,7 @@ export default function Navbar() {
 
               {/* LaunchPad CTA */}
               <Button
-                onClick={go}
+                onClick={() => navigate('/launchpad')}
                 className="gap-2 font-semibold border-0 px-5 h-10 rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.02] transition-all"
                 style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
               >
@@ -260,7 +260,7 @@ export default function Navbar() {
                     Sign In
                   </button>
                   <Button
-                    onClick={go}
+                    onClick={() => { navigate('/launchpad'); setMobileOpen(false); }}
                     className="gap-2 font-semibold border-0 w-full h-11 rounded-xl"
                     style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
                   >
