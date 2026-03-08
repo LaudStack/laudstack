@@ -141,11 +141,11 @@ export default function Home() {
     ? filteredBase
     : filteredBase.filter(t => t.pricing_model === selectedPricing);
 
-  // Trending: tools with trending/top_rated badges, filtered by category
-  const trendingTools = (selectedCategory === 'All'
-    ? MOCK_TOOLS.filter(t => t.badges.includes('trending') || t.badges.includes('top_rated'))
-    : filteredBase.filter(t => t.badges.includes('trending') || t.badges.includes('top_rated') || true)
-  ).slice(0, 4);
+  // Trending: top 4 tools with the biggest weekly_rank_change (last 7 days)
+  const trendingTools = [...(selectedCategory === 'All' ? MOCK_TOOLS : filteredBase)]
+    .filter(t => (t.weekly_rank_change ?? 0) > 0)
+    .sort((a, b) => (b.weekly_rank_change ?? 0) - (a.weekly_rank_change ?? 0))
+    .slice(0, 4);
 
   // Fresh Launches: newest tools (by launched_at), filtered by category
   const newLaunches = [...filteredBase]
@@ -486,8 +486,8 @@ export default function Home() {
             labelColor="#C2410C"
             labelBg="#FFF7ED"
             labelBorder="#FED7AA"
-            headline="What the community is loving right now"
-            subtext="Ranked by community votes, reviews, and engagement over the last 7 days."
+            headline="Biggest movers in the last 7 days"
+            subtext="Ranked by rank-position gain over the past week — tools climbing fastest right now."
             cta="View All Trending"
             ctaColor="#C2410C"
             onCta={go}
@@ -499,11 +499,67 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '14px' }}>
-              {trendingTools.map((tool, i) => (
-                <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}>
-                  <ToolCard tool={tool} />
-                </motion.div>
-              ))}
+              {trendingTools.map((tool, i) => {
+                const change = tool.weekly_rank_change ?? 0;
+                const momentum = change >= 20 ? 'rocket' : change >= 12 ? 'hot' : 'rising';
+                const momentumLabel = momentum === 'rocket' ? '🚀 Rocket' : momentum === 'hot' ? '🔥 Hot' : '📈 Rising';
+                const momentumColor = momentum === 'rocket' ? '#7C3AED' : momentum === 'hot' ? '#C2410C' : '#059669';
+                const momentumBg = momentum === 'rocket' ? '#F5F3FF' : momentum === 'hot' ? '#FFF7ED' : '#ECFDF5';
+                // Mini sparkline bars (simulated 7-day trend)
+                const sparkBars = [0.3, 0.45, 0.4, 0.55, 0.65, 0.8, 1.0].map((h, bi) => (
+                  <div key={bi} style={{ width: '5px', height: `${h * 28}px`, background: momentumColor, borderRadius: '2px', opacity: 0.4 + h * 0.6 }} />
+                ));
+                return (
+                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}>
+                    <div style={{ background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '16px', padding: '0', overflow: 'hidden', transition: 'border-color 0.2s, box-shadow 0.2s', cursor: 'pointer' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 24px rgba(245,158,11,0.10)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
+                      onClick={() => navigate(`/tools/${tool.slug}`)}
+                    >
+                      {/* Top accent bar */}
+                      <div style={{ height: '3px', background: `linear-gradient(90deg, ${momentumColor}, ${momentumColor}88)` }} />
+                      <div style={{ padding: '18px 20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                          {/* Rank badge */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${momentumBg}`, border: `1.5px solid ${momentumColor}33`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ fontSize: '16px', lineHeight: 1 }}>{momentum === 'rocket' ? '🚀' : momentum === 'hot' ? '🔥' : '📈'}</span>
+                            </div>
+                            <span style={{ fontSize: '10px', fontWeight: 800, color: momentumColor, letterSpacing: '0.02em' }}>#{i + 1}</span>
+                          </div>
+                          {/* Tool info */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                              <img src={tool.logo_url} alt={tool.name}
+                                style={{ width: '28px', height: '28px', borderRadius: '7px', objectFit: 'cover', background: '#F1F5F9', border: '1px solid #E2E8F0', flexShrink: 0 }}
+                                onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=28`; }} />
+                              <span style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{tool.name}</span>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: momentumColor, background: momentumBg, border: `1px solid ${momentumColor}33`, padding: '2px 8px', borderRadius: '20px', whiteSpace: 'nowrap' }}>{momentumLabel}</span>
+                            </div>
+                            <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.4, marginBottom: '10px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{tool.tagline}</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, color: '#F59E0B' }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                {tool.average_rating.toFixed(1)}
+                              </span>
+                              <span style={{ fontSize: '12px', color: '#94A3B8' }}>{tool.review_count} reviews</span>
+                              <span style={{ fontSize: '12px', color: '#94A3B8' }}>{tool.pricing_model}</span>
+                            </div>
+                          </div>
+                          {/* Sparkline + rank change */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '28px' }}>{sparkBars}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', background: `${momentumBg}`, border: `1px solid ${momentumColor}33`, borderRadius: '8px', padding: '3px 8px' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={momentumColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                              <span style={{ fontSize: '12px', fontWeight: 800, color: momentumColor }}>+{change}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>

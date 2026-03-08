@@ -55,6 +55,7 @@ export interface Tool {
   review_count: number;
   average_rating: number;
   rank_score: number;
+  weekly_rank_change?: number; // positive = moved up in rank this week
   is_featured: boolean;
   is_verified: boolean;
   is_pro: boolean;
