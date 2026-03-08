@@ -268,13 +268,18 @@ export default function Home() {
                 whileHover={{ y: -4, boxShadow: '0 14px 36px rgba(15,23,42,0.09)', borderColor: accentBorder }}
               >
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: accent }} />
-                <div style={{ width: '48px', height: '48px', borderRadius: '13px', background: accentBg, border: `1px solid ${accentBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
-                  <Icon style={{ width: '22px', height: '22px', color: accent }} />
+                {/* Icon + heading on the same horizontal line */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: accentBg, border: `1px solid ${accentBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon style={{ width: '20px', height: '20px', color: accent }} />
+                  </div>
+                  <div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: accent, background: accentBg, border: `1px solid ${accentBorder}`, padding: '2px 8px', borderRadius: '100px', marginBottom: '4px' }}>
+                      {label}
+                    </div>
+                    <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '17px', fontWeight: 800, color: '#0F172A', margin: 0, lineHeight: 1.25, letterSpacing: '-0.02em' }}>{headline}</h3>
+                  </div>
                 </div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: accent, background: accentBg, border: `1px solid ${accentBorder}`, padding: '3px 9px', borderRadius: '100px', marginBottom: '12px' }}>
-                  {label}
-                </div>
-                <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 10px', lineHeight: 1.25, letterSpacing: '-0.02em' }}>{headline}</h3>
                 <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.65, margin: '0 0 20px' }}>{body}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 700, color: accent }}>
                   {cta} <ArrowRight style={{ width: '13px', height: '13px' }} />
