@@ -246,11 +246,11 @@ export default function Home() {
             </motion.p>
             <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(26px, 3vw, 36px)', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.025em', margin: '0 0 14px' }}>
-              Built for how developers actually choose tools
+              Built for how people actually choose tools
             </motion.h2>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
               style={{ fontSize: '15px', color: '#475569', maxWidth: '480px', margin: '0 auto', lineHeight: 1.65 }}>
-              LaudStack is where the technical community discovers, evaluates, and launches AI & SaaS tools.
+              LaudStack is where professionals discover, evaluate, and launch AI & SaaS tools.
             </motion.p>
           </div>
 
@@ -596,7 +596,7 @@ export default function Home() {
                       <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: '1px 0 0' }}>Are you a founder?</h3>
                     </div>
                   </div>
-                  <p style={{ fontSize: '12px', color: '#78350F', fontWeight: 500, margin: '0 0 14px', lineHeight: 1.55 }}>Submit your tool and get discovered by thousands of developers. Free to list.</p>
+                  <p style={{ fontSize: '12px', color: '#78350F', fontWeight: 500, margin: '0 0 14px', lineHeight: 1.55 }}>Submit your tool and get discovered by thousands of buyers. Free to list.</p>
                   <button
                     onClick={go}
                     style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
