@@ -143,7 +143,7 @@ export default function Home() {
             transition={{ duration: 0.22 }}
             style={{ overflow: 'hidden', background: '#0F172A', borderBottom: '1px solid rgba(245,158,11,0.25)' }}
           >
-            <div className="max-w-[1400px] mx-auto px-6 lg:px-10" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '42px' }}>
+            <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '42px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'center' }}>
                 <span style={{ fontSize: '13px' }}>🎉</span>
                 <p style={{ fontSize: '13px', color: '#CBD5E1', fontWeight: 500, margin: 0 }}>
@@ -283,7 +283,7 @@ export default function Home() {
           2. THREE PILLARS — Discover · Review · Launch
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', padding: '88px 0 80px', borderBottom: '1px solid #F1F5F9' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
 
           {/* Section header — centered */}
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
@@ -345,7 +345,7 @@ export default function Home() {
           3. TRENDING THIS WEEK
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FAFAFA', padding: '80px 0', borderBottom: '1px solid #F1F5F9' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <SectionHeader
             label="Trending This Week"
             labelIcon={Flame}
@@ -372,7 +372,7 @@ export default function Home() {
           4. FRESH LAUNCHES
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', padding: '80px 0', borderBottom: '1px solid #F1F5F9' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <SectionHeader
             label="Fresh Launches"
             labelIcon={Sparkles}
@@ -445,7 +445,7 @@ export default function Home() {
           5. BROWSE BY CATEGORY + SIDEBAR
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#F8FAFC', padding: '80px 0 88px', borderBottom: '1px solid #E2E8F0' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
 
           <SectionHeader
             label="Browse by Category"
@@ -669,7 +669,7 @@ export default function Home() {
           6. LAUNCHPAD CTA — For Founders
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', padding: '88px 0', borderTop: '1px solid #F1F5F9' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <div style={{ borderRadius: '24px', border: '1px solid #FDE68A', background: 'linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 60%, #FFEDD5 100%)', overflow: 'hidden', boxShadow: '0 4px 32px rgba(245,158,11,0.1)' }}>
             <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 0 }}>
 

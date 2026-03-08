@@ -84,7 +84,7 @@ export default function Navbar() {
       <header
         className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-[0_1px_3px_0_rgba(0,0,0,0.06)]"
       >
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <div className="flex items-center h-[72px] gap-6">
 
             {/* ── Logo ── */}
