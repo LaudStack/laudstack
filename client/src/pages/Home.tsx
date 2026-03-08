@@ -119,6 +119,11 @@ export default function Home() {
   const [, navigate] = useLocation();
   const go = () => toast.info('Feature coming soon!');
   const goToTool = (slug: string) => navigate(`/tools/${slug}`);
+  const handleSearch = () => {
+    const q = searchQuery.trim();
+    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
+    else navigate('/search');
+  };
 
   const filteredBase = selectedCategory === 'All'
     ? MOCK_TOOLS
@@ -233,13 +238,13 @@ export default function Home() {
                 <input
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && go()}
+                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   placeholder="Search 95+ AI & SaaS tools..."
                   style={{ width: '100%', paddingLeft: '50px', paddingRight: '16px', height: '58px', fontSize: '15px', color: '#1E293B', background: 'transparent', border: 'none', outline: 'none' }}
                 />
               </div>
               <button
-                onClick={go}
+                onClick={handleSearch}
                 style={{ height: '58px', padding: '0 32px', fontWeight: 700, color: '#fff', fontSize: '14px', letterSpacing: '0.01em', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -252,7 +257,7 @@ export default function Home() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 600 }}>Popular:</span>
               {POPULAR_SEARCHES.map(term => (
-                <button key={term} onClick={go}
+                <button key={term} onClick={() => navigate(`/search?q=${encodeURIComponent(term)}`)}
                   style={{ fontSize: '12px', color: '#475569', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '4px 11px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.15s', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}
                   onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.target as HTMLButtonElement).style.color = '#B45309'; (e.target as HTMLButtonElement).style.background = '#FFFBEB'; }}
                   onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.target as HTMLButtonElement).style.color = '#475569'; (e.target as HTMLButtonElement).style.background = '#fff'; }}
