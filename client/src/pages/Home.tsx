@@ -403,14 +403,17 @@ export default function Home() {
                 <div style={{ height: '3px', background: `linear-gradient(90deg, ${LAUNCH_ACCENTS[i % 4].from}, ${LAUNCH_ACCENTS[i % 4].to})` }} />
 
                 <div style={{ padding: '20px 20px 18px', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {/* Logo + upvote row */}
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
-                    <div style={{ width: '50px', height: '50px', borderRadius: '13px', overflow: 'hidden', border: '1px solid #E2E8F0', flexShrink: 0, background: '#F8FAFC' }}>
-                      <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {/* Logo + name + upvote — all on same horizontal line */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+                      <div style={{ width: '46px', height: '46px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E2E8F0', flexShrink: 0, background: '#F8FAFC' }}>
+                        <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</h3>
                     </div>
                     <button
                       onClick={e => { e.stopPropagation(); go(); }}
-                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px', padding: '7px 11px', borderRadius: '10px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', cursor: 'pointer', transition: 'all 0.15s ease', minWidth: '44px' }}
+                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px', padding: '7px 11px', borderRadius: '10px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', cursor: 'pointer', transition: 'all 0.15s ease', minWidth: '44px', flexShrink: 0 }}
                       onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; }}
                     >
@@ -419,9 +422,8 @@ export default function Home() {
                     </button>
                   </div>
 
-                  {/* Name + tagline */}
+                  {/* Tagline */}
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#0F172A', margin: '0 0 5px', fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, letterSpacing: '-0.01em' }}>{tool.name}</h3>
                     <p style={{ fontSize: '13px', color: '#64748B', fontWeight: 400, margin: 0, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tool.tagline}</p>
                   </div>
 
