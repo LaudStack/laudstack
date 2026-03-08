@@ -1,8 +1,12 @@
 /*
- * LaudStack ToolCard — Premium "Warm Professional"
- * Design: Sleek horizontal card, refined logo, clean hierarchy,
- * subtle lift on hover, polished upvote, rank indicator
- * Target audience: experienced developers & technical founders
+ * LaudStack ToolCard — Enterprise-Grade Polish
+ *
+ * Design: "Warm Professional" — G2 meets ProductHunt
+ *  - Clean horizontal card with precise spacing
+ *  - Amber accent on upvote interaction
+ *  - Verified shield, pricing badge, category pill
+ *  - Smooth lift on hover with border-color transition
+ *  - Compact variant for leaderboard sidebar
  */
 
 import { useState } from 'react';
@@ -39,20 +43,21 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'xs
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>
       ))}
-      <span style={{ fontSize: size === 'xs' ? '12px' : '13px', color: '#1E293B', marginLeft: '3px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
+      <span style={{ fontSize: size === 'xs' ? '12px' : '13px', color: '#1E293B', marginLeft: '4px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
     </div>
   );
 }
 
 function RankBadge({ rank }: { rank: number }) {
   const isTop3 = rank <= 3;
-  const colors = ['#F59E0B', '#94A3B8', '#CD7C3E'];
+  const colors = ['#D97706', '#94A3B8', '#B45309'];
   return (
     <div style={{
-      width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      width: '32px', height: '32px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       background: isTop3 ? colors[rank - 1] : '#F1F5F9',
-          color: isTop3 ? '#fff' : '#374151',
+      color: isTop3 ? '#fff' : '#374151',
       fontWeight: 800, fontSize: '14px', fontFamily: "'Plus Jakarta Sans', sans-serif",
+      boxShadow: isTop3 ? `0 2px 6px rgba(0,0,0,0.15)` : 'none',
     }}>
       {rank}
     </div>
@@ -61,7 +66,7 @@ function RankBadge({ rank }: { rank: number }) {
 
 function RankChange({ change }: { change: number }) {
   if (change === 0) return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#94A3B8', fontSize: '11px', fontWeight: 600 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#CBD5E1', fontSize: '11px', fontWeight: 600 }}>
       <Minus style={{ width: '10px', height: '10px' }} />
     </div>
   );
@@ -111,7 +116,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       <div
         onClick={() => toast.info('Tool detail page coming soon!')}
         style={{
-          display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px',
+          display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 14px',
           background: hovered ? '#FAFAFA' : '#fff',
           border: '1px solid', borderColor: hovered ? '#E2E8F0' : '#F1F5F9',
           borderRadius: '12px', cursor: 'pointer', transition: 'all 0.15s',
@@ -120,12 +125,12 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
         onMouseLeave={() => setHovered(false)}
       >
         {rank && <RankBadge rank={rank} />}
-        <div style={{ width: '36px', height: '36px', borderRadius: '8px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
           <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</span>
+            <span style={{ fontWeight: 700, fontSize: '13px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</span>
             {tool.is_verified && <ShieldCheck style={{ width: '12px', height: '12px', color: '#10B981', flexShrink: 0 }} />}
           </div>
           <StarRating rating={tool.average_rating} size="xs" />
@@ -159,12 +164,13 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       onMouseLeave={() => setHovered(false)}
       style={{
         background: '#fff',
-        border: '1px solid', borderColor: hovered ? '#CBD5E1' : '#E2E8F0',
+        border: '1px solid',
+        borderColor: hovered ? '#CBD5E1' : '#E2E8F0',
         borderRadius: '16px',
-        padding: '20px',
+        padding: '20px 22px',
         cursor: 'pointer',
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: hovered ? '0 8px 30px rgba(0,0,0,0.08)' : '0 1px 4px rgba(0,0,0,0.04)',
+        boxShadow: hovered ? '0 8px 28px rgba(15,23,42,0.08)' : '0 1px 3px rgba(15,23,42,0.04)',
         transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
         position: 'relative',
         overflow: 'hidden',
@@ -172,7 +178,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
     >
       {/* Promotional banner */}
       {tool.promotional_banner && tool.is_pro && (
-        <div style={{ margin: '-20px -20px 16px -20px', padding: '8px 20px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ margin: '-20px -22px 18px -22px', padding: '8px 22px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: '12px', color: '#92400E', fontWeight: 500 }}>🎉 {tool.promotional_banner}</span>
           {tool.promotional_cta && (
             <button onClick={e => { e.stopPropagation(); handleVisit(e); }} style={{ fontSize: '11px', color: '#B45309', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
@@ -182,10 +188,8 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
         </div>
       )}
 
-      {/* Top row: logo + info + upvote */}
+      {/* Top row: rank + logo + info + upvote */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-
-        {/* Rank */}
         {rank && (
           <div style={{ paddingTop: '2px', flexShrink: 0 }}>
             <RankBadge rank={rank} />
@@ -193,14 +197,14 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
         )}
 
         {/* Logo */}
-        <div style={{ width: '52px', height: '52px', borderRadius: '12px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
+        <div style={{ width: '54px', height: '54px', borderRadius: '13px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
           <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
 
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <h3 style={{ fontWeight: 800, fontSize: '16px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2 }}>{tool.name}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '3px' }}>
+            <h3 style={{ fontWeight: 800, fontSize: '16px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, letterSpacing: '-0.015em' }}>{tool.name}</h3>
             {tool.is_verified && (
               <span title="Verified Tool"><ShieldCheck style={{ width: '14px', height: '14px', color: '#10B981', flexShrink: 0 }} /></span>
             )}
@@ -208,10 +212,10 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
               <span title="Pro Founder"><Zap style={{ width: '13px', height: '13px', color: '#F59E0B', flexShrink: 0 }} /></span>
             )}
           </div>
-          <p style={{ fontSize: '14px', color: '#374151', fontWeight: 500, margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.tagline}</p>
+          <p style={{ fontSize: '14px', color: '#64748B', fontWeight: 400, margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.4 }}>{tool.tagline}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <StarRating rating={tool.average_rating} />
-            <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>({tool.review_count} reviews)</span>
+            <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>({tool.review_count} reviews)</span>
           </div>
         </div>
 
@@ -220,38 +224,42 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
           onClick={handleUpvote}
           style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: '8px 12px', borderRadius: '10px', border: '1.5px solid',
+            padding: '8px 12px', borderRadius: '11px', border: '1.5px solid',
             borderColor: upvoted ? '#FDBA74' : '#E2E8F0',
             background: upvoted ? 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)' : '#F8FAFC',
             color: upvoted ? '#EA580C' : '#64748B',
             cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
-            minWidth: '48px',
+            minWidth: '50px',
+            boxShadow: upvoted ? '0 2px 8px rgba(245,158,11,0.2)' : 'none',
           }}
-          onMouseEnter={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FED7AA'; (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; } }}
-          onMouseLeave={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; } }}
+          onMouseEnter={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FED7AA'; (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; (e.currentTarget as HTMLButtonElement).style.background = '#FFF7ED'; } }}
+          onMouseLeave={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; } }}
         >
           <ChevronUp style={{ width: '16px', height: '16px' }} />
-          <span style={{ fontSize: '12px', fontWeight: 800, lineHeight: 1, marginTop: '1px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 800, lineHeight: 1, marginTop: '2px' }}>
             {upvoteCount >= 1000 ? `${(upvoteCount / 1000).toFixed(1)}k` : upvoteCount}
           </span>
         </button>
       </div>
 
       {/* Description */}
-      <p style={{ fontSize: '14px', color: '#334155', fontWeight: 500, margin: '14px 0 0', lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+      <p style={{ fontSize: '14px', color: '#475569', fontWeight: 400, margin: '14px 0 0', lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
         {tool.description}
       </p>
 
-      {/* Footer */}
+      {/* Footer row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           {/* Category */}
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '3px 8px' }}>
+          <span style={{
+            fontSize: '12px', fontWeight: 600, borderRadius: '7px', padding: '3px 9px', border: '1px solid',
+            background: '#F8FAFC', color: '#374151', borderColor: '#E2E8F0',
+          }}>
             {tool.category}
           </span>
           {/* Pricing model */}
           <span style={{
-            fontSize: '12px', fontWeight: 600, borderRadius: '6px', padding: '3px 8px', border: '1px solid',
+            fontSize: '12px', fontWeight: 600, borderRadius: '7px', padding: '3px 9px', border: '1px solid',
             ...(tool.pricing_model === 'Free'
               ? { background: '#F0FDF4', color: '#15803D', borderColor: '#BBF7D0' }
               : tool.pricing_model === 'Freemium'
@@ -265,7 +273,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
             const cfg = BADGE_CONFIG[badge];
             if (!cfg) return null;
             return (
-              <span key={badge} style={{ fontSize: '12px', fontWeight: 600, borderRadius: '6px', padding: '3px 8px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+              <span key={badge} style={{ fontSize: '12px', fontWeight: 600, borderRadius: '7px', padding: '3px 9px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
                 {cfg.label}
               </span>
             );
@@ -274,11 +282,11 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
 
         <button
           onClick={handleVisit}
-          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0, padding: '0 0 0 8px' }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'; }}
         >
-          Visit <ExternalLink style={{ width: '11px', height: '11px' }} />
+          Visit <ExternalLink style={{ width: '12px', height: '12px' }} />
         </button>
       </div>
     </div>
