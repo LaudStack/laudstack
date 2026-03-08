@@ -80,7 +80,7 @@
   --secondary-foreground: oklch(0.35 0.015 264);
 
   --muted: oklch(0.96 0.005 80);
-  --muted-foreground: oklch(0.52 0.015 264);
+  --muted-foreground: oklch(0.40 0.015 264);  /* Darker muted — was 0.52, now 0.40 for legibility */
 
   --accent: oklch(0.97 0.04 80);          /* amber tint */
   --accent-foreground: oklch(0.55 0.18 68);
@@ -165,14 +165,30 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: #1E293B;  /* Slate-800 — strong readable dark */
+  }
+  p {
+    color: #334155;  /* Slate-700 — high contrast body text */
+    line-height: 1.7;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--navy);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #0F172A;  /* Navy — maximum contrast headings */
+    line-height: 1.2;
+  }
+  a {
+    color: inherit;
+  }
+  /* Ensure small text is always readable */
+  small, .text-xs, .text-sm {
+    color: #374151;  /* Gray-700 — minimum contrast for small text */
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

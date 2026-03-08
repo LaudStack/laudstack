@@ -94,7 +94,7 @@ export default function Home() {
           {/* Subtext */}
           <motion.p
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
-            style={{ marginTop: '20px', fontSize: '17px', color: '#64748B', lineHeight: 1.65, maxWidth: '520px' }}
+            style={{ marginTop: '20px', fontSize: '17px', color: '#334155', lineHeight: 1.65, maxWidth: '520px' }}
           >
             Real reviews. Honest rankings. The smartest way to discover, compare, and choose the tools your business actually needs.
           </motion.p>
@@ -122,10 +122,10 @@ export default function Home() {
 
             {/* Popular tags */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>Popular:</span>
+              <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>Popular:</span>
               {POPULAR_SEARCHES.map(term => (
                 <button key={term} onClick={go}
-                  style={{ fontSize: '12px', color: '#475569', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: 500, transition: 'all 0.15s' }}
+                  style={{ fontSize: '12px', color: '#334155', background: '#fff', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.15s' }}
                   onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.target as HTMLButtonElement).style.color = '#B45309'; }}
                   onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.target as HTMLButtonElement).style.color = '#475569'; }}
                 >{term}</button>
@@ -143,17 +143,17 @@ export default function Home() {
                   <img key={i} src={`https://i.pravatar.cc/28?img=${i}`} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '2px solid #F8F9FA', marginLeft: i === 11 ? 0 : '-6px', objectFit: 'cover' }} />
                 ))}
               </div>
-              <span style={{ fontSize: '13px', color: '#64748B' }}><strong style={{ color: '#0F172A' }}>12,000+</strong> professionals</span>
+              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#0F172A' }}>12,000+</strong> professionals</span>
             </div>
             <div style={{ width: '1px', height: '18px', background: '#CBD5E1' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               {[1,2,3,4,5].map(i => <Star key={i} style={{ width: '14px', height: '14px', fill: '#FBBF24', color: '#FBBF24' }} />)}
-              <span style={{ fontSize: '13px', color: '#64748B', marginLeft: '4px' }}><strong style={{ color: '#0F172A' }}>4.9</strong> avg rating</span>
+              <span style={{ fontSize: '13px', color: '#475569', marginLeft: '4px', fontWeight: 500 }}><strong style={{ color: '#0F172A' }}>4.9</strong> avg rating</span>
             </div>
             <div style={{ width: '1px', height: '18px', background: '#CBD5E1' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CheckCircle2 style={{ width: '15px', height: '15px', color: '#10B981' }} />
-              <span style={{ fontSize: '13px', color: '#64748B' }}><strong style={{ color: '#0F172A' }}>98%</strong> verified reviews</span>
+              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#0F172A' }}>98%</strong> verified reviews</span>
             </div>
           </motion.div>
 
@@ -181,7 +181,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 What the community is loving right now
               </h2>
-              <p className="text-slate-500 mt-1.5 text-sm">Ranked by community votes, reviews, and engagement over the last 7 days.</p>
+              <p className="text-slate-600 mt-1.5 text-sm font-medium">Ranked by community votes, reviews, and engagement over the last 7 days.</p>
             </div>
             <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors group">
               View All Trending <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -212,7 +212,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Newly launched tools
               </h2>
-              <p className="text-slate-500 mt-1.5 text-sm">The latest AI and SaaS tools submitted by founders this week.</p>
+              <p className="text-slate-600 mt-1.5 text-sm font-medium">The latest AI and SaaS tools submitted by founders this week.</p>
             </div>
             <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors group">
               All New Launches <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -234,12 +234,12 @@ export default function Home() {
                   <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-wider">New</span>
                 </div>
                 <h3 className="font-bold text-slate-900 text-sm mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</h3>
-                <p className="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">{tool.tagline}</p>
+                <p className="text-xs text-slate-600 line-clamp-2 mb-3 leading-relaxed font-medium">{tool.tagline}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     <span className="text-xs font-semibold text-slate-700">{tool.average_rating.toFixed(1)}</span>
-                    <span className="text-xs text-slate-400">({tool.review_count})</span>
+                    <span className="text-xs text-slate-500 font-medium">({tool.review_count})</span>
                   </div>
                   <button onClick={e => { e.stopPropagation(); go(); }} className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition-colors">
                     <ChevronUp className="h-3.5 w-3.5" />
@@ -353,7 +353,7 @@ export default function Home() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-slate-900 truncate">{tool.name}</p>
-                          <p className="text-xs text-slate-400 truncate">{tool.category}</p>
+                          <p className="text-xs text-slate-500 font-medium truncate">{tool.category}</p>
                         </div>
                         <div className="flex flex-col items-end shrink-0">
                           <div className="flex items-center gap-0.5 text-xs font-bold text-slate-700">
@@ -389,9 +389,9 @@ export default function Home() {
                         {[1,2,3,4,5].map(i => (
                           <Star key={i} className={`h-3 w-3 ${i <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
                         ))}
-                        <span className="text-xs text-slate-400 ml-1">{review.user?.name}</span>
+                        <span className="text-xs text-slate-600 font-semibold ml-1">{review.user?.name}</span>
                       </div>
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{review.title}</p>
+                      <p className="text-xs text-slate-700 font-medium line-clamp-2 leading-relaxed">{review.title}</p>
                     </div>
                   ))}
                   <button onClick={go} className="w-full text-xs text-amber-600 font-semibold hover:text-amber-700 flex items-center justify-center gap-1 mt-2 transition-colors">
@@ -408,7 +408,7 @@ export default function Home() {
                       </div>
                       <h3 className="font-bold text-slate-900 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Are you a founder?</h3>
                     </div>
-                    <p className="text-xs text-slate-600 mb-4 leading-relaxed">Submit your tool and get discovered by thousands of buyers. Free to list.</p>
+                    <p className="text-xs text-slate-700 font-medium mb-4 leading-relaxed">Submit your tool and get discovered by thousands of buyers. Free to list.</p>
                     <button onClick={go} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-md hover:shadow-amber-500/30" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}>
                       <Rocket className="h-3.5 w-3.5" />
                       Go to LaunchPad
@@ -435,7 +435,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Top rated by the community
               </h2>
-              <p className="text-slate-500 mt-1.5 text-sm">Tools with the highest verified review scores across all categories.</p>
+              <p className="text-slate-600 mt-1.5 text-sm font-medium">Tools with the highest verified review scores across all categories.</p>
             </div>
             <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors group">
               View All Ratings <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -467,10 +467,10 @@ export default function Home() {
                   </div>
                   <span className="text-sm font-bold text-slate-900">{tool.average_rating.toFixed(1)}</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-3">{tool.review_count.toLocaleString()} verified reviews</p>
+                <p className="text-xs text-slate-600 font-medium mb-3">{tool.review_count.toLocaleString()} verified reviews</p>
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{tool.pricing_model}</span>
-                  <span className="text-xs text-amber-600 font-semibold group-hover:underline">View →</span>
+                  <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">{tool.pricing_model}</span>
+                      <span className="text-xs text-amber-700 font-bold group-hover:underline">View →</span>
                 </div>
               </motion.div>
             ))}
@@ -492,7 +492,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Featured Tools
               </h2>
-              <p className="text-slate-500 mt-1.5 text-sm">Hand-picked by the LaudStack team for exceptional quality and user satisfaction.</p>
+              <p className="text-slate-600 mt-1.5 text-sm font-medium">Hand-picked by the LaudStack team for exceptional quality and user satisfaction.</p>
             </div>
             <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-purple-600 hover:text-purple-700 transition-colors group">
               View All Featured <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -563,7 +563,7 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{label}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                        <p className="text-xs text-slate-600 font-medium mt-0.5">{desc}</p>
                       </div>
                     </div>
                   ))}

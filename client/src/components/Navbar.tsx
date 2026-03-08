@@ -75,8 +75,8 @@ export default function Navbar() {
   const go = () => toast.info('Feature coming soon!');
 
   // Hero is now light (G2-style), so nav text is always dark
-  const navText   = 'text-slate-700 hover:text-slate-900';
-  const navHoverBg = 'hover:bg-slate-50';
+  const navText   = 'text-slate-800 hover:text-slate-950';
+  const navHoverBg = 'hover:bg-slate-100';
 
   return (
     <>
@@ -112,7 +112,7 @@ export default function Navbar() {
                 >
                   <button
                     onClick={go}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${navText} ${navHoverBg}`}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-all ${navText} ${navHoverBg}`}
                   >
                     {item.label}
                     {item.megaMenu && (
@@ -143,8 +143,8 @@ export default function Navbar() {
                                 <Icon className="h-4 w-4 text-amber-600" />
                               </div>
                               <div>
-                                <div className="text-sm font-semibold text-slate-900">{label}</div>
-                                <div className="text-xs text-slate-500 mt-0.5">{desc}</div>
+                                <div className="text-sm font-bold text-slate-900">{label}</div>
+                                <div className="text-xs text-slate-600 mt-0.5 font-medium">{desc}</div>
                               </div>
                             </button>
                           ))}
@@ -161,7 +161,7 @@ export default function Navbar() {
               {/* Search pill */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm transition-all border text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 border-slate-200"
+                className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border-slate-200"
               >
                 <Search className="h-4 w-4" />
                 <span className="hidden xl:inline">Search tools...</span>
@@ -171,7 +171,7 @@ export default function Navbar() {
               {/* Sign In */}
               <button
                 onClick={go}
-                className="text-sm font-medium px-4 py-2 rounded-xl transition-all text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+                className="text-sm font-semibold px-4 py-2 rounded-xl transition-all text-slate-800 hover:text-slate-950 hover:bg-slate-100"
               >
                 Sign In
               </button>
@@ -271,13 +271,13 @@ export default function Navbar() {
 
               {/* Popular searches */}
               <div className="px-5 py-5">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Popular Searches</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Popular Searches</p>
                 <div className="flex flex-wrap gap-2">
                   {POPULAR_SEARCHES.map(tag => (
                     <button
                       key={tag}
                       onClick={() => { setSearchOpen(false); go(); }}
-                      className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-amber-50 hover:text-amber-700 text-sm text-slate-600 transition-colors border border-slate-100 hover:border-amber-200"
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-amber-50 hover:text-amber-700 text-sm font-medium text-slate-700 transition-colors border border-slate-200 hover:border-amber-200"
                     >
                       {tag}
                     </button>

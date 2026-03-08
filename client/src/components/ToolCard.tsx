@@ -39,7 +39,7 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'xs
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>
       ))}
-      <span style={{ fontSize: size === 'xs' ? '11px' : '12px', color: '#64748B', marginLeft: '3px', fontWeight: 600 }}>{rating.toFixed(1)}</span>
+      <span style={{ fontSize: size === 'xs' ? '11px' : '12px', color: '#1E293B', marginLeft: '3px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
     </div>
   );
 }
@@ -51,7 +51,7 @@ function RankBadge({ rank }: { rank: number }) {
     <div style={{
       width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       background: isTop3 ? colors[rank - 1] : '#F1F5F9',
-      color: isTop3 ? '#fff' : '#64748B',
+          color: isTop3 ? '#fff' : '#374151',
       fontWeight: 800, fontSize: '13px', fontFamily: "'Plus Jakarta Sans', sans-serif",
     }}>
       {rank}
@@ -208,10 +208,10 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
               <span title="Pro Founder"><Zap style={{ width: '13px', height: '13px', color: '#F59E0B', flexShrink: 0 }} /></span>
             )}
           </div>
-          <p style={{ fontSize: '13px', color: '#64748B', margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.tagline}</p>
+          <p style={{ fontSize: '13px', color: '#374151', fontWeight: 500, margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.tagline}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <StarRating rating={tool.average_rating} />
-            <span style={{ fontSize: '11px', color: '#94A3B8' }}>({tool.review_count} reviews)</span>
+            <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>({tool.review_count} reviews)</span>
           </div>
         </div>
 
@@ -238,7 +238,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       </div>
 
       {/* Description */}
-      <p style={{ fontSize: '13px', color: '#475569', margin: '14px 0 0', lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+      <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: '14px 0 0', lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
         {tool.description}
       </p>
 
@@ -246,7 +246,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           {/* Category */}
-          <span style={{ fontSize: '11px', fontWeight: 600, color: '#475569', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '3px 8px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#374151', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '3px 8px' }}>
             {tool.category}
           </span>
           {/* Pricing model */}
@@ -256,7 +256,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
               ? { background: '#F0FDF4', color: '#15803D', borderColor: '#BBF7D0' }
               : tool.pricing_model === 'Freemium'
               ? { background: '#EFF6FF', color: '#1D4ED8', borderColor: '#BFDBFE' }
-              : { background: '#F8FAFC', color: '#475569', borderColor: '#E2E8F0' })
+              : { background: '#F1F5F9', color: '#374151', borderColor: '#CBD5E1' })
           }}>
             {tool.pricing_model}
           </span>
@@ -274,9 +274,9 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
 
         <button
           onClick={handleVisit}
-          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 600, color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0 }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; }}
         >
           Visit <ExternalLink style={{ width: '11px', height: '11px' }} />
         </button>

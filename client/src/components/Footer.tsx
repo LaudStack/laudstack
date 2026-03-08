@@ -53,7 +53,7 @@ export default function Footer() {
               <h3 className="text-2xl font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Own your narrative on LaudStack
               </h3>
-              <p className="text-slate-400 mt-1 text-sm max-w-md">
+              <p className="text-slate-300 mt-1 text-sm max-w-md font-medium">
                 Claim your tool page, respond to reviews, add a promotional banner, and access real analytics. Everything you need to turn your listing into a growth channel.
               </p>
             </div>
@@ -86,7 +86,7 @@ export default function Footer() {
             <Link href="/">
               <img src="/logo-dark-transparent.png" alt="LaudStack" className="h-8 w-auto mb-4 opacity-90" />
             </Link>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="text-slate-300 text-sm leading-relaxed mb-6 max-w-xs font-medium">
               The trusted community platform where founders launch their AI and SaaS tools, users discover the best software, and the community curates quality.
             </p>
 
@@ -98,7 +98,7 @@ export default function Footer() {
               <div className="flex gap-2">
                 <Input
                   placeholder="your@email.com"
-                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-500 h-9 text-sm"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-400 h-9 text-sm"
                 />
                 <Button
                   size="sm"
@@ -140,7 +140,7 @@ export default function Footer() {
                     <Link
                       href={href}
                       onClick={handleComingSoon}
-                      className="text-slate-400 hover:text-amber-400 text-sm transition-colors"
+                      className="text-slate-300 hover:text-amber-400 text-sm font-medium transition-colors"
                     >
                       {label}
                     </Link>
@@ -155,10 +155,10 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-white/10">
         <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-500 text-sm">
+          <p className="text-slate-400 text-sm font-medium">
             © {new Date().getFullYear()} LaudStack. All rights reserved.
           </p>
-          <div className="flex items-center gap-1 text-slate-500 text-sm">
+          <div className="flex items-center gap-1 text-slate-400 text-sm font-medium">
             <span>Built for founders, by founders.</span>
             <span className="text-amber-500 ml-1">✦</span>
           </div>
