@@ -39,7 +39,7 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'xs
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>
       ))}
-      <span style={{ fontSize: size === 'xs' ? '11px' : '12px', color: '#1E293B', marginLeft: '3px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
+      <span style={{ fontSize: size === 'xs' ? '12px' : '13px', color: '#1E293B', marginLeft: '3px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
     </div>
   );
 }
@@ -52,7 +52,7 @@ function RankBadge({ rank }: { rank: number }) {
       width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       background: isTop3 ? colors[rank - 1] : '#F1F5F9',
           color: isTop3 ? '#fff' : '#374151',
-      fontWeight: 800, fontSize: '13px', fontFamily: "'Plus Jakarta Sans', sans-serif",
+      fontWeight: 800, fontSize: '14px', fontFamily: "'Plus Jakarta Sans', sans-serif",
     }}>
       {rank}
     </div>
@@ -125,7 +125,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontWeight: 700, fontSize: '13px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</span>
+            <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</span>
             {tool.is_verified && <ShieldCheck style={{ width: '12px', height: '12px', color: '#10B981', flexShrink: 0 }} />}
           </div>
           <StarRating rating={tool.average_rating} size="xs" />
@@ -200,7 +200,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2 }}>{tool.name}</h3>
+            <h3 style={{ fontWeight: 800, fontSize: '16px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2 }}>{tool.name}</h3>
             {tool.is_verified && (
               <span title="Verified Tool"><ShieldCheck style={{ width: '14px', height: '14px', color: '#10B981', flexShrink: 0 }} /></span>
             )}
@@ -208,10 +208,10 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
               <span title="Pro Founder"><Zap style={{ width: '13px', height: '13px', color: '#F59E0B', flexShrink: 0 }} /></span>
             )}
           </div>
-          <p style={{ fontSize: '13px', color: '#374151', fontWeight: 500, margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.tagline}</p>
+          <p style={{ fontSize: '14px', color: '#374151', fontWeight: 500, margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.tagline}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <StarRating rating={tool.average_rating} />
-            <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>({tool.review_count} reviews)</span>
+            <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>({tool.review_count} reviews)</span>
           </div>
         </div>
 
@@ -238,7 +238,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       </div>
 
       {/* Description */}
-      <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: '14px 0 0', lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+      <p style={{ fontSize: '14px', color: '#334155', fontWeight: 500, margin: '14px 0 0', lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
         {tool.description}
       </p>
 
@@ -246,12 +246,12 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           {/* Category */}
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#374151', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '3px 8px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '3px 8px' }}>
             {tool.category}
           </span>
           {/* Pricing model */}
           <span style={{
-            fontSize: '11px', fontWeight: 600, borderRadius: '6px', padding: '3px 8px', border: '1px solid',
+            fontSize: '12px', fontWeight: 600, borderRadius: '6px', padding: '3px 8px', border: '1px solid',
             ...(tool.pricing_model === 'Free'
               ? { background: '#F0FDF4', color: '#15803D', borderColor: '#BBF7D0' }
               : tool.pricing_model === 'Freemium'
@@ -265,7 +265,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
             const cfg = BADGE_CONFIG[badge];
             if (!cfg) return null;
             return (
-              <span key={badge} style={{ fontSize: '11px', fontWeight: 600, borderRadius: '6px', padding: '3px 8px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+              <span key={badge} style={{ fontSize: '12px', fontWeight: 600, borderRadius: '6px', padding: '3px 8px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
                 {cfg.label}
               </span>
             );
@@ -274,7 +274,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
 
         <button
           onClick={handleVisit}
-          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0 }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; }}
         >
