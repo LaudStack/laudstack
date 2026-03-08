@@ -64,40 +64,40 @@ export default function Home() {
           massive bold headline, floating review cards,
           prominent search bar, clean & authoritative
       ═══════════════════════════════════════════════════ */}
-      <section className="relative pt-28 pb-0 overflow-hidden bg-[#F8F9FA]">
+      <section className="relative pt-24 pb-16 overflow-hidden bg-[#F8F9FA] min-h-[calc(100vh-72px)] flex items-center">
 
         {/* ── Main hero content ── */}
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 relative">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 relative w-full">
           <div className="flex flex-col items-center">
 
             {/* ── HEADLINE ── */}
             <motion.h1
               initial="hidden" animate="visible" variants={fadeUp} custom={0}
-              className="text-center text-[52px] md:text-[68px] xl:text-[84px] font-black text-slate-900 leading-[1.0] tracking-[-0.03em] max-w-3xl mx-auto pt-4"
+              className="text-center text-[38px] md:text-[52px] xl:text-[64px] font-black text-slate-900 leading-[1.08] tracking-[-0.025em] max-w-3xl mx-auto"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Where you go for{' '}
+              The Trusted Source for{' '}
               <span style={{
                 background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}>
-                AI & SaaS.
+                AI & SaaS Tools.
               </span>
             </motion.h1>
 
             <motion.p
               initial="hidden" animate="visible" variants={fadeUp} custom={1}
-              className="text-center mt-5 text-lg md:text-xl text-slate-500 max-w-xl mx-auto leading-relaxed"
+              className="text-center mt-4 text-base md:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed"
             >
-              Discover, compare, and review the best AI tools and SaaS products — ranked by real users, not ad spend.
+              Real reviews. Honest rankings. The smartest way to discover, compare, and choose the AI & SaaS tools your business actually needs.
             </motion.p>
 
             {/* ── SEARCH BAR ── */}
             <motion.div
               initial="hidden" animate="visible" variants={fadeUp} custom={2}
-              className="mt-9 w-full max-w-[640px] mx-auto"
+              className="mt-8 w-full max-w-[600px] mx-auto"
             >
               <div className="flex items-center bg-white rounded-xl shadow-xl shadow-slate-200/60 border border-slate-200 overflow-hidden">
                 <div className="relative flex-1">
@@ -137,7 +137,7 @@ export default function Home() {
             {/* ── SOCIAL PROOF ROW ── */}
             <motion.div
               initial="hidden" animate="visible" variants={fadeUp} custom={3}
-              className="mt-8 flex items-center justify-center gap-8 flex-wrap pb-14"
+              className="mt-6 flex items-center justify-center gap-8 flex-wrap"
             >
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-1.5">
