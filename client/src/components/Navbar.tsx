@@ -209,7 +209,7 @@ export default function Navbar() {
 
               {/* Sign In */}
               <button
-                onClick={go}
+                onClick={() => navigate('/signin')}
                 className="text-sm font-semibold px-4 py-2 rounded-xl transition-all text-slate-800 hover:text-slate-950 hover:bg-slate-100"
               >
                 Sign In
@@ -256,7 +256,7 @@ export default function Navbar() {
                   </button>
                 ))}
                 <div className="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
-                  <button onClick={go} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl">
+                  <button onClick={() => { navigate('/signin'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl">
                     Sign In
                   </button>
                   <Button

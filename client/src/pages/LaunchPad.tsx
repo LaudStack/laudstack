@@ -418,8 +418,12 @@ export default function LaunchPad() {
     const err = validate(step, form);
     if (err) { toast.error(err); return; }
     setStep(s => Math.min(s + 1, 5));
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
-  const goBack = () => setStep(s => Math.max(s - 1, 1));
+  const goBack = () => {
+    setStep(s => Math.max(s - 1, 1));
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 
   const handleSubmit = () => {
     const err = validate(step, form);

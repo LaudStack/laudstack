@@ -80,10 +80,10 @@
   --secondary-foreground: oklch(0.35 0.015 264);
 
   --muted: oklch(0.96 0.005 80);
-  --muted-foreground: oklch(0.40 0.015 264);  /* Darker muted — was 0.52, now 0.40 for legibility */
+  --muted-foreground: oklch(0.38 0.015 264);  /* Strong muted — high contrast for secondary text */
 
   --accent: oklch(0.97 0.04 80);          /* amber tint */
-  --accent-foreground: oklch(0.55 0.18 68);
+  --accent-foreground: oklch(0.40 0.18 68);
 
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
@@ -167,14 +167,15 @@
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     line-height: 1.7;
-    font-weight: 450;
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #1E293B;  /* Slate-800 — strong readable dark */
   }
   p {
-    color: #334155;  /* Slate-700 — high contrast body text */
+    color: #1E293B;
     line-height: 1.7;
+    font-weight: 450;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -186,14 +187,9 @@
   a {
     color: inherit;
   }
-  /* Ensure small text is always readable */
-  small, .text-xs {
+  /* Ensure small text is always readable — size only, no color override */
+  small {
     font-size: 0.8125rem; /* 13px instead of 12px */
-    color: #374151;
-  }
-  .text-sm {
-    font-size: 0.9375rem; /* 15px instead of 14px */
-    color: #374151;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

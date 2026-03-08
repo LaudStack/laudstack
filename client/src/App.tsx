@@ -10,19 +10,25 @@ import SearchResults from './pages/SearchResults';
 import LaunchPad from './pages/LaunchPad';
 import Categories from './pages/Categories';
 import Reviews from './pages/Reviews';
+import SignIn from './pages/SignIn';
+import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/tools/:slug" component={ToolDetail} />
-      <Route path="/search" component={SearchResults} />
-      <Route path="/launchpad" component={LaunchPad} />
-      <Route path="/categories" component={Categories} />
-      <Route path="/reviews" component={Reviews} />
-      <Route path="/404" component={NotFound} />
-      <Route component={NotFound} />
-    </Switch>
+    <>
+      <ScrollToTop />
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/tools/:slug" component={ToolDetail} />
+        <Route path="/search" component={SearchResults} />
+        <Route path="/launchpad" component={LaunchPad} />
+        <Route path="/categories" component={Categories} />
+        <Route path="/reviews" component={Reviews} />
+        <Route path="/signin" component={SignIn} />
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 
