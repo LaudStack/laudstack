@@ -14,7 +14,8 @@ import {
   Search, Rocket, ChevronDown, Menu, X,
   Zap, BarChart3, Star, Trophy, BookOpen,
   TrendingUp, Users, Shield, Layers, ArrowRight,
-  User, Settings, FileText, LogOut, PenSquare, Bookmark
+  User, Settings, FileText, LogOut, PenSquare, Bookmark,
+  Tag, Package, DollarSign, Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { MOCK_TOOLS } from '@/lib/mockData';
@@ -46,10 +47,13 @@ const NAV_ITEMS = [
   {
     label: 'Resources',
     megaMenu: [
-      { icon: BookOpen,  label: 'Blog',             desc: 'SaaS insights and guides',     href: '/about' },
-      { icon: BarChart3, label: 'Trust Framework',  desc: 'How we verify reviews',         href: '/trust' },
-      { icon: Users,     label: 'About LaudStack',  desc: 'Our mission and team',          href: '/about' },
-      { icon: Shield,    label: 'Contact Us',       desc: 'Get in touch with our team',    href: '/contact' },
+      { icon: Tag,       label: 'SaaS Deals',       desc: 'Exclusive discounts & lifetime deals', href: '/deals' },
+      { icon: Package,   label: 'Templates',        desc: 'Production-ready starter kits',        href: '/templates' },
+      { icon: Crown,     label: 'Pricing',          desc: 'Free, Pro & Enterprise plans',         href: '/pricing' },
+      { icon: Rocket,    label: 'Claim Your Tool',  desc: 'Verify ownership & get Pro badge',     href: '/claim' },
+      { icon: Shield,    label: 'Trust Framework',  desc: 'How we verify reviews',                href: '/trust' },
+      { icon: Users,     label: 'About LaudStack',  desc: 'Our mission and team',                 href: '/about' },
+      { icon: FileText,  label: 'Contact Us',       desc: 'Get in touch with our team',           href: '/contact' },
     ],
   },
 ];
@@ -199,18 +203,18 @@ export default function Navbar() {
                         className="absolute top-full left-0 mt-1.5 w-72 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100/80 overflow-hidden"
                       >
                         <div className="p-2">
-                          {item.megaMenu.map(({ icon: Icon, label, desc }) => (
+                          {(item.megaMenu as Array<{ icon: React.ElementType; label: string; desc: string; href?: string }>).map((menuItem) => (
                             <button
-                              key={label}
-                              onClick={go}
+                              key={menuItem.label}
+                              onClick={() => { setActiveMega(null); if (menuItem.href) navigate(menuItem.href); else go(); }}
                               className="w-full flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left group"
                             >
                               <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-100 transition-colors">
-                                <Icon className="h-4 w-4 text-amber-600" />
+                                <menuItem.icon className="h-4 w-4 text-amber-600" />
                               </div>
                               <div>
-                                <div className="text-sm font-bold text-slate-900">{label}</div>
-                                <div className="text-xs text-slate-600 mt-0.5 font-medium">{desc}</div>
+                                <div className="text-sm font-bold text-slate-900">{menuItem.label}</div>
+                                <div className="text-xs text-slate-600 mt-0.5 font-medium">{menuItem.desc}</div>
                               </div>
                             </button>
                           ))}
