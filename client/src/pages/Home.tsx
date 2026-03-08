@@ -99,6 +99,8 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
+      {/* Spacer to clear the fixed 72px navbar */}
+      <div style={{ height: '72px', flexShrink: 0 }} />
 
       {/* ══════════════════════════════════════════════════════
           ANNOUNCEMENT BANNER — dismissible, below navbar
@@ -141,7 +143,7 @@ export default function Home() {
       ══════════════════════════════════════════════════════ */}
       <section
         className="relative bg-[#F8F9FA]"
-        style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '96px', paddingBottom: '100px', paddingLeft: '24px', paddingRight: '24px' }}
+        style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '60px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px' }}
       >
         <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: '700px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(245,158,11,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
