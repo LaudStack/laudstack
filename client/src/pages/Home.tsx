@@ -67,8 +67,8 @@ export default function Home() {
       <section className="relative overflow-hidden bg-[#F8F9FA]" style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
         {/* ── Main hero content ── */}
-        <div className="w-full max-w-3xl mx-auto px-6 lg:px-10 relative">
-          <div className="flex flex-col items-center text-center">
+        <div style={{ width: '100%', maxWidth: '760px', marginLeft: 'auto', marginRight: 'auto', padding: '0 24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
 
             {/* ── HEADLINE ── */}
             <motion.h1
