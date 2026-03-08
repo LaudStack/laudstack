@@ -115,7 +115,7 @@ export default function Home() {
             transition={{ duration: 0.25 }}
             style={{ overflow: 'hidden', background: 'linear-gradient(90deg, #0F172A 0%, #1E293B 100%)', borderBottom: '1px solid rgba(245,158,11,0.2)' }}
           >
-            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '44px' }}>
+            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '44px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'center' }}>
                 <span style={{ fontSize: '14px' }}>🎉</span>
                 <p style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: 500, margin: 0 }}>
@@ -238,7 +238,7 @@ export default function Home() {
           Users need to understand WHY this place is different.
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', padding: '80px 0 72px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
               style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>
@@ -296,7 +296,7 @@ export default function Home() {
           Show what's popular before showing what's best.
       ══════════════════════════════════════════════════════ */}
       <section className="py-20 bg-[#F8FAFC] border-y border-slate-100">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-end justify-between mb-10">
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -330,7 +330,7 @@ export default function Home() {
           Founders' tools get visibility; users get first-mover edge.
       ══════════════════════════════════════════════════════ */}
       <section className="py-20 bg-[#F8FAFC] border-y border-slate-100">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-end justify-between mb-10">
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -403,7 +403,7 @@ export default function Home() {
           Placed after trust sections so intent is high.
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#F8FAFC', borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '72px 40px 80px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '72px 40px 80px' }}>
 
           {/* ── Section header ── */}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '28px' }}>
@@ -625,7 +625,7 @@ export default function Home() {
           Founders see this after seeing the platform's quality.
       ══════════════════════════════════════════════════════ */}
       <section className="py-20 bg-slate-50 border-y border-slate-100">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               <div className="p-10 lg:p-14">
