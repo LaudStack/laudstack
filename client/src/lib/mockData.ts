@@ -220,13 +220,14 @@ export const MOCK_REVIEWS: Review[] = [
 ];
 
 export const CATEGORIES = [
-  { name: 'All', icon: '✦', count: 95 },
-  { name: 'AI Writing', icon: '✍️', count: 18 },
-  { name: 'AI Image', icon: '🎨', count: 12 },
-  { name: 'AI Code', icon: '💻', count: 14 },
-  { name: 'AI Video', icon: '🎬', count: 8 },
-  { name: 'AI Productivity', icon: '⚡', count: 16 },
-  { name: 'Marketing', icon: '📣', count: 11 },
-  { name: 'Developer Tools', icon: '🛠️', count: 9 },
-  { name: 'Design', icon: '🎭', count: 7 },
+  { name: 'All', icon: '✦', count: 18 },
+  { name: 'AI Productivity', icon: '⚡', count: 4 },
+  { name: 'Design', icon: '🎨', count: 3 },
+  { name: 'AI Code', icon: '💻', count: 2 },
+  { name: 'AI Video', icon: '🎬', count: 2 },
+  { name: 'AI Writing', icon: '✍️', count: 2 },
+  { name: 'Developer Tools', icon: '🛠️', count: 2 },
+  { name: 'AI Image', icon: '🖼️', count: 1 },
+  { name: 'AI Analytics', icon: '📊', count: 1 },
+  { name: 'Project Management', icon: '📋', count: 1 },
 ];
