@@ -704,28 +704,49 @@ export default function Home() {
           </div>
 
           {/* Pricing filter row */}
-          <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', marginRight: '4px' }}>Pricing:</span>
-            {['All', 'Free', 'Freemium', 'Paid', 'Free Trial', 'Open Source'].map((p) => {
-              const active = selectedPricing === p;
-              return (
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Filter by Pricing</span>
+              {selectedPricing !== 'All' && (
                 <button
-                  key={p}
-                  onClick={() => setSelectedPricing(p)}
-                  style={{
-                    padding: '5px 12px', borderRadius: '8px', cursor: 'pointer',
-                    fontSize: '12px', fontWeight: 600, transition: 'all 0.15s',
-                    border: active ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
-                    background: active ? '#FFFBEB' : '#FFFFFF',
-                    color: active ? '#B45309' : '#64748B',
-                  }}
-                  onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; } }}
-                  onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; } }}
+                  onClick={() => setSelectedPricing('All')}
+                  style={{ fontSize: '11px', fontWeight: 600, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px' }}
                 >
-                  {p}
+                  Clear
                 </button>
-              );
-            })}
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {([
+                { key: 'All',         label: 'All Pricing',  emoji: '🔍', activeColor: '#0F172A', activeBg: '#F1F5F9', activeBorder: '#CBD5E1' },
+                { key: 'Free',        label: 'Free',         emoji: '🎁', activeColor: '#065F46', activeBg: '#ECFDF5', activeBorder: '#6EE7B7' },
+                { key: 'Freemium',    label: 'Freemium',     emoji: '⚡', activeColor: '#92400E', activeBg: '#FFFBEB', activeBorder: '#FCD34D' },
+                { key: 'Paid',        label: 'Paid',         emoji: '💳', activeColor: '#1E3A5F', activeBg: '#EFF6FF', activeBorder: '#93C5FD' },
+                { key: 'Free Trial',  label: 'Free Trial',   emoji: '🕐', activeColor: '#4C1D95', activeBg: '#F5F3FF', activeBorder: '#C4B5FD' },
+                { key: 'Open Source', label: 'Open Source',  emoji: '🔓', activeColor: '#1F2937', activeBg: '#F9FAFB', activeBorder: '#9CA3AF' },
+              ] as const).map(({ key, label, emoji, activeColor, activeBg, activeBorder }) => {
+                const active = selectedPricing === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedPricing(key)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '6px',
+                      padding: '7px 14px', borderRadius: '10px', cursor: 'pointer',
+                      fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
+                      border: active ? `1.5px solid ${activeBorder}` : '1.5px solid #E2E8F0',
+                      background: active ? activeBg : '#FFFFFF',
+                      color: active ? activeColor : '#64748B',
+                      boxShadow: active ? `0 2px 8px ${activeBorder}55` : '0 1px 2px rgba(15,23,42,0.04)',
+                      transform: active ? 'translateY(-1px)' : 'translateY(0)',
+                    }}
+                  >
+                    <span style={{ fontSize: '14px', lineHeight: 1 }}>{emoji}</span>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Two-column layout */}
