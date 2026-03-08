@@ -22,6 +22,9 @@ import Trust from './pages/Trust';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 import FounderDashboard from './pages/FounderDashboard';
+import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
+import Welcome from './pages/Welcome';
 import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
@@ -44,6 +47,9 @@ function Router() {
         <Route path="/contact" component={Contact} />
         <Route path="/dashboard/founder" component={FounderDashboard} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/verify-email" component={VerifyEmail} />
+        <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/welcome" component={Welcome} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

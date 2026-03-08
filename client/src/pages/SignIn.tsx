@@ -51,7 +51,12 @@ export default function SignIn() {
     signIn(displayName, email);
     setLoading(false);
     setDone(true);
-    setTimeout(() => navigate(returnUrl), 1500);
+    // Sign-up → verify email; sign-in → return URL
+    if (isSignUp) {
+      setTimeout(() => navigate('/verify-email'), 1500);
+    } else {
+      setTimeout(() => navigate(returnUrl), 1500);
+    }
   };
 
   const handleSocial = (provider: string) => {
@@ -213,7 +218,7 @@ export default function SignIn() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <label style={{ fontSize: '11px', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Password</label>
                   {!isSignUp && (
-                    <button type="button" onClick={() => toast.info('Password reset coming soon!')} style={{ fontSize: '12px', fontWeight: 600, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Forgot password?</button>
+                    <a href="/reset-password" style={{ fontSize: '12px', fontWeight: 600, color: '#D97706', textDecoration: 'none' }}>Forgot password?</a>
                   )}
                 </div>
                 <div style={{ position: 'relative' }}>

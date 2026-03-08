@@ -65,6 +65,7 @@ interface FormData {
   website: string;
   description: string;
   logo: string;
+  launchDate: string;  // ISO date string YYYY-MM-DD
   // Step 2
   category: string;
   tags: string[];
@@ -77,7 +78,7 @@ interface FormData {
 }
 
 const INITIAL_FORM: FormData = {
-  name: '', tagline: '', website: '', description: '', logo: '',
+  name: '', tagline: '', website: '', description: '', logo: '', launchDate: '',
   category: '', tags: [],
   pricingModel: '', plans: [{ name: 'Starter', price: '', period: 'month', features: '' }],
   screenshots: [''], demoVideo: '',
@@ -130,6 +131,47 @@ function StepToolInfo({ form, setForm }: { form: FormData; setForm: (f: FormData
           onFocus={focusStyle} onBlur={blurStyle} />
         <div style={charCount}>{form.description.length} chars {form.description.length < 100 ? `(${100 - form.description.length} more recommended)` : '✓'}</div>
       </div>
+      {/* Launch Date */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div>
+          <label style={labelStyle}>Launch Date</label>
+          <input
+            type="date"
+            value={form.launchDate}
+            onChange={e => field('launchDate', e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            style={inputStyle}
+            onFocus={focusStyle}
+            onBlur={blurStyle}
+          />
+          <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px' }}>Leave blank to list immediately after review</div>
+        </div>
+        <div>
+          <label style={labelStyle}>Launch Type</label>
+          <select
+            value={form.launchDate ? 'scheduled' : 'immediate'}
+            onChange={e => { if (e.target.value === 'immediate') field('launchDate', ''); }}
+            style={{ ...inputStyle, cursor: 'pointer' }}
+          >
+            <option value="immediate">Immediate — go live after review</option>
+            <option value="scheduled">Scheduled — pick a launch date</option>
+          </select>
+        </div>
+      </div>
+      {/* Launch date info banner */}
+      {form.launchDate && (
+        <div style={{ padding: '12px 16px', background: '#EFF6FF', borderRadius: '10px', border: '1px solid #BFDBFE', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: '16px' }}>📅</span>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#1D4ED8', marginBottom: '2px' }}>Scheduled Launch</div>
+            <div style={{ fontSize: '12px', color: '#3B82F6', lineHeight: 1.5 }}>
+              Your tool will appear in the "Upcoming Launches" section and go live on{' '}
+              <strong>{new Date(form.launchDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>.
+              A countdown timer will build anticipation with the community.
+            </div>
+          </div>
+        </div>
+      )}
       {/* Logo preview */}
       {form.logo && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
@@ -356,6 +398,10 @@ function StepReview({ form }: { form: FormData }) {
         <Row label="Screenshots" value={`${form.screenshots.filter(Boolean).length} added`} />
         <Row label="Demo Video" value={form.demoVideo || 'None'} />
       </Section>
+      <Section title="Launch">
+        <Row label="Launch Date" value={form.launchDate ? new Date(form.launchDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' }) : 'Immediate (after review)'} />
+        <Row label="Status" value={form.launchDate ? 'Scheduled — countdown will appear on Launches page' : 'Will go live within 48h of approval'} />
+      </Section>
       <div style={{ padding: '14px 16px', background: '#FFFBEB', borderRadius: '10px', border: '1px solid #FDE68A', display: 'flex', gap: '10px' }}>
         <Shield style={{ width: '16px', height: '16px', color: '#F59E0B', flexShrink: 0, marginTop: '1px' }} />
         <p style={{ fontSize: '12px', color: '#92400E', lineHeight: 1.5, margin: 0 }}>
@@ -448,9 +494,21 @@ export default function LaunchPad() {
             <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0F172A', marginBottom: '12px' }}>
               {form.name} is submitted! 🎉
             </h1>
-            <p style={{ fontSize: '15px', color: '#64748B', lineHeight: 1.7, marginBottom: '32px' }}>
-              Your tool is under review. We'll notify you within 48 hours once it's live on LaudStack. In the meantime, share your listing with your community to build early momentum.
+            <p style={{ fontSize: '15px', color: '#64748B', lineHeight: 1.7, marginBottom: form.launchDate ? '16px' : '32px' }}>
+              Your tool is under review. We'll notify you within 48 hours once it's approved.
+              {form.launchDate ? '' : ' In the meantime, share your listing with your community to build early momentum.'}
             </p>
+            {form.launchDate && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px', background: '#EFF6FF', border: '1px solid #BFDBFE', marginBottom: '28px' }}>
+                <span style={{ fontSize: '16px' }}>📅</span>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#1D4ED8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Scheduled Launch</div>
+                  <div style={{ fontSize: '13px', color: '#3B82F6', fontWeight: 600 }}>
+                    {new Date(form.launchDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/">
                 <button style={{ padding: '12px 28px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}>
