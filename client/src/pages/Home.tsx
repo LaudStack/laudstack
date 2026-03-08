@@ -668,21 +668,21 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           6. LAUNCHPAD CTA — For Founders
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#0F172A', padding: '88px 0' }}>
+      <section style={{ background: 'linear-gradient(160deg, #FFFBEB 0%, #FFF7ED 50%, #FFEDD5 100%)', padding: '88px 0', borderTop: '1px solid #FDE68A' }}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div style={{ borderRadius: '24px', border: '1px solid rgba(245,158,11,0.2)', background: 'linear-gradient(135deg, rgba(245,158,11,0.07) 0%, rgba(234,88,12,0.05) 100%)', overflow: 'hidden' }}>
+          <div style={{ borderRadius: '24px', border: '1px solid #FDE68A', background: '#FFFFFF', overflow: 'hidden', boxShadow: '0 4px 32px rgba(245,158,11,0.08)' }}>
             <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 0 }}>
 
               {/* Left — copy */}
               <div style={{ padding: '56px 52px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', borderRadius: '100px', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', marginBottom: '24px' }}>
-                  <Rocket style={{ width: '12px', height: '12px', color: '#F59E0B' }} />
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', letterSpacing: '0.09em', textTransform: 'uppercase' }}>For Founders</span>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', borderRadius: '100px', background: '#FFF7ED', border: '1px solid #FDE68A', marginBottom: '24px' }}>
+                  <Rocket style={{ width: '12px', height: '12px', color: '#D97706' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', letterSpacing: '0.09em', textTransform: 'uppercase' }}>For Founders</span>
                 </div>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.025em', lineHeight: 1.15, margin: '0 0 18px' }}>
+                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em', lineHeight: 1.15, margin: '0 0 18px' }}>
                   Get your tool in front of the right buyers
                 </h2>
-                <p style={{ fontSize: '16px', color: '#94A3B8', lineHeight: 1.7, margin: '0 0 36px', fontWeight: 400 }}>
+                <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, margin: '0 0 36px', fontWeight: 400 }}>
                   Submit your AI or SaaS tool via LaunchPad and start building credibility through verified community reviews. Free to list — no credit card required.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
@@ -697,9 +697,9 @@ export default function Home() {
                   </button>
                   <button
                     onClick={go}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 24px', borderRadius: '13px', fontSize: '14px', fontWeight: 600, color: '#CBD5E1', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.10)'; (e.currentTarget as HTMLButtonElement).style.color = '#F8FAFC'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#CBD5E1'; }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 24px', borderRadius: '13px', fontSize: '14px', fontWeight: 600, color: '#374151', background: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F1F5F9'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E1'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; }}
                   >
                     <Eye style={{ width: '15px', height: '15px' }} />
                     Learn More
@@ -708,8 +708,8 @@ export default function Home() {
               </div>
 
               {/* Right — feature grid */}
-              <div className="lg:border-t-0" style={{ padding: '56px 52px', borderLeft: '1px solid rgba(255,255,255,0.06)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                <p style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '28px' }}>What you get</p>
+              <div className="lg:border-t-0" style={{ padding: '56px 52px', borderLeft: '1px solid #F1F5F9', borderTop: '1px solid #F1F5F9', background: '#FAFAFA' }}>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '28px' }}>What you get</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: '20px' }}>
                   {[
                     { icon: Globe,         label: 'Global Visibility',  desc: 'Reach 12,000+ professionals' },
@@ -720,11 +720,11 @@ export default function Home() {
                     { icon: TrendingUp,    label: 'Real Rankings',      desc: 'Earn your rank organically' },
                   ].map(({ icon: Icon, label, desc }) => (
                     <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Icon style={{ width: '15px', height: '15px', color: '#F59E0B' }} />
+                      <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#FFF7ED', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon style={{ width: '15px', height: '15px', color: '#D97706' }} />
                       </div>
                       <div>
-                        <p style={{ fontSize: '13px', fontWeight: 700, color: '#F1F5F9', margin: 0 }}>{label}</p>
+                        <p style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0 }}>{label}</p>
                         <p style={{ fontSize: '12px', color: '#64748B', fontWeight: 400, margin: '2px 0 0', lineHeight: 1.5 }}>{desc}</p>
                       </div>
                     </div>
