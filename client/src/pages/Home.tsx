@@ -201,50 +201,104 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════
           DISCOVER — NEW LAUNCHES
       ═══════════════════════════════════════════════════ */}
-      <section className="py-20 bg-slate-50 border-y border-slate-100">
+      <section className="py-20" style={{ background: 'linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%)' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-5 w-5 text-blue-500" />
-                <p className="text-xs font-semibold text-blue-500 uppercase tracking-widest">Fresh Launches</p>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100">
+                  <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                  <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Fresh Launches</p>
+                </div>
               </div>
-              <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Newly launched tools
+              <h2 className="text-3xl font-extrabold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.03em' }}>
+                Newly Launched Tools
               </h2>
-              <p className="text-slate-600 mt-1.5 text-sm font-medium">The latest AI and SaaS tools submitted by founders this week.</p>
+              <p className="text-slate-500 mt-2 text-sm font-medium">The latest AI and SaaS tools submitted by founders this week.</p>
             </div>
             <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors group">
-              All New Launches <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              View All Launches <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {newLaunches.map((tool, i) => (
               <motion.div
                 key={tool.id}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.1}
-                className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer group"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}
                 onClick={go}
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: '16px',
+                  border: '1px solid #E2E8F0',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+                  boxShadow: '0 1px 4px rgba(15,23,42,0.06)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+                whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(15,23,42,0.10)', borderColor: '#CBD5E1' }}
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-                    <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-cover" />
+                {/* Top accent bar — unique per card using index */}
+                <div style={{
+                  height: '3px',
+                  background: [
+                    'linear-gradient(90deg, #3B82F6, #6366F1)',
+                    'linear-gradient(90deg, #10B981, #06B6D4)',
+                    'linear-gradient(90deg, #F59E0B, #EF4444)',
+                    'linear-gradient(90deg, #8B5CF6, #EC4899)',
+                  ][i % 4],
+                }} />
+
+                <div style={{ padding: '18px 18px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* Header row */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E2E8F0', flexShrink: 0, background: '#F8FAFC' }}>
+                      <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    {/* Upvote button */}
+                    <button
+                      onClick={e => { e.stopPropagation(); go(); }}
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        gap: '1px', padding: '6px 10px', borderRadius: '10px',
+                        border: '1.5px solid #E2E8F0', background: '#F8FAFC',
+                        cursor: 'pointer', transition: 'all 0.15s ease', minWidth: '44px',
+                      }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B';
+                        (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB';
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0';
+                        (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC';
+                      }}
+                    >
+                      <ChevronUp style={{ width: '14px', height: '14px', color: '#64748B' }} />
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151', lineHeight: 1 }}>{tool.upvote_count}</span>
+                    </button>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-wider">New</span>
-                </div>
-                <h3 className="font-bold text-slate-900 text-sm mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</h3>
-                <p className="text-xs text-slate-600 line-clamp-2 mb-3 leading-relaxed font-medium">{tool.tagline}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                    <span className="text-xs font-semibold text-slate-700">{tool.average_rating.toFixed(1)}</span>
-                    <span className="text-xs text-slate-500 font-medium">({tool.review_count})</span>
+
+                  {/* Tool info */}
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#0F172A', margin: '0 0 4px', fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2 }}>{tool.name}</h3>
+                    <p style={{ fontSize: '13px', color: '#475569', fontWeight: 500, margin: 0, lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tool.tagline}</p>
                   </div>
-                  <button onClick={e => { e.stopPropagation(); go(); }} className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition-colors">
-                    <ChevronUp className="h-3.5 w-3.5" />
-                    {tool.upvote_count}
-                  </button>
+
+                  {/* Footer row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '10px', borderTop: '1px solid #F1F5F9' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Star style={{ width: '13px', height: '13px', fill: '#FBBF24', color: '#FBBF24' }} />
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#1E293B' }}>{tool.average_rating.toFixed(1)}</span>
+                      <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>({tool.review_count})</span>
+                    </div>
+                    <span style={{
+                      fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px',
+                      background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE',
+                      textTransform: 'uppercase', letterSpacing: '0.05em',
+                    }}>New</span>
+                  </div>
                 </div>
               </motion.div>
             ))}
