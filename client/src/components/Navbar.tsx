@@ -38,7 +38,7 @@ const NAV_ITEMS = [
     ],
   },
   { label: 'Categories', href: '/categories' },
-  { label: 'Reviews' },
+  { label: 'Reviews', href: '/reviews' },
   {
     label: 'Resources',
     megaMenu: [

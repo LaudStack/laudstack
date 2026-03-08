@@ -9,6 +9,7 @@ import ToolDetail from "./pages/ToolDetail";
 import SearchResults from './pages/SearchResults';
 import LaunchPad from './pages/LaunchPad';
 import Categories from './pages/Categories';
+import Reviews from './pages/Reviews';
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/search" component={SearchResults} />
       <Route path="/launchpad" component={LaunchPad} />
       <Route path="/categories" component={Categories} />
+      <Route path="/reviews" component={Reviews} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
