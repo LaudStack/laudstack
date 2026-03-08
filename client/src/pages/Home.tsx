@@ -64,7 +64,7 @@ export default function Home() {
           massive bold headline, floating review cards,
           prominent search bar, clean & authoritative
       ═══════════════════════════════════════════════════ */}
-      <section className="relative pt-24 pb-16 overflow-hidden bg-[#F8F9FA] min-h-[calc(100vh-72px)] flex items-center">
+      <section className="relative overflow-hidden bg-[#F8F9FA]" style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
         {/* ── Main hero content ── */}
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10 relative w-full">
