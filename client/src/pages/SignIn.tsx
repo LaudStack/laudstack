@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import { useAuth } from '@/contexts/AuthContext';
 
 const TRUST_POINTS = [
   { icon: Star,         text: 'Access verified reviews from 12,000+ professionals' },
@@ -31,6 +32,7 @@ export default function SignIn() {
   const [showPass, setShowPass]   = useState(false);
   const [loading, setLoading]     = useState(false);
   const [done, setDone]           = useState(false);
+  const { signIn }                = useAuth();
 
   const isSignUp = mode === 'signup';
 
@@ -42,9 +44,12 @@ export default function SignIn() {
     }
     setLoading(true);
     await new Promise(r => setTimeout(r, 1200));
+    // Set the display name: for sign-in use email prefix, for sign-up use provided name
+    const displayName = isSignUp ? name : (name || email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+    signIn(displayName, email);
     setLoading(false);
     setDone(true);
-    setTimeout(() => navigate('/'), 1800);
+    setTimeout(() => navigate('/'), 1500);
   };
 
   const handleSocial = (provider: string) => {
