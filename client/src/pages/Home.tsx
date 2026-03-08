@@ -115,7 +115,7 @@ export default function Home() {
             transition={{ duration: 0.25 }}
             style={{ overflow: 'hidden', background: 'linear-gradient(90deg, #0F172A 0%, #1E293B 100%)', borderBottom: '1px solid rgba(245,158,11,0.2)' }}
           >
-            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '44px' }}>
+            <div className="max-w-[1400px] mx-auto px-6 lg:px-10" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '44px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'center' }}>
                 <span style={{ fontSize: '14px' }}>🎉</span>
                 <p style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: 500, margin: 0 }}>
@@ -142,8 +142,8 @@ export default function Home() {
           First impression. Value prop → Search → Social proof.
       ══════════════════════════════════════════════════════ */}
       <section
-        className="relative bg-[#F8F9FA]"
-        style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '60px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px' }}
+        className="relative bg-[#F8F9FA] px-6 lg:px-10"
+        style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '60px', paddingBottom: '80px' }}
       >
         <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: '700px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(245,158,11,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
@@ -238,7 +238,7 @@ export default function Home() {
           Users need to understand WHY this place is different.
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', padding: '80px 0 72px' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
               style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>
@@ -403,7 +403,7 @@ export default function Home() {
           Placed after trust sections so intent is high.
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#F8FAFC', borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '72px 40px 80px' }}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10" style={{ paddingTop: '72px', paddingBottom: '80px' }}>
 
           {/* ── Section header ── */}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '28px' }}>
