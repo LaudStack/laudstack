@@ -12,7 +12,7 @@
  */
 
 import { useState } from 'react';
-import { useParams, Link } from 'wouter';
+import { useParams, Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import {
   Star, ExternalLink, ChevronUp, ShieldCheck, ArrowLeft,
@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
+import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
@@ -119,10 +120,21 @@ function getToolReviews(toolId: string): Review[] {
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function ToolDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const [upvoted, setUpvoted] = useState(false);
   const [upvoteCount, setUpvoteCount] = useState(0);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
+
+  const handleWriteReview = () => {
+    if (!isAuthenticated) {
+      navigate(`/signin?return=/tools/${slug}`);
+      toast.info('Sign in to write a review');
+      return;
+    }
+    setReviewOpen(true);
+  };
 
   const tool = MOCK_TOOLS.find(t => t.slug === slug);
 
@@ -290,6 +302,32 @@ export default function ToolDetail() {
                 <ChevronUp style={{ width: '16px', height: '16px' }} />
                 {upvoted ? 'Upvoted' : 'Upvote'}
               </button>
+              {/* Write a Review — auth-gated */}
+              <button
+                onClick={handleWriteReview}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '10px 24px', borderRadius: '12px',
+                  border: '1.5px solid #E2E8F0',
+                  background: '#FFFFFF',
+                  color: '#374151',
+                  fontWeight: 700, fontSize: '14px', cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B';
+                  (e.currentTarget as HTMLButtonElement).style.color = '#B45309';
+                  (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0';
+                  (e.currentTarget as HTMLButtonElement).style.color = '#374151';
+                  (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF';
+                }}
+              >
+                <MessageSquare style={{ width: '15px', height: '15px' }} />
+                Write a Review
+              </button>
             </div>
           </div>
         </div>
@@ -320,7 +358,18 @@ export default function ToolDetail() {
           {/* Ratings Summary */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
-            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 24px', letterSpacing: '-0.02em' }}>Ratings & Reviews</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Ratings & Reviews</h2>
+              <button
+                onClick={handleWriteReview}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '9px 18px', borderRadius: '10px', background: isAuthenticated ? 'linear-gradient(135deg, #F59E0B, #EA580C)' : '#F8FAFC', color: isAuthenticated ? '#FFFFFF' : '#374151', fontWeight: 700, fontSize: '13px', border: isAuthenticated ? 'none' : '1.5px solid #E2E8F0', cursor: 'pointer', boxShadow: isAuthenticated ? '0 3px 10px rgba(245,158,11,0.25)' : 'none', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = isAuthenticated ? '0 5px 16px rgba(245,158,11,0.35)' : '0 2px 8px rgba(0,0,0,0.08)'; }}
+                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(0)'; b.style.boxShadow = isAuthenticated ? '0 3px 10px rgba(245,158,11,0.25)' : 'none'; }}
+              >
+                <MessageSquare style={{ width: '13px', height: '13px' }} />
+                {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
+              </button>
+            </div>
 
             <div style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '28px' }}>
               {/* Big score */}
@@ -428,19 +477,23 @@ export default function ToolDetail() {
             </div>
 
             {/* Write a review CTA */}
-            <div style={{ padding: '24px 32px', background: '#F8FAFC', borderTop: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ padding: '24px 32px', background: '#FFFBEB', borderTop: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: '0 0 2px' }}>Have experience with {tool.name}?</p>
-                <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Share your honest review and help others make informed decisions.</p>
+                <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
+                  {isAuthenticated
+                    ? 'Share your honest review and help others make informed decisions.'
+                    : 'Sign in to share your honest review and help others make informed decisions.'}
+                </p>
               </div>
               <button
-                onClick={() => setReviewOpen(true)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', background: '#0F172A', color: '#FFFFFF', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'background 0.15s', whiteSpace: 'nowrap' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#1E293B')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#0F172A')}
+                onClick={handleWriteReview}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '11px 22px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#FFFFFF', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(245,158,11,0.3)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(245,158,11,0.3)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
               >
                 <MessageSquare style={{ width: '14px', height: '14px' }} />
-                Write a Review
+                {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
               </button>
             </div>
           </motion.div>

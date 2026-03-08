@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { useLocation, Link } from 'wouter';
+import { useLocation, Link, useSearch } from 'wouter';
 import {
   Mail, Lock, Eye, EyeOff, Rocket, ArrowRight,
   Github, CheckCircle2, Star, Shield, Users
@@ -25,6 +25,8 @@ const TRUST_POINTS = [
 
 export default function SignIn() {
   const [, navigate]              = useLocation();
+  const search                    = useSearch();
+  const returnUrl                 = new URLSearchParams(search).get('return') || '/';
   const [mode, setMode]           = useState<'signin' | 'signup'>('signin');
   const [email, setEmail]         = useState('');
   const [password, setPassword]   = useState('');
@@ -49,7 +51,7 @@ export default function SignIn() {
     signIn(displayName, email);
     setLoading(false);
     setDone(true);
-    setTimeout(() => navigate('/'), 1500);
+    setTimeout(() => navigate(returnUrl), 1500);
   };
 
   const handleSocial = (provider: string) => {
