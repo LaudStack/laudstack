@@ -18,7 +18,7 @@ import {
   Star, ExternalLink, ChevronUp, ShieldCheck, ArrowLeft,
   ThumbsUp, MessageSquare, ChevronRight, Flame, Sparkles,
   Globe, Tag, Calendar, Award, CheckCircle2, AlertCircle,
-  Quote, Building2, User2, GitCompareArrows
+  Quote, Building2, User2, GitCompareArrows, Bookmark
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
@@ -26,6 +26,7 @@ import WriteReviewModal from '@/components/WriteReviewModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
+import { useSavedTools } from '@/hooks/useSavedTools';
 import Footer from '@/components/Footer';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
@@ -126,6 +127,7 @@ export default function ToolDetail() {
   const { isAuthenticated } = useAuth();
   const { recordVisit } = useRecentlyViewed();
   const { toggle: compareToggle, isSelected: isComparing, canAdd: canCompare } = useCompare();
+  const { isSaved, toggle: toggleSave } = useSavedTools();
 
   // Record this tool as visited whenever the slug changes
   useEffect(() => {
@@ -335,6 +337,27 @@ export default function ToolDetail() {
               >
                 <GitCompareArrows style={{ width: '15px', height: '15px' }} />
                 {isComparing(tool.id) ? 'Comparing' : 'Compare'}
+              </button>
+              {/* Bookmark / Save */}
+              <button
+                onClick={() => {
+                  toggleSave(tool.id);
+                  toast.success(isSaved(tool.id) ? `Removed ${tool.name} from saved` : `Saved ${tool.name}!`);
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '10px 24px', borderRadius: '12px',
+                  border: isSaved(tool.id) ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
+                  background: isSaved(tool.id) ? '#FFFBEB' : '#FFFFFF',
+                  color: isSaved(tool.id) ? '#B45309' : '#374151',
+                  fontWeight: 700, fontSize: '14px', cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => { if (!isSaved(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; } }}
+                onMouseLeave={e => { if (!isSaved(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
+              >
+                <Bookmark style={{ width: '15px', height: '15px', fill: isSaved(tool.id) ? '#F59E0B' : 'none' }} />
+                {isSaved(tool.id) ? 'Saved' : 'Save'}
               </button>
               {/* Write a Review — auth-gated */}
               <button

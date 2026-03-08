@@ -117,6 +117,7 @@ function SectionHeader({
 export default function Home() {
   const [searchQuery, setSearchQuery]           = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedPricing, setSelectedPricing] = useState<string>('All');
   const [bannerVisible, setBannerVisible]        = useState(true);
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -136,7 +137,9 @@ export default function Home() {
     ? MOCK_TOOLS
     : MOCK_TOOLS.filter(t => t.category === selectedCategory);
 
-  const allTools = filteredBase;
+  const allTools = selectedPricing === 'All'
+    ? filteredBase
+    : filteredBase.filter(t => t.pricing_model === selectedPricing);
 
   // Trending: tools with trending/top_rated badges, filtered by category
   const trendingTools = (selectedCategory === 'All'
@@ -642,6 +645,31 @@ export default function Home() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Pricing filter row */}
+          <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', marginRight: '4px' }}>Pricing:</span>
+            {['All', 'Free', 'Freemium', 'Paid', 'Free Trial', 'Open Source'].map((p) => {
+              const active = selectedPricing === p;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setSelectedPricing(p)}
+                  style={{
+                    padding: '5px 12px', borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '12px', fontWeight: 600, transition: 'all 0.15s',
+                    border: active ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
+                    background: active ? '#FFFBEB' : '#FFFFFF',
+                    color: active ? '#B45309' : '#64748B',
+                  }}
+                  onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; } }}
+                  onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; } }}
+                >
+                  {p}
+                </button>
+              );
+            })}
           </div>
 
           {/* Two-column layout */}

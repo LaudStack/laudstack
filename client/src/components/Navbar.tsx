@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import { MOCK_TOOLS } from '@/lib/mockData';
 import { useAuth, getInitials } from '@/contexts/AuthContext';
+import { useSavedTools } from '@/hooks/useSavedTools';
 
 const NAV_ITEMS = [
   {
@@ -32,11 +33,12 @@ const NAV_ITEMS = [
   },
   {
     label: 'Leaderboard',
+    href: '/launches',
     megaMenu: [
-      { icon: Trophy,    label: 'Weekly Rankings', desc: 'This week\'s top performers' },
-      { icon: BarChart3, label: 'All-Time Best',   desc: 'Highest rated of all time' },
-      { icon: Users,     label: 'Community Picks', desc: 'Voted by the community' },
-      { icon: Shield,    label: 'Editor\'s Picks', desc: 'Curated by our team' },
+      { icon: Trophy,    label: 'Weekly Rankings', desc: 'This week\'s top performers', href: '/launches' },
+      { icon: BarChart3, label: 'All-Time Best',   desc: 'Highest rated of all time', href: '/launches' },
+      { icon: Users,     label: 'Community Picks', desc: 'Voted by the community', href: '/launches' },
+      { icon: Shield,    label: 'Editor\'s Picks', desc: 'Curated by our team', href: '/launches' },
     ],
   },
   { label: 'Categories', href: '/categories' },
@@ -44,9 +46,10 @@ const NAV_ITEMS = [
   {
     label: 'Resources',
     megaMenu: [
-      { icon: BookOpen,  label: 'Blog',      desc: 'SaaS insights and guides' },
-      { icon: BarChart3, label: 'Reports',   desc: 'Industry research & data' },
-      { icon: Users,     label: 'Community', desc: 'Join the conversation' },
+      { icon: BookOpen,  label: 'Blog',             desc: 'SaaS insights and guides',     href: '/about' },
+      { icon: BarChart3, label: 'Trust Framework',  desc: 'How we verify reviews',         href: '/trust' },
+      { icon: Users,     label: 'About LaudStack',  desc: 'Our mission and team',          href: '/about' },
+      { icon: Shield,    label: 'Contact Us',       desc: 'Get in touch with our team',    href: '/contact' },
     ],
   },
 ];
@@ -65,6 +68,7 @@ export default function Navbar() {
   const [avatarOpen, setAvatarOpen]     = useState(false);
   const [, navigate]                    = useLocation();
   const { user, isAuthenticated, signOut } = useAuth();
+  const { savedIds } = useSavedTools();
   const avatarRef = useRef<HTMLDivElement>(null);
 
   // Live search results — top 5 matches
@@ -238,12 +242,19 @@ export default function Navbar() {
                     className="flex items-center gap-2 px-2 py-1.5 rounded-xl transition-all hover:bg-slate-100"
                     aria-label="User menu"
                   >
-                    {/* Avatar circle */}
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 select-none"
-                      style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
-                    >
-                      {getInitials(user.name)}
+                    {/* Avatar circle with saved badge */}
+                    <div className="relative">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 select-none"
+                        style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
+                      >
+                        {getInitials(user.name)}
+                      </div>
+                      {savedIds.length > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 text-slate-900 text-[9px] font-black rounded-full flex items-center justify-center leading-none">
+                          {savedIds.length > 9 ? '9+' : savedIds.length}
+                        </span>
+                      )}
                     </div>
                     <div className="hidden xl:flex flex-col items-start leading-tight">
                       <span className="text-[13px] font-bold text-slate-900 max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
@@ -280,11 +291,12 @@ export default function Navbar() {
                         {/* Menu items */}
                         <div className="p-1.5">
                           {[
-                            { icon: User,       label: 'My Profile',     action: () => { toast.info('Profile coming soon!'); setAvatarOpen(false); } },
-                            { icon: Bookmark,   label: 'Saved Tools',     action: () => { navigate('/saved'); setAvatarOpen(false); } },
-                            { icon: PenSquare,  label: 'My Reviews',     action: () => { navigate('/reviews'); setAvatarOpen(false); } },
-                            { icon: FileText,   label: 'My Submissions',  action: () => { navigate('/launchpad'); setAvatarOpen(false); } },
-                            { icon: Settings,   label: 'Account Settings', action: () => { toast.info('Settings coming soon!'); setAvatarOpen(false); } },
+                            { icon: User,       label: 'My Profile',        action: () => { navigate('/dashboard'); setAvatarOpen(false); } },
+                            { icon: BarChart3,  label: 'Founder Dashboard', action: () => { navigate('/dashboard/founder'); setAvatarOpen(false); } },
+                            { icon: Bookmark,   label: 'Saved Tools',       action: () => { navigate('/saved'); setAvatarOpen(false); } },
+                            { icon: PenSquare,  label: 'My Reviews',        action: () => { navigate('/reviews'); setAvatarOpen(false); } },
+                            { icon: FileText,   label: 'My Submissions',    action: () => { navigate('/launchpad'); setAvatarOpen(false); } },
+                            { icon: Settings,   label: 'Account Settings',  action: () => { navigate('/dashboard'); setAvatarOpen(false); } },
                           ].map(({ icon: Icon, label, action }) => (
                             <button
                               key={label}

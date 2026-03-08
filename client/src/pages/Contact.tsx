@@ -1,0 +1,235 @@
+// LaudStack — Contact Page
+// Design: Dark editorial, amber accents, clean form layout
+
+import { useState } from 'react';
+import { Mail, MessageSquare, Zap, Shield, Users, ChevronRight, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
+
+const CONTACT_TOPICS = [
+  { value: 'general', label: 'General Inquiry', icon: <MessageSquare className="w-4 h-4" /> },
+  { value: 'submit', label: 'Submit / Update a Tool', icon: <Zap className="w-4 h-4" /> },
+  { value: 'trust', label: 'Report a Listing or Review', icon: <Shield className="w-4 h-4" /> },
+  { value: 'partnership', label: 'Partnership or Press', icon: <Users className="w-4 h-4" /> },
+  { value: 'support', label: 'Account Support', icon: <Mail className="w-4 h-4" /> },
+];
+
+const FAQ = [
+  {
+    q: 'How do I submit my tool to LaudStack?',
+    a: 'Use the LaunchPad — our guided submission flow. It takes about 5 minutes and our team reviews every submission within 3 business days.',
+  },
+  {
+    q: 'How long does the review process take?',
+    a: 'Most submissions are reviewed within 3 business days. Pro submissions are prioritized and typically reviewed within 24 hours.',
+  },
+  {
+    q: 'Can I respond to reviews of my tool?',
+    a: 'Yes. Verified founders can respond publicly to any review on their tool\'s page. We encourage constructive, professional responses.',
+  },
+  {
+    q: 'How do I report a fake review?',
+    a: 'Use the flag icon on any review, or contact us directly via this form with the "Report a Listing or Review" topic. We investigate all reports within 48 hours.',
+  },
+  {
+    q: 'Do you offer sponsored placements?',
+    a: 'No. We do not sell placements in search results or category pages. All rankings are algorithmic. We offer Pro listings that include enhanced profiles and priority review, but these do not affect ranking position.',
+  },
+];
+
+export default function Contact() {
+  const [topic, setTopic] = useState('general');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !message) {
+      toast.error('Please fill in all required fields.');
+      return;
+    }
+    setSubmitted(true);
+    toast.success('Message sent! We\'ll get back to you within 2 business days.');
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white">
+      {/* Hero */}
+      <div className="relative overflow-hidden border-b border-slate-800">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
+        <div className="max-w-4xl mx-auto px-4 py-16 relative">
+          <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
+            <Mail className="w-4 h-4" />
+            Get in Touch
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">Contact LaudStack</h1>
+          <p className="text-slate-400 text-lg max-w-xl">
+            Have a question, want to submit a tool, or need to report something? We read every message and respond within 2 business days.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="grid md:grid-cols-5 gap-10">
+          {/* Form */}
+          <div className="md:col-span-3">
+            {submitted ? (
+              <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-10 text-center">
+                <CheckCircle className="w-14 h-14 text-emerald-400 mx-auto mb-4" />
+                <h2 className="text-white font-black text-2xl mb-2">Message received!</h2>
+                <p className="text-slate-400 mb-6">
+                  Thanks for reaching out. We'll get back to you at <strong className="text-white">{email}</strong> within 2 business days.
+                </p>
+                <button
+                  onClick={() => { setSubmitted(false); setName(''); setEmail(''); setMessage(''); }}
+                  className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors"
+                >
+                  Send another message
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6">
+                <h2 className="text-white font-bold text-xl">Send us a message</h2>
+
+                {/* Topic */}
+                <div>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Topic</label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {CONTACT_TOPICS.map((t) => (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => setTopic(t.value)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left transition-all ${
+                          topic === t.value
+                            ? 'bg-amber-400/10 border border-amber-400/40 text-amber-400'
+                            : 'bg-slate-800 border border-slate-700 text-slate-300 hover:border-slate-600'
+                        }`}
+                      >
+                        {t.icon}
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Name */}
+                <div>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Your name *</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Jane Smith"
+                    className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors"
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Email address *</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="jane@company.com"
+                    className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors"
+                  />
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Message *</label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Tell us how we can help..."
+                    rows={5}
+                    className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors resize-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors"
+                >
+                  Send Message
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Quick links */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-white font-bold mb-4">Quick links</h3>
+              <div className="space-y-3">
+                {[
+                  { label: 'Submit a Tool', href: '/launchpad', icon: <Zap className="w-4 h-4 text-amber-400" /> },
+                  { label: 'Trust Framework', href: '/trust', icon: <Shield className="w-4 h-4 text-emerald-400" /> },
+                  { label: 'About LaudStack', href: '/about', icon: <Users className="w-4 h-4 text-sky-400" /> },
+                ].map((link) => (
+                  <a key={link.label} href={link.href} className="flex items-center gap-3 text-slate-300 hover:text-white text-sm transition-colors group">
+                    {link.icon}
+                    <span>{link.label}</span>
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-slate-600 group-hover:text-slate-400 transition-colors" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Response time */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-white font-bold mb-3">Response times</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">General inquiries</span>
+                  <span className="text-white font-medium">2 business days</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Tool submissions</span>
+                  <span className="text-white font-medium">3 business days</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Trust reports</span>
+                  <span className="text-white font-medium">48 hours</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Pro support</span>
+                  <span className="text-amber-400 font-medium">24 hours</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-black text-white mb-6">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {FAQ.map((item, i) => (
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-800/50 transition-colors"
+                >
+                  <span className="text-white font-medium text-sm">{item.q}</span>
+                  <ChevronRight className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-4 text-slate-400 text-sm leading-relaxed border-t border-slate-800">
+                    <div className="pt-3">{item.a}</div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
