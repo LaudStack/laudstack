@@ -668,9 +668,9 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           6. LAUNCHPAD CTA — For Founders
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: 'linear-gradient(160deg, #FFFBEB 0%, #FFF7ED 50%, #FFEDD5 100%)', padding: '88px 0', borderTop: '1px solid #FDE68A' }}>
+      <section style={{ background: '#FFFFFF', padding: '88px 0', borderTop: '1px solid #F1F5F9' }}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div style={{ borderRadius: '24px', border: '1px solid #FDE68A', background: '#FFFFFF', overflow: 'hidden', boxShadow: '0 4px 32px rgba(245,158,11,0.08)' }}>
+          <div style={{ borderRadius: '24px', border: '1px solid #FDE68A', background: 'linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 60%, #FFEDD5 100%)', overflow: 'hidden', boxShadow: '0 4px 32px rgba(245,158,11,0.1)' }}>
             <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 0 }}>
 
               {/* Left — copy */}
