@@ -37,7 +37,7 @@ const NAV_ITEMS = [
       { icon: Shield,    label: 'Editor\'s Picks', desc: 'Curated by our team' },
     ],
   },
-  { label: 'Categories' },
+  { label: 'Categories', href: '/categories' },
   { label: 'Reviews' },
   {
     label: 'Resources',
@@ -150,7 +150,7 @@ export default function Navbar() {
                   onMouseLeave={() => setActiveMega(null)}
                 >
                   <button
-                    onClick={go}
+                    onClick={() => (item as any).href ? navigate((item as any).href) : go()}
                     className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-all ${navText} ${navHoverBg}`}
                   >
                     {item.label}
@@ -249,7 +249,7 @@ export default function Navbar() {
                 {NAV_ITEMS.map(item => (
                   <button
                     key={item.label}
-                    onClick={go}
+                    onClick={() => (item as any).href ? navigate((item as any).href) : go()}
                     className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                   >
                     {item.label}
