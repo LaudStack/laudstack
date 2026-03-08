@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -58,6 +58,16 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [activeMega, setActiveMega]   = useState<string | null>(null);
   const [searchOpen, setSearchOpen]   = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [, navigate]                  = useLocation();
+
+  const handleNavSearch = (term?: string) => {
+    const q = (term ?? searchInput).trim();
+    setSearchOpen(false);
+    setSearchInput('');
+    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
+    else navigate('/search');
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -255,11 +265,13 @@ export default function Navbar() {
                 <Search className="h-5 w-5 text-slate-400 shrink-0" />
                 <input
                   autoFocus
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
                   placeholder="Search tools, categories, reviews..."
                   className="flex-1 text-base text-slate-900 placeholder:text-slate-400 outline-none bg-transparent"
                   onKeyDown={e => {
-                    if (e.key === 'Escape') setSearchOpen(false);
-                    if (e.key === 'Enter') { setSearchOpen(false); go(); }
+                    if (e.key === 'Escape') { setSearchOpen(false); setSearchInput(''); }
+                    if (e.key === 'Enter') handleNavSearch();
                   }}
                 />
                 <kbd className="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-400 font-mono shrink-0">ESC</kbd>
@@ -272,7 +284,7 @@ export default function Navbar() {
                   {POPULAR_SEARCHES.map(tag => (
                     <button
                       key={tag}
-                      onClick={() => { setSearchOpen(false); go(); }}
+                      onClick={() => handleNavSearch(tag)}
                       className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-amber-50 hover:text-amber-700 text-sm font-medium text-slate-700 transition-colors border border-slate-200 hover:border-amber-200"
                     >
                       {tag}
