@@ -391,110 +391,158 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          7. BROWSE + TOOLS GRID + LEADERBOARD SIDEBAR
+          5. BROWSE + TOOLS GRID + LEADERBOARD SIDEBAR
           Full directory — users are now warmed up and ready to explore.
           Placed after trust sections so intent is high.
       ══════════════════════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div className="mb-8">
-            <div className="flex items-end justify-between mb-5">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Filter className="h-4 w-4 text-slate-500" />
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Browse by Category</p>
+      <section style={{ background: '#F8FAFC', borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '72px 40px 80px' }}>
+
+          {/* ── Section header ── */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '28px' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+                <div style={{ width: '20px', height: '20px', borderRadius: '6px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Filter style={{ width: '11px', height: '11px', color: '#64748B' }} />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  Find tools for every use case
-                </h2>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Browse by Category</span>
               </div>
-              <button onClick={go} className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors">
-                All Categories <ArrowRight className="h-4 w-4" />
-              </button>
+              <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '28px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.025em', margin: 0 }}>
+                Find tools for every use case
+              </h2>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map(({ name, icon, count }) => (
+            <button onClick={go} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 700, color: '#B45309', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#92400E')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#B45309')}
+            >
+              All Categories <ArrowRight style={{ width: '13px', height: '13px' }} />
+            </button>
+          </div>
+
+          {/* ── Category pills ── */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '36px', paddingBottom: '28px', borderBottom: '1px solid #E2E8F0' }}>
+            {CATEGORIES.map(({ name, icon, count }) => {
+              const active = selectedCategory === name;
+              return (
                 <button
                   key={name}
                   onClick={() => setSelectedCategory(name)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
-                    selectedCategory === name
-                      ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50'
-                  }`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '7px',
+                    padding: '8px 14px', borderRadius: '10px', cursor: 'pointer',
+                    fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
+                    border: active ? '1.5px solid #0F172A' : '1.5px solid #E2E8F0',
+                    background: active ? '#0F172A' : '#FFFFFF',
+                    color: active ? '#FFFFFF' : '#374151',
+                    boxShadow: active ? '0 2px 8px rgba(15,23,42,0.15)' : '0 1px 2px rgba(15,23,42,0.04)',
+                  }}
+                  onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; } }}
+                  onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
                 >
-                  <span>{icon}</span>
+                  <span style={{ fontSize: '14px', lineHeight: 1 }}>{icon}</span>
                   <span>{name}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded-md font-semibold ${selectedCategory === name ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-500'}`}>{count}</span>
+                  <span style={{
+                    fontSize: '11px', fontWeight: 700, padding: '2px 6px', borderRadius: '5px',
+                    background: active ? 'rgba(255,255,255,0.15)' : '#F1F5F9',
+                    color: active ? '#FFFFFF' : '#64748B',
+                  }}>{count}</span>
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Tools Grid */}
+          {/* ── Two-column layout: tools grid + sidebar ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: '32px' }}>
+
+            {/* Tools Grid (2/3) */}
             <div className="lg:col-span-2">
-              <div className="flex items-center justify-between mb-5">
-                <p className="text-sm font-semibold text-slate-500">
-                  {selectedCategory === 'All' ? 'All Tools' : selectedCategory} · <span className="text-slate-900">{allTools.length} results</span>
-                </p>
-                <select className="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 outline-none focus:border-amber-400 transition-colors" onChange={go}>
-                  <option>Sort: Top Rated</option>
-                  <option>Sort: Trending</option>
-                  <option>Sort: Newest</option>
-                  <option>Sort: Most Reviewed</option>
+              {/* Result bar */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '10px 14px', background: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 500 }}>
+                    {selectedCategory === 'All' ? 'All Tools' : selectedCategory}
+                  </span>
+                  <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#CBD5E1', display: 'inline-block' }} />
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>{allTools.length} results</span>
+                </div>
+                <select
+                  style={{ fontSize: '12px', fontWeight: 600, color: '#374151', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 10px', outline: 'none', cursor: 'pointer' }}
+                  onChange={go}
+                >
+                  <option>Top Rated</option>
+                  <option>Trending</option>
+                  <option>Newest</option>
+                  <option>Most Reviewed</option>
                 </select>
               </div>
-              <div className="flex flex-col gap-4">
+
+              <div className="flex flex-col" style={{ gap: '12px' }}>
                 {allTools.map((tool, i) => (
-                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.1}>
+                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.07}>
                     <ToolCard tool={tool} />
                   </motion.div>
                 ))}
               </div>
-              <div className="mt-8 text-center">
-                <button onClick={go} className="inline-flex items-center gap-2 px-7 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50 transition-all">
-                  Load More Tools <ArrowRight className="h-4 w-4" />
+
+              <div style={{ marginTop: '28px', textAlign: 'center' }}>
+                <button
+                  onClick={go}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 28px', borderRadius: '12px', border: '1.5px solid #E2E8F0', fontSize: '13px', fontWeight: 700, color: '#374151', background: '#FFFFFF', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(15,23,42,0.05)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; }}
+                >
+                  Load more tools <ArrowRight style={{ width: '13px', height: '13px' }} />
                 </button>
               </div>
             </div>
 
-            {/* Sidebar */}
+            {/* Sidebar (1/3) */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-5">
+              <div className="sticky top-24" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                 {/* Weekly Leaderboard */}
-                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                  <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                    <div className="flex items-center gap-2">
-                      <Trophy className="h-4 w-4 text-amber-500" />
+                <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
+                  <div style={{ padding: '14px 18px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FAFAFA' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Trophy style={{ width: '13px', height: '13px', color: '#D97706' }} />
+                      </div>
                       <div>
-                        <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest leading-none mb-0.5">This Week</p>
-                        <h3 className="font-bold text-slate-900 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Top Ranked Tools</h3>
+                        <p style={{ fontSize: '10px', fontWeight: 700, color: '#D97706', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>This Week</p>
+                        <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: '2px 0 0' }}>Top Ranked Tools</h3>
                       </div>
                     </div>
-                    <button onClick={go} className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors">Full Board →</button>
+                    <button onClick={go} style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Full Board →</button>
                   </div>
-                  <div className="divide-y divide-slate-50">
-                    {leaderboard.map(({ rank, tool, rank_change }) => (
-                      <div key={tool.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors cursor-pointer" onClick={go}>
-                        <div className="w-7 shrink-0 text-center">
-                          {rank <= 3 ? <span className="text-base">{['🥇','🥈','🥉'][rank-1]}</span> : <span className="text-sm font-bold text-slate-400">{rank}</span>}
+                  <div>
+                    {leaderboard.map(({ rank, tool, rank_change }, idx) => (
+                      <div
+                        key={tool.id}
+                        onClick={go}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 18px', cursor: 'pointer', borderBottom: idx < leaderboard.length - 1 ? '1px solid #F8FAFC' : 'none', transition: 'background 0.12s' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <div style={{ width: '22px', textAlign: 'center', flexShrink: 0 }}>
+                          {rank <= 3
+                            ? <span style={{ fontSize: '15px' }}>{['🥇','🥈','🥉'][rank-1]}</span>
+                            : <span style={{ fontSize: '12px', fontWeight: 800, color: '#94A3B8' }}>{rank}</span>
+                          }
                         </div>
-                        <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-100 shrink-0">
-                          <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-cover" />
+                        <div style={{ width: '34px', height: '34px', borderRadius: '10px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0, border: '1px solid #E2E8F0' }}>
+                          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-900 truncate">{tool.name}</p>
-                          <p className="text-xs text-slate-500 font-medium truncate">{tool.category}</p>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
+                          <p style={{ fontSize: '11px', color: '#64748B', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.category}</p>
                         </div>
-                        <div className="flex flex-col items-end shrink-0">
-                          <div className="flex items-center gap-0.5 text-xs font-bold text-slate-700">
-                            <ChevronUp className="h-3 w-3 text-amber-500" />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '12px', fontWeight: 700, color: '#374151' }}>
+                            <ChevronUp style={{ width: '11px', height: '11px', color: '#F59E0B' }} />
                             {tool.upvote_count >= 1000 ? `${(tool.upvote_count/1000).toFixed(1)}k` : tool.upvote_count}
                           </div>
                           {rank_change !== 0 && (
-                            <span className={`text-[10px] font-semibold ${rank_change > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                            <span style={{ fontSize: '10px', fontWeight: 700, color: rank_change > 0 ? '#10B981' : '#EF4444' }}>
                               {rank_change > 0 ? `▲${rank_change}` : `▼${Math.abs(rank_change)}`}
                             </span>
                           )}
@@ -502,50 +550,60 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
-                  <div className="px-5 py-3 bg-slate-50 border-t border-slate-100">
-                    <button onClick={go} className="w-full text-sm text-amber-600 font-semibold hover:text-amber-700 flex items-center justify-center gap-1.5 transition-colors">
-                      View Full Leaderboard <ArrowRight className="h-3.5 w-3.5" />
+                  <div style={{ padding: '10px 18px', background: '#FAFAFA', borderTop: '1px solid #F1F5F9' }}>
+                    <button onClick={go} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', transition: 'color 0.12s' }}>
+                      View Full Leaderboard <ArrowRight style={{ width: '12px', height: '12px' }} />
                     </button>
                   </div>
                 </div>
 
                 {/* Recent Reviews */}
-                <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MessageSquare className="h-4 w-4 text-slate-500" />
-                    <h3 className="font-bold text-slate-900 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Recent Reviews</h3>
+                <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '18px', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#F0FDF4', border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <MessageSquare style={{ width: '13px', height: '13px', color: '#16A34A' }} />
+                    </div>
+                    <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: 0 }}>Recent Reviews</h3>
                   </div>
-                  {MOCK_REVIEWS.slice(0, 3).map(review => (
-                    <div key={review.id} className="mb-3 pb-3 border-b border-slate-100 last:border-0 last:mb-0 last:pb-0">
-                      <div className="flex items-center gap-1 mb-1">
-                        {[1,2,3,4,5].map(i => (
-                          <Star key={i} className={`h-3 w-3 ${i <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
-                        ))}
-                        <span className="text-xs text-slate-600 font-semibold ml-1">{review.user?.name}</span>
+                  {MOCK_REVIEWS.slice(0, 3).map((review, idx) => (
+                    <div key={review.id} style={{ marginBottom: idx < 2 ? '12px' : 0, paddingBottom: idx < 2 ? '12px' : 0, borderBottom: idx < 2 ? '1px solid #F1F5F9' : 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          {[1,2,3,4,5].map(i => (
+                            <Star key={i} style={{ width: '11px', height: '11px', fill: i <= review.rating ? '#FBBF24' : '#E2E8F0', color: i <= review.rating ? '#FBBF24' : '#E2E8F0' }} />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>{review.user?.name}</span>
                       </div>
-                      <p className="text-xs text-slate-700 font-medium line-clamp-2 leading-relaxed">{review.title}</p>
+                      <p style={{ fontSize: '12px', color: '#374151', fontWeight: 500, margin: 0, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{review.title}</p>
                     </div>
                   ))}
-                  <button onClick={go} className="w-full text-xs text-amber-600 font-semibold hover:text-amber-700 flex items-center justify-center gap-1 mt-2 transition-colors">
-                    Read All Reviews <ArrowRight className="h-3 w-3" />
+                  <button onClick={go} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '12px', fontSize: '12px', fontWeight: 700, color: '#16A34A', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    Read All Reviews <ArrowRight style={{ width: '11px', height: '11px' }} />
                   </button>
                 </div>
 
-                {/* Founder CTA card */}
-                <div className="rounded-2xl overflow-hidden border border-amber-200 bg-amber-50">
-                  <div className="px-5 py-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
-                        <Rocket className="h-4 w-4 text-white" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Are you a founder?</h3>
+                {/* Founder CTA */}
+                <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid #FDE68A', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)', padding: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Rocket style={{ width: '15px', height: '15px', color: '#FFFFFF' }} />
                     </div>
-                    <p className="text-xs text-slate-700 font-medium mb-4 leading-relaxed">Submit your tool and get discovered by thousands of buyers. Free to list.</p>
-                    <button onClick={go} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-md hover:shadow-amber-500/30" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}>
-                      <Rocket className="h-3.5 w-3.5" />
-                      Go to LaunchPad
-                    </button>
+                    <div>
+                      <p style={{ fontSize: '10px', fontWeight: 700, color: '#92400E', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0 }}>For Founders</p>
+                      <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: '1px 0 0' }}>Are you a founder?</h3>
+                    </div>
                   </div>
+                  <p style={{ fontSize: '12px', color: '#78350F', fontWeight: 500, margin: '0 0 14px', lineHeight: 1.55 }}>Submit your tool and get discovered by thousands of developers. Free to list.</p>
+                  <button
+                    onClick={go}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 14px rgba(245,158,11,0.35)')}
+                    onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+                  >
+                    <Rocket style={{ width: '13px', height: '13px' }} />
+                    Go to LaunchPad
+                  </button>
                 </div>
 
               </div>
