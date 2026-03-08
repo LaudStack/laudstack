@@ -64,108 +64,130 @@ export default function Home() {
           massive bold headline, floating review cards,
           prominent search bar, clean & authoritative
       ═══════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-[#F8F9FA]" style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <section className="relative overflow-hidden bg-[#F8F9FA]" style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', alignItems: 'center' }}>
+        <div className="max-w-[1280px] w-full mx-auto px-6 lg:px-12 py-16">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-        {/* ── Main hero content ── */}
-        <div style={{ width: '100%', maxWidth: '760px', marginLeft: 'auto', marginRight: 'auto', padding: '0 24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            {/* ── LEFT: Headline + Search ── */}
+            <div>
+              <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}
+                className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                95+ AI & SaaS Tools Reviewed
+              </motion.div>
 
-            {/* ── HEADLINE ── */}
-            <motion.h1
-              initial="hidden" animate="visible" variants={fadeUp} custom={0}
-              className="text-center text-[38px] md:text-[52px] xl:text-[64px] font-black text-slate-900 leading-[1.08] tracking-[-0.025em] max-w-3xl mx-auto"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              The Trusted Source for{' '}
-              <span style={{
-                background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                AI & SaaS Tools.
-              </span>
-            </motion.h1>
+              <motion.h1
+                initial="hidden" animate="visible" variants={fadeUp} custom={1}
+                className="text-[40px] md:text-[52px] xl:text-[60px] font-black text-slate-900 leading-[1.06] tracking-[-0.025em]"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                The Trusted Source for{' '}
+                <span style={{
+                  background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>
+                  AI & SaaS Tools.
+                </span>
+              </motion.h1>
 
-            <motion.p
-              initial="hidden" animate="visible" variants={fadeUp} custom={1}
-              className="text-center mt-4 text-base md:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed"
-            >
-              Real reviews. Honest rankings. The smartest way to discover, compare, and choose the AI & SaaS tools your business actually needs.
-            </motion.p>
+              <motion.p
+                initial="hidden" animate="visible" variants={fadeUp} custom={2}
+                className="mt-5 text-base md:text-lg text-slate-500 leading-relaxed max-w-lg"
+              >
+                Real reviews. Honest rankings. The smartest way to discover, compare, and choose the AI & SaaS tools your business actually needs.
+              </motion.p>
 
-            {/* ── SEARCH BAR ── */}
-            <motion.div
-              initial="hidden" animate="visible" variants={fadeUp} custom={2}
-              className="mt-8 w-full max-w-[600px] mx-auto"
-            >
-              <div className="flex items-center bg-white rounded-xl shadow-xl shadow-slate-200/60 border border-slate-200 overflow-hidden">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                  <input
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && go()}
-                    placeholder="Search AI writing tools, CRMs, dev tools..."
-                    className="w-full pl-12 pr-4 h-14 text-slate-800 placeholder:text-slate-400 text-sm outline-none bg-transparent"
-                  />
-                </div>
-                <button
-                  onClick={go}
-                  className="h-14 px-8 font-bold text-white text-sm transition-all hover:opacity-90 shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
-                >
-                  Search
-                </button>
-              </div>
-
-              {/* Popular searches */}
-              <div className="flex items-center gap-2 mt-3.5 flex-wrap justify-center">
-                <span className="text-xs text-slate-400 font-medium">Popular:</span>
-                {POPULAR_SEARCHES.map(term => (
+              {/* Search bar */}
+              <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mt-8">
+                <div className="flex items-center bg-white rounded-xl shadow-lg shadow-slate-200/60 border border-slate-200 overflow-hidden">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                    <input
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && go()}
+                      placeholder="Search AI writing tools, CRMs, dev tools..."
+                      className="w-full pl-12 pr-4 h-14 text-slate-800 placeholder:text-slate-400 text-sm outline-none bg-transparent"
+                    />
+                  </div>
                   <button
-                    key={term}
                     onClick={go}
-                    className="text-xs text-slate-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1 rounded-md border border-slate-200 hover:border-amber-200 transition-all font-medium"
+                    className="h-14 px-7 font-bold text-white text-sm transition-all hover:opacity-90 shrink-0"
+                    style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
                   >
-                    {term}
+                    Search
                   </button>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* ── SOCIAL PROOF ROW ── */}
-            <motion.div
-              initial="hidden" animate="visible" variants={fadeUp} custom={3}
-              className="mt-6 flex items-center justify-center gap-8 flex-wrap"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-1.5">
-                  {[1,2,3,4,5].map(i => (
-                    <img key={i} src={`https://i.pravatar.cc/28?img=${i+10}`} alt="" className="w-7 h-7 rounded-full border-2 border-[#F8F9FA] object-cover" />
+                </div>
+                <div className="flex items-center gap-2 mt-3 flex-wrap">
+                  <span className="text-xs text-slate-400 font-medium">Popular:</span>
+                  {POPULAR_SEARCHES.map(term => (
+                    <button key={term} onClick={go}
+                      className="text-xs text-slate-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1 rounded-md border border-slate-200 hover:border-amber-200 transition-all font-medium"
+                    >{term}</button>
                   ))}
                 </div>
-                <span className="text-sm text-slate-500"><span className="font-bold text-slate-800">12,000+</span> professionals</span>
-              </div>
-              <div className="w-px h-5 bg-slate-300" />
-              <div className="flex items-center gap-1.5">
-                {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}
-                <span className="text-sm text-slate-500 ml-1"><span className="font-bold text-slate-800">4.9</span> avg rating</span>
-              </div>
-              <div className="w-px h-5 bg-slate-300 hidden sm:block" />
-              <div className="hidden sm:flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm text-slate-500"><span className="font-bold text-slate-800">98%</span> verified reviews</span>
-              </div>
-            </motion.div>
-          </div>
-        </div>
+              </motion.div>
 
-        {/* Bottom wave divider into white */}
-        <div className="w-full overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
-            <path d="M0 48L1440 48L1440 24C1200 0 960 0 720 24C480 48 240 48 0 24L0 48Z" fill="white"/>
-          </svg>
+              {/* Social proof */}
+              <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4}
+                className="mt-7 flex items-center gap-6 flex-wrap"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-1.5">
+                    {[1,2,3,4,5].map(i => (
+                      <img key={i} src={`https://i.pravatar.cc/28?img=${i+10}`} alt="" className="w-7 h-7 rounded-full border-2 border-[#F8F9FA] object-cover" />
+                    ))}
+                  </div>
+                  <span className="text-sm text-slate-500"><span className="font-semibold text-slate-800">12,000+</span> professionals</span>
+                </div>
+                <div className="w-px h-4 bg-slate-300" />
+                <div className="flex items-center gap-1">
+                  {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}
+                  <span className="text-sm text-slate-500 ml-1"><span className="font-semibold text-slate-800">4.9</span> avg rating</span>
+                </div>
+                <div className="w-px h-4 bg-slate-300" />
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  <span className="text-sm text-slate-500"><span className="font-semibold text-slate-800">98%</span> verified</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* ── RIGHT: Category grid ── */}
+            <motion.div
+              initial={{ opacity: 0, x: 32 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="hidden lg:grid grid-cols-2 gap-3"
+            >
+              {[
+                { icon: Sparkles,      label: 'AI Writing',        count: '24 tools',  color: 'bg-violet-50 text-violet-700 border-violet-100' },
+                { icon: BarChart3,     label: 'Analytics',         count: '18 tools',  color: 'bg-blue-50 text-blue-700 border-blue-100' },
+                { icon: Zap,           label: 'Automation',        count: '15 tools',  color: 'bg-amber-50 text-amber-700 border-amber-100' },
+                { icon: Users,         label: 'CRM & Sales',       count: '12 tools',  color: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+                { icon: Shield,        label: 'Security',          count: '9 tools',   color: 'bg-red-50 text-red-700 border-red-100' },
+                { icon: MessageSquare, label: 'Customer Support',  count: '11 tools',  color: 'bg-sky-50 text-sky-700 border-sky-100' },
+                { icon: Globe,         label: 'SEO & Marketing',   count: '16 tools',  color: 'bg-teal-50 text-teal-700 border-teal-100' },
+                { icon: Trophy,        label: 'Project Mgmt',      count: '13 tools',  color: 'bg-orange-50 text-orange-700 border-orange-100' },
+              ].map(({ icon: Icon, label, count, color }) => (
+                <button key={label} onClick={go}
+                  className={`flex items-center gap-3 p-4 rounded-xl border bg-white hover:shadow-md transition-all group ${color.split(' ')[2]}`}
+                >
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${color.split(' ')[0]} ${color.split(' ')[1]}`}>
+                    <Icon className="h-4.5 w-4.5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-semibold text-slate-800 group-hover:text-slate-900">{label}</div>
+                    <div className="text-xs text-slate-400">{count}</div>
+                  </div>
+                </button>
+              ))}
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
