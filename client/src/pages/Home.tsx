@@ -65,18 +65,18 @@ export default function Home() {
       ═══════════════════════════════════════════════════ */}
       <section
         className="relative bg-[#F8F9FA]"
-        style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 24px' }}
+        style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '96px', paddingBottom: '100px', paddingLeft: '24px', paddingRight: '24px' }}
       >
         {/* Subtle radial glow — very light, non-distracting */}
-        <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '400px', background: 'radial-gradient(ellipse at center, rgba(245,158,11,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: '700px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(245,158,11,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ width: '100%', maxWidth: '680px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <div style={{ width: '100%', maxWidth: '700px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
           {/* Badge */}
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}
-            className="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm mb-7"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: '#fff', border: '1px solid #E2E8F0', color: '#475569', fontSize: '12px', fontWeight: 600, padding: '6px 14px', borderRadius: '100px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: '36px', letterSpacing: '0.01em' }}
           >
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+            <Sparkles style={{ width: '13px', height: '13px', color: '#F59E0B' }} />
             Trusted by 12,000+ professionals
           </motion.div>
 
@@ -158,11 +158,14 @@ export default function Home() {
           </motion.div>
 
         </div>
+
+        {/* Curved SVG wave at bottom — hero flows into white content */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, lineHeight: 0, zIndex: 2 }}>
+          <svg viewBox="0 0 1440 72" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', width: '100%' }} preserveAspectRatio="none">
+            <path d="M0,72 C360,0 1080,0 1440,72 L1440,72 L0,72 Z" fill="#ffffff"/>
+          </svg>
+        </div>
       </section>
-
-
-
-
 
       {/* ═══════════════════════════════════════════════════
           DISCOVER — TRENDING THIS WEEK
