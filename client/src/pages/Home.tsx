@@ -35,11 +35,6 @@ const STATS = [
   { value: '98%',    label: 'Review Authenticity',  icon: Shield },
 ];
 
-const TRUST_BRANDS = [
-  'Notion', 'Figma', 'Linear', 'Loom', 'Webflow',
-  'Airtable', 'Framer', 'Pitch', 'Coda', 'Retool',
-];
-
 const POPULAR_SEARCHES = [
   'AI Writing', 'Code Editor', 'Project Management', 'Design Tools', 'Analytics', 'CRM'
 ];
@@ -65,143 +60,194 @@ export default function Home() {
       <Navbar />
 
       {/* ═══════════════════════════════════════════════════
-          HERO — G2-Style Light, Search-Focused
-          No mockup image — clean, text + search only
+          HERO — G2-Inspired: Pure white/light-grey bg,
+          massive bold headline, floating review cards,
+          prominent search bar, clean & authoritative
       ═══════════════════════════════════════════════════ */}
-      <section
-        className="relative pt-32 pb-20 overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, #FFFBF5 0%, #FFF7ED 60%, #FAFAFA 100%)',
-        }}
-      >
-        {/* Decorative amber glow */}
-        <div className="absolute -top-20 right-0 w-[600px] h-[400px] rounded-full bg-amber-200/25 blur-[120px] pointer-events-none" />
-        <div className="absolute top-40 left-0 w-[300px] h-[300px] rounded-full bg-orange-100/30 blur-[100px] pointer-events-none" />
+      <section className="relative pt-28 pb-0 overflow-hidden bg-[#F8F9FA]">
 
-        <div className="max-w-[1100px] mx-auto px-6 lg:px-10 relative">
-          {/* Eyebrow */}
-          <motion.div
-            initial="hidden" animate="visible" variants={fadeUp} custom={0}
-            className="flex justify-center mb-6"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold">
-              <Sparkles className="h-3.5 w-3.5" />
-              The #1 Platform for AI & SaaS Discovery
-            </div>
-          </motion.div>
+        {/* ── Main hero content ── */}
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 relative">
+          <div className="relative flex flex-col items-center">
 
-          {/* Headline */}
-          <motion.h1
-            initial="hidden" animate="visible" variants={fadeUp} custom={1}
-            className="text-center text-5xl md:text-6xl xl:text-[72px] font-black text-slate-900 leading-[1.05] tracking-tight max-w-4xl mx-auto"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            Discover the Best{' '}
-            <span
-              style={{
+            {/* Floating review card — LEFT */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="hidden lg:block absolute left-0 top-8 w-[220px] bg-white rounded-2xl shadow-lg shadow-slate-200/80 border border-slate-100 p-4 z-10"
+            >
+              <div className="flex items-center gap-2.5 mb-2">
+                <img src="https://i.pravatar.cc/36?img=12" alt="" className="w-9 h-9 rounded-full" />
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Marcus T.</div>
+                  <div className="text-[10px] text-slate-400">Startup Founder</div>
+                </div>
+              </div>
+              <div className="flex gap-0.5 mb-1.5">
+                {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
+              </div>
+              <p className="text-[11px] text-slate-600 leading-relaxed">"Found the perfect AI writing tool in minutes. This platform is a game changer."</p>
+              <div className="mt-2 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Verified Review
+              </div>
+            </motion.div>
+
+            {/* Floating review card — RIGHT */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              className="hidden lg:block absolute right-0 top-4 w-[220px] bg-white rounded-2xl shadow-lg shadow-slate-200/80 border border-slate-100 p-4 z-10"
+            >
+              <div className="flex items-center gap-2.5 mb-2">
+                <img src="https://i.pravatar.cc/36?img=25" alt="" className="w-9 h-9 rounded-full" />
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Priya K.</div>
+                  <div className="text-[10px] text-slate-400">Product Manager</div>
+                </div>
+              </div>
+              <div className="flex gap-0.5 mb-1.5">
+                {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
+              </div>
+              <p className="text-[11px] text-slate-600 leading-relaxed">"The leaderboard rankings helped us shortlist 3 tools in one afternoon."</p>
+              <div className="mt-2 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Verified Review
+              </div>
+            </motion.div>
+
+            {/* Floating rank badge — bottom left */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.0, duration: 0.5 }}
+              className="hidden lg:flex absolute left-8 bottom-28 items-center gap-2 bg-white rounded-xl shadow-md border border-slate-100 px-3 py-2 z-10"
+            >
+              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                <Trophy className="h-4 w-4 text-amber-500" />
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400">This week's #1</div>
+                <div className="text-xs font-bold text-slate-800">ChatGPT</div>
+              </div>
+            </motion.div>
+
+            {/* Floating new launch badge — bottom right */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.5 }}
+              className="hidden lg:flex absolute right-8 bottom-28 items-center gap-2 bg-white rounded-xl shadow-md border border-slate-100 px-3 py-2 z-10"
+            >
+              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Rocket className="h-4 w-4 text-blue-500" />
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400">Just launched</div>
+                <div className="text-xs font-bold text-slate-800">Cursor AI</div>
+              </div>
+            </motion.div>
+
+            {/* ── HEADLINE ── */}
+            <motion.h1
+              initial="hidden" animate="visible" variants={fadeUp} custom={0}
+              className="text-center text-[52px] md:text-[68px] xl:text-[84px] font-black text-slate-900 leading-[1.0] tracking-[-0.03em] max-w-3xl mx-auto pt-4"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              Where you go for{' '}
+              <span style={{
                 background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-              }}
+              }}>
+                AI & SaaS.
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial="hidden" animate="visible" variants={fadeUp} custom={1}
+              className="text-center mt-5 text-lg md:text-xl text-slate-500 max-w-xl mx-auto leading-relaxed"
             >
-              AI & SaaS Tools
-            </span>
-          </motion.h1>
+              Discover, compare, and review the best AI tools and SaaS products — ranked by real users, not ad spend.
+            </motion.p>
 
-          <motion.p
-            initial="hidden" animate="visible" variants={fadeUp} custom={2}
-            className="text-center mt-5 text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed"
-          >
-            Read verified community reviews, compare real-time rankings, and find the right software — trusted by 12,000+ professionals worldwide.
-          </motion.p>
-
-          {/* ── SEARCH BAR ── */}
-          <motion.div
-            initial="hidden" animate="visible" variants={fadeUp} custom={3}
-            className="mt-10 max-w-2xl mx-auto"
-          >
-            <div className="flex items-center gap-0 bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-200 overflow-hidden p-1.5">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <input
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && go()}
-                  placeholder="Search 95+ AI & SaaS tools..."
-                  className="w-full pl-12 pr-4 h-12 text-slate-800 placeholder:text-slate-400 text-sm outline-none bg-transparent"
-                />
-              </div>
-              <button
-                onClick={go}
-                className="h-12 px-7 rounded-xl font-semibold text-white text-sm transition-all hover:shadow-lg hover:shadow-amber-500/30 shrink-0"
-                style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
-              >
-                Search
-              </button>
-            </div>
-
-            {/* Popular searches */}
-            <div className="flex items-center gap-2 mt-3 flex-wrap justify-center">
-              <span className="text-xs text-slate-400 font-medium">Popular:</span>
-              {POPULAR_SEARCHES.map(term => (
+            {/* ── SEARCH BAR ── */}
+            <motion.div
+              initial="hidden" animate="visible" variants={fadeUp} custom={2}
+              className="mt-9 w-full max-w-[640px] mx-auto"
+            >
+              <div className="flex items-center bg-white rounded-xl shadow-xl shadow-slate-200/60 border border-slate-200 overflow-hidden">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && go()}
+                    placeholder="Search AI writing tools, CRMs, dev tools..."
+                    className="w-full pl-12 pr-4 h-14 text-slate-800 placeholder:text-slate-400 text-sm outline-none bg-transparent"
+                  />
+                </div>
                 <button
-                  key={term}
                   onClick={go}
-                  className="text-xs text-slate-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-amber-200 transition-all font-medium"
+                  className="h-14 px-8 font-bold text-white text-sm transition-all hover:opacity-90 shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
                 >
-                  {term}
+                  Search
                 </button>
-              ))}
-            </div>
-          </motion.div>
+              </div>
 
-          {/* Social proof row */}
-          <motion.div
-            initial="hidden" animate="visible" variants={fadeUp} custom={4}
-            className="mt-10 flex items-center justify-center gap-6 flex-wrap"
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-1.5">
-                {[1,2,3,4,5].map(i => (
-                  <img key={i} src={`https://i.pravatar.cc/28?img=${i+10}`} alt="" className="w-7 h-7 rounded-full border-2 border-white object-cover" />
+              {/* Popular searches */}
+              <div className="flex items-center gap-2 mt-3.5 flex-wrap justify-center">
+                <span className="text-xs text-slate-400 font-medium">Popular:</span>
+                {POPULAR_SEARCHES.map(term => (
+                  <button
+                    key={term}
+                    onClick={go}
+                    className="text-xs text-slate-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1 rounded-md border border-slate-200 hover:border-amber-200 transition-all font-medium"
+                  >
+                    {term}
+                  </button>
                 ))}
               </div>
-              <span className="text-sm text-slate-500"><span className="font-semibold text-slate-800">12,000+</span> professionals</span>
-            </div>
-            <div className="w-px h-5 bg-slate-200" />
-            <div className="flex items-center gap-1.5">
-              {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
-              <span className="text-sm text-slate-500"><span className="font-semibold text-slate-800">4.9</span> avg rating</span>
-            </div>
-            <div className="w-px h-5 bg-slate-200 hidden sm:block" />
-            <div className="hidden sm:flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm text-slate-500"><span className="font-semibold text-slate-800">98%</span> verified reviews</span>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {/* ── SOCIAL PROOF ROW ── */}
+            <motion.div
+              initial="hidden" animate="visible" variants={fadeUp} custom={3}
+              className="mt-8 flex items-center justify-center gap-8 flex-wrap pb-14"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-1.5">
+                  {[1,2,3,4,5].map(i => (
+                    <img key={i} src={`https://i.pravatar.cc/28?img=${i+10}`} alt="" className="w-7 h-7 rounded-full border-2 border-[#F8F9FA] object-cover" />
+                  ))}
+                </div>
+                <span className="text-sm text-slate-500"><span className="font-bold text-slate-800">12,000+</span> professionals</span>
+              </div>
+              <div className="w-px h-5 bg-slate-300" />
+              <div className="flex items-center gap-1.5">
+                {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}
+                <span className="text-sm text-slate-500 ml-1"><span className="font-bold text-slate-800">4.9</span> avg rating</span>
+              </div>
+              <div className="w-px h-5 bg-slate-300 hidden sm:block" />
+              <div className="hidden sm:flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span className="text-sm text-slate-500"><span className="font-bold text-slate-800">98%</span> verified reviews</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Bottom wave divider into white */}
+        <div className="w-full overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+            <path d="M0 48L1440 48L1440 24C1200 0 960 0 720 24C480 48 240 48 0 24L0 48Z" fill="white"/>
+          </svg>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════
-          TRUST BAR
-      ═══════════════════════════════════════════════════ */}
-      <section className="border-y border-slate-100 bg-white py-5">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-8 overflow-x-auto">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">
-              Trusted by teams at
-            </p>
-            <div className="flex items-center gap-10 flex-1">
-              {TRUST_BRANDS.map(brand => (
-                <span key={brand} className="text-sm font-bold text-slate-300 whitespace-nowrap hover:text-slate-500 transition-colors cursor-default select-none">
-                  {brand}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* ═══════════════════════════════════════════════════
           STATS BAR
