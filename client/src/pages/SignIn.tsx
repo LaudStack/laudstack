@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 
 const TRUST_POINTS = [
@@ -270,6 +271,7 @@ export default function SignIn() {
         </div>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <Footer />
     </div>
   );
 }

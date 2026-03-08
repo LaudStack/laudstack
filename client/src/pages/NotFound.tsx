@@ -1,49 +1,65 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, Home } from "lucide-react";
-import { useLocation } from "wouter";
+import { Link } from 'wouter';
+import { Home, Search, ArrowRight, Compass } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+
+const QUICK_LINKS = [
+  { label: 'Browse All Tools', href: '/categories', icon: Compass },
+  { label: 'Launch Leaderboard', href: '/launches', icon: ArrowRight },
+  { label: 'Submit Your Tool', href: '/launchpad', icon: ArrowRight },
+  { label: 'Contact Us', href: '/contact', icon: ArrowRight },
+];
 
 export default function NotFound() {
-  const [, setLocation] = useLocation();
-
-  const handleGoHome = () => {
-    setLocation("/");
-  };
-
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-      <Card className="w-full max-w-lg mx-4 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-        <CardContent className="pt-8 pb-8 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-red-100 rounded-full animate-pulse" />
-              <AlertCircle className="relative h-16 w-16 text-red-500" />
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+      <Navbar />
+      <div className="mt-[72px] flex-1 flex flex-col items-center justify-center px-4 py-20">
+
+        {/* 404 graphic */}
+        <div className="relative mb-8 select-none">
+          <div className="text-[120px] font-black text-slate-800 leading-none tracking-tighter">404</div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-amber-400/10 border border-amber-400/20 rounded-2xl px-6 py-3">
+              <span className="text-amber-400 font-bold text-lg tracking-wide">Page Not Found</span>
             </div>
           </div>
+        </div>
 
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">404</h1>
+        <p className="text-slate-400 text-center text-base max-w-md leading-relaxed mb-10 font-medium">
+          The page you're looking for doesn't exist or has been moved. Let's get you back on track.
+        </p>
 
-          <h2 className="text-xl font-semibold text-slate-700 mb-4">
-            Page Not Found
-          </h2>
-
-          <p className="text-slate-600 mb-8 leading-relaxed">
-            Sorry, the page you are looking for doesn't exist.
-            <br />
-            It may have been moved or deleted.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              onClick={handleGoHome}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Go Home
-            </Button>
+        {/* Primary CTA */}
+        <Link href="/">
+          <div className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors cursor-pointer mb-10 text-sm">
+            <Home className="w-4 h-4" />
+            Back to LaudStack
           </div>
-        </CardContent>
-      </Card>
+        </Link>
+
+        {/* Quick links */}
+        <div className="w-full max-w-sm">
+          <p className="text-slate-600 text-xs font-bold uppercase tracking-widest text-center mb-4">Or explore</p>
+          <div className="grid grid-cols-2 gap-3">
+            {QUICK_LINKS.map(({ label, href, icon: Icon }) => (
+              <Link key={label} href={href}>
+                <div className="flex items-center gap-2 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/60 hover:border-amber-500/30 rounded-xl px-4 py-3 cursor-pointer transition-all group">
+                  <Icon className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                  <span className="text-slate-300 group-hover:text-white text-xs font-semibold leading-tight">{label}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Search hint */}
+        <div className="mt-10 flex items-center gap-2 text-slate-600 text-sm">
+          <Search className="w-4 h-4" />
+          <span>Try searching with <kbd className="bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-xs font-mono text-slate-400">⌘K</kbd></span>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 }

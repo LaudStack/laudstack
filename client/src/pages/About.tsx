@@ -6,6 +6,8 @@ import {
   Shield, Star, Users, Zap, Globe, Heart, ArrowRight,
   CheckCircle, TrendingUp, Award, BookOpen, Lightbulb
 } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const TEAM = [
   { name: 'Alex Rivera', role: 'Co-founder & CEO', bio: 'Former product lead at a Series B SaaS company. Built LaudStack to solve the tool discovery problem he faced every week.', initials: 'AR' },
@@ -46,7 +48,9 @@ const STATS = [
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+      <Navbar />
+      <div className="mt-[72px] flex-1">
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
@@ -186,6 +190,8 @@ export default function About() {
           </div>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

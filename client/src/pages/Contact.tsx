@@ -4,6 +4,8 @@
 import { useState } from 'react';
 import { Mail, MessageSquare, Zap, Shield, Users, ChevronRight, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const CONTACT_TOPICS = [
   { value: 'general', label: 'General Inquiry', icon: <MessageSquare className="w-4 h-4" /> },
@@ -55,7 +57,9 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+      <Navbar />
+      <div className="mt-[72px] flex-1">
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
@@ -230,6 +234,8 @@ export default function Contact() {
           </div>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import {
   Shield, CheckCircle, AlertTriangle, Eye, BarChart3, Star,
   Users, Lock, FileText, ArrowRight, Zap, XCircle, Info
 } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const TRUST_PILLARS = [
   {
@@ -75,7 +77,9 @@ const PROHIBITED = [
 
 export default function Trust() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+      <Navbar />
+      <div className="mt-[72px] flex-1">
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-slate-900/50" />
@@ -215,6 +219,8 @@ export default function Trust() {
           </div>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

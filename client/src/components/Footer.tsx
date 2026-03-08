@@ -1,97 +1,161 @@
 /*
- * LaudStack Footer — "Warm Professional"
- * Dark navy background, amber accents, 4-column layout
+ * LaudStack Footer — Sitewide
+ * Design: Dark slate background, amber accents, 4-column layout
+ * All links point to real routes; coming-soon items show toast
  */
 
+import { useState } from 'react';
 import { Link } from 'wouter';
 import { toast } from 'sonner';
-import { Zap, Twitter, Linkedin, Github, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  Twitter, Linkedin, Github, Mail, ArrowRight,
+  Shield, Zap, Star, BookOpen
+} from 'lucide-react';
 
 const FOOTER_LINKS = {
-  Platform: [
-    { label: 'Discover Tools', href: '/discover' },
-    { label: 'Leaderboard', href: '/leaderboard' },
-    { label: 'Categories', href: '/categories' },
-    { label: 'LaunchPad', href: '/launchpad' },
-    { label: 'Compare Tools', href: '/compare' },
+  Discover: [
+    { label: 'Browse All Tools', href: '/tools', live: false },
+    { label: 'Categories', href: '/categories', live: true },
+    { label: 'Launches & Leaderboard', href: '/launches', live: true },
+    { label: 'Compare Tools', href: '/compare', live: true },
+    { label: 'Saved Tools', href: '/saved', live: true },
+    { label: 'Reviews', href: '/reviews', live: true },
   ],
   Founders: [
-    { label: 'Claim Your Page', href: '/launchpad' },
-    { label: 'LaunchPad', href: '/launchpad' },
-    { label: 'Founder Dashboard', href: '/dashboard' },
-    { label: 'Analytics', href: '/dashboard/analytics' },
-    { label: 'Affiliate Program', href: '/affiliates' },
+    { label: 'Submit Your Tool', href: '/launchpad', live: true },
+    { label: 'Founder Dashboard', href: '/dashboard/founder', live: true },
+    { label: 'Upcoming Launches', href: '/launches', live: true },
+    { label: 'Analytics', href: '/dashboard/founder', live: true },
+    { label: 'Affiliate Program', href: '/affiliates', live: false },
   ],
   Company: [
-    { label: 'About LaudStack', href: '/about' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Changelog', href: '/changelog' },
-    { label: 'Contact Us', href: '/contact' },
-    { label: 'Advertise', href: '/advertise' },
+    { label: 'About LaudStack', href: '/about', live: true },
+    { label: 'Trust Framework', href: '/trust', live: true },
+    { label: 'Contact Us', href: '/contact', live: true },
+    { label: 'Blog', href: '/blog', live: false },
+    { label: 'Changelog', href: '/changelog', live: false },
   ],
   Legal: [
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
-    { label: 'Cookie Policy', href: '/cookies' },
-    { label: 'Review Guidelines', href: '/guidelines' },
+    { label: 'Privacy Policy', href: '/privacy', live: false },
+    { label: 'Terms of Service', href: '/terms', live: false },
+    { label: 'Cookie Policy', href: '/cookies', live: false },
+    { label: 'Review Guidelines', href: '/trust', live: true },
   ],
 };
 
+const TRUST_BADGES = [
+  { icon: Shield, text: 'Verified Reviews' },
+  { icon: Star, text: '4.7 Avg Rating' },
+  { icon: Zap, text: '100+ Tools Listed' },
+  { icon: BookOpen, text: 'Editorial Standards' },
+];
+
 export default function Footer() {
-  const handleComingSoon = () => toast.info('Feature coming soon!');
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !email.includes('@')) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    setSubscribed(true);
+    toast.success('You\'re subscribed! Expect your first digest next Monday.');
+  };
 
   return (
-    <footer className="bg-[#0F172A] text-slate-300">
-      {/* Main footer grid */}
-      <div className="container py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
+    <footer className="bg-slate-950 text-slate-300 border-t border-slate-800/60">
+
+      {/* ── Trust badges strip ── */}
+      <div className="border-b border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-center gap-6 flex-wrap">
+            {TRUST_BADGES.map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <Icon className="w-3.5 h-3.5 text-amber-500/70" />
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main grid ── */}
+      <div className="max-w-6xl mx-auto px-4 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+
           {/* Brand column */}
           <div className="lg:col-span-2">
             <Link href="/">
-              <img src="/logo-dark-transparent.png" alt="LaudStack" className="h-8 w-auto mb-4 opacity-90" />
+              <span className="text-xl font-black text-amber-400 tracking-tight cursor-pointer">
+                LaudStack
+              </span>
             </Link>
-            <p className="text-slate-300 text-sm leading-relaxed mb-6 max-w-xs font-medium">
+            <p className="text-slate-400 text-sm leading-relaxed mt-3 mb-6 max-w-xs font-medium">
               The trusted community platform where founders launch their AI and SaaS tools, users discover the best software, and the community curates quality.
             </p>
 
             {/* Newsletter */}
             <div>
-              <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">
+              <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
                 Weekly Tool Digest
               </p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="your@email.com"
-                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-400 h-9 text-sm"
-                />
-                <Button
-                  size="sm"
-                  onClick={handleComingSoon}
-                  className="border-0 shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
-                >
-                  <Mail className="h-4 w-4" />
-                </Button>
-              </div>
+              {subscribed ? (
+                <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold">
+                  <span className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">✓</span>
+                  You're subscribed!
+                </div>
+              ) : (
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="flex-1 min-w-0 bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
+                  />
+                  <button
+                    type="submit"
+                    className="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold p-2 rounded-lg transition-colors"
+                    aria-label="Subscribe"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </form>
+              )}
+              <p className="text-slate-600 text-xs mt-2">No spam. Unsubscribe anytime.</p>
             </div>
 
             {/* Social links */}
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-2.5 mt-6">
               {[
-                { icon: Twitter, label: 'Twitter' },
-                { icon: Linkedin, label: 'LinkedIn' },
-                { icon: Github, label: 'GitHub' },
-              ].map(({ icon: Icon, label }) => (
-                <button
-                  key={label}
-                  onClick={handleComingSoon}
-                  className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                  aria-label={label}
-                >
-                  <Icon className="h-4 w-4 text-slate-300" />
-                </button>
+                { icon: Twitter, label: 'Twitter / X', href: 'https://twitter.com' },
+                { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com' },
+                { icon: Github, label: 'GitHub', href: 'https://github.com' },
+                { icon: Mail, label: 'Email', href: '/contact' },
+              ].map(({ icon: Icon, label, href }) => (
+                href.startsWith('http') ? (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 hover:border-amber-500/40 flex items-center justify-center transition-all group"
+                    aria-label={label}
+                  >
+                    <Icon className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                  </a>
+                ) : (
+                  <Link key={label} href={href}>
+                    <div
+                      className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 hover:border-amber-500/40 flex items-center justify-center transition-all group cursor-pointer"
+                      aria-label={label}
+                    >
+                      <Icon className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                    </div>
+                  </Link>
+                )
               ))}
             </div>
           </div>
@@ -99,17 +163,25 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
             <div key={heading}>
-              <h4 className="text-white font-semibold text-sm mb-4">{heading}</h4>
-              <ul className="space-y-3">
-                {links.map(({ label, href }) => (
+              <h4 className="text-white font-bold text-sm mb-4 tracking-wide">{heading}</h4>
+              <ul className="space-y-2.5">
+                {links.map(({ label, href, live }) => (
                   <li key={label}>
-                    <Link
-                      href={href}
-                      onClick={handleComingSoon}
-                      className="text-slate-300 hover:text-amber-400 text-sm font-medium transition-colors"
-                    >
-                      {label}
-                    </Link>
+                    {live ? (
+                      <Link href={href}>
+                        <span className="text-slate-400 hover:text-amber-400 text-sm font-medium transition-colors cursor-pointer leading-relaxed">
+                          {label}
+                        </span>
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => toast.info(`${label} — coming soon!`)}
+                        className="text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors text-left leading-relaxed"
+                      >
+                        {label}
+                        <span className="ml-1.5 text-[10px] bg-slate-800 text-slate-600 border border-slate-700 px-1 py-0.5 rounded font-semibold align-middle">Soon</span>
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -118,15 +190,23 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-white/10">
-        <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-400 text-sm font-medium">
-            © {new Date().getFullYear()} LaudStack. All rights reserved.
+      {/* ── Bottom bar ── */}
+      <div className="border-t border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-slate-500 text-sm font-medium">
+            © {new Date().getFullYear()} LaudStack, Inc. All rights reserved.
           </p>
-          <div className="flex items-center gap-1 text-slate-400 text-sm font-medium">
-            <span>Built for founders, by founders.</span>
-            <span className="text-amber-500 ml-1">✦</span>
+          <div className="flex items-center gap-4">
+            <button onClick={() => toast.info('Privacy Policy — coming soon!')} className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors">Privacy</button>
+            <span className="text-slate-700">·</span>
+            <button onClick={() => toast.info('Terms of Service — coming soon!')} className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors">Terms</button>
+            <span className="text-slate-700">·</span>
+            <button onClick={() => toast.info('Cookie Policy — coming soon!')} className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors">Cookies</button>
+            <span className="text-slate-700 hidden sm:block">·</span>
+            <span className="hidden sm:flex items-center gap-1 text-slate-500 text-xs font-medium">
+              Built for founders, by founders
+              <span className="text-amber-500">✦</span>
+            </span>
           </div>
         </div>
       </div>
