@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import WriteReviewModal from '@/components/WriteReviewModal';
 import Footer from '@/components/Footer';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
@@ -121,6 +122,7 @@ export default function ToolDetail() {
   const [upvoted, setUpvoted] = useState(false);
   const [upvoteCount, setUpvoteCount] = useState(0);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const tool = MOCK_TOOLS.find(t => t.slug === slug);
 
@@ -432,7 +434,7 @@ export default function ToolDetail() {
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Share your honest review and help others make informed decisions.</p>
               </div>
               <button
-                onClick={() => toast.info('Review submission coming soon!')}
+                onClick={() => setReviewOpen(true)}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', background: '#0F172A', color: '#FFFFFF', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'background 0.15s', whiteSpace: 'nowrap' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#1E293B')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#0F172A')}
@@ -581,6 +583,12 @@ export default function ToolDetail() {
       )}
 
       <Footer />
+      <WriteReviewModal
+        open={reviewOpen}
+        onClose={() => setReviewOpen(false)}
+        toolName={tool.name}
+        toolLogo={tool.logo_url}
+      />
     </div>
   );
 }
