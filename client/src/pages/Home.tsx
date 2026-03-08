@@ -3,13 +3,11 @@
  *
  * Conversion flow rationale:
  *  1. HERO             — Capture attention, state the value prop, search CTA
- *  2. STATS BAR        — Immediate trust signals (numbers don't lie)
- *  3. THREE PILLARS    — Explain the platform: Discover · Review · Launch
- *  4. TRENDING         — Show social proof via community activity (FOMO)
- *  5. TOP RATED        — Reinforce trust with highest-scored tools
- *  6. FRESH LAUNCHES   — Surface novelty & founder activity
- *  7. BROWSE + SIDEBAR — Full directory + leaderboard (exploration mode)
- *  8. LAUNCHPAD CTA    — Founder conversion after user trust is built
+ *  2. THREE PILLARS    — Explain the platform: Discover · Review · Launch
+ *  3. TRENDING         — Show social proof via community activity (FOMO)
+ *  4. FRESH LAUNCHES   — Surface novelty & founder activity
+ *  5. BROWSE + SIDEBAR — Full directory + leaderboard (exploration mode)
+ *  6. LAUNCHPAD CTA    — Founder conversion after user trust is built
  *
  * Design: "Warm Professional" — G2-grade, amber accent, Plus Jakarta Sans headings
  */
@@ -233,39 +231,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          2. STATS BAR
-          Four hard numbers — immediate credibility after the hero.
-      ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #F1F5F9' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
-          <div className="grid grid-cols-2 lg:grid-cols-4">
-            {STATS.map(({ value, label, icon: Icon, color }, i) => (
-              <motion.div
-                key={label}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '14px',
-                  padding: '26px 24px',
-                  borderRight: i % 2 === 0 ? '1px solid #F1F5F9' : 'none',
-                  borderBottom: i < 2 ? '1px solid #F1F5F9' : 'none',
-                }}
-                className="lg:border-r lg:border-b-0 last:border-r-0"
-              >
-                <div style={{ width: '42px', height: '42px', borderRadius: '11px', flexShrink: 0, background: `${color}14`, border: `1px solid ${color}28`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon style={{ width: '19px', height: '19px', color }} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A', lineHeight: 1, fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.02em' }}>{value}</div>
-                  <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500, marginTop: '3px' }}>{label}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════
-          3. THREE PILLARS — Discover · Review · Launch
+          2. THREE PILLARS — Discover · Review · Launch
           Explain the platform before showing content.
           Users need to understand WHY this place is different.
       ══════════════════════════════════════════════════════ */}
