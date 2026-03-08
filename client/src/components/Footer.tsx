@@ -44,40 +44,6 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#0F172A] text-slate-300">
-      {/* Pro CTA Banner */}
-      <div className="border-b border-white/10">
-        <div className="container py-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/5 rounded-2xl px-8 py-8 border border-white/10">
-            <div>
-              <div className="ls-section-label mb-2">For Founders</div>
-              <h3 className="text-2xl font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Own your narrative on LaudStack
-              </h3>
-              <p className="text-slate-300 mt-1 text-sm max-w-md font-medium">
-                Claim your tool page, respond to reviews, add a promotional banner, and access real analytics. Everything you need to turn your listing into a growth channel.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Button
-                onClick={handleComingSoon}
-                className="border-0 font-semibold px-6"
-                style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Go to LaunchPad
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleComingSoon}
-                className="border-white/20 text-white hover:bg-white/10 hover:text-white"
-              >
-                Learn More
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main footer grid */}
       <div className="container py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
