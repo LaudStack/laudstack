@@ -117,7 +117,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [bannerVisible, setBannerVisible]        = useState(true);
   const [, navigate] = useLocation();
-  const go = () => toast.info('Feature coming soon!');
+  const go = () => navigate('/launchpad');
   const goToTool = (slug: string) => navigate(`/tools/${slug}`);
   const handleSearch = () => {
     const q = searchQuery.trim();
