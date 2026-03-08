@@ -15,6 +15,7 @@ import Categories from './pages/Categories';
 import Reviews from './pages/Reviews';
 import SignIn from './pages/SignIn';
 import Compare from './pages/Compare';
+import Saved from './pages/Saved';
 import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
         <Route path="/reviews" component={Reviews} />
         <Route path="/signin" component={SignIn} />
         <Route path="/compare" component={Compare} />
+        <Route path="/saved" component={Saved} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

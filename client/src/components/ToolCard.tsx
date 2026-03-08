@@ -11,10 +11,11 @@
 
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Star, ExternalLink, ChevronUp, ShieldCheck, Zap, TrendingUp, TrendingDown, Minus, GitCompareArrows } from 'lucide-react';
+import { ExternalLink, ChevronUp, ShieldCheck, Zap, TrendingUp, TrendingDown, Minus, GitCompareArrows, Bookmark } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Tool, BadgeType } from '@/lib/types';
 import { useCompare } from '@/contexts/CompareContext';
+import { useSavedTools } from '@/hooks/useSavedTools';
 
 const BADGE_CONFIG: Record<BadgeType, { label: string; bg: string; color: string; border: string }> = {
   top_rated:      { label: 'Top Rated',      bg: '#FFFBEB', color: '#B45309', border: '#FDE68A' },
@@ -92,6 +93,15 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
   const [hovered, setHovered] = useState(false);
   const { toggle, isSelected, canAdd } = useCompare();
   const comparing = isSelected(tool.id);
+  const { isSaved, toggle: toggleSave } = useSavedTools();
+  const saved = isSaved(tool.id);
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSave(tool.id);
+    toast.success(saved ? `Removed ${tool.name} from saved tools` : `${tool.name} saved!`);
+  };
 
   const handleCompare = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -300,6 +310,23 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Bookmark / Save */}
+          <button
+            onClick={handleSave}
+            title={saved ? 'Remove from saved' : 'Save tool'}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: '30px', height: '30px', borderRadius: '7px', border: '1.5px solid',
+              borderColor: saved ? '#FDE68A' : '#E2E8F0',
+              background: saved ? '#FFFBEB' : '#F8FAFC',
+              color: saved ? '#D97706' : '#94A3B8',
+              cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+            }}
+            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; if (!saved) { b.style.borderColor = '#FDE68A'; b.style.color = '#D97706'; b.style.background = '#FFFBEB'; } }}
+            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; if (!saved) { b.style.borderColor = '#E2E8F0'; b.style.color = '#94A3B8'; b.style.background = '#F8FAFC'; } }}
+          >
+            <Bookmark style={{ width: '13px', height: '13px', fill: saved ? '#D97706' : 'none' }} />
+          </button>
           {/* Compare toggle */}
           <button
             onClick={handleCompare}

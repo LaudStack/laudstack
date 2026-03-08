@@ -14,7 +14,7 @@ import {
   Search, Rocket, ChevronDown, Menu, X,
   Zap, BarChart3, Star, Trophy, BookOpen,
   TrendingUp, Users, Shield, Layers, ArrowRight,
-  User, Settings, FileText, LogOut, PenSquare
+  User, Settings, FileText, LogOut, PenSquare, Bookmark
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { MOCK_TOOLS } from '@/lib/mockData';
@@ -281,6 +281,7 @@ export default function Navbar() {
                         <div className="p-1.5">
                           {[
                             { icon: User,       label: 'My Profile',     action: () => { toast.info('Profile coming soon!'); setAvatarOpen(false); } },
+                            { icon: Bookmark,   label: 'Saved Tools',     action: () => { navigate('/saved'); setAvatarOpen(false); } },
                             { icon: PenSquare,  label: 'My Reviews',     action: () => { navigate('/reviews'); setAvatarOpen(false); } },
                             { icon: FileText,   label: 'My Submissions',  action: () => { navigate('/launchpad'); setAvatarOpen(false); } },
                             { icon: Settings,   label: 'Account Settings', action: () => { toast.info('Settings coming soon!'); setAvatarOpen(false); } },
@@ -381,6 +382,9 @@ export default function Navbar() {
                       </div>
                       <button onClick={() => { navigate('/reviews'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl flex items-center gap-2">
                         <PenSquare className="h-4 w-4 text-slate-400" /> My Reviews
+                      </button>
+                      <button onClick={() => { navigate('/saved'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl flex items-center gap-2">
+                        <Bookmark className="h-4 w-4 text-amber-500" /> Saved Tools
                       </button>
                       <button onClick={() => { navigate('/launchpad'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl flex items-center gap-2">
                         <FileText className="h-4 w-4 text-slate-400" /> My Submissions
