@@ -159,8 +159,8 @@ function useCountdown(targetDate: Date) {
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 min-w-[48px] text-center">
-        <span className="text-white font-black text-xl tabular-nums leading-none">
+      <div className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 min-w-[48px] text-center">
+        <span className="text-slate-900 font-black text-xl tabular-nums leading-none">
           {String(value).padStart(2, '0')}
         </span>
       </div>
@@ -185,8 +185,8 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
   };
 
   return (
-    <div className={`relative bg-slate-900 border rounded-2xl p-5 flex flex-col gap-4 transition-all duration-300 hover:border-amber-400/40 ${
-      isLive ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : 'border-slate-700/60'
+    <div className={`relative bg-white border rounded-2xl p-5 flex flex-col gap-4 transition-all duration-300 hover:border-amber-400/40 ${
+      isLive ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : 'border-gray-300/60'
     }`}>
       {/* Status badge */}
       {isLive ? (
@@ -195,7 +195,7 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
           LIVE NOW
         </div>
       ) : (
-        <div className="absolute -top-3 left-4 flex items-center gap-1.5 bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-1 rounded-full border border-slate-600">
+        <div className="absolute -top-3 left-4 flex items-center gap-1.5 bg-gray-200 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full border border-gray-400">
           <Timer className="w-3 h-3" />
           UPCOMING
         </div>
@@ -209,11 +209,11 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
           className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-base leading-tight">{launch.name}</h3>
-          <p className="text-slate-400 text-sm mt-0.5 line-clamp-2">{launch.tagline}</p>
+          <h3 className="text-slate-900 font-bold text-base leading-tight">{launch.name}</h3>
+          <p className="text-slate-500 text-sm mt-0.5 line-clamp-2">{launch.tagline}</p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">{launch.category}</span>
-            <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">{launch.pricing}</span>
+            <span className="text-xs bg-gray-100 text-slate-600 px-2 py-0.5 rounded-full border border-gray-300">{launch.category}</span>
+            <span className="text-xs bg-gray-100 text-slate-600 px-2 py-0.5 rounded-full border border-gray-300">{launch.pricing}</span>
           </div>
         </div>
       </div>
@@ -243,10 +243,10 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-1 border-t border-slate-800">
+      <div className="flex items-center justify-between pt-1 border-t border-gray-200">
         <div className="flex items-center gap-1.5 text-slate-500 text-xs">
           <Eye className="w-3.5 h-3.5" />
-          <span className="font-semibold text-slate-400">{notifyCount.toLocaleString()}</span>
+          <span className="font-semibold text-slate-500">{notifyCount.toLocaleString()}</span>
           <span>watching</span>
         </div>
         {isLive ? (
@@ -278,7 +278,7 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
 
 function getRankIcon(rank: number) {
   if (rank === 1) return <Crown className="w-5 h-5 text-amber-400" />;
-  if (rank === 2) return <Medal className="w-5 h-5 text-slate-300" />;
+  if (rank === 2) return <Medal className="w-5 h-5 text-slate-600" />;
   if (rank === 3) return <Award className="w-5 h-5 text-amber-600" />;
   return null;
 }
@@ -309,7 +309,7 @@ function TopThreeCard({ entry, position }: { entry: RankedTool; position: 1 | 2 
 
   const borderColors = { 1: 'border-amber-400/40', 2: 'border-slate-400/30', 3: 'border-amber-700/30' };
   const bgColors = { 1: 'bg-amber-400/5', 2: 'bg-slate-400/5', 3: 'bg-amber-700/5' };
-  const rankColors = { 1: 'text-amber-400', 2: 'text-slate-300', 3: 'text-amber-600' };
+  const rankColors = { 1: 'text-amber-400', 2: 'text-slate-600', 3: 'text-amber-600' };
 
   return (
     <Link href={`/tools/${tool.slug}`}>
@@ -330,12 +330,12 @@ function TopThreeCard({ entry, position }: { entry: RankedTool; position: 1 | 2 
           <img
             src={tool.logo_url}
             alt={tool.name}
-            className="w-12 h-12 rounded-xl object-cover bg-slate-700"
+            className="w-12 h-12 rounded-xl object-cover bg-gray-200"
             onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=1e293b&color=f59e0b&size=48`; }}
           />
           <div>
-            <h3 className="text-white font-bold text-lg leading-tight group-hover:text-amber-400 transition-colors">{tool.name}</h3>
-            <p className="text-slate-400 text-sm">{tool.tagline}</p>
+            <h3 className="text-slate-900 font-bold text-lg leading-tight group-hover:text-amber-400 transition-colors">{tool.name}</h3>
+            <p className="text-slate-500 text-sm">{tool.tagline}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm">
@@ -343,14 +343,14 @@ function TopThreeCard({ entry, position }: { entry: RankedTool; position: 1 | 2 
             <TrendingUp className="w-3.5 h-3.5" />
             {period_upvotes.toLocaleString()} upvotes
           </span>
-          <span className="flex items-center gap-1 text-slate-400">
+          <span className="flex items-center gap-1 text-slate-500">
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             {tool.average_rating.toFixed(1)}
           </span>
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="text-xs bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded-full">{tool.category}</span>
-          <span className="text-xs bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded-full">{tool.pricing_model}</span>
+          <span className="text-xs bg-gray-200/60 text-slate-600 px-2 py-0.5 rounded-full">{tool.category}</span>
+          <span className="text-xs bg-gray-200/60 text-slate-600 px-2 py-0.5 rounded-full">{tool.pricing_model}</span>
         </div>
       </div>
     </Link>
@@ -362,11 +362,11 @@ function LeaderboardRow({ entry }: { entry: RankedTool }) {
 
   return (
     <Link href={`/tools/${tool.slug}`}>
-      <div className="flex items-center gap-4 px-5 py-4 hover:bg-slate-800/50 transition-colors cursor-pointer group border-b border-slate-800/50 last:border-0">
+      <div className="flex items-center gap-4 px-5 py-4 hover:bg-gray-100/50 transition-colors cursor-pointer group border-b border-gray-200/50 last:border-0">
         {/* Rank */}
         <div className="w-10 flex-shrink-0 flex items-center justify-center">
           {getRankIcon(rank) || (
-            <span className="text-slate-400 font-bold text-sm w-6 text-center">{rank}</span>
+            <span className="text-slate-500 font-bold text-sm w-6 text-center">{rank}</span>
           )}
         </div>
 
@@ -379,14 +379,14 @@ function LeaderboardRow({ entry }: { entry: RankedTool }) {
         <img
           src={tool.logo_url}
           alt={tool.name}
-          className="w-10 h-10 rounded-lg object-cover bg-slate-700 flex-shrink-0"
+          className="w-10 h-10 rounded-lg object-cover bg-gray-200 flex-shrink-0"
           onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=1e293b&color=f59e0b&size=40`; }}
         />
 
         {/* Name + tagline */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-white font-semibold group-hover:text-amber-400 transition-colors truncate">{tool.name}</span>
+            <span className="text-slate-900 font-semibold group-hover:text-amber-400 transition-colors truncate">{tool.name}</span>
             {tool.badges.includes('new_launch') && (
               <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-full flex-shrink-0">New</span>
             )}
@@ -394,19 +394,19 @@ function LeaderboardRow({ entry }: { entry: RankedTool }) {
               <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full flex-shrink-0">🔥 Hot</span>
             )}
           </div>
-          <p className="text-slate-400 text-sm truncate">{tool.tagline}</p>
+          <p className="text-slate-500 text-sm truncate">{tool.tagline}</p>
         </div>
 
         {/* Category */}
-        <span className="hidden md:block text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-full flex-shrink-0">{tool.category}</span>
+        <span className="hidden md:block text-xs text-slate-500 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">{tool.category}</span>
 
         {/* Pricing */}
-        <span className="hidden lg:block text-xs text-slate-400 flex-shrink-0 w-20 text-right">{tool.pricing_model}</span>
+        <span className="hidden lg:block text-xs text-slate-500 flex-shrink-0 w-20 text-right">{tool.pricing_model}</span>
 
         {/* Rating */}
         <div className="hidden sm:flex items-center gap-1 flex-shrink-0 w-14 justify-end">
           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          <span className="text-slate-300 text-sm font-medium">{tool.average_rating.toFixed(1)}</span>
+          <span className="text-slate-600 text-sm font-medium">{tool.average_rating.toFixed(1)}</span>
         </div>
 
         {/* Upvotes */}
@@ -448,22 +448,22 @@ export default function Launches() {
   const periodInfo = PERIOD_LABELS[period];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
 
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden border-b border-slate-800 mt-[72px]">
+      <div className="relative overflow-hidden border-b border-gray-200 mt-[72px]">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="max-w-6xl mx-auto px-4 py-16 relative">
+        <div className="max-w-[1300px] mx-auto px-4 py-16 relative">
           <div className="flex items-center gap-2 text-amber-400 text-sm font-medium mb-4">
             <Trophy className="w-4 h-4" />
             <span>LaudStack Leaderboard</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3">
             Top AI & SaaS Tools
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl">
+          <p className="text-slate-500 text-lg max-w-2xl">
             {periodInfo.description}. Rankings use momentum scoring — rewarding recent engagement over raw historical counts.
           </p>
 
@@ -479,7 +479,7 @@ export default function Launches() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'bg-amber-400 text-slate-900'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                      : 'bg-gray-100 text-slate-600 hover:bg-gray-200 hover:text-slate-900'
                   }`}
                 >
                   {info.icon}
@@ -496,13 +496,13 @@ export default function Launches() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-10 w-full flex-1">
+      <div className="max-w-[1300px] mx-auto px-4 py-10 w-full flex-1">
 
         {/* ── Upcoming Launches ── */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-white font-bold text-xl flex items-center gap-2">
+              <h2 className="text-slate-900 font-bold text-xl flex items-center gap-2">
                 <Rocket className="w-5 h-5 text-amber-400" />
                 Upcoming Launches
               </h2>
@@ -529,19 +529,19 @@ export default function Launches() {
             { label: 'Avg Rating', value: (rankedTools.reduce((s, e) => s + e.tool.average_rating, 0) / rankedTools.length).toFixed(1), icon: <Star className="w-4 h-4 text-amber-400" /> },
             { label: 'New Launches', value: rankedTools.filter(e => e.tool.badges.includes('new_launch')).length, icon: <Zap className="w-4 h-4 text-sky-400" /> },
           ].map((stat) => (
-            <div key={stat.label} className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <div key={stat.label} className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1">
                 {stat.icon}
-                <span className="text-slate-400 text-xs">{stat.label}</span>
+                <span className="text-slate-500 text-xs">{stat.label}</span>
               </div>
-              <div className="text-white font-bold text-xl">{stat.value}</div>
+              <div className="text-slate-900 font-bold text-xl">{stat.value}</div>
             </div>
           ))}
         </div>
 
         {/* ── Top 3 podium ── */}
         <div className="mb-10">
-          <h2 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+          <h2 className="text-slate-900 font-bold text-lg mb-4 flex items-center gap-2">
             <Crown className="w-5 h-5 text-amber-400" />
             Top 3 This Period
           </h2>
@@ -553,9 +553,9 @@ export default function Launches() {
         </div>
 
         {/* ── Full leaderboard ── */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
           {/* Table header */}
-          <div className="flex items-center gap-4 px-5 py-3 border-b border-slate-800 bg-slate-800/50">
+          <div className="flex items-center gap-4 px-5 py-3 border-b border-gray-200 bg-gray-100/50">
             <div className="w-10 flex-shrink-0 text-slate-500 text-xs font-medium">#</div>
             <div className="w-8 flex-shrink-0 text-slate-500 text-xs font-medium">±</div>
             <div className="w-10 flex-shrink-0" />
@@ -574,8 +574,8 @@ export default function Launches() {
 
         {/* ── Bottom CTA ── */}
         <div className="mt-10 bg-gradient-to-r from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-8 text-center">
-          <h3 className="text-white font-bold text-xl mb-2">Is your tool missing from the leaderboard?</h3>
-          <p className="text-slate-400 mb-5">Submit your AI or SaaS product to LaudStack and start collecting reviews from real users. Schedule a launch date to build anticipation.</p>
+          <h3 className="text-slate-900 font-bold text-xl mb-2">Is your tool missing from the leaderboard?</h3>
+          <p className="text-slate-500 mb-5">Submit your AI or SaaS product to LaudStack and start collecting reviews from real users. Schedule a launch date to build anticipation.</p>
           <Link href="/launchpad">
             <button className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors">
               Submit Your Tool

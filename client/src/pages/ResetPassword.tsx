@@ -90,13 +90,13 @@ export default function ResetPassword() {
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email address</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="you@company.com"
-                      className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all text-sm"
+                      className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder-gray-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all text-sm"
                       required
                     />
                   </div>
@@ -115,7 +115,7 @@ export default function ResetPassword() {
               </form>
               <div className="text-center mt-6">
                 <Link href="/signin">
-                  <span className="text-slate-400 text-sm hover:text-slate-600 transition-colors cursor-pointer">
+                  <span className="text-slate-500 text-sm hover:text-slate-600 transition-colors cursor-pointer">
                     ← Back to Sign In
                   </span>
                 </Link>
@@ -149,14 +149,14 @@ export default function ResetPassword() {
                     }`}>
                       {done ? <CheckCircle2 className="w-4 h-4" /> : step}
                     </div>
-                    <span className={`text-sm ${done ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}>{text}</span>
+                    <span className={`text-sm ${done ? 'text-slate-500 line-through' : 'text-slate-700 font-medium'}`}>{text}</span>
                   </div>
                 ))}
               </div>
               {/* Demo shortcut */}
               <button
                 onClick={handleSimulateLink}
-                className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition-all mb-4"
+                className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-slate-900 font-bold py-3 px-6 rounded-xl transition-all mb-4"
               >
                 <Lock className="w-4 h-4" />
                 Simulate clicking the reset link (Demo)
@@ -187,16 +187,16 @@ export default function ResetPassword() {
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">New password</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Min. 8 characters"
-                      className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all text-sm"
+                      className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder-gray-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all text-sm"
                       required
                     />
-                    <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -216,20 +216,20 @@ export default function ResetPassword() {
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Confirm password</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type={showConfirm ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
                       placeholder="Repeat your password"
-                      className={`w-full pl-10 pr-10 py-3 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition-all text-sm ${
+                      className={`w-full pl-10 pr-10 py-3 border rounded-xl text-slate-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all text-sm ${
                         confirmPassword && confirmPassword !== password
                           ? 'border-red-300 focus:border-red-400 focus:ring-red-400/20'
                           : 'border-slate-200 focus:border-amber-400 focus:ring-amber-400/20'
                       }`}
                       required
                     />
-                    <button type="button" onClick={() => setShowConfirm(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <button type="button" onClick={() => setShowConfirm(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600">
                       {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>

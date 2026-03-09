@@ -178,12 +178,12 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
       <div className="mt-[72px] flex-1">
 
         {/* Hero */}
-        <div className="relative overflow-hidden border-b border-slate-800">
+        <div className="relative overflow-hidden border-b border-gray-200">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
           <div className="absolute top-0 left-1/3 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
           <div className="max-w-4xl mx-auto px-4 py-16 relative text-center">
@@ -191,20 +191,20 @@ export default function Pricing() {
               <Crown className="w-4 h-4" />
               Simple, Transparent Pricing
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
               Find the right plan for<br />
               <span className="text-amber-400">your workflow</span>
             </h1>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto leading-relaxed">
+            <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
               Start free. Upgrade when you need more. No hidden fees, no lock-in.
             </p>
           </div>
         </div>
 
         {/* Tab: Users / Founders */}
-        <div className="max-w-5xl mx-auto px-4 pt-10">
+        <div className="max-w-[1300px] mx-auto px-4 pt-10">
           <div className="flex justify-center mb-8">
-            <div className="inline-flex bg-slate-800/60 border border-slate-700/60 rounded-xl p-1 gap-1">
+            <div className="inline-flex bg-gray-100/60 border border-gray-300/60 rounded-xl p-1 gap-1">
               {(['users', 'founders'] as const).map((t) => (
                 <button
                   key={t}
@@ -212,7 +212,7 @@ export default function Pricing() {
                   className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
                     tab === t
                       ? 'bg-amber-400 text-slate-900 shadow'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
                   {t === 'users' ? '👤 For Users' : '🚀 For Founders'}
@@ -223,14 +223,14 @@ export default function Pricing() {
 
           {/* Billing toggle */}
           <div className="flex justify-center items-center gap-3 mb-10">
-            <span className={`text-sm font-semibold ${billing === 'monthly' ? 'text-white' : 'text-slate-500'}`}>Monthly</span>
+            <span className={`text-sm font-semibold ${billing === 'monthly' ? 'text-slate-900' : 'text-slate-500'}`}>Monthly</span>
             <button
               onClick={() => setBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
-              className={`relative w-12 h-6 rounded-full transition-colors ${billing === 'annual' ? 'bg-amber-400' : 'bg-slate-700'}`}
+              className={`relative w-12 h-6 rounded-full transition-colors ${billing === 'annual' ? 'bg-amber-400' : 'bg-gray-200'}`}
             >
               <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${billing === 'annual' ? 'translate-x-7' : 'translate-x-1'}`} />
             </button>
-            <span className={`text-sm font-semibold ${billing === 'annual' ? 'text-white' : 'text-slate-500'}`}>
+            <span className={`text-sm font-semibold ${billing === 'annual' ? 'text-slate-900' : 'text-slate-500'}`}>
               Annual
               <span className="ml-2 bg-emerald-400/15 text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full">Save 20%</span>
             </span>
@@ -245,7 +245,7 @@ export default function Pricing() {
                   className={`relative rounded-2xl border flex flex-col ${
                     plan.highlight
                       ? 'bg-amber-400/5 border-amber-400/40 shadow-xl shadow-amber-500/10'
-                      : 'bg-slate-900/60 border-slate-700/60'
+                      : 'bg-white/60 border-gray-300/60'
                   }`}
                 >
                   {plan.badge && (
@@ -253,16 +253,16 @@ export default function Pricing() {
                       <span className="bg-amber-400 text-slate-900 text-xs font-black px-4 py-1 rounded-full shadow">{plan.badge}</span>
                     </div>
                   )}
-                  <div className="p-6 border-b border-slate-700/40">
+                  <div className="p-6 border-b border-gray-300/40">
                     <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl mb-4 ${
-                      plan.highlight ? 'bg-amber-400/20 text-amber-400' : 'bg-slate-800 text-slate-400'
+                      plan.highlight ? 'bg-amber-400/20 text-amber-400' : 'bg-gray-100 text-slate-500'
                     }`}>
                       {plan.icon}
                     </div>
-                    <h3 className="text-xl font-black text-white mb-1">{plan.name}</h3>
+                    <h3 className="text-xl font-black text-slate-900 mb-1">{plan.name}</h3>
                     <p className="text-slate-500 text-sm mb-4">{plan.tagline}</p>
                     <div className="flex items-end gap-1">
-                      <span className="text-4xl font-black text-white">
+                      <span className="text-4xl font-black text-slate-900">
                         ${plan.price[billing]}
                       </span>
                       {plan.price[billing] > 0 && (
@@ -283,7 +283,7 @@ export default function Pricing() {
                             ? <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                             : <X className="w-4 h-4 text-slate-700 flex-shrink-0 mt-0.5" />
                           }
-                          <span className={`text-sm ${f.included ? 'text-slate-300' : 'text-slate-600'}`}>{f.label}</span>
+                          <span className={`text-sm ${f.included ? 'text-slate-600' : 'text-slate-600'}`}>{f.label}</span>
                         </li>
                       ))}
                     </ul>
@@ -294,7 +294,7 @@ export default function Pricing() {
                         <button className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${
                           plan.highlight
                             ? 'bg-amber-400 hover:bg-amber-300 text-slate-900'
-                            : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                            : 'bg-gray-100 hover:bg-gray-200 text-slate-900 border border-gray-300'
                         }`}>
                           {plan.cta}
                         </button>
@@ -305,7 +305,7 @@ export default function Pricing() {
                         className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${
                           plan.highlight
                             ? 'bg-amber-400 hover:bg-amber-300 text-slate-900'
-                            : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                            : 'bg-gray-100 hover:bg-gray-200 text-slate-900 border border-gray-300'
                         }`}
                       >
                         {plan.cta}
@@ -326,7 +326,7 @@ export default function Pricing() {
                   className={`relative rounded-2xl border flex flex-col ${
                     plan.highlight
                       ? 'bg-amber-400/5 border-amber-400/40 shadow-xl shadow-amber-500/10'
-                      : 'bg-slate-900/60 border-slate-700/60'
+                      : 'bg-white/60 border-gray-300/60'
                   }`}
                 >
                   {plan.highlight && (
@@ -334,10 +334,10 @@ export default function Pricing() {
                       <span className="bg-amber-400 text-slate-900 text-xs font-black px-4 py-1 rounded-full shadow">Recommended</span>
                     </div>
                   )}
-                  <div className="p-6 border-b border-slate-700/40">
-                    <h3 className="text-xl font-black text-white mb-4">{plan.name}</h3>
+                  <div className="p-6 border-b border-gray-300/40">
+                    <h3 className="text-xl font-black text-slate-900 mb-4">{plan.name}</h3>
                     <div className="flex items-end gap-1">
-                      <span className="text-4xl font-black text-white">${plan.price[billing]}</span>
+                      <span className="text-4xl font-black text-slate-900">${plan.price[billing]}</span>
                       {plan.price[billing] > 0 && (
                         <span className="text-slate-500 text-sm mb-1.5">/{billing === 'monthly' ? 'mo' : 'mo, billed annually'}</span>
                       )}
@@ -353,7 +353,7 @@ export default function Pricing() {
                       {plan.features.map((f, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                          <span className="text-slate-300 text-sm">{f}</span>
+                          <span className="text-slate-600 text-sm">{f}</span>
                         </li>
                       ))}
                     </ul>
@@ -365,7 +365,7 @@ export default function Pricing() {
                         className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${
                           plan.highlight
                             ? 'bg-amber-400 hover:bg-amber-300 text-slate-900'
-                            : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                            : 'bg-gray-100 hover:bg-gray-200 text-slate-900 border border-gray-300'
                         }`}
                       >
                         {plan.cta}
@@ -380,14 +380,14 @@ export default function Pricing() {
           {/* Feature comparison table */}
           {tab === 'users' && (
             <div className="mb-16">
-              <h2 className="text-2xl font-black text-white text-center mb-8">Full Feature Comparison</h2>
-              <div className="overflow-x-auto rounded-2xl border border-slate-700/60">
+              <h2 className="text-2xl font-black text-slate-900 text-center mb-8">Full Feature Comparison</h2>
+              <div className="overflow-x-auto rounded-2xl border border-gray-300/60">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-700/60">
-                      <th className="text-left p-4 text-slate-400 font-semibold w-1/2">Feature</th>
+                    <tr className="border-b border-gray-300/60">
+                      <th className="text-left p-4 text-slate-500 font-semibold w-1/2">Feature</th>
                       {PLANS.map(p => (
-                        <th key={p.id} className={`p-4 font-black text-center ${p.highlight ? 'text-amber-400' : 'text-white'}`}>{p.name}</th>
+                        <th key={p.id} className={`p-4 font-black text-center ${p.highlight ? 'text-amber-400' : 'text-slate-900'}`}>{p.name}</th>
                       ))}
                     </tr>
                   </thead>
@@ -406,13 +406,13 @@ export default function Pricing() {
                       ['SSO / SAML', false, false, true],
                       ['SLA guarantee', false, false, true],
                     ].map(([feature, free, pro, ent], i) => (
-                      <tr key={i} className={`border-b border-slate-800/60 ${i % 2 === 0 ? 'bg-slate-900/20' : ''}`}>
-                        <td className="p-4 text-slate-300 font-medium">{feature as string}</td>
+                      <tr key={i} className={`border-b border-gray-200/60 ${i % 2 === 0 ? 'bg-white/20' : ''}`}>
+                        <td className="p-4 text-slate-600 font-medium">{feature as string}</td>
                         {[free, pro, ent].map((val, j) => (
                           <td key={j} className="p-4 text-center">
                             {val === true ? <Check className="w-4 h-4 text-emerald-400 mx-auto" />
                               : val === false ? <X className="w-4 h-4 text-slate-700 mx-auto" />
-                              : <span className="text-slate-300 text-xs font-semibold">{val as string}</span>
+                              : <span className="text-slate-600 text-xs font-semibold">{val as string}</span>
                             }
                           </td>
                         ))}
@@ -426,20 +426,20 @@ export default function Pricing() {
 
           {/* FAQ */}
           <div className="max-w-2xl mx-auto mb-16">
-            <h2 className="text-2xl font-black text-white text-center mb-8">Frequently Asked Questions</h2>
+            <h2 className="text-2xl font-black text-slate-900 text-center mb-8">Frequently Asked Questions</h2>
             <div className="space-y-3">
               {FAQ_ITEMS.map((item, i) => (
-                <div key={i} className="bg-slate-900/60 border border-slate-700/60 rounded-xl overflow-hidden">
+                <div key={i} className="bg-white/60 border border-gray-300/60 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-800/40 transition-colors"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-100/40 transition-colors"
                   >
-                    <span className="text-white font-semibold text-sm pr-4">{item.q}</span>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                    <span className="text-slate-900 font-semibold text-sm pr-4">{item.q}</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                   </button>
                   {openFaq === i && (
                     <div className="px-5 pb-5">
-                      <p className="text-slate-400 text-sm leading-relaxed">{item.a}</p>
+                      <p className="text-slate-500 text-sm leading-relaxed">{item.a}</p>
                     </div>
                   )}
                 </div>
@@ -450,8 +450,8 @@ export default function Pricing() {
           {/* Bottom CTA */}
           <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-400/20 rounded-2xl p-8 text-center mb-16">
             <Rocket className="w-10 h-10 text-amber-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-black text-white mb-2">Still not sure?</h3>
-            <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">Start with the free plan — no credit card required. Upgrade when you're ready.</p>
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Still not sure?</h3>
+            <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">Start with the free plan — no credit card required. Upgrade when you're ready.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/signin">
                 <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors">
@@ -459,7 +459,7 @@ export default function Pricing() {
                 </button>
               </Link>
               <Link href="/contact">
-                <button className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors border border-slate-700">
+                <button className="bg-gray-100 hover:bg-gray-200 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors border border-gray-300">
                   Talk to Sales
                 </button>
               </Link>

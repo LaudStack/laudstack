@@ -26,19 +26,19 @@ const FOOTER_LINKS = {
     { label: 'Claim Your Tool', href: '/claim', live: true },
     { label: 'Founder Dashboard', href: '/dashboard/founder', live: true },
     { label: 'Pricing', href: '/pricing', live: true },
-    { label: 'Affiliate Program', href: '/affiliates', live: false },
+    { label: 'Affiliate Program', href: '/affiliates', live: true },
   ],
   Company: [
     { label: 'About LaudStack', href: '/about', live: true },
     { label: 'Trust Framework', href: '/trust', live: true },
     { label: 'Contact Us', href: '/contact', live: true },
-    { label: 'Blog', href: '/blog', live: false },
-    { label: 'Changelog', href: '/changelog', live: false },
+    { label: 'Blog', href: '/blog', live: true },
+    { label: 'Changelog', href: '/changelog', live: true },
   ],
   Legal: [
-    { label: 'Privacy Policy', href: '/privacy', live: false },
-    { label: 'Terms of Service', href: '/terms', live: false },
-    { label: 'Cookie Policy', href: '/cookies', live: false },
+    { label: 'Privacy Policy', href: '/privacy', live: true },
+    { label: 'Terms of Service', href: '/terms', live: true },
+    { label: 'Cookie Policy', href: '/cookies', live: true },
     { label: 'Review Guidelines', href: '/trust', live: true },
   ],
 };
@@ -65,11 +65,11 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-slate-950 text-slate-300 border-t border-slate-800/60">
+    <footer className="bg-white text-slate-600 border-t border-gray-200">
 
       {/* ── Trust badges strip ── */}
-      <div className="border-b border-slate-800/60">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="border-b border-gray-100">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4">
           <div className="flex items-center justify-center gap-6 flex-wrap">
             {TRUST_BADGES.map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
@@ -82,7 +82,7 @@ export default function Footer() {
       </div>
 
       {/* ── Main grid ── */}
-      <div className="max-w-6xl mx-auto px-4 py-14">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
 
           {/* Brand column */}
@@ -92,13 +92,13 @@ export default function Footer() {
                 LaudStack
               </span>
             </Link>
-            <p className="text-slate-400 text-sm leading-relaxed mt-3 mb-6 max-w-xs font-medium">
+            <p className="text-slate-500 text-sm leading-relaxed mt-3 mb-6 max-w-xs font-medium">
               The trusted community platform where founders launch their AI and SaaS tools, users discover the best software, and the community curates quality.
             </p>
 
             {/* Newsletter */}
             <div>
-              <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">
                 Weekly Tool Digest
               </p>
               {subscribed ? (
@@ -113,7 +113,7 @@ export default function Footer() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="flex-1 min-w-0 bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
+                    className="flex-1 min-w-0 bg-gray-100 border border-gray-300 text-slate-900 placeholder-gray-400 text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
                   />
                   <button
                     type="submit"
@@ -141,18 +141,18 @@ export default function Footer() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 hover:border-amber-500/40 flex items-center justify-center transition-all group"
+                    className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-300/60 hover:border-amber-500/40 flex items-center justify-center transition-all group"
                     aria-label={label}
                   >
-                    <Icon className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                    <Icon className="w-4 h-4 text-slate-500 group-hover:text-amber-400 transition-colors" />
                   </a>
                 ) : (
                   <Link key={label} href={href}>
                     <div
-                      className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 hover:border-amber-500/40 flex items-center justify-center transition-all group cursor-pointer"
+                      className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-300/60 hover:border-amber-500/40 flex items-center justify-center transition-all group cursor-pointer"
                       aria-label={label}
                     >
-                      <Icon className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                      <Icon className="w-4 h-4 text-slate-500 group-hover:text-amber-400 transition-colors" />
                     </div>
                   </Link>
                 )
@@ -163,23 +163,23 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
             <div key={heading}>
-              <h4 className="text-white font-bold text-sm mb-4 tracking-wide">{heading}</h4>
+              <h4 className="text-slate-900 font-bold text-sm mb-4 tracking-wide">{heading}</h4>
               <ul className="space-y-2.5">
                 {links.map(({ label, href, live }) => (
                   <li key={label}>
                     {live ? (
                       <Link href={href}>
-                        <span className="text-slate-400 hover:text-amber-400 text-sm font-medium transition-colors cursor-pointer leading-relaxed">
+                        <span className="text-slate-500 hover:text-amber-400 text-sm font-medium transition-colors cursor-pointer leading-relaxed">
                           {label}
                         </span>
                       </Link>
                     ) : (
                       <button
                         onClick={() => toast.info(`${label} — coming soon!`)}
-                        className="text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors text-left leading-relaxed"
+                        className="text-slate-500 hover:text-slate-500 text-sm font-medium transition-colors text-left leading-relaxed"
                       >
                         {label}
-                        <span className="ml-1.5 text-[10px] bg-slate-800 text-slate-600 border border-slate-700 px-1 py-0.5 rounded font-semibold align-middle">Soon</span>
+                        <span className="ml-1.5 text-[10px] bg-gray-100 text-slate-600 border border-gray-300 px-1 py-0.5 rounded font-semibold align-middle">Soon</span>
                       </button>
                     )}
                   </li>
@@ -191,18 +191,18 @@ export default function Footer() {
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="border-t border-slate-800/60">
-        <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="border-t border-gray-100 bg-gray-50">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-slate-500 text-sm font-medium">
             © {new Date().getFullYear()} LaudStack, Inc. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <button onClick={() => toast.info('Privacy Policy — coming soon!')} className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors">Privacy</button>
-            <span className="text-slate-700">·</span>
-            <button onClick={() => toast.info('Terms of Service — coming soon!')} className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors">Terms</button>
-            <span className="text-slate-700">·</span>
-            <button onClick={() => toast.info('Cookie Policy — coming soon!')} className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors">Cookies</button>
-            <span className="text-slate-700 hidden sm:block">·</span>
+            <Link href="/privacy"><span className="text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">Privacy</span></Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/terms"><span className="text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">Terms</span></Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/cookies"><span className="text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">Cookies</span></Link>
+            <span className="text-slate-300 hidden sm:block">·</span>
             <span className="hidden sm:flex items-center gap-1 text-slate-500 text-xs font-medium">
               Built for founders, by founders
               <span className="text-amber-500">✦</span>

@@ -57,19 +57,19 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
       <div className="mt-[72px] flex-1">
       {/* Hero */}
-      <div className="relative overflow-hidden border-b border-slate-800">
+      <div className="relative overflow-hidden border-b border-gray-200">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
         <div className="max-w-4xl mx-auto px-4 py-16 relative">
           <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
             <Mail className="w-4 h-4" />
             Get in Touch
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">Contact LaudStack</h1>
-          <p className="text-slate-400 text-lg max-w-xl">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Contact LaudStack</h1>
+          <p className="text-slate-500 text-lg max-w-xl">
             Have a question, want to submit a tool, or need to report something? We read every message and respond within 2 business days.
           </p>
         </div>
@@ -80,11 +80,11 @@ export default function Contact() {
           {/* Form */}
           <div className="md:col-span-3">
             {submitted ? (
-              <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-10 text-center">
+              <div className="bg-white border border-emerald-500/30 rounded-2xl p-10 text-center">
                 <CheckCircle className="w-14 h-14 text-emerald-400 mx-auto mb-4" />
-                <h2 className="text-white font-black text-2xl mb-2">Message received!</h2>
-                <p className="text-slate-400 mb-6">
-                  Thanks for reaching out. We'll get back to you at <strong className="text-white">{email}</strong> within 2 business days.
+                <h2 className="text-slate-900 font-black text-2xl mb-2">Message received!</h2>
+                <p className="text-slate-500 mb-6">
+                  Thanks for reaching out. We'll get back to you at <strong className="text-slate-900">{email}</strong> within 2 business days.
                 </p>
                 <button
                   onClick={() => { setSubmitted(false); setName(''); setEmail(''); setMessage(''); }}
@@ -94,12 +94,12 @@ export default function Contact() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6">
-                <h2 className="text-white font-bold text-xl">Send us a message</h2>
+              <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-8 space-y-6">
+                <h2 className="text-slate-900 font-bold text-xl">Send us a message</h2>
 
                 {/* Topic */}
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Topic</label>
+                  <label className="block text-slate-600 text-sm font-medium mb-2">Topic</label>
                   <div className="grid grid-cols-1 gap-2">
                     {CONTACT_TOPICS.map((t) => (
                       <button
@@ -109,7 +109,7 @@ export default function Contact() {
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left transition-all ${
                           topic === t.value
                             ? 'bg-amber-400/10 border border-amber-400/40 text-amber-400'
-                            : 'bg-slate-800 border border-slate-700 text-slate-300 hover:border-slate-600'
+                            : 'bg-gray-100 border border-gray-300 text-slate-600 hover:border-gray-400'
                         }`}
                       >
                         {t.icon}
@@ -121,37 +121,37 @@ export default function Contact() {
 
                 {/* Name */}
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Your name *</label>
+                  <label className="block text-slate-600 text-sm font-medium mb-2">Your name *</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Jane Smith"
-                    className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors"
+                    className="w-full bg-gray-100 border border-gray-300 text-slate-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors"
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Email address *</label>
+                  <label className="block text-slate-600 text-sm font-medium mb-2">Email address *</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="jane@company.com"
-                    className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors"
+                    className="w-full bg-gray-100 border border-gray-300 text-slate-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors"
                   />
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Message *</label>
+                  <label className="block text-slate-600 text-sm font-medium mb-2">Message *</label>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Tell us how we can help..."
                     rows={5}
-                    className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors resize-none"
+                    className="w-full bg-gray-100 border border-gray-300 text-slate-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 transition-colors resize-none"
                   />
                 </div>
 
@@ -169,41 +169,41 @@ export default function Contact() {
           {/* Sidebar */}
           <div className="md:col-span-2 space-y-6">
             {/* Quick links */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-              <h3 className="text-white font-bold mb-4">Quick links</h3>
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-slate-900 font-bold mb-4">Quick links</h3>
               <div className="space-y-3">
                 {[
                   { label: 'Submit a Tool', href: '/launchpad', icon: <Zap className="w-4 h-4 text-amber-400" /> },
                   { label: 'Trust Framework', href: '/trust', icon: <Shield className="w-4 h-4 text-emerald-400" /> },
                   { label: 'About LaudStack', href: '/about', icon: <Users className="w-4 h-4 text-sky-400" /> },
                 ].map((link) => (
-                  <a key={link.label} href={link.href} className="flex items-center gap-3 text-slate-300 hover:text-white text-sm transition-colors group">
+                  <a key={link.label} href={link.href} className="flex items-center gap-3 text-slate-600 hover:text-slate-900 text-sm transition-colors group">
                     {link.icon}
                     <span>{link.label}</span>
-                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-slate-600 group-hover:text-slate-400 transition-colors" />
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-slate-600 group-hover:text-slate-500 transition-colors" />
                   </a>
                 ))}
               </div>
             </div>
 
             {/* Response time */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-              <h3 className="text-white font-bold mb-3">Response times</h3>
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-slate-900 font-bold mb-3">Response times</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">General inquiries</span>
-                  <span className="text-white font-medium">2 business days</span>
+                  <span className="text-slate-500">General inquiries</span>
+                  <span className="text-slate-900 font-medium">2 business days</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Tool submissions</span>
-                  <span className="text-white font-medium">3 business days</span>
+                  <span className="text-slate-500">Tool submissions</span>
+                  <span className="text-slate-900 font-medium">3 business days</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Trust reports</span>
-                  <span className="text-white font-medium">48 hours</span>
+                  <span className="text-slate-500">Trust reports</span>
+                  <span className="text-slate-900 font-medium">48 hours</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Pro support</span>
+                  <span className="text-slate-500">Pro support</span>
                   <span className="text-amber-400 font-medium">24 hours</span>
                 </div>
               </div>
@@ -213,19 +213,19 @@ export default function Contact() {
 
         {/* FAQ */}
         <div className="mt-16">
-          <h2 className="text-2xl font-black text-white mb-6">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-black text-slate-900 mb-6">Frequently Asked Questions</h2>
           <div className="space-y-3">
             {FAQ.map((item, i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+              <div key={i} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-800/50 transition-colors"
+                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-100/50 transition-colors"
                 >
-                  <span className="text-white font-medium text-sm">{item.q}</span>
-                  <ChevronRight className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+                  <span className="text-slate-900 font-medium text-sm">{item.q}</span>
+                  <ChevronRight className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="px-6 pb-4 text-slate-400 text-sm leading-relaxed border-t border-slate-800">
+                  <div className="px-6 pb-4 text-slate-500 text-sm leading-relaxed border-t border-gray-200">
                     <div className="pt-3">{item.a}</div>
                   </div>
                 )}

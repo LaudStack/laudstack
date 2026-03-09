@@ -12,7 +12,7 @@ const QUICK_LINKS = [
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
       <div className="mt-[72px] flex-1 flex flex-col items-center justify-center px-4 py-20">
 
@@ -26,7 +26,7 @@ export default function NotFound() {
           </div>
         </div>
 
-        <p className="text-slate-400 text-center text-base max-w-md leading-relaxed mb-10 font-medium">
+        <p className="text-slate-500 text-center text-base max-w-md leading-relaxed mb-10 font-medium">
           The page you're looking for doesn't exist or has been moved. Let's get you back on track.
         </p>
 
@@ -44,9 +44,9 @@ export default function NotFound() {
           <div className="grid grid-cols-2 gap-3">
             {QUICK_LINKS.map(({ label, href, icon: Icon }) => (
               <Link key={label} href={href}>
-                <div className="flex items-center gap-2 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/60 hover:border-amber-500/30 rounded-xl px-4 py-3 cursor-pointer transition-all group">
+                <div className="flex items-center gap-2 bg-gray-100/60 hover:bg-gray-200/60 border border-gray-300/60 hover:border-amber-500/30 rounded-xl px-4 py-3 cursor-pointer transition-all group">
                   <Icon className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                  <span className="text-slate-300 group-hover:text-white text-xs font-semibold leading-tight">{label}</span>
+                  <span className="text-slate-600 group-hover:text-slate-900 text-xs font-semibold leading-tight">{label}</span>
                 </div>
               </Link>
             ))}
@@ -56,7 +56,7 @@ export default function NotFound() {
         {/* Search hint */}
         <div className="mt-10 flex items-center gap-2 text-slate-600 text-sm">
           <Search className="w-4 h-4" />
-          <span>Try searching with <kbd className="bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-xs font-mono text-slate-400">⌘K</kbd></span>
+          <span>Try searching with <kbd className="bg-gray-100 border border-gray-300 px-1.5 py-0.5 rounded text-xs font-mono text-slate-500">⌘K</kbd></span>
         </div>
       </div>
       <Footer />

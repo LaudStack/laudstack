@@ -209,19 +209,19 @@ export default function Templates() {
       <div className="mt-[72px] flex-1">
 
         {/* Hero */}
-        <div className="bg-slate-950 text-white border-b border-slate-800">
-          <div className="max-w-5xl mx-auto px-4 py-14">
+        <div className="bg-gray-50 text-slate-900 border-b border-gray-200">
+          <div className="max-w-[1300px] mx-auto px-4 py-14">
             <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
               <Package className="w-4 h-4" />
               Template Marketplace
             </div>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <h1 className="text-4xl md:text-5xl font-black text-white mb-3 tracking-tight">
+                <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight">
                   Ship faster with<br />
                   <span className="text-amber-400">premium templates</span>
                 </h1>
-                <p className="text-slate-400 text-lg max-w-xl leading-relaxed">
+                <p className="text-slate-500 text-lg max-w-xl leading-relaxed">
                   Production-ready templates for SaaS, dashboards, landing pages, and more. Built by the community, vetted by LaudStack.
                 </p>
               </div>
@@ -241,18 +241,18 @@ export default function Templates() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="max-w-[1300px] mx-auto px-4 py-8">
 
           {/* Search + Sort bar */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search templates..."
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400 transition-colors"
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-colors"
               />
             </div>
             <select
@@ -273,7 +273,7 @@ export default function Templates() {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                     selectedCategory === cat.id
-                      ? 'bg-slate-900 text-white border-slate-900'
+                      ? 'bg-white text-slate-900 border-slate-900'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                   }`}
                 >
@@ -307,7 +307,7 @@ export default function Templates() {
           {/* Template Grid */}
           {filtered.length === 0 ? (
             <div className="text-center py-20">
-              <Package className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <Package className="w-12 h-12 text-slate-600 mx-auto mb-4" />
               <p className="text-slate-500 font-medium">No templates match your filters.</p>
             </div>
           ) : (
@@ -331,7 +331,7 @@ export default function Templates() {
                         <span className="bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-full">⭐ Featured</span>
                       </div>
                     )}
-                    <div className="text-4xl font-black opacity-10 text-white select-none">{template.name[0]}</div>
+                    <div className="text-4xl font-black opacity-10 text-slate-900 select-none">{template.name[0]}</div>
                   </div>
 
                   {/* Content */}
@@ -345,7 +345,7 @@ export default function Templates() {
                           <div>
                             <span className="text-slate-900 font-black text-sm">${template.price}</span>
                             {template.originalPrice && (
-                              <span className="text-slate-400 text-xs line-through ml-1">${template.originalPrice}</span>
+                              <span className="text-slate-500 text-xs line-through ml-1">${template.originalPrice}</span>
                             )}
                           </div>
                         )}
@@ -357,7 +357,7 @@ export default function Templates() {
                         <span key={tag} className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-md font-medium">{tag}</span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
+                    <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         <span className="font-semibold text-slate-700">{template.rating}</span>
@@ -374,7 +374,7 @@ export default function Templates() {
                       className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                         template.price === 0
                           ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
-                          : 'bg-slate-900 hover:bg-slate-800 text-white'
+                          : 'bg-white hover:bg-gray-100 text-slate-900'
                       }`}
                     >
                       {template.price === 0 ? (
@@ -390,10 +390,10 @@ export default function Templates() {
           )}
 
           {/* Sell your template CTA */}
-          <div className="bg-slate-900 text-white rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+          <div className="bg-white text-slate-900 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div>
               <h3 className="text-xl font-black mb-1">Sell your templates on LaudStack</h3>
-              <p className="text-slate-400 text-sm">Reach 12,000+ developers and founders. Keep 80% of every sale.</p>
+              <p className="text-slate-500 text-sm">Reach 12,000+ developers and founders. Keep 80% of every sale.</p>
             </div>
             <button
               onClick={() => toast.info('Seller program launching soon — join the waitlist!')}

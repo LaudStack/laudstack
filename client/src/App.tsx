@@ -33,6 +33,10 @@ import AllTools from './pages/AllTools';
 import Trending from './pages/Trending';
 import TopRated from './pages/TopRated';
 import NewLaunches from './pages/NewLaunches';
+import Blog from './pages/Blog';
+import Changelog from './pages/Changelog';
+import Legal from './pages/Legal';
+import Affiliates from './pages/Affiliates';
 import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
@@ -66,6 +70,12 @@ function Router() {
         <Route path="/trending" component={Trending} />
         <Route path="/top-rated" component={TopRated} />
         <Route path="/new-launches" component={NewLaunches} />
+        <Route path="/blog" component={Blog} />
+        <Route path="/changelog" component={Changelog} />
+        <Route path="/affiliates" component={Affiliates} />
+        <Route path="/privacy" component={Legal} />
+        <Route path="/terms" component={Legal} />
+        <Route path="/cookies" component={Legal} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

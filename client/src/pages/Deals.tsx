@@ -232,7 +232,7 @@ function DealCard({ deal }: { deal: typeof DEALS[0] }) {
         {/* Header */}
         <div className="flex items-start gap-3 mb-4">
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0"
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-900 font-black text-lg flex-shrink-0"
             style={{ background: deal.logoColor }}
           >
             {deal.logo}
@@ -253,7 +253,7 @@ function DealCard({ deal }: { deal: typeof DEALS[0] }) {
         {/* Pricing */}
         <div className="bg-slate-50 rounded-xl p-3 mb-4 flex items-center justify-between">
           <div>
-            <div className="text-slate-400 text-xs line-through">{deal.originalPrice}</div>
+            <div className="text-slate-500 text-xs line-through">{deal.originalPrice}</div>
             <div className="text-slate-900 font-black text-lg leading-tight">{deal.dealPrice}</div>
           </div>
           <div className={`px-3 py-1.5 rounded-lg font-black text-sm ${
@@ -287,14 +287,14 @@ function DealCard({ deal }: { deal: typeof DEALS[0] }) {
               style={{ width: `${claimedPct}%` }}
             />
           </div>
-          <div className="text-slate-400 text-xs mt-1">{claimedPct}% claimed</div>
+          <div className="text-slate-500 text-xs mt-1">{claimedPct}% claimed</div>
         </div>
 
         {/* Rating */}
         <div className="flex items-center gap-1 mb-4">
           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
           <span className="text-slate-700 font-semibold text-xs">{deal.rating}</span>
-          <span className="text-slate-400 text-xs">({deal.reviews.toLocaleString()} reviews)</span>
+          <span className="text-slate-500 text-xs">({deal.reviews.toLocaleString()} reviews)</span>
         </div>
 
         {/* CTA */}
@@ -304,7 +304,7 @@ function DealCard({ deal }: { deal: typeof DEALS[0] }) {
             className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border flex items-center justify-center gap-2 ${
               copied
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : 'bg-slate-900 hover:bg-slate-800 text-white border-transparent'
+                : 'bg-white hover:bg-gray-100 text-slate-900 border-transparent'
             }`}
           >
             {copied ? <><CheckCircle className="w-4 h-4" /> Copied!</> : <><Tag className="w-4 h-4" /> {deal.code}</>}
@@ -333,19 +333,19 @@ export default function Deals() {
       <div className="mt-[72px] flex-1">
 
         {/* Hero */}
-        <div className="bg-slate-950 text-white border-b border-slate-800">
-          <div className="max-w-5xl mx-auto px-4 py-14">
+        <div className="bg-gray-50 text-slate-900 border-b border-gray-200">
+          <div className="max-w-[1300px] mx-auto px-4 py-14">
             <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
               <Tag className="w-4 h-4" />
               Exclusive SaaS Deals
             </div>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <h1 className="text-4xl md:text-5xl font-black text-white mb-3 tracking-tight">
+                <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight">
                   Save on the tools<br />
                   <span className="text-amber-400">your team already uses</span>
                 </h1>
-                <p className="text-slate-400 text-lg max-w-xl leading-relaxed">
+                <p className="text-slate-500 text-lg max-w-xl leading-relaxed">
                   Exclusive discounts, lifetime deals, and extended trials negotiated by LaudStack for our community.
                 </p>
               </div>
@@ -365,7 +365,7 @@ export default function Deals() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="max-w-[1300px] mx-auto px-4 py-8">
 
           {/* Lifetime Deals spotlight */}
           {activeType === 'all' && (
@@ -389,7 +389,7 @@ export default function Deals() {
                 onClick={() => setActiveType(cat.id)}
                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
                   activeType === cat.id
-                    ? 'bg-slate-900 text-white border-slate-900'
+                    ? 'bg-white text-slate-900 border-slate-900'
                     : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                 }`}
               >
@@ -424,10 +424,10 @@ export default function Deals() {
           </div>
 
           {/* Submit a deal CTA */}
-          <div className="bg-slate-900 text-white rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-white text-slate-900 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="text-xl font-black mb-1">Have a deal to share?</h3>
-              <p className="text-slate-400 text-sm">Submit a deal for your tool and reach 12,000+ potential customers.</p>
+              <p className="text-slate-500 text-sm">Submit a deal for your tool and reach 12,000+ potential customers.</p>
             </div>
             <button
               onClick={() => toast.info('Deal submission form coming soon!')}

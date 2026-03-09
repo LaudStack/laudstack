@@ -75,16 +75,16 @@ export default function Categories() {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', padding: '72px 24px 56px', marginTop: '72px' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '20px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', marginBottom: '20px' }}>
-            <Grid3X3 style={{ width: '13px', height: '13px', color: '#818CF8' }} />
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Browse Categories</span>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '72px 24px 48px', marginTop: '72px' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '20px', background: '#FEF3C7', border: '1px solid #FDE68A', marginBottom: '20px' }}>
+            <Grid3X3 style={{ width: '13px', height: '13px', color: '#D97706' }} />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#B45309', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Browse Categories</span>
           </div>
-          <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: '14px', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#0F172A', lineHeight: 1.2, marginBottom: '14px', letterSpacing: '-0.02em' }}>
             Find tools by category
           </h1>
-          <p style={{ fontSize: '16px', color: '#94A3B8', lineHeight: 1.7, marginBottom: '32px' }}>
+          <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, marginBottom: '32px' }}>
             Browse {totalTools} verified AI & SaaS tools across {CATEGORIES.length - 1} categories. Every listing is reviewed by our team.
           </p>
           {/* Search */}
@@ -94,9 +94,9 @@ export default function Categories() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Filter categories..."
-              style={{ width: '100%', padding: '12px 14px 12px 42px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.07)', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 0.15s' }}
-              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.5)'; }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              style={{ width: '100%', padding: '12px 14px 12px 42px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 0.15s' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#F59E0B'; }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#E2E8F0'; }}
             />
           </div>
         </div>

@@ -74,7 +74,7 @@ export default function VerifyEmail() {
                 <Mail className="w-9 h-9 text-amber-500" />
               </div>
               <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center">
-                <span className="text-white text-xs font-black">1</span>
+                <span className="text-slate-900 text-xs font-black">1</span>
               </div>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function VerifyEmail() {
                 }`}>
                   {done ? <CheckCircle2 className="w-4 h-4" /> : step}
                 </div>
-                <span className={`text-sm ${done ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}>{text}</span>
+                <span className={`text-sm ${done ? 'text-slate-500 line-through' : 'text-slate-700 font-medium'}`}>{text}</span>
               </div>
             ))}
           </div>
@@ -117,13 +117,13 @@ export default function VerifyEmail() {
 
           {/* Resend */}
           <div className="text-center">
-            <p className="text-slate-400 text-sm mb-2">Didn't receive the email?</p>
+            <p className="text-slate-500 text-sm mb-2">Didn't receive the email?</p>
             <button
               onClick={handleResend}
               disabled={cooldown > 0 || resending}
               className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors ${
                 cooldown > 0 || resending
-                  ? 'text-slate-300 cursor-not-allowed'
+                  ? 'text-slate-600 cursor-not-allowed'
                   : 'text-amber-500 hover:text-amber-600'
               }`}
             >
@@ -143,7 +143,7 @@ export default function VerifyEmail() {
           {/* Back to sign in */}
           <div className="text-center mt-6">
             <Link href="/signin">
-              <span className="text-slate-400 text-sm hover:text-slate-600 transition-colors cursor-pointer">
+              <span className="text-slate-500 text-sm hover:text-slate-600 transition-colors cursor-pointer">
                 ← Back to Sign In
               </span>
             </Link>

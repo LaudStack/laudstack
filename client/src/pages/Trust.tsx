@@ -77,22 +77,22 @@ const PROHIBITED = [
 
 export default function Trust() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
       <div className="mt-[72px] flex-1">
       {/* Hero */}
-      <div className="relative overflow-hidden border-b border-slate-800">
+      <div className="relative overflow-hidden border-b border-gray-200">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-slate-900/50" />
         <div className="max-w-4xl mx-auto px-4 py-20 relative text-center">
           <div className="inline-flex items-center gap-2 bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
             <Shield className="w-4 h-4" />
             Trust & Quality
           </div>
-          <h1 className="text-5xl md:text-6xl font-black text-white mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
             The LaudStack<br />
             <span className="text-emerald-400">Trust Framework</span>
           </h1>
-          <p className="text-slate-400 text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
             LaudStack only works if you can trust what you read here. This page explains exactly how we ensure the quality and authenticity of every listing, review, and ranking on the platform.
           </p>
         </div>
@@ -101,21 +101,21 @@ export default function Trust() {
       <div className="max-w-4xl mx-auto px-4 py-16">
         {/* Four pillars */}
         <div className="mb-16">
-          <div className="flex items-center gap-2 text-slate-400 text-sm font-medium mb-8">
+          <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-8">
             <Info className="w-4 h-4" />
             Four pillars of trust
           </div>
           <div className="space-y-6">
             {TRUST_PILLARS.map((pillar) => (
-              <div key={pillar.title} className="bg-slate-900 border border-slate-800 rounded-2xl p-8 hover:border-slate-700 transition-colors">
+              <div key={pillar.title} className="bg-white border border-gray-200 rounded-2xl p-8 hover:border-gray-300 transition-colors">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 mt-1">{pillar.icon}</div>
                   <div className="flex-1">
-                    <h3 className="text-white font-bold text-xl mb-3">{pillar.title}</h3>
-                    <p className="text-slate-400 leading-relaxed mb-4">{pillar.description}</p>
+                    <h3 className="text-slate-900 font-bold text-xl mb-3">{pillar.title}</h3>
+                    <p className="text-slate-500 leading-relaxed mb-4">{pillar.description}</p>
                     <ul className="space-y-2">
                       {pillar.items.map((item) => (
-                        <li key={item} className="flex items-start gap-2 text-sm text-slate-300">
+                        <li key={item} className="flex items-start gap-2 text-sm text-slate-600">
                           <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                           {item}
                         </li>
@@ -134,23 +134,23 @@ export default function Trust() {
             <BarChart3 className="w-4 h-4" />
             Ranking Algorithm
           </div>
-          <h2 className="text-3xl font-black text-white mb-3">How rankings are calculated</h2>
-          <p className="text-slate-400 mb-8">
+          <h2 className="text-3xl font-black text-slate-900 mb-3">How rankings are calculated</h2>
+          <p className="text-slate-500 mb-8">
             Our ranking score is a weighted composite of the following signals. The formula is applied identically to every tool — no exceptions.
           </p>
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-            <div className="grid grid-cols-3 px-6 py-3 border-b border-slate-800 bg-slate-800/50 text-slate-400 text-xs font-medium uppercase tracking-wide">
+          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+            <div className="grid grid-cols-3 px-6 py-3 border-b border-gray-200 bg-gray-100/50 text-slate-500 text-xs font-medium uppercase tracking-wide">
               <span>Signal</span>
               <span className="text-center">Weight</span>
               <span className="text-right">Description</span>
             </div>
             {RANKING_FACTORS.map((factor, i) => (
-              <div key={factor.factor} className={`grid grid-cols-3 px-6 py-4 gap-4 items-center ${i < RANKING_FACTORS.length - 1 ? 'border-b border-slate-800/50' : ''}`}>
-                <span className="text-white font-medium text-sm">{factor.factor}</span>
+              <div key={factor.factor} className={`grid grid-cols-3 px-6 py-4 gap-4 items-center ${i < RANKING_FACTORS.length - 1 ? 'border-b border-gray-200/50' : ''}`}>
+                <span className="text-slate-900 font-medium text-sm">{factor.factor}</span>
                 <div className="text-center">
                   <span className="bg-amber-400/10 text-amber-400 border border-amber-400/20 text-xs font-bold px-2 py-1 rounded-full">{factor.weight}</span>
                 </div>
-                <span className="text-slate-400 text-sm text-right">{factor.description}</span>
+                <span className="text-slate-500 text-sm text-right">{factor.description}</span>
               </div>
             ))}
           </div>
@@ -162,14 +162,14 @@ export default function Trust() {
             <AlertTriangle className="w-4 h-4" />
             Prohibited Behaviour
           </div>
-          <h2 className="text-3xl font-black text-white mb-3">What we don't allow</h2>
-          <p className="text-slate-400 mb-6">
+          <h2 className="text-3xl font-black text-slate-900 mb-3">What we don't allow</h2>
+          <p className="text-slate-500 mb-6">
             Violations of these rules result in immediate removal of the listing, review, or account — and may be reported to relevant authorities.
           </p>
-          <div className="bg-slate-900 border border-rose-500/20 rounded-2xl p-6">
+          <div className="bg-white border border-rose-500/20 rounded-2xl p-6">
             <ul className="space-y-3">
               {PROHIBITED.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-slate-300">
+                <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
                   <XCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
                   {item}
                 </li>
@@ -179,12 +179,12 @@ export default function Trust() {
         </div>
 
         {/* Report */}
-        <div className="mb-16 bg-slate-900 border border-slate-800 rounded-2xl p-8">
+        <div className="mb-16 bg-white border border-gray-200 rounded-2xl p-8">
           <div className="flex items-start gap-4">
             <Eye className="w-7 h-7 text-amber-400 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="text-white font-bold text-xl mb-2">See something suspicious?</h3>
-              <p className="text-slate-400 leading-relaxed mb-4">
+              <h3 className="text-slate-900 font-bold text-xl mb-2">See something suspicious?</h3>
+              <p className="text-slate-500 leading-relaxed mb-4">
                 If you spot a fake review, a misleading listing, or any other violation of our Trust Framework, please report it. Our team reviews every report within 48 hours.
               </p>
               <Link href="/contact">
@@ -200,8 +200,8 @@ export default function Trust() {
         {/* Founder section */}
         <div className="bg-gradient-to-r from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-10 text-center">
           <FileText className="w-10 h-10 text-amber-400 mx-auto mb-4" />
-          <h3 className="text-white font-black text-2xl mb-3">Founder Guidelines</h3>
-          <p className="text-slate-400 mb-6 max-w-lg mx-auto">
+          <h3 className="text-slate-900 font-black text-2xl mb-3">Founder Guidelines</h3>
+          <p className="text-slate-500 mb-6 max-w-lg mx-auto">
             If you're a founder listing your product on LaudStack, read our full founder guidelines to understand what's expected and how to make the most of your listing.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -212,7 +212,7 @@ export default function Trust() {
               </button>
             </Link>
             <Link href="/contact">
-              <button className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
+              <button className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-slate-900 font-semibold px-6 py-3 rounded-xl transition-colors">
                 Contact Us
               </button>
             </Link>

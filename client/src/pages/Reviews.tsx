@@ -48,7 +48,7 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
       {[1, 2, 3, 4, 5].map(i => (
         <Star
           key={i}
-          className={`${px} ${i <= rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-200'}`}
+          className={`${px} ${i <= rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-800'}`}
         />
       ))}
     </div>
@@ -104,7 +104,7 @@ function ReviewCard({ review }: { review: typeof enrichedReviews[0] }) {
               )}
               {review.user?.company && (
                 <>
-                  <span className="text-slate-300 text-xs">·</span>
+                  <span className="text-slate-600 text-xs">·</span>
                   <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                     <Building2 className="h-3 w-3" />
                     {review.user.company}
@@ -128,7 +128,7 @@ function ReviewCard({ review }: { review: typeof enrichedReviews[0] }) {
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
             <span className="text-xs font-semibold text-slate-700">{review.tool.name}</span>
-            <ArrowRight className="h-3 w-3 text-slate-400" />
+            <ArrowRight className="h-3 w-3 text-slate-500" />
           </button>
         )}
       </div>
@@ -170,7 +170,7 @@ function ReviewCard({ review }: { review: typeof enrichedReviews[0] }) {
 
       {/* Footer row */}
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-        <span className="text-xs text-slate-400">{new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+        <span className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
         <button
           onClick={() => { if (!voted) { setHelpful(h => h + 1); setVoted(true); } }}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
@@ -254,19 +254,18 @@ export default function ReviewsPage() {
 
       {/* Hero */}
       <section
-        className="pt-[72px]"
-        style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)' }}
+        className="pt-[72px] bg-white border-b border-gray-200"
       >
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 py-16">
+        <div className="max-w-[1300px] mx-auto px-6 lg:px-10 py-16">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-white/10 text-white/80 text-xs font-semibold mb-5">
-              <MessageSquare className="h-3.5 w-3.5 text-amber-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold mb-5">
+              <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
               Community Reviews
             </div>
-            <h1 className="text-3xl lg:text-4xl font-black text-white mb-3 leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 mb-3 leading-tight">
               Real reviews from real users
             </h1>
-            <p className="text-slate-400 text-base leading-relaxed mb-8">
+            <p className="text-slate-500 text-base leading-relaxed mb-8">
               Every review on LaudStack is from a verified user. No fake ratings, no paid placements — just honest opinions from the community.
             </p>
 
@@ -278,9 +277,9 @@ export default function ReviewsPage() {
                 { label: 'Verified Reviews', value: `${Math.round((verifiedCount / totalReviews) * 100)}%` },
                 { label: '5-Star Reviews', value: `${Math.round((fiveStarCount / totalReviews) * 100)}%` },
               ].map(stat => (
-                <div key={stat.label} className="bg-white/10 border border-white/10 rounded-xl p-4">
-                  <div className="text-xl font-black text-white">{stat.value}</div>
-                  <div className="text-xs text-slate-400 font-medium mt-0.5">{stat.label}</div>
+                <div key={stat.label} className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                  <div className="text-xl font-black text-slate-900">{stat.value}</div>
+                  <div className="text-xs text-slate-500 font-medium mt-0.5">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -296,7 +295,7 @@ export default function ReviewsPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <input
                 type="text"
                 placeholder="Search reviews by tool, keyword, or reviewer..."
@@ -317,7 +316,7 @@ export default function ReviewsPage() {
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 pointer-events-none" />
             </div>
 
             {/* Filter toggle */}
@@ -411,7 +410,7 @@ export default function ReviewsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center">
-            <MessageSquare className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+            <MessageSquare className="h-12 w-12 text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-slate-900 mb-2">No reviews found</h3>
             <p className="text-sm text-slate-500 mb-6">
               {searchQuery

@@ -28,7 +28,7 @@ function StarRow({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1,2,3,4,5].map(s => (
-        <Star key={s} className={`w-3.5 h-3.5 ${s <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
+        <Star key={s} className={`w-3.5 h-3.5 ${s <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-600'}`} />
       ))}
     </div>
   );
@@ -57,13 +57,13 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black text-white"
+                className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black text-slate-900"
                 style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
               >
                 {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
               </div>
-              <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center hover:bg-slate-700 transition-colors">
-                <Camera className="w-3 h-3 text-white" />
+              <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+                <Camera className="w-3 h-3 text-slate-900" />
               </button>
             </div>
             <div>
@@ -101,7 +101,7 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
               </div>
               <div>
                 <label className="block text-slate-700 text-sm font-medium mb-1.5">Website</label>
-                <input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400 transition-colors" />
+                <input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-colors" />
               </div>
             </div>
             <div>
@@ -154,7 +154,7 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
             <div key={i} className="flex items-center gap-3 text-sm py-2 border-b border-slate-100 last:border-0">
               <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">{item.icon}</div>
               <span className="text-slate-600">{item.action} <span className="font-semibold text-slate-900">{item.tool}</span></span>
-              <span className="ml-auto text-slate-400 text-xs">{item.time}</span>
+              <span className="ml-auto text-slate-500 text-xs">{item.time}</span>
             </div>
           ))}
         </div>
@@ -190,7 +190,7 @@ function ReviewsTab() {
                   </Link>
                   <div className="flex items-center gap-2 mt-0.5">
                     <StarRow rating={review.rating} />
-                    <span className="text-slate-400 text-xs">{review.created_at}</span>
+                    <span className="text-slate-500 text-xs">{review.created_at}</span>
                   </div>
                 </div>
               </div>
@@ -198,7 +198,7 @@ function ReviewsTab() {
                 {review.is_verified_purchase && (
                   <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">Verified</span>
                 )}
-                <button className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+                <button className="p-1.5 text-slate-500 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -221,7 +221,7 @@ function ReviewsTab() {
                 )}
               </div>
             )}
-            <div className="mt-3 flex items-center gap-1 text-slate-400 text-xs">
+            <div className="mt-3 flex items-center gap-1 text-slate-500 text-xs">
               <Heart className="w-3 h-3" />
               <span>{review.helpful_count} people found this helpful</span>
             </div>
@@ -239,7 +239,7 @@ function SavedTab() {
   if (savedTools.length === 0) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-        <Bookmark className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+        <Bookmark className="w-12 h-12 text-slate-600 mx-auto mb-4" />
         <h3 className="text-slate-900 font-bold text-lg mb-2">No saved tools yet</h3>
         <p className="text-slate-500 text-sm mb-5">Bookmark tools you want to revisit or share with your team.</p>
         <Link href="/">
@@ -273,12 +273,12 @@ function SavedTab() {
               <span className="text-slate-700 text-sm font-medium">{tool.average_rating.toFixed(1)}</span>
             </div>
             <Link href={`/tools/${tool.slug}`}>
-              <button className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+              <button className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
                 <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </Link>
             <button onClick={() => { toggle(tool.id); toast.success(`Removed ${tool.name} from saved`); }}
-              className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+              className="p-1.5 text-slate-500 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -353,7 +353,7 @@ function SettingsTab({ user }: { user: { name: string; email: string } }) {
             <label className="block text-slate-700 text-sm font-medium mb-1.5">Current password</label>
             <div className="relative">
               <input type={showPw ? 'text' : 'password'} value={currentPw} onChange={e => setCurrentPw(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-amber-400 transition-colors pr-10" />
-              <button onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600">
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -403,7 +403,7 @@ export default function Dashboard() {
         <Navbar />
         <div style={{ height: '72px' }} />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <User className="w-14 h-14 text-slate-300 mx-auto mb-4" />
+          <User className="w-14 h-14 text-slate-600 mx-auto mb-4" />
           <h2 className="text-slate-900 font-black text-2xl mb-2">Sign in to view your dashboard</h2>
           <p className="text-slate-500 mb-6">Track your reviews, saved tools, and account settings.</p>
           <button onClick={() => navigate('/signin?return=/dashboard')}
@@ -421,7 +421,7 @@ export default function Dashboard() {
       <Navbar />
       <div style={{ height: '72px' }} />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-[1300px] mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-slate-900 font-black text-2xl">My Dashboard</h1>

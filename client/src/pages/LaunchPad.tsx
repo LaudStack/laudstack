@@ -532,17 +532,17 @@ export default function LaunchPad() {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', padding: '72px 24px 56px', textAlign: 'center', marginTop: '72px' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '72px 24px 56px', textAlign: 'center', marginTop: '72px' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '20px', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', marginBottom: '20px' }}>
-            <Rocket style={{ width: '14px', height: '14px', color: '#F59E0B' }} />
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#F59E0B', letterSpacing: '0.06em', textTransform: 'uppercase' }}>LaunchPad</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '20px', background: '#FEF3C7', border: '1px solid #FDE68A', marginBottom: '20px' }}>
+            <Rocket style={{ width: '14px', height: '14px', color: '#D97706' }} />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#B45309', letterSpacing: '0.06em', textTransform: 'uppercase' }}>LaunchPad</span>
           </div>
-          <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: '14px' }}>
+          <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#0F172A', lineHeight: 1.2, marginBottom: '14px' }}>
             Get your tool in front of<br />
             <span style={{ color: '#F59E0B' }}>thousands of buyers</span>
           </h1>
-          <p style={{ fontSize: '16px', color: '#94A3B8', lineHeight: 1.7, marginBottom: '32px' }}>
+          <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, marginBottom: '32px' }}>
             List your AI or SaaS tool on LaudStack. Free to submit — no credit card required. Listings go live within 48 hours after review.
           </p>
           {/* Trust bar */}
@@ -555,7 +555,7 @@ export default function LaunchPad() {
             ].map(({ icon: Icon, label }) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Icon style={{ width: '14px', height: '14px', color: '#F59E0B' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#CBD5E1' }}>{label}</span>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{label}</span>
               </div>
             ))}
           </div>

@@ -97,7 +97,7 @@ function OverviewTab() {
                 </div>
               </div>
               <Link href={`/tools/${tool.slug}`}>
-                <button className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+                <button className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               </Link>
@@ -123,16 +123,16 @@ function OverviewTab() {
                 <div className="flex items-start justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="text-slate-900 font-semibold text-sm">{review.user?.name}</span>
-                    <span className="text-slate-400 text-xs">on {tool?.name}</span>
+                    <span className="text-slate-500 text-xs">on {tool?.name}</span>
                   </div>
                   <div className="flex items-center gap-0.5">
-                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}
+                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-800'}`} />)}
                   </div>
                 </div>
                 <p className="text-slate-600 text-sm">{review.body.slice(0, 120)}...</p>
                 <div className="flex items-center gap-3 mt-2">
                   <button onClick={() => toast.success('Reply feature coming soon')} className="text-xs text-amber-600 hover:text-amber-700 font-medium">Reply as Founder</button>
-                  <span className="text-slate-400 text-xs">{review.created_at}</span>
+                  <span className="text-slate-500 text-xs">{review.created_at}</span>
                 </div>
               </div>
             );
@@ -190,14 +190,14 @@ function ToolsTab() {
               <div className="grid grid-cols-4 gap-3 mt-4">
                 {[
                   { label: 'Rating', value: tool.average_rating.toFixed(1), icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> },
-                  { label: 'Reviews', value: tool.review_count, icon: <MessageSquare className="w-3.5 h-3.5 text-slate-400" /> },
+                  { label: 'Reviews', value: tool.review_count, icon: <MessageSquare className="w-3.5 h-3.5 text-slate-500" /> },
                   { label: 'Upvotes', value: tool.upvote_count, icon: <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> },
                   { label: 'Rank', value: `#${MOCK_TOOLS.findIndex(t => t.id === tool.id) + 1}`, icon: <BarChart3 className="w-3.5 h-3.5 text-sky-500" /> },
                 ].map(stat => (
                   <div key={stat.label} className="bg-slate-50 rounded-lg p-2.5 text-center">
                     <div className="flex justify-center mb-1">{stat.icon}</div>
                     <div className="text-slate-900 font-bold text-sm">{stat.value}</div>
-                    <div className="text-slate-400 text-xs">{stat.label}</div>
+                    <div className="text-slate-500 text-xs">{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -239,10 +239,10 @@ function ReviewsTab() {
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <div className="flex items-center gap-0.5">
-                      {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}
+                      {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-800'}`} />)}
                     </div>
-                    <span className="text-slate-400 text-xs">on {tool?.name}</span>
-                    <span className="text-slate-400 text-xs">· {review.created_at}</span>
+                    <span className="text-slate-500 text-xs">on {tool?.name}</span>
+                    <span className="text-slate-500 text-xs">· {review.created_at}</span>
                   </div>
                 </div>
               </div>
@@ -506,7 +506,7 @@ export default function FounderDashboard() {
         <Navbar />
         <div style={{ height: '72px' }} />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <Rocket className="w-14 h-14 text-slate-300 mx-auto mb-4" />
+          <Rocket className="w-14 h-14 text-slate-600 mx-auto mb-4" />
           <h2 className="text-slate-900 font-black text-2xl mb-2">Founder Dashboard</h2>
           <p className="text-slate-500 mb-6">Sign in to manage your tool listings, respond to reviews, and view analytics.</p>
           <button onClick={() => navigate('/signin?return=/dashboard/founder')}
@@ -524,7 +524,7 @@ export default function FounderDashboard() {
       <Navbar />
       <div style={{ height: '72px' }} />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-[1300px] mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>

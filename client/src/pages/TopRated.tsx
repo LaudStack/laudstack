@@ -33,9 +33,9 @@ function PodiumCard({ tool, rank }: { tool: typeof MOCK_TOOLS[0]; rank: number }
   const [, navigate] = useLocation();
   const colors = {
     1: { border: 'border-amber-500/60', bg: 'bg-amber-500/10', text: 'text-amber-400', crown: 'text-amber-400' },
-    2: { border: 'border-slate-400/40', bg: 'bg-slate-400/10', text: 'text-slate-300', crown: 'text-slate-400' },
+    2: { border: 'border-slate-400/40', bg: 'bg-slate-400/10', text: 'text-slate-600', crown: 'text-slate-500' },
     3: { border: 'border-orange-700/40', bg: 'bg-orange-700/10', text: 'text-orange-600', crown: 'text-orange-700' },
-  }[rank] || { border: 'border-slate-700', bg: 'bg-slate-900', text: 'text-slate-400', crown: 'text-slate-500' };
+  }[rank] || { border: 'border-gray-300', bg: 'bg-white', text: 'text-slate-500', crown: 'text-slate-500' };
 
   return (
     <div
@@ -46,15 +46,15 @@ function PodiumCard({ tool, rank }: { tool: typeof MOCK_TOOLS[0]; rank: number }
         <Crown className={`h-6 w-6 ${colors.crown} absolute -top-3 left-1/2 -translate-x-1/2`} />
       )}
       <div className={`text-4xl font-black ${colors.text} mb-3`}>#{rank}</div>
-      <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+      <div className="w-16 h-16 rounded-2xl bg-gray-100 border border-gray-300 flex items-center justify-center mx-auto mb-3 overflow-hidden">
         {tool.logo_url ? (
           <img src={tool.logo_url} alt={tool.name} className="w-10 h-10 object-contain" />
         ) : (
           <span className="text-2xl font-black text-amber-400">{tool.name[0]}</span>
         )}
       </div>
-      <h3 className="text-base font-bold text-white mb-1">{tool.name}</h3>
-      <p className="text-xs text-slate-400 mb-3 line-clamp-2">{tool.tagline}</p>
+      <h3 className="text-base font-bold text-slate-900 mb-1">{tool.name}</h3>
+      <p className="text-xs text-slate-500 mb-3 line-clamp-2">{tool.tagline}</p>
       <div className="flex items-center justify-center gap-1.5 mb-1">
         <StarRow rating={tool.average_rating} />
         <span className={`text-lg font-black ${colors.text}`}>{tool.average_rating.toFixed(1)}</span>
@@ -99,67 +99,67 @@ export default function TopRated() {
   const rest = sortedTools.slice(3, 50);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
       {/* Hero */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 pt-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-white border-b border-gray-200 pt-20">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-2 mb-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-xs font-bold text-amber-400 uppercase tracking-widest">
               <Award className="h-3 w-3" /> Top Rated
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3">
             Highest Community Scores
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl">
+          <p className="text-slate-500 text-lg max-w-2xl">
             Tools ranked by verified community ratings — weighted by review count, recency, and reviewer credibility.
           </p>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 text-center">
+            <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
               <div className="text-2xl font-black text-amber-400">{sortedTools.length}</div>
-              <div className="text-xs text-slate-400 mt-0.5 font-medium">Rated Tools</div>
+              <div className="text-xs text-slate-500 mt-0.5 font-medium">Rated Tools</div>
             </div>
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 text-center">
+            <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
               <div className="text-2xl font-black text-emerald-400">{top3[0]?.average_rating.toFixed(1) || '—'}</div>
-              <div className="text-xs text-slate-400 mt-0.5 font-medium">Top Score</div>
+              <div className="text-xs text-slate-500 mt-0.5 font-medium">Top Score</div>
             </div>
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-white">
+            <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
+              <div className="text-2xl font-black text-slate-900">
                 {sortedTools.length
                   ? (sortedTools.reduce((s, t) => s + t.average_rating, 0) / sortedTools.length).toFixed(1)
                   : '—'}
               </div>
-              <div className="text-xs text-slate-400 mt-0.5 font-medium">Avg Rating</div>
+              <div className="text-xs text-slate-500 mt-0.5 font-medium">Avg Rating</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-8">
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+            className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500"
           >
             {CATEGORY_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select
             value={minReviews}
             onChange={e => setMinReviews(Number(e.target.value))}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+            className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500"
           >
             {MIN_REVIEWS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
           <select
             value={pricingFilter}
             onChange={e => setPricingFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+            className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500"
           >
             <option value="">All Pricing</option>
             {['Free', 'Freemium', 'Paid', 'Free Trial', 'Open Source'].map(p => (
@@ -186,7 +186,7 @@ export default function TopRated() {
             <div
               key={tool.id}
               onClick={() => navigate(`/tools/${tool.slug}`)}
-              className="group bg-slate-900 border border-slate-800 rounded-xl px-5 py-4 cursor-pointer hover:border-amber-500/40 hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-4"
+              className="group bg-white border border-gray-200 rounded-xl px-5 py-4 cursor-pointer hover:border-amber-500/40 hover:bg-gray-100/80 transition-all duration-200 flex items-center gap-4"
             >
               {/* Rank */}
               <div className="w-8 shrink-0 text-center text-sm font-bold text-slate-500">
@@ -194,7 +194,7 @@ export default function TopRated() {
               </div>
 
               {/* Logo */}
-              <div className="w-10 h-10 shrink-0 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center overflow-hidden">
                 {tool.logo_url ? (
                   <img src={tool.logo_url} alt={tool.name} className="w-7 h-7 object-contain" />
                 ) : (
@@ -205,11 +205,11 @@ export default function TopRated() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">{tool.name}</span>
+                  <span className="text-sm font-bold text-slate-900 group-hover:text-amber-400 transition-colors">{tool.name}</span>
                   {tool.is_verified && <Shield className="h-3.5 w-3.5 text-blue-400" />}
-                  <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{tool.category}</span>
+                  <span className="text-xs text-slate-500 bg-gray-100 px-2 py-0.5 rounded-full">{tool.category}</span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5 truncate">{tool.tagline}</p>
+                <p className="text-xs text-slate-500 mt-0.5 truncate">{tool.tagline}</p>
               </div>
 
               {/* Rating */}
@@ -237,8 +237,8 @@ export default function TopRated() {
         {sortedTools.length === 0 && (
           <div className="text-center py-24">
             <div className="text-5xl mb-4">⭐</div>
-            <h3 className="text-xl font-bold text-white mb-2">No tools match these filters</h3>
-            <p className="text-slate-400 text-sm">Try adjusting the category or review count filter</p>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">No tools match these filters</h3>
+            <p className="text-slate-500 text-sm">Try adjusting the category or review count filter</p>
           </div>
         )}
       </div>
