@@ -26,10 +26,10 @@ const NAV_ITEMS = [
   {
     label: 'Discover',
     megaMenu: [
-      { icon: Layers,     label: 'All Tools',     desc: 'Browse the full directory' },
-      { icon: TrendingUp, label: 'Trending',       desc: 'What\'s hot right now' },
-      { icon: Star,       label: 'Top Rated',      desc: 'Highest community scores' },
-      { icon: Zap,        label: 'New Launches',   desc: 'Recently added tools' },
+      { icon: Layers,     label: 'All Tools',     desc: 'Browse the full directory',   href: '/tools' },
+      { icon: TrendingUp, label: 'Trending',       desc: 'What\'s hot right now',       href: '/trending' },
+      { icon: Star,       label: 'Top Rated',      desc: 'Highest community scores',     href: '/top-rated' },
+      { icon: Zap,        label: 'New Launches',   desc: 'Recently added tools',         href: '/new-launches' },
     ],
   },
   {

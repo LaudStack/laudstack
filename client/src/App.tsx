@@ -29,6 +29,10 @@ import Pricing from './pages/Pricing';
 import ClaimTool from './pages/ClaimTool';
 import Templates from './pages/Templates';
 import Deals from './pages/Deals';
+import AllTools from './pages/AllTools';
+import Trending from './pages/Trending';
+import TopRated from './pages/TopRated';
+import NewLaunches from './pages/NewLaunches';
 import ScrollToTop from './components/ScrollToTop';
 
 function Router() {
@@ -58,6 +62,10 @@ function Router() {
         <Route path="/claim" component={ClaimTool} />
         <Route path="/templates" component={Templates} />
         <Route path="/deals" component={Deals} />
+        <Route path="/tools" component={AllTools} />
+        <Route path="/trending" component={Trending} />
+        <Route path="/top-rated" component={TopRated} />
+        <Route path="/new-launches" component={NewLaunches} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
