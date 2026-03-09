@@ -37,10 +37,10 @@ const CATEGORY_COLORS: Record<string, { bg: string; border: string; icon: string
   'AI Code':            { bg: '#EFF6FF', border: '#BFDBFE', icon: '#3B82F6', accent: '#1D4ED8' },
   'AI Video':           { bg: '#FFF1F2', border: '#FECDD3', icon: '#F43F5E', accent: '#BE123C' },
   'AI Writing':         { bg: '#F0FDF4', border: '#BBF7D0', icon: '#22C55E', accent: '#15803D' },
-  'Developer Tools':    { bg: '#F8FAFC', border: '#CBD5E1', icon: '#475569', accent: '#1E293B' },
+  'Developer Tools':    { bg: '#F8FAFC', border: '#CBD5E1', icon: '#475569', accent: '#171717' },
   'AI Image':           { bg: '#FFF7ED', border: '#FED7AA', icon: '#F97316', accent: '#C2410C' },
   'AI Analytics':       { bg: '#F0F9FF', border: '#BAE6FD', icon: '#0EA5E9', accent: '#0369A1' },
-  'Project Management': { bg: '#F0FDF4', border: '#A7F3D0', icon: '#10B981', accent: '#047857' },
+  'Project Management': { bg: '#F0FDF4', border: '#A7F3D0', icon: '#22C55E', accent: '#15803D' },
 };
 
 const DEFAULT_COLOR = { bg: '#F8FAFC', border: '#E2E8F0', icon: '#64748B', accent: '#374151' };
@@ -81,7 +81,7 @@ export default function Categories() {
             <Grid3X3 style={{ width: '13px', height: '13px', color: '#D97706' }} />
             <span style={{ fontSize: '12px', fontWeight: 700, color: '#B45309', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Browse Categories</span>
           </div>
-          <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#0F172A', lineHeight: 1.2, marginBottom: '14px', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#171717', lineHeight: 1.2, marginBottom: '14px', letterSpacing: '-0.02em' }}>
             Find tools by category
           </h1>
           <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, marginBottom: '32px' }}>
@@ -94,7 +94,7 @@ export default function Categories() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Filter categories..."
-              style={{ width: '100%', padding: '12px 14px 12px 42px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 0.15s' }}
+              style={{ width: '100%', padding: '12px 14px 12px 42px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#171717', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 0.15s' }}
               onFocus={e => { e.currentTarget.style.borderColor = '#F59E0B'; }}
               onBlur={e => { e.currentTarget.style.borderColor = '#E2E8F0'; }}
             />
@@ -162,7 +162,7 @@ export default function Categories() {
                             <Icon style={{ width: '18px', height: '18px', color: colors.icon }} />
                           </div>
                           <div>
-                            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A', margin: 0 }}>{cat.name}</h3>
+                            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#171717', margin: 0 }}>{cat.name}</h3>
                             <span style={{ fontSize: '12px', fontWeight: 600, color: colors.accent }}>
                               {cat.tools.length} {cat.tools.length === 1 ? 'tool' : 'tools'}
                             </span>
@@ -201,7 +201,7 @@ export default function Categories() {
                                 }}
                               />
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</div>
+                                <div style={{ fontSize: '13px', fontWeight: 700, color: '#171717', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</div>
                                 <div style={{ fontSize: '11px', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.tagline}</div>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
@@ -239,16 +239,16 @@ export default function Categories() {
       {/* ── Founder CTA ── */}
       <div style={{ background: '#F8FAFC', borderTop: '1px solid #E2E8F0', padding: '48px 24px' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}>
             <Rocket style={{ width: '20px', height: '20px', color: '#fff' }} />
           </div>
-          <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0F172A', marginBottom: '10px' }}>Don't see your tool?</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#171717', marginBottom: '10px' }}>Don't see your tool?</h2>
           <p style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.7, marginBottom: '24px' }}>
             Submit your AI or SaaS tool to LaudStack. Free to list — reviewed within 48 hours.
           </p>
           <button
             onClick={() => navigate('/launchpad')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 28px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,158,11,0.3)', fontFamily: 'inherit', transition: 'box-shadow 0.2s' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 28px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,158,11,0.3)', fontFamily: 'inherit', transition: 'box-shadow 0.2s' }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 28px rgba(245,158,11,0.45)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(245,158,11,0.3)'; }}
           >

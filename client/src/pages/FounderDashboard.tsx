@@ -41,7 +41,7 @@ function StatCard({ label, value, change, icon, positive }: { label: string; val
       </div>
       <div className="text-slate-900 font-black text-2xl mb-1">{value}</div>
       {change && (
-        <div className={`flex items-center gap-1 text-xs font-medium ${positive ? 'text-emerald-600' : 'text-rose-500'}`}>
+        <div className={`flex items-center gap-1 text-xs font-medium ${positive ? 'text-green-600' : 'text-rose-500'}`}>
           {positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
           {change} vs last month
         </div>
@@ -63,7 +63,7 @@ function OverviewTab() {
         <StatCard label="Total Profile Views" value={Math.round(totalViews).toLocaleString()} change="+12%" positive icon={<Eye className="w-4 h-4 text-sky-500" />} />
         <StatCard label="Total Reviews" value={totalReviews} change="+8%" positive icon={<MessageSquare className="w-4 h-4 text-amber-500" />} />
         <StatCard label="Avg Rating" value={avgRating.toFixed(1)} change="+0.2" positive icon={<Star className="w-4 h-4 text-amber-400" />} />
-        <StatCard label="Total Upvotes" value={totalUpvotes.toLocaleString()} change="+23%" positive icon={<TrendingUp className="w-4 h-4 text-emerald-500" />} />
+        <StatCard label="Total Upvotes" value={totalUpvotes.toLocaleString()} change="+23%" positive icon={<TrendingUp className="w-4 h-4 text-green-500" />} />
       </div>
 
       {/* Tools summary */}
@@ -191,7 +191,7 @@ function ToolsTab() {
                 {[
                   { label: 'Rating', value: tool.average_rating.toFixed(1), icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> },
                   { label: 'Reviews', value: tool.review_count, icon: <MessageSquare className="w-3.5 h-3.5 text-slate-500" /> },
-                  { label: 'Upvotes', value: tool.upvote_count, icon: <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> },
+                  { label: 'Upvotes', value: tool.upvote_count, icon: <TrendingUp className="w-3.5 h-3.5 text-green-500" /> },
                   { label: 'Rank', value: `#${MOCK_TOOLS.findIndex(t => t.id === tool.id) + 1}`, icon: <BarChart3 className="w-3.5 h-3.5 text-sky-500" /> },
                 ].map(stat => (
                   <div key={stat.label} className="bg-slate-50 rounded-lg p-2.5 text-center">
@@ -297,7 +297,7 @@ function AnalyticsTab() {
   const trafficData = [
     { name: 'Search', value: 42, color: '#F59E0B' },
     { name: 'Direct', value: 28, color: '#6366F1' },
-    { name: 'Browse', value: 18, color: '#10B981' },
+    { name: 'Browse', value: 18, color: '#22C55E' },
     { name: 'Leaderboard', value: 12, color: '#3B82F6' },
   ];
 
@@ -404,7 +404,7 @@ function AnalyticsTab() {
       {/* Review Sentiment Stacked Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6">
         <h3 className="text-slate-900 font-bold mb-1 flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-emerald-500" />
+          <MessageSquare className="w-4 h-4 text-green-500" />
           Review Sentiment Trend
         </h3>
         <p className="text-slate-500 text-sm mb-4">Positive, neutral, and negative review breakdown over time</p>
@@ -415,7 +415,7 @@ function AnalyticsTab() {
             <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '12px' }} />
             <Legend wrapperStyle={{ fontSize: '12px' }} />
-            <Bar dataKey="positive" stackId="a" fill="#10B981" name="Positive" radius={[0,0,0,0]} />
+            <Bar dataKey="positive" stackId="a" fill="#22C55E" name="Positive" radius={[0,0,0,0]} />
             <Bar dataKey="neutral" stackId="a" fill="#94A3B8" name="Neutral" />
             <Bar dataKey="negative" stackId="a" fill="#EF4444" name="Negative" radius={[4,4,0,0]} />
           </BarChart>
@@ -433,15 +433,15 @@ function AnalyticsTab() {
           <AreaChart data={viewsData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="upvoteGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                <stop offset="5%" stopColor="#22C55E" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '12px' }} />
-            <Area type="monotone" dataKey="upvotes" stroke="#10B981" strokeWidth={2} fill="url(#upvoteGrad)" name="Upvotes" />
+            <Area type="monotone" dataKey="upvotes" stroke="#22C55E" strokeWidth={2} fill="url(#upvoteGrad)" name="Upvotes" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

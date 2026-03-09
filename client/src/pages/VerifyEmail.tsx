@@ -46,7 +46,7 @@ export default function VerifyEmail() {
         <div className="flex-1 flex items-center justify-center px-4 py-20 mt-[72px]">
           <div className="text-center max-w-md">
             <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+              <CheckCircle2 className="w-10 h-10 text-green-500" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 mb-3">Email Verified!</h1>
             <p className="text-slate-500 mb-6">Your account is now fully activated. Redirecting you to your welcome page…</p>
@@ -96,7 +96,7 @@ export default function VerifyEmail() {
             ].map(({ step, text, done }) => (
               <div key={step} className="flex items-center gap-3">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${
-                  done ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                  done ? 'bg-emerald-100 text-green-600' : 'bg-amber-100 text-amber-600'
                 }`}>
                   {done ? <CheckCircle2 className="w-4 h-4" /> : step}
                 </div>
@@ -108,7 +108,7 @@ export default function VerifyEmail() {
           {/* Demo verify button */}
           <button
             onClick={handleSimulateVerify}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-400/25 mb-4"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-400/25 mb-4"
           >
             <CheckCircle2 className="w-4 h-4" />
             Simulate Email Verification (Demo)

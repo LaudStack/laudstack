@@ -101,7 +101,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
               )}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>Write a Review</div>
-                <div style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>{toolName}</div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#171717' }}>{toolName}</div>
               </div>
               <button
                 onClick={handleClose}
@@ -122,16 +122,16 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                   animate={{ opacity: 1, scale: 1 }}
                   style={{ textAlign: 'center', padding: '32px 0' }}
                 >
-                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, #10B981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#22C55E', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                     <CheckCircle2 style={{ width: '32px', height: '32px', color: '#fff' }} />
                   </div>
-                  <div style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Review Submitted!</div>
+                  <div style={{ fontSize: '20px', fontWeight: 800, color: '#171717', marginBottom: '8px' }}>Review Submitted!</div>
                   <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6, maxWidth: '360px', margin: '0 auto 28px' }}>
                     Thank you for sharing your experience with <strong>{toolName}</strong>. Your review will be visible after a brief moderation check.
                   </div>
                   <button
                     onClick={handleClose}
-                    style={{ padding: '10px 28px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer' }}
+                    style={{ padding: '10px 28px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer' }}
                   >
                     Done
                   </button>
@@ -193,7 +193,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                       maxLength={100}
                       style={{
                         width: '100%', padding: '10px 14px', borderRadius: '10px',
-                        border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#0F172A',
+                        border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#171717',
                         outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box',
                         fontFamily: 'inherit',
                       }}
@@ -215,7 +215,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                       rows={4}
                       style={{
                         width: '100%', padding: '10px 14px', borderRadius: '10px',
-                        border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#0F172A',
+                        border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#171717',
                         outline: 'none', resize: 'vertical', transition: 'border-color 0.15s',
                         boxSizing: 'border-box', lineHeight: 1.6, fontFamily: 'inherit',
                         minHeight: '100px',
@@ -236,17 +236,17 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {pros.map((p, i) => (
                         <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', flexShrink: 0 }} />
+                          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
                           <input
                             value={p}
                             onChange={e => updatePro(i, e.target.value)}
                             placeholder={`Pro ${i + 1}`}
                             style={{
                               flex: 1, padding: '8px 12px', borderRadius: '8px',
-                              border: '1.5px solid #E2E8F0', fontSize: '13px', color: '#0F172A',
+                              border: '1.5px solid #E2E8F0', fontSize: '13px', color: '#171717',
                               outline: 'none', fontFamily: 'inherit',
                             }}
-                            onFocus={e => (e.currentTarget.style.borderColor = '#10B981')}
+                            onFocus={e => (e.currentTarget.style.borderColor = '#22C55E')}
                             onBlur={e => (e.currentTarget.style.borderColor = '#E2E8F0')}
                           />
                           {pros.length > 1 && (
@@ -257,7 +257,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                         </div>
                       ))}
                       {pros.length < 5 && (
-                        <button onClick={addPro} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#10B981', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 'fit-content' }}>
+                        <button onClick={addPro} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#22C55E', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 'fit-content' }}>
                           <Plus style={{ width: '14px', height: '14px' }} /> Add another pro
                         </button>
                       )}
@@ -279,7 +279,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                             placeholder={`Con ${i + 1}`}
                             style={{
                               flex: 1, padding: '8px 12px', borderRadius: '8px',
-                              border: '1.5px solid #E2E8F0', fontSize: '13px', color: '#0F172A',
+                              border: '1.5px solid #E2E8F0', fontSize: '13px', color: '#171717',
                               outline: 'none', fontFamily: 'inherit',
                             }}
                             onFocus={e => (e.currentTarget.style.borderColor = '#EF4444')}
@@ -324,8 +324,8 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                     disabled={submitting}
                     style={{
                       padding: '9px 24px', borderRadius: '10px', border: 'none',
-                      background: submitting ? '#FDE68A' : 'linear-gradient(135deg, #F59E0B, #EA580C)',
-                      color: '#fff', fontWeight: 700, fontSize: '13px', cursor: submitting ? 'not-allowed' : 'pointer',
+                      background: submitting ? '#FDE68A' : '#F59E0B',
+                      color: '#0A0A0A', fontWeight: 700, fontSize: '13px', cursor: submitting ? 'not-allowed' : 'pointer',
                       transition: 'all 0.15s', fontFamily: 'inherit', minWidth: '120px',
                       boxShadow: submitting ? 'none' : '0 4px 12px rgba(245,158,11,0.3)',
                     }}

@@ -69,7 +69,7 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 500, width: '40px', textAlign: 'right', flexShrink: 0 }}>{label}</span>
       <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: '#F1F5F9', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #FBBF24, #F59E0B)', borderRadius: '4px', transition: 'width 0.6s ease' }} />
+        <div style={{ height: '100%', width: `${pct}%`, background: '#F59E0B', borderRadius: '4px', transition: 'width 0.6s ease' }} />
       </div>
       <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500, width: '28px', flexShrink: 0 }}>{count}</span>
     </div>
@@ -156,7 +156,7 @@ export default function ToolDetail() {
         <div style={{ height: '72px' }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '80px 24px' }}>
           <AlertCircle style={{ width: '48px', height: '48px', color: '#94A3B8' }} />
-          <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A', margin: 0 }}>Tool not found</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#171717', margin: 0 }}>Tool not found</h1>
           <p style={{ color: '#64748B', margin: 0 }}>The tool you're looking for doesn't exist or has been removed.</p>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: 700, color: '#F59E0B', textDecoration: 'none' }}>
             <ArrowLeft style={{ width: '14px', height: '14px' }} /> Back to homepage
@@ -208,7 +208,7 @@ export default function ToolDetail() {
             <ChevronRight style={{ width: '12px', height: '12px' }} />
             <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>{tool.category}</Link>
             <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <span style={{ color: '#0F172A', fontWeight: 600 }}>{tool.name}</span>
+            <span style={{ color: '#171717', fontWeight: 600 }}>{tool.name}</span>
           </div>
         </div>
       </div>
@@ -263,7 +263,7 @@ export default function ToolDetail() {
               </div>
 
               {/* Name + tagline */}
-              <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 900, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 900, color: '#171717', margin: '0 0 6px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
                 {tool.name}
               </h1>
               <p style={{ fontSize: '16px', color: '#475569', fontWeight: 500, margin: '0 0 16px', lineHeight: 1.5 }}>{tool.tagline}</p>
@@ -272,16 +272,16 @@ export default function ToolDetail() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <StarRating rating={tool.average_rating} size={18} />
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>{tool.average_rating.toFixed(1)}</span>
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#171717' }}>{tool.average_rating.toFixed(1)}</span>
                   <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>({tool.review_count.toLocaleString()} reviews)</span>
                 </div>
                 <div style={{ width: '1px', height: '18px', background: '#E2E8F0' }} />
                 <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>
-                  <strong style={{ color: '#0F172A' }}>{(tool.upvote_count + upvoteCount).toLocaleString()}</strong> upvotes
+                  <strong style={{ color: '#171717' }}>{(tool.upvote_count + upvoteCount).toLocaleString()}</strong> upvotes
                 </span>
                 <div style={{ width: '1px', height: '18px', background: '#E2E8F0' }} />
                 <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>
-                  <strong style={{ color: '#0F172A' }}>{tool.pricing_model}</strong>
+                  <strong style={{ color: '#171717' }}>{tool.pricing_model}</strong>
                 </span>
               </div>
             </div>
@@ -292,7 +292,7 @@ export default function ToolDetail() {
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#FFFFFF', fontWeight: 800, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.35)', transition: 'all 0.2s ease', letterSpacing: '-0.01em' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.35)', transition: 'all 0.2s ease', letterSpacing: '-0.01em' }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 20px rgba(245,158,11,0.45)')}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 14px rgba(245,158,11,0.35)')}
               >
@@ -399,7 +399,7 @@ export default function ToolDetail() {
           {/* Overview */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
-            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 16px', letterSpacing: '-0.02em' }}>About {tool.name}</h2>
+            <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: '0 0 16px', letterSpacing: '-0.02em' }}>About {tool.name}</h2>
             <p style={{ fontSize: '15px', color: '#374151', lineHeight: 1.75, margin: '0 0 20px' }}>{tool.description}</p>
 
             {/* Tags */}
@@ -416,10 +416,10 @@ export default function ToolDetail() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Ratings & Reviews</h2>
+              <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>Ratings & Reviews</h2>
               <button
                 onClick={handleWriteReview}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '9px 18px', borderRadius: '10px', background: isAuthenticated ? 'linear-gradient(135deg, #F59E0B, #EA580C)' : '#F8FAFC', color: isAuthenticated ? '#FFFFFF' : '#374151', fontWeight: 700, fontSize: '13px', border: isAuthenticated ? 'none' : '1.5px solid #E2E8F0', cursor: 'pointer', boxShadow: isAuthenticated ? '0 3px 10px rgba(245,158,11,0.25)' : 'none', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '9px 18px', borderRadius: '10px', background: isAuthenticated ? '#F59E0B' : '#F8FAFC', color: isAuthenticated ? '#0A0A0A' : '#374151', fontWeight: 700, fontSize: '13px', border: isAuthenticated ? 'none' : '1.5px solid #E2E8F0', cursor: 'pointer', boxShadow: isAuthenticated ? '0 3px 10px rgba(245,158,11,0.25)' : 'none', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
                 onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = isAuthenticated ? '0 5px 16px rgba(245,158,11,0.35)' : '0 2px 8px rgba(0,0,0,0.08)'; }}
                 onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(0)'; b.style.boxShadow = isAuthenticated ? '0 3px 10px rgba(245,158,11,0.25)' : 'none'; }}
               >
@@ -431,7 +431,7 @@ export default function ToolDetail() {
             <div style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '28px' }}>
               {/* Big score */}
               <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                <div style={{ fontSize: '56px', fontWeight: 900, color: '#0F172A', lineHeight: 1, fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.04em' }}>
+                <div style={{ fontSize: '56px', fontWeight: 900, color: '#171717', lineHeight: 1, fontFamily: "'Inter', sans-serif", letterSpacing: '-0.04em' }}>
                   {tool.average_rating.toFixed(1)}
                 </div>
                 <StarRating rating={tool.average_rating} size={20} />
@@ -451,7 +451,7 @@ export default function ToolDetail() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.16 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <div style={{ padding: '28px 32px 20px', borderBottom: '1px solid #F1F5F9' }}>
-              <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>
                 Community Reviews
               </h2>
             </div>
@@ -467,7 +467,7 @@ export default function ToolDetail() {
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{review.user?.name}</span>
+                          <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717' }}>{review.user?.name}</span>
                           {review.is_verified_purchase && (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '2px 7px', borderRadius: '100px', background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' }}>
                               <CheckCircle2 style={{ width: '9px', height: '9px' }} /> Verified
@@ -486,7 +486,7 @@ export default function ToolDetail() {
                   </div>
 
                   {/* Review title + body */}
-                  <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: '0 0 8px', lineHeight: 1.4 }}>{review.title}</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#171717', margin: '0 0 8px', lineHeight: 1.4 }}>{review.title}</h3>
                   <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.7, margin: '0 0 16px' }}>{review.body}</p>
 
                   {/* Pros / Cons */}
@@ -536,7 +536,7 @@ export default function ToolDetail() {
             {/* Write a review CTA */}
             <div style={{ padding: '24px 32px', background: '#FFFBEB', borderTop: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: '0 0 2px' }}>Have experience with {tool.name}?</p>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: '#171717', margin: '0 0 2px' }}>Have experience with {tool.name}?</p>
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
                   {isAuthenticated
                     ? 'Share your honest review and help others make informed decisions.'
@@ -545,7 +545,7 @@ export default function ToolDetail() {
               </div>
               <button
                 onClick={handleWriteReview}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '11px 22px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#FFFFFF', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(245,158,11,0.3)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '11px 22px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(245,158,11,0.3)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(245,158,11,0.3)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
               >
@@ -562,7 +562,7 @@ export default function ToolDetail() {
           {/* Tool Details Card */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '24px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
-            <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '14px', fontWeight: 800, color: '#0F172A', margin: '0 0 18px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tool Details</h3>
+            <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', fontWeight: 800, color: '#171717', margin: '0 0 18px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tool Details</h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
@@ -578,7 +578,7 @@ export default function ToolDetail() {
                     </div>
                     <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 500 }}>{label}</span>
                   </div>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>{value}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#171717' }}>{value}</span>
                 </div>
               ))}
             </div>
@@ -588,7 +588,7 @@ export default function ToolDetail() {
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '11px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#FFFFFF', fontWeight: 800, fontSize: '13px', textDecoration: 'none', boxShadow: '0 3px 10px rgba(245,158,11,0.3)', transition: 'box-shadow 0.2s' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '11px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: '13px', textDecoration: 'none', boxShadow: '0 3px 10px rgba(245,158,11,0.3)', transition: 'box-shadow 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 5px 16px rgba(245,158,11,0.4)')}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 3px 10px rgba(245,158,11,0.3)')}
               >
@@ -599,7 +599,7 @@ export default function ToolDetail() {
 
           {/* Founder CTA */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.18 }}
-            style={{ background: '#0F172A', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
+            style={{ background: '#171717', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <User2 style={{ width: '16px', height: '16px', color: '#F59E0B' }} />
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>For Founders</span>
@@ -608,7 +608,7 @@ export default function ToolDetail() {
             <p style={{ fontSize: '13px', color: '#94A3B8', lineHeight: 1.6, margin: '0 0 16px' }}>Claim your listing to respond to reviews, add a banner, and access analytics.</p>
             <button
               onClick={() => toast.info('LaunchPad coming soon!')}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#F59E0B', color: '#0F172A', fontWeight: 800, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#F59E0B', color: '#171717', fontWeight: 800, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.background = '#FBBF24')}
               onMouseLeave={e => (e.currentTarget.style.background = '#F59E0B')}
             >
@@ -619,7 +619,7 @@ export default function ToolDetail() {
           {/* Share */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.22 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '20px 24px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
-            <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Share</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#171717', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Share</h3>
             <div style={{ display: 'flex', gap: '8px' }}>
               {['Twitter / X', 'LinkedIn', 'Copy Link'].map(platform => (
                 <button
@@ -647,7 +647,7 @@ export default function ToolDetail() {
                   <Sparkles style={{ width: '11px', height: '11px', color: '#64748B' }} />
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Related Tools</span>
                 </div>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '22px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+                <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '22px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>
                   More tools in {tool.category}
                 </h2>
               </div>
@@ -675,7 +675,7 @@ export default function ToolDetail() {
                             onError={e => { const t = e.currentTarget; t.style.display = 'none'; const p = t.parentElement; if (p) { p.style.display = 'flex'; p.style.alignItems = 'center'; p.style.justifyContent = 'center'; p.innerHTML = `<span style="font-size:14px;font-weight:800;color:#64748B">${related.name.charAt(0)}</span>`; } }} />
                         </div>
                         <div style={{ minWidth: 0 }}>
-                          <p style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{related.name}</p>
+                          <p style={{ fontSize: '14px', fontWeight: 800, color: '#171717', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{related.name}</p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Star style={{ width: '11px', height: '11px', fill: '#FBBF24', color: '#FBBF24' }} />
                             <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151' }}>{related.average_rating.toFixed(1)}</span>

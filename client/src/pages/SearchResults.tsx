@@ -123,7 +123,7 @@ export default function SearchResults() {
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder="Search tools by name, category, or tag..."
                 autoFocus
-                style={{ width: '100%', paddingLeft: '50px', paddingRight: inputValue ? '44px' : '16px', height: '54px', fontSize: '15px', color: '#1E293B', background: 'transparent', border: 'none', outline: 'none' }}
+                style={{ width: '100%', paddingLeft: '50px', paddingRight: inputValue ? '44px' : '16px', height: '54px', fontSize: '15px', color: '#171717', background: 'transparent', border: 'none', outline: 'none' }}
               />
               {inputValue && (
                 <button onClick={clearSearch} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex', alignItems: 'center', padding: '4px' }}>
@@ -133,7 +133,7 @@ export default function SearchResults() {
             </div>
             <button
               onClick={handleSearch}
-              style={{ height: '54px', padding: '0 28px', fontWeight: 700, color: '#fff', fontSize: '14px', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
+              style={{ height: '54px', padding: '0 28px', fontWeight: 700, color: '#fff', fontSize: '14px', background: '#F59E0B', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
               onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
             >
@@ -145,9 +145,9 @@ export default function SearchResults() {
           {query && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '14px', color: '#64748B' }}>
-                <strong style={{ color: '#0F172A' }}>{results.length}</strong> result{results.length !== 1 ? 's' : ''} for
+                <strong style={{ color: '#171717' }}>{results.length}</strong> result{results.length !== 1 ? 's' : ''} for
               </span>
-              <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', background: '#F1F5F9', padding: '2px 10px', borderRadius: '6px' }}>"{query}"</span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717', background: '#F1F5F9', padding: '2px 10px', borderRadius: '6px' }}>"{query}"</span>
               {selectedCat !== 'All' && (
                 <span style={{ fontSize: '13px', color: '#64748B' }}>in <strong>{selectedCat}</strong></span>
               )}
@@ -169,8 +169,8 @@ export default function SearchResults() {
                   style={{
                     padding: '5px 13px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
                     border: '1px solid', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-                    background: selectedCat === cat ? '#0F172A' : '#fff',
-                    borderColor: selectedCat === cat ? '#0F172A' : '#E2E8F0',
+                    background: selectedCat === cat ? '#171717' : '#fff',
+                    borderColor: selectedCat === cat ? '#171717' : '#E2E8F0',
                     color: selectedCat === cat ? '#fff' : '#475569',
                     boxShadow: selectedCat === cat ? '0 2px 8px rgba(15,23,42,0.15)' : 'none',
                   }}
@@ -209,7 +209,7 @@ export default function SearchResults() {
                 <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'linear-gradient(135deg, #FEF3C7, #FED7AA)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Search style={{ width: '28px', height: '28px', color: '#D97706' }} />
                 </div>
-                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0F172A', margin: '0 0 8px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Search LaudStack</h2>
+                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#171717', margin: '0 0 8px', fontFamily: "'Inter', sans-serif" }}>Search LaudStack</h2>
                 <p style={{ fontSize: '15px', color: '#64748B', margin: '0 0 36px' }}>Find the best AI & SaaS tools by name, category, or tag.</p>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', maxWidth: '560px', margin: '0 auto' }}>
@@ -233,13 +233,13 @@ export default function SearchResults() {
                 <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Sparkles style={{ width: '28px', height: '28px', color: '#94A3B8' }} />
                 </div>
-                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0F172A', margin: '0 0 8px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>No results for "{query}"</h2>
+                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#171717', margin: '0 0 8px', fontFamily: "'Inter', sans-serif" }}>No results for "{query}"</h2>
                 <p style={{ fontSize: '15px', color: '#64748B', margin: '0 0 28px' }}>Try a different keyword, or browse by category below.</p>
 
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     onClick={clearSearch}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#0F172A', color: '#fff', border: 'none', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity 0.15s' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#171717', color: '#fff', border: 'none', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity 0.15s' }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
                     onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
                   >
@@ -247,9 +247,9 @@ export default function SearchResults() {
                   </button>
                   <button
                     onClick={() => { setSelectedCat('All'); navigate('/'); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#fff', color: '#171717', border: '1px solid #E2E8F0', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
                     onMouseEnter={e => { (e.currentTarget.style.borderColor = '#F59E0B'); (e.currentTarget.style.color = '#B45309'); }}
-                    onMouseLeave={e => { (e.currentTarget.style.borderColor = '#E2E8F0'); (e.currentTarget.style.color = '#0F172A'); }}
+                    onMouseLeave={e => { (e.currentTarget.style.borderColor = '#E2E8F0'); (e.currentTarget.style.color = '#171717'); }}
                   >
                     Browse all tools <ArrowRight style={{ width: '14px', height: '14px' }} />
                   </button>
@@ -279,8 +279,8 @@ export default function SearchResults() {
               {/* Result count bar */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
-                  Showing <strong style={{ color: '#0F172A' }}>{results.length}</strong> tool{results.length !== 1 ? 's' : ''}
-                  {selectedCat !== 'All' && <> in <strong style={{ color: '#0F172A' }}>{selectedCat}</strong></>}
+                  Showing <strong style={{ color: '#171717' }}>{results.length}</strong> tool{results.length !== 1 ? 's' : ''}
+                  {selectedCat !== 'All' && <> in <strong style={{ color: '#171717' }}>{selectedCat}</strong></>}
                 </p>
               </div>
 

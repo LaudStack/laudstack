@@ -80,8 +80,8 @@ export default function Contact() {
           {/* Form */}
           <div className="md:col-span-3">
             {submitted ? (
-              <div className="bg-white border border-emerald-500/30 rounded-2xl p-10 text-center">
-                <CheckCircle className="w-14 h-14 text-emerald-400 mx-auto mb-4" />
+              <div className="bg-white border border-green-500/30 rounded-2xl p-10 text-center">
+                <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4" />
                 <h2 className="text-slate-900 font-black text-2xl mb-2">Message received!</h2>
                 <p className="text-slate-500 mb-6">
                   Thanks for reaching out. We'll get back to you at <strong className="text-slate-900">{email}</strong> within 2 business days.
@@ -174,7 +174,7 @@ export default function Contact() {
               <div className="space-y-3">
                 {[
                   { label: 'Submit a Tool', href: '/launchpad', icon: <Zap className="w-4 h-4 text-amber-400" /> },
-                  { label: 'Trust Framework', href: '/trust', icon: <Shield className="w-4 h-4 text-emerald-400" /> },
+                  { label: 'Trust Framework', href: '/trust', icon: <Shield className="w-4 h-4 text-green-500" /> },
                   { label: 'About LaudStack', href: '/about', icon: <Users className="w-4 h-4 text-sky-400" /> },
                 ].map((link) => (
                   <a key={link.label} href={link.href} className="flex items-center gap-3 text-slate-600 hover:text-slate-900 text-sm transition-colors group">

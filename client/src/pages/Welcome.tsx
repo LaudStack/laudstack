@@ -52,7 +52,7 @@ const ONBOARDING_STEPS = [
     description: 'Are you a founder? Submit your AI or SaaS product and reach thousands of buyers.',
     cta: 'Go to LaunchPad',
     href: '/launchpad',
-    color: 'text-emerald-500',
+    color: 'text-green-500',
     bg: 'bg-emerald-50',
     border: 'border-emerald-100',
   },
@@ -120,7 +120,7 @@ export default function Welcome() {
             <h2 className="text-2xl font-black text-slate-900 mb-2">Get started in 4 steps</h2>
             <p className="text-slate-500">Complete these to get the most out of LaudStack.</p>
             {completedSteps.size > 0 && (
-              <div className="inline-flex items-center gap-1.5 mt-3 bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-semibold px-3 py-1.5 rounded-full">
+              <div className="inline-flex items-center gap-1.5 mt-3 bg-emerald-50 border border-emerald-100 text-green-600 text-sm font-semibold px-3 py-1.5 rounded-full">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {completedSteps.size} of {ONBOARDING_STEPS.length} completed
               </div>
@@ -142,14 +142,14 @@ export default function Welcome() {
                 >
                   {done && (
                     <div className="absolute top-4 right-4">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
                     </div>
                   )}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${done ? 'bg-emerald-100' : 'bg-white border border-slate-200'}`}>
-                    <Icon className={`w-5 h-5 ${done ? 'text-emerald-500' : step.color}`} />
+                    <Icon className={`w-5 h-5 ${done ? 'text-green-500' : step.color}`} />
                   </div>
                   <h3 className={`font-bold text-lg mb-1.5 ${done ? 'text-emerald-700' : 'text-slate-900'}`}>{step.title}</h3>
-                  <p className={`text-sm leading-relaxed mb-4 ${done ? 'text-emerald-600/80' : 'text-slate-500'}`}>{step.description}</p>
+                  <p className={`text-sm leading-relaxed mb-4 ${done ? 'text-green-600/80' : 'text-slate-500'}`}>{step.description}</p>
                   {!done && (
                     <Link href={step.href}>
                       <button
@@ -161,7 +161,7 @@ export default function Welcome() {
                     </Link>
                   )}
                   {done && (
-                    <span className="text-emerald-600 text-sm font-semibold">Done ✓</span>
+                    <span className="text-green-600 text-sm font-semibold">Done ✓</span>
                   )}
                 </div>
               );
@@ -171,7 +171,7 @@ export default function Welcome() {
           {/* Go to dashboard CTA */}
           <div className="mt-10 text-center">
             <Link href="/dashboard">
-              <button className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-amber-400/25">
+              <button className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-amber-400/25">
                 Go to my Dashboard
                 <ArrowRight className="w-4 h-4" />
               </button>

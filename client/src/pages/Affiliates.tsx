@@ -161,7 +161,7 @@ export default function Affiliates() {
                 <ul className="space-y-2 mb-6">
                   {tier.features.map(f => (
                     <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
-                      <Check className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <Check className="h-4 w-4 text-green-500 shrink-0" />
                       {f}
                     </li>
                   ))}
@@ -204,7 +204,7 @@ export default function Affiliates() {
             <p className="text-slate-500 text-sm text-center mb-8">Free to join. Approved within 24 hours. No minimum traffic required.</p>
 
             {submitted ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-10 text-center">
+              <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-10 text-center">
                 <div className="text-5xl mb-4">🎉</div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Application Received!</h3>
                 <p className="text-slate-500 text-sm">We'll review your application and send your affiliate link to <strong className="text-slate-900">{form.email}</strong> within 24 hours.</p>

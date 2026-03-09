@@ -18,12 +18,12 @@ const CATEGORY_OPTIONS = ['All Categories', 'AI Writing', 'AI Image', 'AI Video'
 
 function MomentumBadge({ change }: { change: number }) {
   if (change >= 20) return (
-    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-400">
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-xs font-bold text-green-500">
       <Rocket className="h-3 w-3" /> Rocket
     </span>
   );
   if (change >= 12) return (
-    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-xs font-bold text-orange-400">
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-xs font-bold text-orange-400">
       <Flame className="h-3 w-3" /> Hot
     </span>
   );
@@ -107,7 +107,7 @@ export default function Trending() {
               <div className="text-xs text-slate-500 mt-0.5 font-medium">Rising Tools</div>
             </div>
             <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-emerald-400">+{topGainer?.weekly_rank_change || 0}</div>
+              <div className="text-2xl font-black text-green-500">+{topGainer?.weekly_rank_change || 0}</div>
               <div className="text-xs text-slate-500 mt-0.5 font-medium">Top Gain</div>
             </div>
             <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
@@ -207,7 +207,7 @@ export default function Trending() {
 
                 {/* Rank change */}
                 <div className="shrink-0 text-right">
-                  <div className="flex items-center gap-1 text-emerald-400 font-black text-lg">
+                  <div className="flex items-center gap-1 text-green-500 font-black text-lg">
                     <ArrowUp className="h-4 w-4" />
                     <span>+{tool.weekly_rank_change}</span>
                   </div>

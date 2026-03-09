@@ -11,7 +11,7 @@ import Footer from '@/components/Footer';
 
 const TRUST_PILLARS = [
   {
-    icon: <CheckCircle className="w-7 h-7 text-emerald-400" />,
+    icon: <CheckCircle className="w-7 h-7 text-green-500" />,
     title: 'Verified Listings',
     description: 'Every tool submitted to LaudStack is manually reviewed by our team before going live. We verify that the product exists, is actively maintained, and meets our quality bar. We reject listings that are vaporware, clones, or spam.',
     items: [
@@ -84,13 +84,13 @@ export default function Trust() {
       <div className="relative overflow-hidden border-b border-gray-200">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-slate-900/50" />
         <div className="max-w-4xl mx-auto px-4 py-20 relative text-center">
-          <div className="inline-flex items-center gap-2 bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
+          <div className="inline-flex items-center gap-2 bg-green-400/10 border border-green-500/20 text-green-500 text-sm font-medium px-4 py-2 rounded-full mb-6">
             <Shield className="w-4 h-4" />
             Trust & Quality
           </div>
           <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
             The LaudStack<br />
-            <span className="text-emerald-400">Trust Framework</span>
+            <span className="text-green-500">Trust Framework</span>
           </h1>
           <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
             LaudStack only works if you can trust what you read here. This page explains exactly how we ensure the quality and authenticity of every listing, review, and ranking on the platform.
@@ -116,7 +116,7 @@ export default function Trust() {
                     <ul className="space-y-2">
                       {pillar.items.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-sm text-slate-600">
-                          <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                           {item}
                         </li>
                       ))}

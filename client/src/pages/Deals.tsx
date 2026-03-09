@@ -42,7 +42,7 @@ const DEALS = [
     badgeColor: 'amber',
     features: ['Unlimited AI writes', 'Team collaboration', 'API access', 'Priority support'],
     logo: 'N',
-    logoColor: '#1E293B',
+    logoColor: '#171717',
   },
   {
     id: 'd2',
@@ -269,7 +269,7 @@ function DealCard({ deal }: { deal: typeof DEALS[0] }) {
         <div className="space-y-1.5 mb-4 flex-1">
           {deal.features.map(f => (
             <div key={f} className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+              <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
               <span className="text-slate-600 text-xs">{f}</span>
             </div>
           ))}
@@ -283,7 +283,7 @@ function DealCard({ deal }: { deal: typeof DEALS[0] }) {
           </div>
           <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${claimedPct > 80 ? 'bg-rose-400' : claimedPct > 50 ? 'bg-amber-400' : 'bg-emerald-400'}`}
+              className={`h-full rounded-full transition-all ${claimedPct > 80 ? 'bg-rose-400' : claimedPct > 50 ? 'bg-amber-400' : 'bg-green-400'}`}
               style={{ width: `${claimedPct}%` }}
             />
           </div>
@@ -409,7 +409,7 @@ export default function Deals() {
           {/* Trust strip */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
             {[
-              { icon: <Shield className="w-5 h-5 text-emerald-500" />, title: 'Verified Deals', desc: 'Every deal is verified directly with the vendor before listing.' },
+              { icon: <Shield className="w-5 h-5 text-green-500" />, title: 'Verified Deals', desc: 'Every deal is verified directly with the vendor before listing.' },
               { icon: <Users className="w-5 h-5 text-sky-500" />, title: 'Community Negotiated', desc: 'Our growing community gives us leverage to negotiate better rates.' },
               { icon: <TrendingUp className="w-5 h-5 text-amber-500" />, title: 'Updated Weekly', desc: 'New deals added every week. Subscribe to get notified first.' },
             ].map(item => (

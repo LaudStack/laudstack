@@ -60,7 +60,7 @@ export default function ResetPassword() {
     if (password.length < 6) return { label: 'Weak', color: 'bg-red-400', width: 'w-1/4' };
     if (password.length < 8) return { label: 'Fair', color: 'bg-orange-400', width: 'w-2/4' };
     if (password.length < 12 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) return { label: 'Good', color: 'bg-amber-400', width: 'w-3/4' };
-    return { label: 'Strong', color: 'bg-emerald-400', width: 'w-full' };
+    return { label: 'Strong', color: 'bg-green-400', width: 'w-full' };
   };
 
   const strength = passwordStrength();
@@ -104,7 +104,7 @@ export default function ResetPassword() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 disabled:opacity-60 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-400/25"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 disabled:opacity-60 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-400/25"
                 >
                   {loading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -145,7 +145,7 @@ export default function ResetPassword() {
                 ].map(({ step, text, done }) => (
                   <div key={step} className="flex items-center gap-3">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${
-                      done ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                      done ? 'bg-emerald-100 text-green-600' : 'bg-amber-100 text-amber-600'
                     }`}>
                       {done ? <CheckCircle2 className="w-4 h-4" /> : step}
                     </div>
@@ -176,7 +176,7 @@ export default function ResetPassword() {
             <>
               <div className="flex justify-center mb-8">
                 <div className="w-16 h-16 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
-                  <Lock className="w-7 h-7 text-emerald-500" />
+                  <Lock className="w-7 h-7 text-green-500" />
                 </div>
               </div>
               <div className="text-center mb-8">
@@ -206,9 +206,9 @@ export default function ResetPassword() {
                         <div className={`h-full rounded-full transition-all duration-300 ${strength.color} ${strength.width}`} />
                       </div>
                       <div className={`text-xs mt-1 font-medium ${
-                        strength.label === 'Strong' ? 'text-emerald-500' :
+                        strength.label === 'Strong' ? 'text-green-500' :
                         strength.label === 'Good' ? 'text-amber-500' :
-                        strength.label === 'Fair' ? 'text-orange-500' : 'text-red-500'
+                        strength.label === 'Fair' ? 'text-amber-500' : 'text-red-500'
                       }`}>{strength.label}</div>
                     </div>
                   )}
@@ -256,7 +256,7 @@ export default function ResetPassword() {
           {stage === 'done' && (
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                <CheckCircle2 className="w-10 h-10 text-green-500" />
               </div>
               <h1 className="text-3xl font-black text-slate-900 mb-3">Password updated!</h1>
               <p className="text-slate-500 mb-6 leading-relaxed">

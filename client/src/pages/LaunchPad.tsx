@@ -255,7 +255,7 @@ function StepPricing({ form, setForm }: { form: FormData; setForm: (f: FormData)
                 padding: '12px 14px', borderRadius: '10px', border: `1.5px solid ${form.pricingModel === m.value ? '#F59E0B' : '#E2E8F0'}`,
                 background: form.pricingModel === m.value ? '#FFFBEB' : '#fff', cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left', fontFamily: 'inherit',
               }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: form.pricingModel === m.value ? '#B45309' : '#0F172A' }}>{m.label}</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: form.pricingModel === m.value ? '#B45309' : '#171717' }}>{m.label}</div>
               <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>{m.desc}</div>
             </button>
           ))}
@@ -372,7 +372,7 @@ function StepReview({ form }: { form: FormData }) {
   const Row = ({ label, value }: { label: string; value: string }) => (
     <div style={{ display: 'flex', gap: '12px', marginBottom: '6px' }}>
       <span style={{ fontSize: '12px', color: '#94A3B8', minWidth: '100px', flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A', wordBreak: 'break-all' }}>{value || '—'}</span>
+      <span style={{ fontSize: '13px', fontWeight: 600, color: '#171717', wordBreak: 'break-all' }}>{value || '—'}</span>
     </div>
   );
 
@@ -419,7 +419,7 @@ const labelStyle: React.CSSProperties = {
 };
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '10px 14px', borderRadius: '10px',
-  border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#0F172A',
+  border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#171717',
   outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box',
   fontFamily: 'inherit', background: '#fff',
 };
@@ -488,10 +488,10 @@ export default function LaunchPad() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             style={{ textAlign: 'center', maxWidth: '520px' }}
           >
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #10B981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 8px 32px rgba(16,185,129,0.3)' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#22C55E', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 8px 32px rgba(16,185,129,0.3)' }}>
               <CheckCircle2 style={{ width: '40px', height: '40px', color: '#fff' }} />
             </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0F172A', marginBottom: '12px' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#171717', marginBottom: '12px' }}>
               {form.name} is submitted! 🎉
             </h1>
             <p style={{ fontSize: '15px', color: '#64748B', lineHeight: 1.7, marginBottom: form.launchDate ? '16px' : '32px' }}>
@@ -511,7 +511,7 @@ export default function LaunchPad() {
             )}
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/">
-                <button style={{ padding: '12px 28px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}>
+                <button style={{ padding: '12px 28px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}>
                   Back to Home
                 </button>
               </Link>
@@ -538,7 +538,7 @@ export default function LaunchPad() {
             <Rocket style={{ width: '14px', height: '14px', color: '#D97706' }} />
             <span style={{ fontSize: '12px', fontWeight: 700, color: '#B45309', letterSpacing: '0.06em', textTransform: 'uppercase' }}>LaunchPad</span>
           </div>
-          <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#0F172A', lineHeight: 1.2, marginBottom: '14px' }}>
+          <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#171717', lineHeight: 1.2, marginBottom: '14px' }}>
             Get your tool in front of<br />
             <span style={{ color: '#F59E0B' }}>thousands of buyers</span>
           </h1>
@@ -576,8 +576,8 @@ export default function LaunchPad() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                   <div style={{
                     width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: done ? '#10B981' : active ? '#F59E0B' : '#F1F5F9',
-                    border: `2px solid ${done ? '#10B981' : active ? '#F59E0B' : '#E2E8F0'}`,
+                    background: done ? '#22C55E' : active ? '#F59E0B' : '#F1F5F9',
+                    border: `2px solid ${done ? '#22C55E' : active ? '#F59E0B' : '#E2E8F0'}`,
                     transition: 'all 0.2s',
                   }}>
                     {done
@@ -585,12 +585,12 @@ export default function LaunchPad() {
                       : <Icon style={{ width: '15px', height: '15px', color: active ? '#fff' : '#94A3B8' }} />
                     }
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: active ? 700 : 500, color: active ? '#F59E0B' : done ? '#10B981' : '#94A3B8', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: '11px', fontWeight: active ? 700 : 500, color: active ? '#F59E0B' : done ? '#22C55E' : '#94A3B8', whiteSpace: 'nowrap' }}>
                     {s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div style={{ flex: 1, height: '2px', background: done ? '#10B981' : '#E2E8F0', margin: '0 6px', marginBottom: '22px', transition: 'background 0.2s' }} />
+                  <div style={{ flex: 1, height: '2px', background: done ? '#22C55E' : '#E2E8F0', margin: '0 6px', marginBottom: '22px', transition: 'background 0.2s' }} />
                 )}
               </div>
             );
@@ -614,7 +614,7 @@ export default function LaunchPad() {
               </div>
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Step {step} of {STEPS.length}</div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0F172A' }}>{STEPS[step - 1].label}</div>
+                <div style={{ fontSize: '17px', fontWeight: 800, color: '#171717' }}>{STEPS[step - 1].label}</div>
               </div>
             </div>
 
@@ -641,7 +641,7 @@ export default function LaunchPad() {
                 {step < 5 ? (
                   <button
                     onClick={goNext}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 22px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(245,158,11,0.25)' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 22px', borderRadius: '10px', border: 'none', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(245,158,11,0.25)' }}
                   >
                     Continue <ArrowRight style={{ width: '14px', height: '14px' }} />
                   </button>
@@ -649,7 +649,7 @@ export default function LaunchPad() {
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 22px', borderRadius: '10px', border: 'none', background: submitting ? '#FDE68A' : 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: submitting ? 'none' : '0 4px 12px rgba(16,185,129,0.3)' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 22px', borderRadius: '10px', border: 'none', background: submitting ? '#FDE68A' : '#22C55E', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: submitting ? 'none' : '0 4px 12px rgba(16,185,129,0.3)' }}
                   >
                     <Rocket style={{ width: '14px', height: '14px' }} />
                     {submitting ? 'Submitting…' : 'Submit Tool'}

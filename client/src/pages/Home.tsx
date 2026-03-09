@@ -3,8 +3,8 @@
  *
  * Design Philosophy: "Warm Professional" — G2 meets ProductHunt
  *  - Clean white/off-white alternating sections with precise border separators
- *  - Amber (#F59E0B → #EA580C) as the single accent color system
- *  - Plus Jakarta Sans for headings, system-ui for body
+ *  - Amber (#F59E0B → #D97706) as the single accent color system
+ *  - Inter for headings, system-ui for body
  *  - Generous whitespace, tight typography scale, zero visual noise
  *  - Every section header follows: label pill → headline → subtext → CTA
  *
@@ -73,10 +73,10 @@ const THREE_PILLARS = [
 // trendingTools and newLaunches are now computed inside the component (reactive to selectedCategory)
 
 const LAUNCH_ACCENTS = [
-  { from: '#3B82F6', to: '#6366F1' },
-  { from: '#10B981', to: '#06B6D4' },
-  { from: '#F59E0B', to: '#EF4444' },
-  { from: '#8B5CF6', to: '#EC4899' },
+  { from: '#F59E0B', to: '#D97706' },
+  { from: '#22C55E', to: '#16A34A' },
+  { from: '#F59E0B', to: '#D97706' },
+  { from: '#22C55E', to: '#16A34A' },
 ];
 
 // ─── Reusable section header ───────────────────────────────────────────────
@@ -94,7 +94,7 @@ function SectionHeader({
           <LabelIcon style={{ width: '12px', height: '12px', color: labelColor }} />
           <span style={{ fontSize: '11px', fontWeight: 700, color: labelColor, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</span>
         </div>
-        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(22px, 2.5vw, 30px)', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.025em', margin: '0 0 8px', lineHeight: 1.2 }}>
+        <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(22px, 2.5vw, 30px)', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 8px', lineHeight: 1.2 }}>
           {headline}
         </h2>
         <p style={{ fontSize: '14px', color: '#64748B', fontWeight: 500, margin: 0, lineHeight: 1.6 }}>{subtext}</p>
@@ -102,7 +102,7 @@ function SectionHeader({
       {cta && onCta && (
         <button
           onClick={onCta}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 700, color: ctaColor || '#B45309', background: 'none', border: 'none', cursor: 'pointer', padding: 0, whiteSpace: 'nowrap', transition: 'opacity 0.15s' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 700, color: ctaColor || '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: 0, whiteSpace: 'nowrap', transition: 'opacity 0.15s' }}
           onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
           onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
         >
@@ -171,7 +171,7 @@ export default function Home() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22 }}
-            style={{ overflow: 'hidden', background: '#0F172A', borderBottom: '1px solid rgba(245,158,11,0.25)' }}
+            style={{ overflow: 'hidden', background: '#171717', borderBottom: '1px solid rgba(245,158,11,0.25)' }}
           >
             <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '42px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'center' }}>
@@ -217,17 +217,17 @@ export default function Home() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: '#fff', border: '1px solid #E2E8F0', color: '#475569', fontSize: '12px', fontWeight: 600, padding: '6px 16px', borderRadius: '100px', boxShadow: '0 1px 6px rgba(0,0,0,0.06)', marginBottom: '32px' }}
           >
-            <ShieldCheck style={{ width: '13px', height: '13px', color: '#10B981' }} />
+            <ShieldCheck style={{ width: '13px', height: '13px', color: '#22C55E' }} />
             Trusted by 12,000+ professionals and founders
           </motion.div>
 
           {/* Headline */}
           <motion.h1
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(38px, 5.5vw, 64px)', fontWeight: 900, lineHeight: 1.04, letterSpacing: '-0.03em', color: '#0F172A', margin: 0 }}
+            style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(38px, 5.5vw, 64px)', fontWeight: 900, lineHeight: 1.04, letterSpacing: '-0.03em', color: '#171717', margin: 0 }}
           >
             The Trusted Source for{' '}
-            <span style={{ background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: '#F59E0B', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               AI & SaaS Tools.
             </span>
           </motion.h1>
@@ -250,12 +250,12 @@ export default function Home() {
                   onChange={e => setSearchQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   placeholder="Search 95+ AI & SaaS tools..."
-                  style={{ width: '100%', paddingLeft: '50px', paddingRight: '16px', height: '58px', fontSize: '15px', color: '#1E293B', background: 'transparent', border: 'none', outline: 'none' }}
+                  style={{ width: '100%', paddingLeft: '50px', paddingRight: '16px', height: '58px', fontSize: '15px', color: '#171717', background: 'transparent', border: 'none', outline: 'none' }}
                 />
               </div>
               <button
                 onClick={handleSearch}
-                style={{ height: '58px', padding: '0 32px', fontWeight: 700, color: '#fff', fontSize: '14px', letterSpacing: '0.01em', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
+                style={{ height: '58px', padding: '0 32px', fontWeight: 700, color: '#fff', fontSize: '14px', letterSpacing: '0.01em', background: '#F59E0B', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
               >
@@ -286,17 +286,17 @@ export default function Home() {
                   <img key={i} src={`https://i.pravatar.cc/32?img=${i}`} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '2px solid #fff', marginLeft: i === 11 ? 0 : '-8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }} />
                 ))}
               </div>
-              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#0F172A', fontWeight: 700 }}>12,000+</strong> professionals</span>
+              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>12,000+</strong> professionals</span>
             </div>
             <div style={{ width: '1px', height: '20px', background: '#E2E8F0' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               {[1,2,3,4,5].map(i => <Star key={i} style={{ width: '14px', height: '14px', fill: '#FBBF24', color: '#FBBF24' }} />)}
-              <span style={{ fontSize: '13px', color: '#475569', marginLeft: '5px', fontWeight: 500 }}><strong style={{ color: '#0F172A', fontWeight: 700 }}>4.9</strong> avg rating</span>
+              <span style={{ fontSize: '13px', color: '#475569', marginLeft: '5px', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>4.9</strong> avg rating</span>
             </div>
             <div style={{ width: '1px', height: '20px', background: '#E2E8F0' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 style={{ width: '15px', height: '15px', color: '#10B981' }} />
-              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#0F172A', fontWeight: 700 }}>98%</strong> verified reviews</span>
+              <CheckCircle2 style={{ width: '15px', height: '15px', color: '#22C55E' }} />
+              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>98%</strong> verified reviews</span>
             </div>
           </motion.div>
         </div>
@@ -318,19 +318,19 @@ export default function Home() {
             {/* Header row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', gap: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Eye style={{ width: '15px', height: '15px', color: '#fff' }} />
                 </div>
                 <div>
                   <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 1px' }}>Continue exploring</p>
-                  <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>
                     Recently Viewed
                   </h2>
                 </div>
               </div>
               {user && (
                 <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: 500, whiteSpace: 'nowrap' }}>
-                  Welcome back, <strong style={{ color: '#0F172A' }}>{user.name.split(' ')[0]}</strong>
+                  Welcome back, <strong style={{ color: '#171717' }}>{user.name.split(' ')[0]}</strong>
                 </span>
               )}
             </div>
@@ -353,7 +353,7 @@ export default function Home() {
                   whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(15,23,42,0.09)', borderColor: '#FDE68A' }}
                 >
                   {/* Amber top bar on hover */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #F59E0B, #EA580C)', opacity: 0, transition: 'opacity 0.2s' }}
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: '#F59E0B', opacity: 0, transition: 'opacity 0.2s' }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                     onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
                   />
@@ -380,7 +380,7 @@ export default function Home() {
                       />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</div>
+                      <div style={{ fontSize: '14px', fontWeight: 800, color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Inter', sans-serif" }}>{tool.name}</div>
                       <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>{tool.category}</div>
                     </div>
                   </div>
@@ -392,7 +392,7 @@ export default function Home() {
                         <Star key={s} style={{ width: '11px', height: '11px', fill: s <= Math.round(tool.average_rating) ? '#F59E0B' : 'transparent', color: s <= Math.round(tool.average_rating) ? '#F59E0B' : '#CBD5E1' }} />
                       ))}
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A' }}>{tool.average_rating.toFixed(1)}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#171717' }}>{tool.average_rating.toFixed(1)}</span>
                     <span style={{ fontSize: '11px', color: '#94A3B8' }}>({tool.review_count})</span>
                   </div>
 
@@ -426,7 +426,7 @@ export default function Home() {
               Everything in one place
             </motion.p>
             <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.025em', margin: '0 0 16px', lineHeight: 1.15 }}>
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 16px', lineHeight: 1.15 }}>
               Built for how people actually choose tools
             </motion.h2>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
@@ -460,7 +460,7 @@ export default function Home() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', fontSize: '10px', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: accent, background: accentBg, border: `1px solid ${accentBorder}`, padding: '2px 8px', borderRadius: '100px', marginBottom: '5px' }}>
                       {label}
                     </div>
-                    <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '17px', fontWeight: 800, color: '#0F172A', margin: 0, lineHeight: 1.2, letterSpacing: '-0.02em' }}>{headline}</h3>
+                    <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '17px', fontWeight: 800, color: '#171717', margin: 0, lineHeight: 1.2, letterSpacing: '-0.02em' }}>{headline}</h3>
                   </div>
                 </div>
 
@@ -483,13 +483,13 @@ export default function Home() {
           <SectionHeader
             label="Trending This Week"
             labelIcon={Flame}
-            labelColor="#C2410C"
+            labelColor="#D97706"
             labelBg="#FFF7ED"
             labelBorder="#FED7AA"
             headline="Biggest movers in the last 7 days"
             subtext="Ranked by rank-position gain over the past week — tools climbing fastest right now."
             cta="View All Trending"
-            ctaColor="#C2410C"
+            ctaColor="#D97706"
             onCta={go}
           />
           {trendingTools.length === 0 ? (
@@ -503,7 +503,7 @@ export default function Home() {
                 const change = tool.weekly_rank_change ?? 0;
                 const momentum = change >= 20 ? 'rocket' : change >= 12 ? 'hot' : 'rising';
                 const momentumLabel = momentum === 'rocket' ? '🚀 Rocket' : momentum === 'hot' ? '🔥 Hot' : '📈 Rising';
-                const momentumColor = momentum === 'rocket' ? '#7C3AED' : momentum === 'hot' ? '#C2410C' : '#059669';
+                const momentumColor = momentum === 'rocket' ? '#F59E0B' : momentum === 'hot' ? '#D97706' : '#16A34A';
                 const momentumBg = momentum === 'rocket' ? '#F5F3FF' : momentum === 'hot' ? '#FFF7ED' : '#ECFDF5';
                 // Mini sparkline bars (simulated 7-day trend)
                 const sparkBars = [0.3, 0.45, 0.4, 0.55, 0.65, 0.8, 1.0].map((h, bi) => (
@@ -533,7 +533,7 @@ export default function Home() {
                               <img src={tool.logo_url} alt={tool.name}
                                 style={{ width: '28px', height: '28px', borderRadius: '7px', objectFit: 'cover', background: '#F1F5F9', border: '1px solid #E2E8F0', flexShrink: 0 }}
                                 onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=28`; }} />
-                              <span style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{tool.name}</span>
+                              <span style={{ fontSize: '15px', fontWeight: 800, color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{tool.name}</span>
                               <span style={{ fontSize: '11px', fontWeight: 700, color: momentumColor, background: momentumBg, border: `1px solid ${momentumColor}33`, padding: '2px 8px', borderRadius: '20px', whiteSpace: 'nowrap' }}>{momentumLabel}</span>
                             </div>
                             <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.4, marginBottom: '10px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{tool.tagline}</p>
@@ -573,13 +573,13 @@ export default function Home() {
           <SectionHeader
             label="Fresh Launches"
             labelIcon={Sparkles}
-            labelColor="#1D4ED8"
+            labelColor="#F59E0B"
             labelBg="#EFF6FF"
             labelBorder="#BFDBFE"
             headline="Newly launched tools"
             subtext="The latest AI and SaaS tools submitted by founders this week."
             cta="View All Launches"
-            ctaColor="#1D4ED8"
+            ctaColor="#D97706"
             onCta={go}
           />
 
@@ -613,7 +613,7 @@ export default function Home() {
                       <div style={{ width: '46px', height: '46px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E2E8F0', flexShrink: 0, background: '#F8FAFC' }}>
                         <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
                        </div>
-                      <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</h3>
+                      <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#171717', margin: 0, fontFamily: "'Inter', sans-serif", lineHeight: 1.2, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</h3>
                     </div>
                     <button
                       onClick={e => { e.stopPropagation(); go(); }}
@@ -635,7 +635,7 @@ export default function Home() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Star style={{ width: '13px', height: '13px', fill: '#FBBF24', color: '#FBBF24' }} />
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#1E293B' }}>{tool.average_rating.toFixed(1)}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#171717' }}>{tool.average_rating.toFixed(1)}</span>
                       <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>({tool.review_count})</span>
                     </div>
                     <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', textTransform: 'uppercase', letterSpacing: '0.06em' }}>New</span>
@@ -658,13 +658,13 @@ export default function Home() {
           <SectionHeader
             label="Browse by Category"
             labelIcon={Filter}
-            labelColor="#475569"
+            labelColor="#F59E0B"
             labelBg="#F1F5F9"
             labelBorder="#E2E8F0"
             headline="Find tools for every use case"
             subtext={`${MOCK_TOOLS.length} verified tools across ${CATEGORIES.length - 1} categories.`}
             cta="All Categories"
-            ctaColor="#B45309"
+            ctaColor="#D97706"
             onCta={go}
           />
 
@@ -682,8 +682,8 @@ export default function Home() {
                       padding: '8px 14px', borderRadius: '10px', cursor: 'pointer',
                       fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
                       flexShrink: 0,
-                      border: active ? '1.5px solid #0F172A' : '1.5px solid #E2E8F0',
-                      background: active ? '#0F172A' : '#FFFFFF',
+                      border: active ? '1.5px solid #171717' : '1.5px solid #E2E8F0',
+                      background: active ? '#171717' : '#FFFFFF',
                       color: active ? '#FFFFFF' : '#374151',
                       boxShadow: active ? '0 2px 8px rgba(15,23,42,0.15)' : '0 1px 2px rgba(15,23,42,0.04)',
                     }}
@@ -718,7 +718,7 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {([
-                { key: 'All',         label: 'All Pricing',  emoji: '🔍', activeColor: '#0F172A', activeBg: '#F1F5F9', activeBorder: '#CBD5E1' },
+                { key: 'All',         label: 'All Pricing',  emoji: '🔍', activeColor: '#171717', activeBg: '#F1F5F9', activeBorder: '#CBD5E1' },
                 { key: 'Free',        label: 'Free',         emoji: '🎁', activeColor: '#065F46', activeBg: '#ECFDF5', activeBorder: '#6EE7B7' },
                 { key: 'Freemium',    label: 'Freemium',     emoji: '⚡', activeColor: '#92400E', activeBg: '#FFFBEB', activeBorder: '#FCD34D' },
                 { key: 'Paid',        label: 'Paid',         emoji: '💳', activeColor: '#1E3A5F', activeBg: '#EFF6FF', activeBorder: '#93C5FD' },
@@ -761,7 +761,7 @@ export default function Home() {
                     {selectedCategory === 'All' ? 'All Tools' : selectedCategory}
                   </span>
                   <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#CBD5E1', display: 'inline-block' }} />
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>{allTools.length} results</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#171717' }}>{allTools.length} results</span>
                 </div>
                 <select
                   style={{ fontSize: '12px', fontWeight: 600, color: '#374151', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 10px', outline: 'none', cursor: 'pointer' }}
@@ -807,7 +807,7 @@ export default function Home() {
                       </div>
                       <div>
                         <p style={{ fontSize: '10px', fontWeight: 700, color: '#D97706', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>This Week</p>
-                        <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: '2px 0 0' }}>Top Ranked Tools</h3>
+                        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Top Ranked Tools</h3>
                       </div>
                     </div>
                     <button onClick={go} style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'opacity 0.15s' }}
@@ -834,7 +834,7 @@ export default function Home() {
                            <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
                          </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
+                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#171717', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
                           <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.category}</p>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
@@ -843,7 +843,7 @@ export default function Home() {
                             {tool.upvote_count >= 1000 ? `${(tool.upvote_count/1000).toFixed(1)}k` : tool.upvote_count}
                           </div>
                           {rank_change !== 0 && (
-                            <span style={{ fontSize: '10px', fontWeight: 700, color: rank_change > 0 ? '#10B981' : '#EF4444' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 700, color: rank_change > 0 ? '#22C55E' : '#EF4444' }}>
                               {rank_change > 0 ? `▲${rank_change}` : `▼${Math.abs(rank_change)}`}
                             </span>
                           )}
@@ -867,7 +867,7 @@ export default function Home() {
                     <div style={{ width: '30px', height: '30px', borderRadius: '9px', background: '#F0FDF4', border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <MessageSquare style={{ width: '13px', height: '13px', color: '#16A34A' }} />
                     </div>
-                    <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: '#0F172A', margin: 0 }}>Recent Reviews</h3>
+                    <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: 0 }}>Recent Reviews</h3>
                   </div>
                   {MOCK_REVIEWS.slice(0, 3).map((review, idx) => (
                     <div key={review.id} style={{ marginBottom: idx < 2 ? '14px' : 0, paddingBottom: idx < 2 ? '14px' : 0, borderBottom: idx < 2 ? '1px solid #F1F5F9' : 'none' }}>
@@ -893,18 +893,18 @@ export default function Home() {
                 {/* Founder CTA card */}
                 <div style={{ borderRadius: '18px', overflow: 'hidden', border: '1px solid #FDE68A', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 60%, #FFF7ED 100%)', padding: '20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '11px', marginBottom: '12px' }}>
-                    <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}>
+                    <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}>
                       <Rocket style={{ width: '15px', height: '15px', color: '#FFFFFF' }} />
                     </div>
                     <div>
                       <p style={{ fontSize: '10px', fontWeight: 700, color: '#92400E', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0 }}>For Founders</p>
-                      <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '14px', fontWeight: 800, color: '#0F172A', margin: '2px 0 0' }}>Are you a founder?</h3>
+                      <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Are you a founder?</h3>
                     </div>
                   </div>
                   <p style={{ fontSize: '13px', color: '#78350F', fontWeight: 400, margin: '0 0 16px', lineHeight: 1.6 }}>Submit your tool and get discovered by thousands of buyers. Free to list.</p>
                   <button
                     onClick={go}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '11px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)' }}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '11px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: '#F59E0B', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)' }}
                     onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)')}
                     onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(245,158,11,0.25)')}
                   >
@@ -933,7 +933,7 @@ export default function Home() {
                   <Rocket style={{ width: '12px', height: '12px', color: '#D97706' }} />
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', letterSpacing: '0.09em', textTransform: 'uppercase' }}>For Founders</span>
                 </div>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em', lineHeight: 1.15, margin: '0 0 18px' }}>
+                <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900, color: '#171717', letterSpacing: '-0.025em', lineHeight: 1.15, margin: '0 0 18px' }}>
                   Get your tool in front of the right buyers
                 </h2>
                 <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, margin: '0 0 36px', fontWeight: 400 }}>
@@ -942,7 +942,7 @@ export default function Home() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                   <button
                     onClick={go}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 28px', borderRadius: '13px', fontSize: '14px', fontWeight: 700, color: '#FFFFFF', background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 28px', borderRadius: '13px', fontSize: '14px', fontWeight: 700, color: '#FFFFFF', background: '#F59E0B', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}
                     onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 8px 28px rgba(245,158,11,0.45)')}
                     onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(245,158,11,0.3)')}
                   >
@@ -978,7 +978,7 @@ export default function Home() {
                         <Icon style={{ width: '15px', height: '15px', color: '#D97706' }} />
                       </div>
                       <div>
-                        <p style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0 }}>{label}</p>
+                        <p style={{ fontSize: '13px', fontWeight: 700, color: '#171717', margin: 0 }}>{label}</p>
                         <p style={{ fontSize: '12px', color: '#64748B', fontWeight: 400, margin: '2px 0 0', lineHeight: 1.5 }}>{desc}</p>
                       </div>
                     </div>

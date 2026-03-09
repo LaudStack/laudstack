@@ -104,8 +104,8 @@ export default function Footer() {
                 Weekly Tool Digest
               </p>
               {subscribed ? (
-                <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold">
-                  <span className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">✓</span>
+                <div className="flex items-center gap-2 text-green-500 text-sm font-semibold">
+                  <span className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center text-xs">✓</span>
                   You're subscribed!
                 </div>
               ) : (

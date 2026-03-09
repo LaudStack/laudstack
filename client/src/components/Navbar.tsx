@@ -165,9 +165,10 @@ export default function Navbar() {
             <Link href="/" className="flex items-center shrink-0 h-8">
               {/* Always use light-background logo since hero is now light */}
               <img
-                src="/logo-light-transparent.png"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/logo_dark_transparent_5d3238b6.png"
                 alt="LaudStack"
                 className="h-8 w-auto"
+                style={{ filter: 'brightness(0) saturate(100%)' }}
               />
             </Link>
 
@@ -250,7 +251,7 @@ export default function Navbar() {
                     <div className="relative">
                       <div
                         className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 select-none"
-                        style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
+                        style={{ background: '#F59E0B' }}
                       >
                         {getInitials(user.name)}
                       </div>
@@ -281,7 +282,7 @@ export default function Navbar() {
                           <div className="flex items-center gap-3">
                             <div
                               className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black text-white shrink-0"
-                              style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
+                              style={{ background: '#F59E0B' }}
                             >
                               {getInitials(user.name)}
                             </div>
@@ -344,7 +345,7 @@ export default function Navbar() {
               <Button
                 onClick={() => navigate('/launchpad')}
                 className="gap-2 font-semibold border-0 px-5 h-10 rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.02] transition-all"
-                style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
+                style={{ background: '#F59E0B', color: '#0A0A0A' }}
               >
                 <Rocket className="h-4 w-4" />
                 LaunchPad
@@ -387,7 +388,7 @@ export default function Navbar() {
                       <div className="flex items-center gap-3 px-3 py-2.5">
                         <div
                           className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
+                          style={{ background: '#F59E0B' }}
                         >
                           {getInitials(user.name)}
                         </div>
@@ -417,7 +418,7 @@ export default function Navbar() {
                   <Button
                     onClick={() => { navigate('/launchpad'); setMobileOpen(false); }}
                     className="gap-2 font-semibold border-0 w-full h-11 rounded-xl"
-                    style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: 'white' }}
+                    style={{ background: '#F59E0B', color: '#0A0A0A' }}
                   >
                     <Rocket className="h-4 w-4" />
                     LaunchPad

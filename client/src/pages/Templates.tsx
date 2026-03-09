@@ -37,7 +37,7 @@ const TEMPLATES = [
     description: 'Full-stack SaaS starter with auth, billing, team workspaces, and admin panel. Ship your SaaS in days, not months.',
     badge: 'Bestseller',
     badgeColor: 'amber',
-    preview: '#1E293B',
+    preview: '#171717',
     featured: true,
   },
   {
@@ -54,7 +54,7 @@ const TEMPLATES = [
     description: 'Beautiful analytics dashboard with 20+ chart types, KPI cards, data tables, and a full dark/light theme.',
     badge: 'New',
     badgeColor: 'emerald',
-    preview: '#0F172A',
+    preview: '#171717',
     featured: false,
   },
   {
@@ -122,7 +122,7 @@ const TEMPLATES = [
     description: 'Production-ready design system with 200+ components, design tokens, accessibility guidelines, and Figma source files.',
     badge: 'Pro',
     badgeColor: 'purple',
-    preview: '#1E293B',
+    preview: '#171717',
     featured: true,
   },
   {
@@ -139,7 +139,7 @@ const TEMPLATES = [
     description: 'Enterprise-grade multi-tenant SaaS UI with role-based access control, organization management, and billing portal.',
     badge: 'Premium',
     badgeColor: 'amber',
-    preview: '#0F172A',
+    preview: '#171717',
     featured: false,
   },
   {
@@ -171,7 +171,7 @@ const SORT_OPTIONS = [
 
 const BADGE_COLORS: Record<string, string> = {
   amber: 'bg-amber-400/15 text-amber-600 border-amber-400/30',
-  emerald: 'bg-emerald-400/15 text-emerald-600 border-emerald-400/30',
+  emerald: 'bg-green-400/15 text-green-600 border-green-500/30',
   sky: 'bg-sky-400/15 text-sky-600 border-sky-400/30',
   purple: 'bg-purple-400/15 text-purple-600 border-purple-400/30',
 };
@@ -340,7 +340,7 @@ export default function Templates() {
                       <h3 className="text-slate-900 font-bold text-sm leading-tight">{template.name}</h3>
                       <div className="text-right flex-shrink-0">
                         {template.price === 0 ? (
-                          <span className="text-emerald-600 font-black text-sm">Free</span>
+                          <span className="text-green-600 font-black text-sm">Free</span>
                         ) : (
                           <div>
                             <span className="text-slate-900 font-black text-sm">${template.price}</span>

@@ -103,14 +103,14 @@ export default function ClaimTool() {
                   return (
                     <div key={s} className="flex items-center gap-2">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                        done ? 'bg-emerald-400 text-slate-900' : active ? 'bg-amber-400 text-slate-900' : 'bg-gray-100 text-slate-500'
+                        done ? 'bg-green-400 text-slate-900' : active ? 'bg-amber-400 text-slate-900' : 'bg-gray-100 text-slate-500'
                       }`}>
                         {done ? <CheckCircle className="w-4 h-4" /> : i + 1}
                       </div>
-                      <span className={`text-xs font-semibold capitalize hidden sm:block ${active ? 'text-slate-900' : done ? 'text-emerald-400' : 'text-slate-600'}`}>
+                      <span className={`text-xs font-semibold capitalize hidden sm:block ${active ? 'text-slate-900' : done ? 'text-green-500' : 'text-slate-600'}`}>
                         {s === 'search' ? 'Find Tool' : s === 'verify' ? 'Verify Ownership' : 'Founder Profile'}
                       </span>
-                      {i < 2 && <div className={`h-px w-8 ${done ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
+                      {i < 2 && <div className={`h-px w-8 ${done ? 'bg-green-400' : 'bg-gray-200'}`} />}
                     </div>
                   );
                 })}
@@ -249,9 +249,9 @@ export default function ClaimTool() {
 
               {/* Step 4: Submitted */}
               {step === 'submitted' && (
-                <div className="bg-white/60 border border-emerald-400/30 rounded-2xl p-8 text-center">
-                  <div className="w-16 h-16 bg-emerald-400/15 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle className="w-8 h-8 text-emerald-400" />
+                <div className="bg-white/60 border border-green-500/30 rounded-2xl p-8 text-center">
+                  <div className="w-16 h-16 bg-green-400/15 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
                   <h2 className="text-2xl font-black text-slate-900 mb-2">Claim submitted!</h2>
                   <p className="text-slate-500 text-sm mb-6 max-w-sm mx-auto leading-relaxed">

@@ -34,7 +34,7 @@ function StarRow({ rating }: { rating: number }) {
           }}
         />
       ))}
-      <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginLeft: '4px' }}>{rating.toFixed(1)}</span>
+      <span style={{ fontSize: '14px', fontWeight: 800, color: '#171717', marginLeft: '4px' }}>{rating.toFixed(1)}</span>
     </div>
   );
 }
@@ -42,7 +42,7 @@ function StarRow({ rating }: { rating: number }) {
 function CheckCell({ val }: { val: boolean | null }) {
   if (val === null) return <Minus style={{ width: '16px', height: '16px', color: '#CBD5E1' }} />;
   return val
-    ? <CheckCircle2 style={{ width: '16px', height: '16px', color: '#10B981' }} />
+    ? <CheckCircle2 style={{ width: '16px', height: '16px', color: '#22C55E' }} />
     : <XCircle style={{ width: '16px', height: '16px', color: '#F87171' }} />;
 }
 
@@ -145,14 +145,14 @@ export default function Compare() {
         <Navbar />
         <div style={{ height: '72px' }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '80px 24px', textAlign: 'center' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '20px', background: 'linear-gradient(135deg, #F59E0B22, #EA580C22)', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '72px', height: '72px', borderRadius: '20px', background: 'linear-gradient(135deg, #F59E0B22, #D9770622)', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <GitCompareArrows style={{ width: '32px', height: '32px', color: '#F59E0B' }} />
           </div>
-          <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '28px', fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.03em' }}>No tools selected</h1>
+          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '28px', fontWeight: 900, color: '#171717', margin: 0, letterSpacing: '-0.03em' }}>No tools selected</h1>
           <p style={{ fontSize: '16px', color: '#64748B', margin: 0, maxWidth: '400px', lineHeight: 1.6 }}>
             Select 2–3 tools using the <strong>Compare</strong> button on any tool card, then click <strong>Compare Now</strong> in the tray.
           </p>
-          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '11px 22px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.3)' }}>
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '11px 22px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.3)' }}>
             <ArrowLeft style={{ width: '14px', height: '14px' }} /> Browse Tools
           </Link>
         </div>
@@ -180,8 +180,8 @@ export default function Compare() {
         return <span style={{ fontSize: '12px', fontWeight: 700, padding: '3px 10px', borderRadius: '7px', background: c.bg, color: c.color, border: `1px solid ${c.border}` }}>{tool.pricing_model}</span>;
       }
       case 'average_rating': return <StarRow rating={tool.average_rating} />;
-      case 'review_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{tool.review_count.toLocaleString()}</span>;
-      case 'upvote_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{tool.upvote_count.toLocaleString()}</span>;
+      case 'review_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717' }}>{tool.review_count.toLocaleString()}</span>;
+      case 'upvote_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717' }}>{tool.upvote_count.toLocaleString()}</span>;
       case 'feat_free':         return <CheckCell val={featMap['Free Plan Available']} />;
       case 'feat_api':          return <CheckCell val={featMap['API Access']} />;
       case 'feat_integrations': return <CheckCell val={featMap['Integrations']} />;
@@ -215,7 +215,7 @@ export default function Compare() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
             <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
             <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <span style={{ color: '#0F172A', fontWeight: 600 }}>Compare Tools</span>
+            <span style={{ color: '#171717', fontWeight: 600 }}>Compare Tools</span>
           </div>
         </div>
       </div>
@@ -225,12 +225,12 @@ export default function Compare() {
         <div className="max-w-[1200px] mx-auto" style={{ padding: '0 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <GitCompareArrows style={{ width: '20px', height: '20px', color: '#fff' }} />
               </div>
               <div>
                 <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 2px' }}>Side-by-side</p>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '24px', fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.03em' }}>
+                <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '24px', fontWeight: 900, color: '#171717', margin: 0, letterSpacing: '-0.03em' }}>
                   Tool Comparison
                 </h1>
               </div>
@@ -337,8 +337,8 @@ export default function Compare() {
               {/* Name + verified */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '17px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>{tool.name}</h2>
-                  {tool.is_verified && <ShieldCheck style={{ width: '14px', height: '14px', color: '#10B981', flexShrink: 0 }} />}
+                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '17px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>{tool.name}</h2>
+                  {tool.is_verified && <ShieldCheck style={{ width: '14px', height: '14px', color: '#22C55E', flexShrink: 0 }} />}
                 </div>
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>{tool.tagline}</p>
               </div>
@@ -351,7 +351,7 @@ export default function Compare() {
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', background: i === 0 ? 'linear-gradient(135deg, #F59E0B, #EA580C)' : '#F8FAFC', color: i === 0 ? '#fff' : '#374151', fontWeight: 700, fontSize: '13px', textDecoration: 'none', border: i === 0 ? 'none' : '1.5px solid #E2E8F0', boxShadow: i === 0 ? '0 4px 12px rgba(245,158,11,0.3)' : 'none', transition: 'all 0.15s', marginTop: 'auto' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', background: i === 0 ? '#F59E0B' : '#F8FAFC', color: i === 0 ? '#0A0A0A' : '#374151', fontWeight: 700, fontSize: '13px', textDecoration: 'none', border: i === 0 ? 'none' : '1.5px solid #E2E8F0', boxShadow: i === 0 ? '0 4px 12px rgba(245,158,11,0.3)' : 'none', transition: 'all 0.15s', marginTop: 'auto' }}
                 onMouseEnter={e => { if (i !== 0) { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLAnchorElement).style.background = '#F1F5F9'; } }}
                 onMouseLeave={e => { if (i !== 0) { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLAnchorElement).style.background = '#F8FAFC'; } }}
               >
@@ -370,7 +370,7 @@ export default function Compare() {
           >
             {/* Section header */}
             <div style={{ padding: '14px 24px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{section.section}</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{section.section}</span>
             </div>
 
             {/* Rows */}
@@ -417,7 +417,7 @@ export default function Compare() {
           style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)', marginBottom: '20px' }}
         >
           <div style={{ padding: '14px 24px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tags</span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tags</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '16px', padding: '16px 24px', alignItems: 'start' }}>
             <div style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>Keywords</div>
@@ -434,10 +434,10 @@ export default function Compare() {
         {/* ── Bottom CTA ── */}
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}
-          style={{ background: '#0F172A', borderRadius: '16px', padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}
+          style={{ background: '#171717', borderRadius: '16px', padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}
         >
           <div>
-            <p style={{ fontSize: '16px', fontWeight: 800, color: '#F1F5F9', margin: '0 0 4px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Ready to decide?</p>
+            <p style={{ fontSize: '16px', fontWeight: 800, color: '#F1F5F9', margin: '0 0 4px', fontFamily: "'Inter', sans-serif" }}>Ready to decide?</p>
             <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Visit each tool's page to read full reviews and make your choice.</p>
           </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -457,7 +457,7 @@ export default function Compare() {
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', background: i === 0 ? 'linear-gradient(135deg, #F59E0B, #EA580C)' : 'rgba(255,255,255,0.08)', color: i === 0 ? '#fff' : '#CBD5E1', fontWeight: 700, fontSize: '13px', textDecoration: 'none', border: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.1)', transition: 'all 0.15s' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', background: i === 0 ? '#F59E0B' : 'rgba(255,255,255,0.08)', color: i === 0 ? '#0A0A0A' : '#CBD5E1', fontWeight: 700, fontSize: '13px', textDecoration: 'none', border: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.1)', transition: 'all 0.15s' }}
               >
                 Visit {tool.name} <ExternalLink style={{ width: '12px', height: '12px' }} />
               </a>

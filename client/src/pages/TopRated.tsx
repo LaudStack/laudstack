@@ -124,7 +124,7 @@ export default function TopRated() {
               <div className="text-xs text-slate-500 mt-0.5 font-medium">Rated Tools</div>
             </div>
             <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-emerald-400">{top3[0]?.average_rating.toFixed(1) || '—'}</div>
+              <div className="text-2xl font-black text-green-500">{top3[0]?.average_rating.toFixed(1) || '—'}</div>
               <div className="text-xs text-slate-500 mt-0.5 font-medium">Top Score</div>
             </div>
             <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">

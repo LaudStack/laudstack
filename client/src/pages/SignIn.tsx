@@ -71,7 +71,7 @@ export default function SignIn() {
           <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F0FDF4', border: '2px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <CheckCircle2 style={{ width: '32px', height: '32px', color: '#22C55E' }} />
           </div>
-          <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '24px', fontWeight: 900, color: '#0F172A', margin: '0 0 8px' }}>
+          <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '24px', fontWeight: 900, color: '#171717', margin: '0 0 8px' }}>
             {isSignUp ? 'Account created!' : 'Welcome back!'}
           </h2>
           <p style={{ fontSize: '14px', color: '#64748B', margin: 0, fontWeight: 500 }}>Redirecting you to the homepage…</p>
@@ -89,19 +89,19 @@ export default function SignIn() {
         {/* ── Left panel — brand ── */}
         <div
           className="hidden lg:flex"
-          style={{ width: '480px', flexShrink: 0, flexDirection: 'column', justifyContent: 'space-between', padding: '48px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(160deg, #0F172A 0%, #1E293B 60%, #0F172A 100%)' }}
+          style={{ width: '480px', flexShrink: 0, flexDirection: 'column', justifyContent: 'space-between', padding: '48px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(160deg, #171717 0%, #171717 60%, #171717 100%)' }}
         >
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', top: '33%', left: '50%', transform: 'translate(-50%,-50%)', width: '380px', height: '380px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
           <div style={{ position: 'relative', zIndex: 1 }}>
             <Link href="/">
-              <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '20px', fontWeight: 900, color: '#F59E0B', letterSpacing: '-0.03em' }}>LaudStack</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '20px', fontWeight: 900, color: '#F59E0B', letterSpacing: '-0.03em' }}>LaudStack</span>
             </Link>
           </div>
 
           <div style={{ position: 'relative', zIndex: 1, marginTop: '48px' }}>
-            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '28px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, letterSpacing: '-0.025em', margin: '0 0 12px' }}>
+            <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '28px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, letterSpacing: '-0.025em', margin: '0 0 12px' }}>
               The trusted source for<br />
               <span style={{ color: '#F59E0B' }}>AI & SaaS tools.</span>
             </h2>
@@ -141,13 +141,13 @@ export default function SignIn() {
             {/* Mobile logo */}
             <div className="lg:hidden" style={{ marginBottom: '32px' }}>
               <Link href="/">
-                <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '20px', fontWeight: 900, color: '#F59E0B', letterSpacing: '-0.03em' }}>LaudStack</span>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '20px', fontWeight: 900, color: '#F59E0B', letterSpacing: '-0.03em' }}>LaudStack</span>
               </Link>
             </div>
 
             {/* Header */}
             <div style={{ marginBottom: '28px' }}>
-              <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '24px', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em', margin: '0 0 6px' }}>
+              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '24px', fontWeight: 900, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 6px' }}>
                 {isSignUp ? 'Create your account' : 'Sign in to LaudStack'}
               </h1>
               <p style={{ fontSize: '14px', color: '#475569', margin: 0, fontWeight: 500 }}>
@@ -196,7 +196,7 @@ export default function SignIn() {
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Full Name</label>
                   <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Jane Smith"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', fontWeight: 500 }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '14px', color: '#171717', outline: 'none', boxSizing: 'border-box', fontWeight: 500 }}
                     onFocus={e => { e.currentTarget.style.borderColor = '#F59E0B'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(245,158,11,0.12)'; }}
                     onBlur={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
@@ -208,7 +208,7 @@ export default function SignIn() {
                 <div style={{ position: 'relative' }}>
                   <Mail style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', width: '15px', height: '15px', color: '#94A3B8', pointerEvents: 'none' }} />
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com"
-                    style={{ width: '100%', padding: '10px 14px 10px 38px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', fontWeight: 500 }}
+                    style={{ width: '100%', padding: '10px 14px 10px 38px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '14px', color: '#171717', outline: 'none', boxSizing: 'border-box', fontWeight: 500 }}
                     onFocus={e => { e.currentTarget.style.borderColor = '#F59E0B'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(245,158,11,0.12)'; }}
                     onBlur={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
@@ -225,7 +225,7 @@ export default function SignIn() {
                 <div style={{ position: 'relative' }}>
                   <Lock style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', width: '15px', height: '15px', color: '#94A3B8', pointerEvents: 'none' }} />
                   <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder={isSignUp ? 'Create a strong password' : 'Enter your password'}
-                    style={{ width: '100%', padding: '10px 40px 10px 38px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', fontWeight: 500 }}
+                    style={{ width: '100%', padding: '10px 40px 10px 38px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '14px', color: '#171717', outline: 'none', boxSizing: 'border-box', fontWeight: 500 }}
                     onFocus={e => { e.currentTarget.style.borderColor = '#F59E0B'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(245,158,11,0.12)'; }}
                     onBlur={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
@@ -247,7 +247,7 @@ export default function SignIn() {
               <button
                 type="submit"
                 disabled={loading}
-                style={{ width: '100%', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', borderRadius: '12px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', background: loading ? '#94A3B8' : 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)', color: '#FFFFFF', fontSize: '14px', fontWeight: 700, boxShadow: loading ? 'none' : '0 4px 16px rgba(245,158,11,0.3)', transition: 'all 0.15s' }}
+                style={{ width: '100%', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', borderRadius: '12px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', background: loading ? '#94A3B8' : '#F59E0B', color: '#FFFFFF', fontSize: '14px', fontWeight: 700, boxShadow: loading ? 'none' : '0 4px 16px rgba(245,158,11,0.3)', transition: 'all 0.15s' }}
               >
                 {loading ? (
                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', animation: 'spin 0.7s linear infinite' }} />

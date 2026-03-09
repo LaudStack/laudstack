@@ -186,11 +186,11 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
 
   return (
     <div className={`relative bg-white border rounded-2xl p-5 flex flex-col gap-4 transition-all duration-300 hover:border-amber-400/40 ${
-      isLive ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : 'border-gray-300/60'
+      isLive ? 'border-green-500/40 ring-1 ring-green-500/20' : 'border-gray-300/60'
     }`}>
       {/* Status badge */}
       {isLive ? (
-        <div className="absolute -top-3 left-4 flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30">
+        <div className="absolute -top-3 left-4 flex items-center gap-1.5 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg shadow-green-500/30">
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           LIVE NOW
         </div>
@@ -220,9 +220,9 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
 
       {/* Countdown or Live indicator */}
       {isLive ? (
-        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-          <span className="text-emerald-400 text-sm font-semibold">This tool is live on LaudStack!</span>
+        <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl p-3">
+          <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+          <span className="text-green-500 text-sm font-semibold">This tool is live on LaudStack!</span>
         </div>
       ) : (
         <div>
@@ -251,7 +251,7 @@ function UpcomingLaunchCard({ launch }: { launch: UpcomingLaunch }) {
         </div>
         {isLive ? (
           <Link href={`/tools/${launch.slug}`}>
-            <button className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">
+            <button className="flex items-center gap-1.5 bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">
               View Tool <ArrowUpRight className="w-3 h-3" />
             </button>
           </Link>
@@ -290,7 +290,7 @@ function RankChange({ change }: { change: number }) {
     </span>
   );
   if (change > 0) return (
-    <span className="flex items-center gap-0.5 text-emerald-400 text-xs font-semibold">
+    <span className="flex items-center gap-0.5 text-green-500 text-xs font-semibold">
       <TrendingUp className="w-3 h-3" />
       {change}
     </span>
@@ -388,7 +388,7 @@ function LeaderboardRow({ entry }: { entry: RankedTool }) {
           <div className="flex items-center gap-2">
             <span className="text-slate-900 font-semibold group-hover:text-amber-400 transition-colors truncate">{tool.name}</span>
             {tool.badges.includes('new_launch') && (
-              <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-full flex-shrink-0">New</span>
+              <span className="text-xs bg-green-500/20 text-green-500 border border-green-500/30 px-1.5 py-0.5 rounded-full flex-shrink-0">New</span>
             )}
             {tool.badges.includes('trending') && (
               <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full flex-shrink-0">🔥 Hot</span>
@@ -525,7 +525,7 @@ export default function Launches() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           {[
             { label: 'Tools Ranked', value: rankedTools.length, icon: <BarChart3 className="w-4 h-4 text-amber-400" /> },
-            { label: 'Total Upvotes', value: rankedTools.reduce((s, e) => s + e.period_upvotes, 0).toLocaleString(), icon: <TrendingUp className="w-4 h-4 text-emerald-400" /> },
+            { label: 'Total Upvotes', value: rankedTools.reduce((s, e) => s + e.period_upvotes, 0).toLocaleString(), icon: <TrendingUp className="w-4 h-4 text-green-500" /> },
             { label: 'Avg Rating', value: (rankedTools.reduce((s, e) => s + e.tool.average_rating, 0) / rankedTools.length).toFixed(1), icon: <Star className="w-4 h-4 text-amber-400" /> },
             { label: 'New Launches', value: rankedTools.filter(e => e.tool.badges.includes('new_launch')).length, icon: <Zap className="w-4 h-4 text-sky-400" /> },
           ].map((stat) => (

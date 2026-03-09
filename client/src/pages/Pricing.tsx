@@ -232,7 +232,7 @@ export default function Pricing() {
             </button>
             <span className={`text-sm font-semibold ${billing === 'annual' ? 'text-slate-900' : 'text-slate-500'}`}>
               Annual
-              <span className="ml-2 bg-emerald-400/15 text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full">Save 20%</span>
+              <span className="ml-2 bg-green-400/15 text-green-500 text-xs font-bold px-2 py-0.5 rounded-full">Save 20%</span>
             </span>
           </div>
 
@@ -270,7 +270,7 @@ export default function Pricing() {
                       )}
                     </div>
                     {billing === 'annual' && plan.price.annual > 0 && (
-                      <p className="text-emerald-400 text-xs font-semibold mt-1">
+                      <p className="text-green-500 text-xs font-semibold mt-1">
                         Save ${(plan.price.monthly - plan.price.annual) * 12}/year
                       </p>
                     )}
@@ -280,7 +280,7 @@ export default function Pricing() {
                       {plan.features.map((f, i) => (
                         <li key={i} className="flex items-start gap-3">
                           {f.included
-                            ? <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                            ? <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                             : <X className="w-4 h-4 text-slate-700 flex-shrink-0 mt-0.5" />
                           }
                           <span className={`text-sm ${f.included ? 'text-slate-600' : 'text-slate-600'}`}>{f.label}</span>
@@ -343,7 +343,7 @@ export default function Pricing() {
                       )}
                     </div>
                     {billing === 'annual' && plan.price.annual > 0 && (
-                      <p className="text-emerald-400 text-xs font-semibold mt-1">
+                      <p className="text-green-500 text-xs font-semibold mt-1">
                         Save ${(plan.price.monthly - plan.price.annual) * 12}/year
                       </p>
                     )}
@@ -352,7 +352,7 @@ export default function Pricing() {
                     <ul className="space-y-3">
                       {plan.features.map((f, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-slate-600 text-sm">{f}</span>
                         </li>
                       ))}
@@ -410,7 +410,7 @@ export default function Pricing() {
                         <td className="p-4 text-slate-600 font-medium">{feature as string}</td>
                         {[free, pro, ent].map((val, j) => (
                           <td key={j} className="p-4 text-center">
-                            {val === true ? <Check className="w-4 h-4 text-emerald-400 mx-auto" />
+                            {val === true ? <Check className="w-4 h-4 text-green-500 mx-auto" />
                               : val === false ? <X className="w-4 h-4 text-slate-700 mx-auto" />
                               : <span className="text-slate-600 text-xs font-semibold">{val as string}</span>
                             }

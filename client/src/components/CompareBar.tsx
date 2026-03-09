@@ -34,14 +34,14 @@ export default function CompareBar() {
           }}
         >
           <div style={{
-            background: '#0F172A', borderRadius: '16px',
+            background: '#171717', borderRadius: '16px',
             border: '1px solid rgba(245,158,11,0.25)',
             boxShadow: '0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04)',
             padding: '14px 18px',
             display: 'flex', alignItems: 'center', gap: '14px',
           }}>
             {/* Icon */}
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <GitCompareArrows style={{ width: '17px', height: '17px', color: '#fff' }} />
             </div>
 
@@ -64,7 +64,7 @@ export default function CompareBar() {
                     borderRadius: '9px', padding: '5px 10px 5px 7px', flexShrink: 0,
                   }}
                 >
-                  <div style={{ width: '22px', height: '22px', borderRadius: '6px', overflow: 'hidden', background: '#1E293B', flexShrink: 0 }}>
+                  <div style={{ width: '22px', height: '22px', borderRadius: '6px', overflow: 'hidden', background: '#171717', flexShrink: 0 }}>
                     <img
                       src={tool.logo_url}
                       alt={tool.name}
@@ -125,7 +125,7 @@ export default function CompareBar() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
                   padding: '9px 18px', borderRadius: '10px',
-                  background: selected.length >= 2 ? 'linear-gradient(135deg, #F59E0B, #EA580C)' : '#1E293B',
+                  background: selected.length >= 2 ? '#F59E0B' : '#171717',
                   color: selected.length >= 2 ? '#fff' : '#475569',
                   fontWeight: 700, fontSize: '13px', border: 'none',
                   cursor: selected.length >= 2 ? 'pointer' : 'not-allowed',

@@ -40,7 +40,7 @@ export default function Saved() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
             <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
             <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <span style={{ color: '#0F172A', fontWeight: 600 }}>Saved Tools</span>
+            <span style={{ color: '#171717', fontWeight: 600 }}>Saved Tools</span>
           </div>
         </div>
       </div>
@@ -50,12 +50,12 @@ export default function Saved() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Bookmark style={{ width: '20px', height: '20px', color: '#fff', fill: '#fff' }} />
               </div>
               <div>
                 <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 2px' }}>Your collection</p>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '24px', fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.03em' }}>
+                <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '24px', fontWeight: 900, color: '#171717', margin: 0, letterSpacing: '-0.03em' }}>
                   Saved Tools
                   {savedTools.length > 0 && (
                     <span style={{ marginLeft: '10px', fontSize: '16px', fontWeight: 700, color: '#94A3B8' }}>({savedTools.length})</span>
@@ -101,7 +101,7 @@ export default function Saved() {
               <Bookmark style={{ width: '36px', height: '36px', color: '#F59E0B' }} />
             </div>
             <div>
-              <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '26px', fontWeight: 900, color: '#0F172A', margin: '0 0 10px', letterSpacing: '-0.03em' }}>No saved tools yet</h2>
+              <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '26px', fontWeight: 900, color: '#171717', margin: '0 0 10px', letterSpacing: '-0.03em' }}>No saved tools yet</h2>
               <p style={{ fontSize: '15px', color: '#64748B', margin: 0, maxWidth: '420px', lineHeight: 1.65 }}>
                 Click the <strong style={{ color: '#D97706' }}>bookmark icon</strong> on any tool card to save it here for quick access later.
               </p>
@@ -109,7 +109,7 @@ export default function Saved() {
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <Link
                 href="/"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '12px 24px', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.3)' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '12px 24px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.3)' }}
               >
                 <Search style={{ width: '14px', height: '14px' }} /> Browse All Tools
               </Link>
@@ -131,7 +131,7 @@ export default function Saved() {
               {/* Summary bar */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
-                  <strong style={{ color: '#0F172A' }}>{savedTools.length}</strong> tool{savedTools.length !== 1 ? 's' : ''} saved
+                  <strong style={{ color: '#171717' }}>{savedTools.length}</strong> tool{savedTools.length !== 1 ? 's' : ''} saved
                 </p>
                 <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>Sorted by most recently saved</p>
               </div>

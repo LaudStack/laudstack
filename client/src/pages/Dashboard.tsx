@@ -58,7 +58,7 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
             <div className="relative">
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black text-slate-900"
-                style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)' }}
+                style={{ background: '#F59E0B' }}
               >
                 {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
               </div>
@@ -70,8 +70,8 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
               <h2 className="text-slate-900 font-bold text-lg">{name}</h2>
               <p className="text-slate-500 text-sm">{user.email}</p>
               <div className="flex items-center gap-1.5 mt-1">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-emerald-600 text-xs font-medium">Verified account</span>
+                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                <span className="text-green-600 text-xs font-medium">Verified account</span>
               </div>
             </div>
           </div>
@@ -149,7 +149,7 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
           {[
             { action: 'Wrote a review for', tool: 'ChatGPT', time: '2 days ago', icon: <Star className="w-3.5 h-3.5 text-amber-400" /> },
             { action: 'Saved', tool: 'Notion', time: '3 days ago', icon: <Bookmark className="w-3.5 h-3.5 text-sky-400" /> },
-            { action: 'Upvoted', tool: 'Linear', time: '5 days ago', icon: <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> },
+            { action: 'Upvoted', tool: 'Linear', time: '5 days ago', icon: <TrendingUp className="w-3.5 h-3.5 text-green-500" /> },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3 text-sm py-2 border-b border-slate-100 last:border-0">
               <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">{item.icon}</div>

@@ -24,10 +24,10 @@ const BADGE_CONFIG: Record<BadgeType, { label: string; bg: string; color: string
   new_launch:     { label: 'New Launch',      bg: '#F0F9FF', color: '#0369A1', border: '#BAE6FD' },
   editors_pick:   { label: "Editor's Pick",   bg: '#FAF5FF', color: '#7E22CE', border: '#E9D5FF' },
   trending:       { label: 'Trending',        bg: '#FFF7ED', color: '#C2410C', border: '#FED7AA' },
-  pro_founder:    { label: 'Pro Founder',     bg: '#0F172A', color: '#F59E0B', border: '#0F172A' },
+  pro_founder:    { label: 'Pro Founder',     bg: '#171717', color: '#F59E0B', border: '#171717' },
   community_pick: { label: 'Community Pick',  bg: '#FFF1F2', color: '#BE123C', border: '#FECDD3' },
   best_value:     { label: 'Best Value',      bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0' },
-  laudstack_pick: { label: 'LaudStack Pick',  bg: '#FFF7ED', color: '#EA580C', border: '#FDBA74' },
+  laudstack_pick: { label: 'LaudStack Pick',  bg: '#FFF7ED', color: '#D97706', border: '#FDBA74' },
 };
 
 interface ToolCardProps {
@@ -46,7 +46,7 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'xs
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>
       ))}
-      <span style={{ fontSize: size === 'xs' ? '12px' : '13px', color: '#1E293B', marginLeft: '4px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
+      <span style={{ fontSize: size === 'xs' ? '12px' : '13px', color: '#171717', marginLeft: '4px', fontWeight: 700 }}>{rating.toFixed(1)}</span>
     </div>
   );
 }
@@ -59,7 +59,7 @@ function RankBadge({ rank }: { rank: number }) {
       width: '32px', height: '32px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       background: isTop3 ? colors[rank - 1] : '#F1F5F9',
       color: isTop3 ? '#fff' : '#374151',
-      fontWeight: 800, fontSize: '14px', fontFamily: "'Plus Jakarta Sans', sans-serif",
+      fontWeight: 800, fontSize: '14px', fontFamily: "'Inter', sans-serif",
       boxShadow: isTop3 ? `0 2px 6px rgba(0,0,0,0.15)` : 'none',
     }}>
       {rank}
@@ -74,7 +74,7 @@ function RankChange({ change }: { change: number }) {
     </div>
   );
   if (change > 0) return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#10B981', fontSize: '11px', fontWeight: 700 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#22C55E', fontSize: '11px', fontWeight: 700 }}>
       <TrendingUp style={{ width: '11px', height: '11px' }} />
       {change}
     </div>
@@ -155,12 +155,12 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
       >
         {rank && <RankBadge rank={rank} />}
         <div style={{ width: '36px', height: '36px', borderRadius: '9px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
-          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:18px;font-weight:800;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif">${tool.name.charAt(0)}</span>`; } }} />
+          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:18px;font-weight:800;color:#64748B;font-family:'Inter',sans-serif">${tool.name.charAt(0)}</span>`; } }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontWeight: 700, fontSize: '13px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{tool.name}</span>
-            {tool.is_verified && <ShieldCheck style={{ width: '12px', height: '12px', color: '#10B981', flexShrink: 0 }} />}
+            <span style={{ fontWeight: 700, fontSize: '13px', color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Inter', sans-serif" }}>{tool.name}</span>
+            {tool.is_verified && <ShieldCheck style={{ width: '12px', height: '12px', color: '#22C55E', flexShrink: 0 }} />}
           </div>
           <StarRating rating={tool.average_rating} size="xs" />
         </div>
@@ -173,7 +173,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
               borderRadius: '6px', border: '1px solid', fontSize: '11px', fontWeight: 700,
               background: upvoted ? '#FFF7ED' : '#F8FAFC',
               borderColor: upvoted ? '#FED7AA' : '#E2E8F0',
-              color: upvoted ? '#EA580C' : '#64748B',
+              color: upvoted ? '#D97706' : '#64748B',
               cursor: 'pointer', transition: 'all 0.15s',
             }}
           >
@@ -227,15 +227,15 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
 
         {/* Logo */}
         <div style={{ width: '54px', height: '54px', borderRadius: '13px', overflow: 'hidden', background: '#F8FAFC', border: '1px solid #E2E8F0', flexShrink: 0 }}>
-          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:18px;font-weight:800;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif">${tool.name.charAt(0)}</span>`; } }} />
+          <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:18px;font-weight:800;color:#64748B;font-family:'Inter',sans-serif">${tool.name.charAt(0)}</span>`; } }} />
         </div>
 
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '3px' }}>
-            <h3 style={{ fontWeight: 800, fontSize: '16px', color: '#0F172A', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, letterSpacing: '-0.015em' }}>{tool.name}</h3>
+            <h3 style={{ fontWeight: 800, fontSize: '16px', color: '#171717', margin: 0, fontFamily: "'Inter', sans-serif", lineHeight: 1.2, letterSpacing: '-0.015em' }}>{tool.name}</h3>
             {tool.is_verified && (
-              <span title="Verified Tool"><ShieldCheck style={{ width: '14px', height: '14px', color: '#10B981', flexShrink: 0 }} /></span>
+              <span title="Verified Tool"><ShieldCheck style={{ width: '14px', height: '14px', color: '#22C55E', flexShrink: 0 }} /></span>
             )}
             {tool.is_pro && (
               <span title="Pro Founder"><Zap style={{ width: '13px', height: '13px', color: '#F59E0B', flexShrink: 0 }} /></span>
@@ -256,12 +256,12 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
             padding: '8px 12px', borderRadius: '11px', border: '1.5px solid',
             borderColor: upvoted ? '#FDBA74' : '#E2E8F0',
             background: upvoted ? 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)' : '#F8FAFC',
-            color: upvoted ? '#EA580C' : '#64748B',
+            color: upvoted ? '#D97706' : '#64748B',
             cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
             minWidth: '50px',
             boxShadow: upvoted ? '0 2px 8px rgba(245,158,11,0.2)' : 'none',
           }}
-          onMouseEnter={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FED7AA'; (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; (e.currentTarget as HTMLButtonElement).style.background = '#FFF7ED'; } }}
+          onMouseEnter={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FED7AA'; (e.currentTarget as HTMLButtonElement).style.color = '#D97706'; (e.currentTarget as HTMLButtonElement).style.background = '#FFF7ED'; } }}
           onMouseLeave={e => { if (!upvoted) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; } }}
         >
           <ChevronUp style={{ width: '16px', height: '16px' }} />
@@ -347,7 +347,7 @@ export default function ToolCard({ tool, rank, rankChange, compact = false }: To
           <button
             onClick={handleVisit}
             style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', flexShrink: 0, padding: '0' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EA580C'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#D97706'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'; }}
           >
             Visit <ExternalLink style={{ width: '12px', height: '12px' }} />

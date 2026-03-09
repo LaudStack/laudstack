@@ -8,7 +8,7 @@ const RELEASES = [
     version: 'v2.1.0',
     date: '2026-03-05',
     label: 'Latest',
-    labelColor: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400',
+    labelColor: 'bg-green-500/20 border-green-500/40 text-green-500',
     summary: 'Compare Tools, Shareable URLs & Saved Tools',
     changes: [
       { type: 'feature', icon: TrendingUp, text: 'Compare up to 3 tools side-by-side with a full feature matrix' },
@@ -81,7 +81,7 @@ const RELEASES = [
 ];
 
 const TYPE_STYLES: Record<string, string> = {
-  feature: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+  feature: 'bg-green-500/10 text-green-500 border-green-500/30',
   improvement: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
   fix: 'bg-red-500/10 text-red-400 border-red-500/30',
 };
@@ -172,7 +172,7 @@ export default function Changelog() {
         </div>
 
         {/* Subscribe CTA */}
-        <div className="mt-16 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-8 text-center">
+        <div className="mt-16 bg-gradient-to-r from-amber-500/20 to-amber-500/20 border border-amber-500/30 rounded-2xl p-8 text-center">
           <Zap className="h-10 w-10 text-amber-400 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-slate-900 mb-2">Stay Up to Date</h3>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">

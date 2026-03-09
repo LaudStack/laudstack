@@ -63,7 +63,7 @@ export default function NewLaunches() {
       <div className="bg-white border-b border-gray-200 pt-20">
         <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-400 uppercase tracking-widest">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/20 border border-green-500/40 text-xs font-bold text-green-500 uppercase tracking-widest">
               <Zap className="h-3 w-3" /> New Launches
             </span>
           </div>
@@ -77,7 +77,7 @@ export default function NewLaunches() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
             <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-emerald-400">{newCount}</div>
+              <div className="text-2xl font-black text-green-500">{newCount}</div>
               <div className="text-xs text-slate-500 mt-0.5 font-medium">This Month</div>
             </div>
             <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
@@ -154,7 +154,7 @@ export default function NewLaunches() {
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     {isNew(tool.launched_at) && (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-400">
+                      <span className="px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-xs font-bold text-green-500">
                         NEW
                       </span>
                     )}
@@ -210,7 +210,7 @@ export default function NewLaunches() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-bold text-slate-900 group-hover:text-amber-400 transition-colors">{tool.name}</span>
                     {isNew(tool.launched_at) && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-400">NEW</span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-xs font-bold text-green-500">NEW</span>
                     )}
                     {tool.is_verified && <Shield className="h-3.5 w-3.5 text-blue-400" />}
                     <span className="text-xs text-slate-500 bg-gray-100 px-2 py-0.5 rounded-full">{tool.category}</span>
@@ -245,7 +245,7 @@ export default function NewLaunches() {
         )}
 
         {/* Submit CTA */}
-        <div className="mt-12 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-8 text-center">
+        <div className="mt-12 bg-gradient-to-r from-amber-500/20 to-amber-500/20 border border-amber-500/30 rounded-2xl p-8 text-center">
           <Rocket className="h-10 w-10 text-amber-400 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-slate-900 mb-2">Have a tool to launch?</h3>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
