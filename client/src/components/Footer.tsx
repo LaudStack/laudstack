@@ -88,9 +88,11 @@ export default function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-2">
             <Link href="/">
-              <span className="text-xl font-black text-amber-400 tracking-tight cursor-pointer">
-                LaudStack
-              </span>
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/logo_dark_transparent_5d3238b6.png"
+                alt="LaudStack"
+                className="h-9 w-auto cursor-pointer"
+              />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mt-3 mb-6 max-w-xs font-medium">
               The trusted community platform where founders launch their AI and SaaS tools, users discover the best software, and the community curates quality.
