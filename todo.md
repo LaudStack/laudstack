@@ -61,3 +61,11 @@
 - [ ] Admin panel for managing subscribers and tools
 - [ ] Real-time upvoting (optimistic updates with DB persistence)
 - [ ] Tool comparison with AI-generated summary
+
+## Missing Footer Pages
+- [x] Build Advertise page (/advertise)
+- [x] Build Newsletter landing page (/newsletter)
+- [x] Build Press Kit page (/press)
+- [x] Build Events page (/events)
+- [x] Build Sitemap page (/sitemap)
+- [x] Register all new routes in App.tsx
