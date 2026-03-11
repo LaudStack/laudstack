@@ -215,13 +215,28 @@ export default function Templates() {
           accent="blue"
           layout="centered"
           size="lg"
-          stats={[
-            { value: `${TEMPLATES.length}+`,                              label: 'Templates' },
-            { value: String(TEMPLATES.filter(t => t.price === 0).length), label: 'Free' },
-            { value: '4.7★',                                              label: 'Avg Rating' },
-            { value: '2.4k+',                                              label: 'Downloads' },
-          ]}
-        />
+        >
+          {/* Category filter pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }}>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600,
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  background: selectedCategory === cat.id ? '#3B82F6' : '#F0F4FF',
+                  color: selectedCategory === cat.id ? '#fff' : '#1D4ED8',
+                  border: selectedCategory === cat.id ? '1px solid #3B82F6' : '1px solid #BFDBFE',
+                }}
+              >
+                {cat.icon}
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </PageHero>
 
         <div className="max-w-[1300px] mx-auto px-4 py-8">
 

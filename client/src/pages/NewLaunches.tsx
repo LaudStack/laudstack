@@ -82,13 +82,36 @@ export default function NewLaunches() {
         accent="green"
         layout="default"
         size="md"
-        stats={[
-          { value: String(newCount),            label: 'This Month' },
-          { value: String(filteredTools.length), label: 'Total Tools' },
-          { value: '7+',                         label: 'Added Weekly' },
-          { value: String(MOCK_TOOLS.filter(t => t.is_verified).length), label: 'Verified' },
-        ]}
-      />
+      >
+        {/* Latest activity strip */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Just added:</span>
+          {[...MOCK_TOOLS]
+            .sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime())
+            .slice(0, 4)
+            .map(tool => (
+              <button
+                key={tool.id}
+                onClick={() => navigate(`/tools/${tool.slug}`)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '5px 10px 5px 6px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
+                  background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#15803D',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#DCFCE7'; e.currentTarget.style.borderColor = '#86EFAC'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#F0FDF4'; e.currentTarget.style.borderColor = '#BBF7D0'; }}
+              >
+                {tool.logo_url
+                  ? <img src={tool.logo_url} alt="" style={{ width: '18px', height: '18px', borderRadius: '4px', objectFit: 'contain', background: '#fff' }} />
+                  : <span style={{ width: '18px', height: '18px', borderRadius: '4px', background: '#22C55E', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 900, color: '#fff' }}>{tool.name[0]}</span>
+                }
+                {tool.name}
+              </button>
+            ))}
+          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>+ {newCount} this month</span>
+        </div>
+      </PageHero>
 
       {/* ── Filters ── */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8ECF0', position: 'sticky', top: '64px', zIndex: 40 }}>

@@ -110,13 +110,40 @@ export default function TopRated() {
         accent="amber"
         layout="split"
         size="md"
-        stats={[
-          { value: String(sortedTools.length), label: 'Rated Tools' },
-          { value: top3[0]?.average_rating.toFixed(1) || '—', label: 'Top Score' },
-          { value: sortedTools.length ? (sortedTools.reduce((s, t) => s + t.average_rating, 0) / sortedTools.length).toFixed(1) : '—', label: 'Avg Rating' },
-          { value: String(MOCK_TOOLS.filter(t => t.review_count >= 10).length), label: '10+ Reviews' },
-        ]}
-      />
+      >
+        {/* Top-3 award cards */}
+        <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+          {[{ rank: 1, medal: '🥇', bg: '#FFFBEB', border: '#FDE68A', rankColor: '#D97706' },
+            { rank: 2, medal: '🥈', bg: '#F8FAFC', border: '#E2E8F0', rankColor: '#64748B' },
+            { rank: 3, medal: '🥉', bg: '#FFF7ED', border: '#FED7AA', rankColor: '#C2410C' }].map(({ rank, medal, bg, border, rankColor }) => {
+            const tool = top3[rank - 1];
+            if (!tool) return null;
+            return (
+              <div
+                key={rank}
+                onClick={() => navigate(`/tools/${tool.slug}`)}
+                style={{
+                  background: bg, border: `1px solid ${border}`, borderRadius: '12px',
+                  padding: '12px 14px', cursor: 'pointer', minWidth: '130px', textAlign: 'center',
+                  transition: 'transform 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'none')}
+              >
+                <span style={{ fontSize: '20px' }}>{medal}</span>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#fff', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  {tool.logo_url
+                    ? <img src={tool.logo_url} alt={tool.name} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+                    : <span style={{ fontWeight: 900, fontSize: '14px', color: rankColor }}>{tool.name[0]}</span>}
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#111827', lineHeight: 1.2, maxWidth: '110px' }}>{tool.name}</div>
+                <div style={{ fontSize: '13px', fontWeight: 900, color: rankColor }}>{tool.average_rating.toFixed(1)}★</div>
+                <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{tool.review_count} reviews</div>
+              </div>
+            );
+          })}
+        </div>
+      </PageHero>
 
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}

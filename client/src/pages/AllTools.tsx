@@ -118,16 +118,10 @@ export default function AllTools() {
       <PageHero
         eyebrow="Tool Directory"
         title="All Tools"
-        subtitle={`${MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community.`}
+        subtitle={`Discover ${MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community.`}
         accent="amber"
         layout="default"
         size="md"
-        stats={[
-          { value: String(MOCK_TOOLS.length),                                              label: 'Total Tools' },
-          { value: String(CATEGORIES.length - 1),                                          label: 'Categories' },
-          { value: String(MOCK_TOOLS.filter(t => t.pricing_model === 'Free').length),      label: 'Free Tools' },
-          { value: String(MOCK_TOOLS.filter(t => t.is_verified).length),                   label: 'Verified' },
-        ]}
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ position: 'relative' }}>
@@ -151,7 +145,35 @@ export default function AllTools() {
             </div>
           </div>
         }
-      />
+      >
+        {/* Category quick-filter pills */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Browse:</span>
+          {CATEGORIES.filter(c => c.name !== 'All').slice(0, 10).map(cat => (
+            <button
+              key={cat.name}
+              onClick={() => toggleCategory(cat.name)}
+              style={{
+                padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
+                cursor: 'pointer', transition: 'all 0.15s',
+                background: selectedCategories.includes(cat.name) ? '#F59E0B' : '#F3F4F6',
+                color: selectedCategories.includes(cat.name) ? '#000' : '#374151',
+                border: selectedCategories.includes(cat.name) ? '1px solid #F59E0B' : '1px solid #E5E7EB',
+              }}
+            >
+              {cat.icon} {cat.name}
+            </button>
+          ))}
+          {selectedCategories.length > 0 && (
+            <button
+              onClick={() => setSelectedCategories([])}
+              style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', background: 'transparent', color: '#EF4444', border: '1px solid #FECACA' }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </PageHero>
 
       <div className="flex-1 max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
