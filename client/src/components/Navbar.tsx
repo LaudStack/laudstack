@@ -38,8 +38,8 @@ const NAV_ITEMS = [
     megaMenu: [
       { icon: Trophy,    label: 'Weekly Rankings', desc: 'This week\'s top performers',   href: '/trending' },
       { icon: BarChart3, label: 'All-Time Best',   desc: 'Highest rated of all time',    href: '/top-rated' },
-      { icon: Users,     label: 'Community Picks', desc: 'Voted by the community',       href: '/top-rated?sort=upvotes' },
-      { icon: Shield,    label: "Editor's Picks",  desc: 'Curated by our team',          href: '/tools?badge=editors_pick' },
+      { icon: Users,     label: 'Community Picks', desc: 'Voted by the community',       href: '/community-picks' },
+      { icon: Shield,    label: "Editor's Picks",  desc: 'Curated by our team',          href: '/editors-picks' },
     ],
   },
   {
@@ -73,6 +73,7 @@ const NAV_ITEMS = [
       { icon: Shield,    label: 'Trust Framework',  desc: 'How we verify reviews',                href: '/trust' },
       { icon: Users,     label: 'About LaudStack',  desc: 'Our mission and team',                 href: '/about' },
       { icon: FileText,  label: 'Contact Us',       desc: 'Get in touch with our team',           href: '/contact' },
+      { icon: BookOpen,   label: 'Help Centre / FAQ', desc: 'Answers to common questions',          href: '/faq' },
     ],
   },
 ];

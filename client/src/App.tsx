@@ -37,9 +37,12 @@ import BlogPost from './pages/BlogPost';
 import Changelog from './pages/Changelog';
 import Legal from './pages/Legal';
 import Affiliates from './pages/Affiliates';
+import CommunityPicks from './pages/CommunityPicks';
+import EditorsPicks from './pages/EditorsPicks';
+import FAQ from './pages/FAQ';
 import ScrollToTop from './components/ScrollToTop';
-
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <>
       <ScrollToTop />
@@ -74,6 +77,9 @@ function Router() {
         <Route path="/blog/:slug" component={BlogPost} />
         <Route path="/changelog" component={Changelog} />
         <Route path="/affiliates" component={Affiliates} />
+        <Route path="/community-picks" component={CommunityPicks} />
+        <Route path="/editors-picks" component={EditorsPicks} />
+        <Route path="/faq" component={FAQ} />
         <Route path="/privacy" component={Legal} />
         <Route path="/terms" component={Legal} />
         <Route path="/cookies" component={Legal} />

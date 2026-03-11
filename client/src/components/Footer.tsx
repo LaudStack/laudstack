@@ -1,140 +1,167 @@
 /*
  * LaudStack Footer — Sitewide
- * Design: Dark slate background, amber accents, 4-column layout
- * All links point to real routes; coming-soon items show toast
+ *
+ * Design: Dark slate background (#0F172A), amber accents, 7-column multi-section layout.
+ * Sections: Brand+Newsletter | Discover | Community | For Founders | Resources | Company
  */
 
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc';
 import {
   Twitter, Linkedin, Github, Mail, ArrowRight,
-  Shield, Zap, Star, BookOpen
+  Shield, Star, Zap, CheckCircle2,
+  Users, Rocket, BookOpen, TrendingUp, Rss,
+  ExternalLink,
 } from 'lucide-react';
 
-const FOOTER_LINKS = {
-  Discover: [
-    { label: 'Browse All Tools', href: '/', live: true },
-    { label: 'Categories', href: '/categories', live: true },
-    { label: 'Launches & Leaderboard', href: '/launches', live: true },
-    { label: 'Compare Tools', href: '/compare', live: true },
-    { label: 'SaaS Deals', href: '/deals', live: true },
-    { label: 'Templates', href: '/templates', live: true },
-  ],
-  Founders: [
-    { label: 'Submit Your Tool', href: '/launchpad', live: true },
-    { label: 'Claim Your Tool', href: '/claim', live: true },
-    { label: 'Founder Dashboard', href: '/dashboard/founder', live: true },
-    { label: 'Pricing', href: '/pricing', live: true },
-    { label: 'Affiliate Program', href: '/affiliates', live: true },
-  ],
-  Company: [
-    { label: 'About LaudStack', href: '/about', live: true },
-    { label: 'Trust Framework', href: '/trust', live: true },
-    { label: 'Contact Us', href: '/contact', live: true },
-    { label: 'Blog', href: '/blog', live: true },
-    { label: 'Changelog', href: '/changelog', live: true },
-  ],
-  Legal: [
-    { label: 'Privacy Policy', href: '/privacy', live: true },
-    { label: 'Terms of Service', href: '/terms', live: true },
-    { label: 'Cookie Policy', href: '/cookies', live: true },
-    { label: 'Review Guidelines', href: '/trust', live: true },
-  ],
-};
-
-const TRUST_BADGES = [
-  { icon: Shield, text: 'Verified Reviews' },
-  { icon: Star, text: '4.7 Avg Rating' },
-  { icon: Zap, text: '100+ Tools Listed' },
-  { icon: BookOpen, text: 'Editorial Standards' },
+const FOOTER_SECTIONS = [
+  {
+    heading: 'Discover',
+    links: [
+      { label: 'Browse All Tools', href: '/tools', live: true },
+      { label: 'Categories', href: '/categories', live: true },
+      { label: 'Trending This Week', href: '/trending', live: true },
+      { label: 'Fresh Launches', href: '/launches', live: true },
+      { label: 'Community Picks', href: '/community-picks', live: true },
+      { label: "Editor's Picks", href: '/editors-picks', live: true },
+      { label: 'Compare Tools', href: '/compare', live: false },
+      { label: 'SaaS Deals', href: '/deals', live: false },
+    ],
+  },
+  {
+    heading: 'Community',
+    links: [
+      { label: 'Leaderboard', href: '/launches', live: true },
+      { label: 'Write a Review', href: '/tools', live: true },
+      { label: 'Top Reviewers', href: '/community-picks', live: true },
+      { label: 'Discussions', href: '/discussions', live: false },
+      { label: 'Newsletter', href: '/newsletter', live: false },
+      { label: 'Events', href: '/events', live: false },
+      { label: 'Slack Community', href: '/slack', live: false },
+    ],
+  },
+  {
+    heading: 'For Founders',
+    links: [
+      { label: 'LaunchPad', href: '/launchpad', live: true },
+      { label: 'Claim Your Tool', href: '/claim', live: true },
+      { label: 'Founder Dashboard', href: '/dashboard/founder', live: true },
+      { label: 'Pricing', href: '/pricing', live: true },
+      { label: 'Affiliate Program', href: '/affiliates', live: true },
+      { label: 'Advertise', href: '/advertise', live: false },
+      { label: 'API Access', href: '/api', live: false },
+    ],
+  },
+  {
+    heading: 'Resources',
+    links: [
+      { label: 'Blog', href: '/blog', live: true },
+      { label: 'Help Centre / FAQ', href: '/faq', live: true },
+      { label: 'Trust Framework', href: '/trust', live: true },
+      { label: 'Review Guidelines', href: '/trust', live: true },
+      { label: 'Changelog', href: '/changelog', live: true },
+      { label: 'API Docs', href: '/api', live: false },
+      { label: 'Status', href: '/status', live: false },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { label: 'About LaudStack', href: '/about', live: true },
+      { label: 'Contact Us', href: '/contact', live: true },
+      { label: 'Careers', href: '/careers', live: false },
+      { label: 'Press Kit', href: '/press', live: false },
+      { label: 'Privacy Policy', href: '/privacy', live: true },
+      { label: 'Terms of Service', href: '/terms', live: true },
+      { label: 'Cookie Policy', href: '/cookies', live: true },
+    ],
+  },
 ];
+
+const TRUST_STATS = [
+  { icon: Users, value: '12,000+', label: 'Professionals' },
+  { icon: Star, value: '4.9', label: 'Avg Rating' },
+  { icon: CheckCircle2, value: '98%', label: 'Verified Reviews' },
+  { icon: TrendingUp, value: '100+', label: 'Tools Listed' },
+  { icon: Rocket, value: '50+', label: 'New This Month' },
+];
+
+
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
+  const subscribeMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess: (data) => {
+      if (data.alreadySubscribed) {
+        toast.info('You are already subscribed to our newsletter!');
+      } else {
+        setSubscribed(true);
+        toast.success('You\'re subscribed! Check your inbox for a welcome email.');
+      }
+      setEmail('');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Something went wrong. Please try again.');
+    },
+  });
+
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !email.includes('@')) {
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes('@')) {
       toast.error('Please enter a valid email address.');
       return;
     }
-    setSubscribed(true);
-    toast.success('You\'re subscribed! Expect your first digest next Monday.');
+    subscribeMutation.mutate({ email: trimmed, source: 'footer' });
   };
 
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800">
+    <footer style={{ background: '#0F172A', color: '#94A3B8', borderTop: '1px solid #1E293B' }}>
 
-      {/* ── Trust badges strip ── */}
-      <div className="border-b border-slate-800">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4">
-          <div className="flex items-center justify-center gap-6 flex-wrap">
-            {TRUST_BADGES.map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
-                <Icon className="w-3.5 h-3.5 text-amber-500/70" />
-                <span>{text}</span>
+      {/* Stats strip */}
+      <div style={{ borderBottom: '1px solid #1E293B' }}>
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10" style={{ paddingTop: 14, paddingBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
+            {TRUST_STATS.map(({ icon: Icon, value, label }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Icon style={{ width: 14, height: 14, color: '#F59E0B', flexShrink: 0 }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#E2E8F0' }}>{value}</span>
+                <span style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>{label}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── Main grid ── */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+      {/* Main grid */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10" style={{ paddingTop: 56, paddingBottom: 56 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7" style={{ gap: 40 }}>
 
-          {/* Brand column */}
-          <div className="lg:col-span-2">
+          {/* Brand + Newsletter column (2 cols) */}
+          <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <Link href="/">
               <img
                 src="/logo-dark-transparent.png"
                 alt="LaudStack"
-                className="h-10 w-auto cursor-pointer"
+                style={{ height: 40, width: 'auto', cursor: 'pointer', display: 'block' }}
               />
             </Link>
-            <p className="text-slate-400 text-sm leading-relaxed mt-3 mb-6 max-w-xs font-medium">
-              The trusted community platform where founders launch their AI and SaaS tools, users discover the best software, and the community curates quality.
+
+            <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.7, maxWidth: 280, fontWeight: 500, margin: 0 }}>
+              The professional platform for discovering, reviewing, and launching AI &amp; SaaS tools. Built for teams that care about quality.
             </p>
 
-            {/* Newsletter */}
-            <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                Weekly Tool Digest
-              </p>
-              {subscribed ? (
-                <div className="flex items-center gap-2 text-green-500 text-sm font-semibold">
-                  <span className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center text-xs">✓</span>
-                  You're subscribed!
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="flex-1 min-w-0 bg-slate-800 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
-                  />
-                  <button
-                    type="submit"
-                    className="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold p-2 rounded-lg transition-colors"
-                    aria-label="Subscribe"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </form>
-              )}
-              <p className="text-slate-500 text-xs mt-2">No spam. Unsubscribe anytime.</p>
-            </div>
-
             {/* Social links */}
-            <div className="flex gap-2.5 mt-6">
+            <div style={{ display: 'flex', gap: 8 }}>
               {[
                 { icon: Twitter, label: 'Twitter / X', href: 'https://twitter.com' },
                 { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com' },
                 { icon: Github, label: 'GitHub', href: 'https://github.com' },
+                { icon: Rss, label: 'RSS Feed', href: '/rss' },
                 { icon: Mail, label: 'Email', href: '/contact' },
               ].map(({ icon: Icon, label, href }) => (
                 href.startsWith('http') ? (
@@ -143,45 +170,129 @@ export default function Footer() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/40 flex items-center justify-center transition-all group"
                     aria-label={label}
+                    style={{
+                      width: 36, height: 36, borderRadius: 9,
+                      background: '#1E293B', border: '1px solid #334155',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all 0.15s', color: '#64748B', textDecoration: 'none',
+                    }}
+                    onMouseEnter={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.background = '#293548'; a.style.borderColor = 'rgba(245,158,11,0.4)'; a.style.color = '#F59E0B'; }}
+                    onMouseLeave={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.background = '#1E293B'; a.style.borderColor = '#334155'; a.style.color = '#64748B'; }}
                   >
-                    <Icon className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                    <Icon style={{ width: 15, height: 15 }} />
                   </a>
                 ) : (
                   <Link key={label} href={href}>
                     <div
-                      className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/40 flex items-center justify-center transition-all group cursor-pointer"
                       aria-label={label}
+                      style={{
+                        width: 36, height: 36, borderRadius: 9,
+                        background: '#1E293B', border: '1px solid #334155',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.15s', color: '#64748B', cursor: 'pointer',
+                      }}
+                      onMouseEnter={e => { const d = e.currentTarget as HTMLDivElement; d.style.background = '#293548'; d.style.borderColor = 'rgba(245,158,11,0.4)'; d.style.color = '#F59E0B'; }}
+                      onMouseLeave={e => { const d = e.currentTarget as HTMLDivElement; d.style.background = '#1E293B'; d.style.borderColor = '#334155'; d.style.color = '#64748B'; }}
                     >
-                      <Icon className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                      <Icon style={{ width: 15, height: 15 }} />
                     </div>
                   </Link>
                 )
               ))}
             </div>
+
+            {/* Newsletter */}
+            <div style={{ padding: '18px', background: '#1E293B', border: '1px solid #334155', borderRadius: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+                <Zap style={{ width: 13, height: 13, color: '#F59E0B' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#CBD5E1', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Weekly Tool Digest
+                </span>
+              </div>
+              <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px', lineHeight: 1.5 }}>
+                Top tools, trending picks, and founder stories — every Monday.
+              </p>
+              {subscribed ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 700, color: '#4ADE80' }}>
+                  <CheckCircle2 style={{ width: 15, height: 15 }} />
+                  You're subscribed!
+                </div>
+              ) : (
+                <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    style={{
+                      flex: 1, minWidth: 0, background: '#0F172A', border: '1px solid #334155',
+                      color: '#E2E8F0', fontSize: 13, padding: '8px 12px', borderRadius: 8,
+                      outline: 'none', transition: 'border-color 0.15s',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = '#F59E0B')}
+                    onBlur={e => (e.target.style.borderColor = '#334155')}
+                  />
+                  <button
+                    type="submit"
+                    disabled={subscribeMutation.isPending}
+                    style={{
+                      flexShrink: 0, background: '#F59E0B', border: 'none', borderRadius: 8,
+                      padding: '8px 12px', cursor: subscribeMutation.isPending ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', transition: 'opacity 0.15s',
+                      opacity: subscribeMutation.isPending ? 0.6 : 1,
+                    }}
+                    aria-label="Subscribe"
+                  >
+                    <ArrowRight style={{ width: 15, height: 15, color: '#0F172A' }} />
+                  </button>
+                </form>
+              )}
+              <p style={{ fontSize: 11, color: '#475569', marginTop: 8, marginBottom: 0 }}>No spam. Unsubscribe anytime.</p>
+            </div>
           </div>
 
-          {/* Link columns */}
-          {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
-            <div key={heading}>
-              <h4 className="text-slate-200 font-bold text-sm mb-4 tracking-wide">{heading}</h4>
-              <ul className="space-y-2.5">
-                {links.map(({ label, href, live }) => (
+          {/* Link columns (5 cols) */}
+          {FOOTER_SECTIONS.map(section => (
+            <div key={section.heading} className="lg:col-span-1">
+              <h4 style={{ fontSize: 11, fontWeight: 800, color: '#E2E8F0', letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 18, marginTop: 0 }}>
+                {section.heading}
+              </h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {section.links.map(({ label, href, live }) => (
                   <li key={label}>
                     {live ? (
                       <Link href={href}>
-                        <span className="text-slate-400 hover:text-amber-400 text-sm font-medium transition-colors cursor-pointer leading-relaxed">
+                        <span
+                          style={{ fontSize: 13, fontWeight: 500, color: '#64748B', cursor: 'pointer', transition: 'color 0.14s', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          onMouseEnter={e => (e.currentTarget.style.color = '#F59E0B')}
+                          onMouseLeave={e => (e.currentTarget.style.color = '#64748B')}
+                        >
                           {label}
+                          {href.startsWith('http') && <ExternalLink style={{ width: 10, height: 10, opacity: 0.5 }} />}
                         </span>
                       </Link>
                     ) : (
                       <button
                         onClick={() => toast.info(`${label} — coming soon!`)}
-                        className="text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors text-left leading-relaxed"
+                        style={{
+                          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                          fontSize: 13, fontWeight: 500, color: '#475569', textAlign: 'left',
+                          fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6,
+                          transition: 'color 0.14s',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#64748B')}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
                       >
                         {label}
-                        <span className="ml-1.5 text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-1 py-0.5 rounded font-semibold align-middle">Soon</span>
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                          background: '#1E293B', color: '#475569', border: '1px solid #334155',
+                          letterSpacing: '0.04em', textTransform: 'uppercase',
+                        }}>
+                          Soon
+                        </span>
                       </button>
                     )}
                   </li>
@@ -192,23 +303,59 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── Bottom bar ── */}
-      <div className="border-t border-slate-800 bg-slate-900">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-slate-400 text-sm font-medium">
+      {/* Trust badges divider */}
+      <div style={{ borderTop: '1px solid #1E293B' }}>
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10" style={{ paddingTop: 18, paddingBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+              {[
+                { icon: Shield, text: 'Verified Reviews' },
+                { icon: BookOpen, text: 'Editorial Standards' },
+                { icon: CheckCircle2, text: 'No Paid Rankings' },
+                { icon: Star, text: 'Community Driven' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#475569', fontWeight: 600 }}>
+                  <Icon style={{ width: 13, height: 13, color: '#F59E0B' }} />
+                  {text}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#334155' }}>
+              <span>🇺🇸 San Francisco, CA</span>
+              <span style={{ color: '#1E293B', margin: '0 2px' }}>·</span>
+              <span>Built for founders, by founders</span>
+              <span style={{ color: '#F59E0B', fontSize: 14, marginLeft: 4 }}>✦</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div style={{ borderTop: '1px solid #1E293B', background: '#0A1120' }}>
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10" style={{ paddingTop: 16, paddingBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <p style={{ fontSize: 13, color: '#334155', fontWeight: 500, margin: 0 }}>
             © {new Date().getFullYear()} LaudStack, Inc. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/privacy"><span className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer">Privacy</span></Link>
-            <span className="text-slate-700">·</span>
-            <Link href="/terms"><span className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer">Terms</span></Link>
-            <span className="text-slate-700">·</span>
-            <Link href="/cookies"><span className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer">Cookies</span></Link>
-            <span className="text-slate-700 hidden sm:block">·</span>
-            <span className="hidden sm:flex items-center gap-1 text-slate-500 text-xs font-medium">
-              Built for founders, by founders
-              <span className="text-amber-500">✦</span>
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Privacy', href: '/privacy' },
+              { label: 'Terms', href: '/terms' },
+              { label: 'Cookies', href: '/cookies' },
+              { label: 'Sitemap', href: '/sitemap' },
+            ].map(({ label, href }, i) => (
+              <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                {i > 0 && <span style={{ color: '#1E293B', padding: '0 4px' }}>·</span>}
+                <Link href={href}>
+                  <span
+                    style={{ fontSize: 12, color: '#334155', cursor: 'pointer', transition: 'color 0.14s', fontWeight: 500 }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#64748B')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#334155')}
+                  >
+                    {label}
+                  </span>
+                </Link>
+              </span>
+            ))}
           </div>
         </div>
       </div>
