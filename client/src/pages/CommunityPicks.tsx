@@ -10,7 +10,7 @@ import { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import {
   ChevronUp, Users, Flame, Filter, Star, ExternalLink,
-  ShieldCheck, TrendingUp, Award, Search, ArrowRight,
+  ShieldCheck, TrendingUp, Award, Search, ArrowRight, Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
@@ -120,6 +120,17 @@ function CommunityPickCard({
           </span>
           {tool.is_verified && (
             <ShieldCheck style={{ width: 14, height: 14, color: '#22C55E', flexShrink: 0 }} />
+          )}
+          {tool.is_featured && (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 3,
+              fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase',
+              padding: '2px 7px', borderRadius: 5,
+              background: '#FFF7ED', color: '#B45309', border: '1px solid #FDE68A',
+            }}>
+              <Sparkles style={{ width: 8, height: 8 }} />
+              Featured
+            </span>
           )}
           <span style={{
             fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6,

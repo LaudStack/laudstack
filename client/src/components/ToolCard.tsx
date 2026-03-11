@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
   ExternalLink, ChevronUp, ShieldCheck, Zap,
-  TrendingUp, TrendingDown, Minus, GitCompareArrows, Bookmark, Star
+  TrendingUp, TrendingDown, Minus, GitCompareArrows, Bookmark, Star, Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Tool, BadgeType } from '@/lib/types';
@@ -230,6 +230,7 @@ function FullCard({ tool, rank, rankChange }: ToolCardProps) {
   };
 
   const visibleBadges = tool.badges.slice(0, 2);
+  const isFeatured = tool.is_featured;
 
   return (
     <div
@@ -237,21 +238,36 @@ function FullCard({ tool, rank, rankChange }: ToolCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: '#fff',
+        background: isFeatured ? '#FFFDF7' : '#fff',
         border: '1.5px solid',
-        borderColor: hovered ? '#CBD5E1' : '#E8EDF2',
+        borderColor: isFeatured
+          ? (hovered ? '#F59E0B' : '#FDE68A')
+          : (hovered ? '#CBD5E1' : '#E8EDF2'),
         borderRadius: 18,
         padding: '22px 24px 18px',
+        paddingLeft: isFeatured ? 28 : 24,
         cursor: 'pointer',
         transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
-        boxShadow: hovered
-          ? '0 10px 32px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.04)'
-          : '0 1px 4px rgba(15,23,42,0.04)',
+        boxShadow: isFeatured
+          ? (hovered
+            ? '0 10px 32px rgba(245,158,11,0.18), 0 2px 8px rgba(245,158,11,0.08)'
+            : '0 2px 8px rgba(245,158,11,0.10), 0 1px 3px rgba(15,23,42,0.04)')
+          : (hovered
+            ? '0 10px 32px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.04)'
+            : '0 1px 4px rgba(15,23,42,0.04)'),
         transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
+      {/* Featured left-border accent bar */}
+      {isFeatured && (
+        <div style={{
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
+          background: 'linear-gradient(180deg, #F59E0B 0%, #D97706 100%)',
+          borderRadius: '18px 0 0 18px',
+        }} />
+      )}
       {/* Promotional banner */}
       {tool.promotional_banner && tool.is_pro && (
         <div style={{
@@ -302,6 +318,21 @@ function FullCard({ tool, rank, rankChange }: ToolCardProps) {
             {tool.is_pro && (
               <span title="Pro Founder">
                 <Zap style={{ width: 13, height: 13, color: '#F59E0B', flexShrink: 0 }} />
+              </span>
+            )}
+            {isFeatured && (
+              <span
+                title="Featured Listing"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 3,
+                  fontSize: 10.5, fontWeight: 700, letterSpacing: '0.04em',
+                  padding: '2px 8px', borderRadius: 6,
+                  background: '#FFF7ED', color: '#B45309', border: '1px solid #FDE68A',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <Sparkles style={{ width: 9, height: 9 }} />
+                Featured
               </span>
             )}
           </div>

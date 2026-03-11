@@ -580,6 +580,18 @@ export default function Home() {
                         }}>
                           <span style={{ fontSize: '11px', fontWeight: 900, color: rankColor, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>#{i + 1}</span>
                         </div>
+                        {/* Featured badge — below rank badge */}
+                        {tool.is_featured && (
+                          <div style={{
+                            position: 'absolute', top: '38px', left: '10px',
+                            background: '#F59E0B',
+                            borderRadius: '6px', padding: '2px 7px',
+                            display: 'flex', alignItems: 'center', gap: '3px',
+                          }}>
+                            <Sparkles style={{ width: '8px', height: '8px', color: '#fff' }} />
+                            <span style={{ fontSize: '9px', fontWeight: 800, color: '#fff', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Featured</span>
+                          </div>
+                        )}
 
                         {/* Rank change pill — top-right */}
                         <div style={{
@@ -730,10 +742,21 @@ export default function Home() {
 
                     {/* Name + category */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '14px', fontWeight: 800, color: '#171717', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</span>
                         {tool.is_verified && (
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="#3B82F6"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        )}
+                        {tool.is_featured && (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 2,
+                            fontSize: 9, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase',
+                            padding: '2px 6px', borderRadius: 5,
+                            background: '#FFF7ED', color: '#B45309', border: '1px solid #FDE68A',
+                          }}>
+                            <Sparkles style={{ width: 8, height: 8 }} />
+                            Featured
+                          </span>
                         )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
