@@ -31,6 +31,7 @@ import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
+import { getToolExtras } from '@/lib/toolExtras';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -170,6 +171,8 @@ export default function ToolDetail() {
 
   const reviews = getToolReviews(tool.id);
   const relatedTools = MOCK_TOOLS.filter(t => t.category === tool.category && t.id !== tool.id).slice(0, 4);
+  const extras = getToolExtras(tool.slug, tool.name, tool.pricing_model);
+  const [activeScreenshot, setActiveScreenshot] = useState(0);
 
   // Rating breakdown (simulated from average)
   const totalReviews = Math.max(reviews.length, tool.review_count);
@@ -426,6 +429,142 @@ export default function ToolDetail() {
                 </span>
               ))}
             </div>
+          </motion.div>
+
+          {/* ── SCREENSHOT GALLERY ──────────────────────────────────────── */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
+            style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+            <div style={{ padding: '24px 28px 20px', borderBottom: '1px solid #F1F5F9' }}>
+              <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>Screenshots</h2>
+            </div>
+            {/* Main screenshot */}
+            <div style={{ position: 'relative', background: '#0F172A', aspectRatio: '16/9', overflow: 'hidden' }}>
+              <img
+                src={extras.screenshots[activeScreenshot]?.url}
+                alt={extras.screenshots[activeScreenshot]?.caption}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s ease' }}
+              />
+              {/* Caption overlay */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 20px', background: 'linear-gradient(to top, rgba(15,23,42,0.85), transparent)' }}>
+                <p style={{ margin: 0, fontSize: '13px', fontWeight: 500, color: '#E2E8F0' }}>{extras.screenshots[activeScreenshot]?.caption}</p>
+              </div>
+              {/* Prev/Next arrows */}
+              {extras.screenshots.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setActiveScreenshot(i => (i - 1 + extras.screenshots.length) % extras.screenshots.length)}
+                    style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+                  >‹</button>
+                  <button
+                    onClick={() => setActiveScreenshot(i => (i + 1) % extras.screenshots.length)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+                  >›</button>
+                </>
+              )}
+            </div>
+            {/* Thumbnail strip */}
+            {extras.screenshots.length > 1 && (
+              <div style={{ display: 'flex', gap: '10px', padding: '14px 20px', overflowX: 'auto' }}>
+                {extras.screenshots.map((s, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveScreenshot(i)}
+                    style={{ flexShrink: 0, width: '100px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: i === activeScreenshot ? '2px solid #F59E0B' : '2px solid transparent', cursor: 'pointer', transition: 'border-color 0.15s', padding: 0 }}
+                  >
+                    <img src={s.url} alt={s.caption} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: i === activeScreenshot ? 1 : 0.6, transition: 'opacity 0.15s' }} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* ── KEY FEATURES ────────────────────────────────────────────── */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.07 }}
+            style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '28px 32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+            <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: '0 0 24px', letterSpacing: '-0.02em' }}>Key Features</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+              {extras.features.map((feat, i) => (
+                <div key={i} style={{ padding: '18px 20px', borderRadius: '12px', background: '#F8FAFC', border: '1px solid #E2E8F0', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#FDE68A'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(245,158,11,0.1)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
+                >
+                  <div style={{ fontSize: '24px', marginBottom: '10px' }}>{feat.icon}</div>
+                  <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#171717', margin: '0 0 6px' }}>{feat.title}</h3>
+                  <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.6, margin: 0 }}>{feat.description}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* ── PRICING TABLE ───────────────────────────────────────────── */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.09 }}
+            style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '28px 32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '8px' }}>
+              <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>Pricing</h2>
+              <a href={tool.website_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', fontWeight: 700, color: '#B45309', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                View full pricing <ExternalLink style={{ width: '11px', height: '11px' }} />
+              </a>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(extras.pricing_tiers.length, 3)}, 1fr)`, gap: '14px', overflowX: 'auto' }}>
+              {extras.pricing_tiers.map((tier, i) => (
+                <div key={i} style={{
+                  borderRadius: '14px',
+                  border: tier.highlighted ? '2px solid #F59E0B' : '1px solid #E2E8F0',
+                  padding: '22px 20px',
+                  background: tier.highlighted ? '#FFFBEB' : '#F8FAFC',
+                  position: 'relative',
+                  display: 'flex', flexDirection: 'column', gap: '12px',
+                  boxShadow: tier.highlighted ? '0 4px 16px rgba(245,158,11,0.15)' : 'none',
+                }}>
+                  {tier.badge && (
+                    <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#F59E0B', color: '#0A0A0A', fontSize: '11px', fontWeight: 800, padding: '3px 12px', borderRadius: '100px', whiteSpace: 'nowrap' }}>
+                      {tier.badge}
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>{tier.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '28px', fontWeight: 900, color: '#171717', letterSpacing: '-0.03em' }}>{tier.price}</span>
+                      {tier.period && <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{tier.period}</span>}
+                    </div>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: '6px 0 0', lineHeight: 1.5 }}>{tier.description}</p>
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {tier.features.map((f, j) => (
+                      <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <CheckCircle2 style={{ width: '14px', height: '14px', color: tier.highlighted ? '#B45309' : '#15803D', flexShrink: 0, marginTop: '1px' }} />
+                        <span style={{ fontSize: '12px', color: '#374151', lineHeight: 1.5 }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <a
+                    href={tool.website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '10px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+                      textDecoration: 'none', transition: 'all 0.15s',
+                      background: tier.highlighted ? '#F59E0B' : '#FFFFFF',
+                      color: tier.highlighted ? '#0A0A0A' : '#374151',
+                      border: tier.highlighted ? 'none' : '1.5px solid #E2E8F0',
+                      boxShadow: tier.highlighted ? '0 3px 10px rgba(245,158,11,0.3)' : 'none',
+                    }}
+                    onMouseEnter={e => { if (tier.highlighted) (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 5px 16px rgba(245,158,11,0.4)'; else { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLAnchorElement).style.color = '#B45309'; } }}
+                    onMouseLeave={e => { if (tier.highlighted) (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 3px 10px rgba(245,158,11,0.3)'; else { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLAnchorElement).style.color = '#374151'; } }}
+                  >
+                    {tier.cta}
+                  </a>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: '11px', color: '#94A3B8', marginTop: '14px', textAlign: 'center' }}>
+              Pricing shown is indicative. Visit {tool.name}'s website for the latest pricing.
+            </p>
           </motion.div>
 
           {/* Ratings Summary */}

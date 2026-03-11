@@ -126,6 +126,29 @@ export interface User {
   created_at: string;
 }
 
+export interface PricingTier {
+  name: string;
+  price: string;         // e.g. "$0", "$29/mo", "Custom"
+  period?: string;       // e.g. "per month", "per year"
+  description: string;
+  features: string[];
+  cta: string;
+  highlighted?: boolean; // true = most popular
+  badge?: string;        // e.g. "Most Popular"
+}
+
+export interface ToolFeature {
+  title: string;
+  description: string;
+  icon: string;          // emoji or icon name hint
+}
+
+export interface ToolExtras {
+  screenshots: { url: string; caption: string }[];
+  features: ToolFeature[];
+  pricing_tiers: PricingTier[];
+}
+
 export interface AnalyticsSummary {
   tool_id: string;
   period: 'day' | 'week' | 'month';
