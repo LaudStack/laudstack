@@ -1,7 +1,7 @@
 // Design: LaudStack dark-slate + amber accent. Full directory with sidebar filters.
 // Layout: Left filter sidebar (fixed) + right scrollable tool grid.
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -29,9 +29,14 @@ const RATING_OPTIONS = [
 ];
 
 export default function AllTools() {
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [search, setSearch] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    // Read ?category param on initial render
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('category');
+    return cat ? [decodeURIComponent(cat)] : [];
+  });
   const [selectedPricing, setSelectedPricing] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState('rank_score');
@@ -40,6 +45,17 @@ export default function AllTools() {
   const [catExpanded, setCatExpanded] = useState(true);
   const [pricingExpanded, setPricingExpanded] = useState(true);
   const [ratingExpanded, setRatingExpanded] = useState(true);
+
+  // Re-apply ?category param whenever the URL changes (e.g. back-link navigation)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('category');
+    if (cat) {
+      setSelectedCategories([decodeURIComponent(cat)]);
+      // Clean the URL param after applying so the filter bar stays in sync
+      navigate('/tools', { replace: true });
+    }
+  }, [location]);
 
   const filtered = useMemo(() => {
     let tools = [...MOCK_TOOLS];
