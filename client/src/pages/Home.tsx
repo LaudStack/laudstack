@@ -126,6 +126,7 @@ export default function Home() {
     .map(s => MOCK_TOOLS.find(t => t.slug === s))
     .filter(Boolean) as typeof MOCK_TOOLS;
   const go = () => navigate('/launchpad');
+  const goTrending = () => navigate('/trending');
   const goToTool = (slug: string) => navigate(`/tools/${slug}`);
   const handleSearch = () => {
     const q = searchQuery.trim();
@@ -490,7 +491,7 @@ export default function Home() {
             subtext="Ranked by rank-position gain over the past week — tools climbing fastest right now."
             cta="View All Trending"
             ctaColor="#D97706"
-            onCta={go}
+            onCta={goTrending}
           />
           {trendingTools.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
