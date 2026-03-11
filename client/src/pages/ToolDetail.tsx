@@ -202,43 +202,56 @@ export default function ToolDetail() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
       <Navbar />
-      <PageHero
-        eyebrow={tool.category}
-        title={tool.name}
-        subtitle={tool.tagline}
-        accent="amber"
-        layout="split"
-        size="sm"
-        backLink={{ href: `/tools?category=${encodeURIComponent(tool.category)}`, label: `Back to ${tool.category}` }}
-      >
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-          {tool.is_verified && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px', background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' }}>
-              <ShieldCheck style={{ width: '11px', height: '11px' }} /> Verified
-            </span>
-          )}
-          {tool.badges.slice(0, 3).map(b => {
-            const cfg = BADGE_CONFIG[b];
-            if (!cfg) return null;
-            return (
-              <span key={b} style={{ fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
-                {cfg.label}
-              </span>
-            );
-          })}
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B' }}>
-            {tool.average_rating.toFixed(1)} ★ &nbsp;({tool.review_count.toLocaleString()} reviews)
-          </span>
-        </div>
-      </PageHero>
 
-      {/* ══ TOOL HERO HEADER ════════════════════════════════════════════════ */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '40px 0 36px' }}>
+      {/* ══ TOOL PRODUCT HEADER ═════════════════════════════════════════════ */}
+      {/* Note: Founder promotional banner slot is reserved at the very top of this section.
+           When a founder claims and upgrades their listing, the banner will render above
+           the breadcrumb row using tool.promotional_banner and tool.promotional_cta. */}
+      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+
+        {/* ── Founder promotional banner (shown when tool.promotional_banner is set) ── */}
+        {tool.promotional_banner && (
+          <div style={{ background: '#FFFBEB', borderBottom: '1px solid #FDE68A', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#92400E' }}>{tool.promotional_banner}</span>
+            {tool.promotional_cta && (
+              <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: '12px', fontWeight: 800, color: '#B45309', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '3px 12px', borderRadius: '100px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                {tool.promotional_cta} →
+              </a>
+            )}
+          </div>
+        )}
+
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+          {/* ── Breadcrumb row ── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '14px 0 0', fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>
+            <Link href="/" style={{ color: '#94A3B8', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#F59E0B')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>
+              Home
+            </Link>
+            <ChevronRight style={{ width: '12px', height: '12px', flexShrink: 0 }} />
+            <Link href="/tools" style={{ color: '#94A3B8', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#F59E0B')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>
+              All Tools
+            </Link>
+            <ChevronRight style={{ width: '12px', height: '12px', flexShrink: 0 }} />
+            <Link href={`/tools?category=${encodeURIComponent(tool.category)}`} style={{ color: '#94A3B8', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#F59E0B')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>
+              {tool.category}
+            </Link>
+            <ChevronRight style={{ width: '12px', height: '12px', flexShrink: 0 }} />
+            <span style={{ color: '#374151', fontWeight: 600 }}>{tool.name}</span>
+          </div>
+
+          {/* ── Main hero row ── */}
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', padding: '24px 0 28px', flexWrap: 'wrap' }}>
 
             {/* Logo */}
-            <div style={{ width: '88px', height: '88px', borderRadius: '20px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', overflow: 'hidden', flexShrink: 0, boxShadow: '0 4px 16px rgba(15,23,42,0.08)' }}>
+            <div style={{ width: '96px', height: '96px', borderRadius: '20px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', overflow: 'hidden', flexShrink: 0, boxShadow: '0 2px 12px rgba(15,23,42,0.07)' }}>
               <img
                 src={tool.logo_url}
                 alt={tool.name}
@@ -252,15 +265,16 @@ export default function ToolDetail() {
                     p.style.display = 'flex';
                     p.style.alignItems = 'center';
                     p.style.justifyContent = 'center';
-                    p.innerHTML = `<span style="font-size:28px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
+                    p.innerHTML = `<span style="font-size:32px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
                   }
                 }}
               />
             </div>
 
-            {/* Info */}
-            <div style={{ flex: 1, minWidth: '280px' }}>
-              {/* Badges row */}
+            {/* Identity + stats */}
+            <div style={{ flex: 1, minWidth: '260px' }}>
+
+              {/* Badge strip */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
                 {tool.is_verified && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' }}>
@@ -281,133 +295,159 @@ export default function ToolDetail() {
                 </span>
               </div>
 
-              {/* Name + tagline */}
-              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 900, color: '#171717', margin: '0 0 6px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+              {/* Name */}
+              <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.03em', lineHeight: 1.15 }}>
                 {tool.name}
               </h1>
-              <p style={{ fontSize: '16px', color: '#475569', fontWeight: 500, margin: '0 0 16px', lineHeight: 1.5 }}>{tool.tagline}</p>
 
-              {/* Rating row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <StarRating rating={tool.average_rating} size={18} />
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#171717' }}>{tool.average_rating.toFixed(1)}</span>
-                  <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>({tool.review_count.toLocaleString()} reviews)</span>
-                </div>
-                <div style={{ width: '1px', height: '18px', background: '#E2E8F0' }} />
-                <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>
-                  <strong style={{ color: '#171717' }}>{(tool.upvote_count + upvoteCount).toLocaleString()}</strong> upvotes
-                </span>
-                <div style={{ width: '1px', height: '18px', background: '#E2E8F0' }} />
-                <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>
-                  <strong style={{ color: '#171717' }}>{tool.pricing_model}</strong>
-                </span>
+              {/* Tagline */}
+              <p style={{ fontSize: '15px', color: '#475569', fontWeight: 500, margin: '0 0 18px', lineHeight: 1.55, maxWidth: '560px' }}>
+                {tool.tagline}
+              </p>
+
+              {/* Stats strip */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0', flexWrap: 'wrap', border: '1px solid #E2E8F0', borderRadius: '12px', background: '#F8FAFC', overflow: 'hidden', width: 'fit-content' }}>
+                {[
+                  {
+                    label: 'Rating',
+                    value: (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <StarRating rating={tool.average_rating} size={13} />
+                        <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{tool.average_rating.toFixed(1)}</span>
+                        <span style={{ fontSize: '12px', color: '#94A3B8' }}>({tool.review_count.toLocaleString()})</span>
+                      </div>
+                    ),
+                  },
+                  { label: 'Upvotes', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{(tool.upvote_count + upvoteCount).toLocaleString()}</span> },
+                  { label: 'Pricing', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{tool.pricing_model}</span> },
+                  { label: 'Launched', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{new Date(tool.launched_at).getFullYear()}</span> },
+                ].map((stat, i, arr) => (
+                  <div key={stat.label} style={{
+                    padding: '10px 18px',
+                    borderRight: i < arr.length - 1 ? '1px solid #E2E8F0' : 'none',
+                    display: 'flex', flexDirection: 'column', gap: '2px',
+                  }}>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{stat.label}</span>
+                    {stat.value}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexShrink: 0 }}>
+            {/* Action column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0, minWidth: '180px' }}>
+
+              {/* Primary CTA */}
               <a
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.35)', transition: 'all 0.2s ease', letterSpacing: '-0.01em' }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 20px rgba(245,158,11,0.45)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 14px rgba(245,158,11,0.35)')}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '13px 20px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: '14px', textDecoration: 'none', boxShadow: '0 3px 12px rgba(245,158,11,0.30)', transition: 'box-shadow 0.2s', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 5px 18px rgba(245,158,11,0.42)')}
+                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 3px 12px rgba(245,158,11,0.30)')}
               >
-                Visit {tool.name} <ExternalLink style={{ width: '14px', height: '14px' }} />
+                Visit {tool.name} <ExternalLink style={{ width: '13px', height: '13px' }} />
               </a>
-              <button
-                onClick={handleUpvote}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '10px 24px', borderRadius: '12px',
-                  border: upvoted ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
-                  background: upvoted ? '#FFFBEB' : '#FFFFFF',
-                  color: upvoted ? '#B45309' : '#374151',
-                  fontWeight: 700, fontSize: '14px', cursor: upvoted ? 'default' : 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <ChevronUp style={{ width: '16px', height: '16px' }} />
-                {upvoted ? 'Upvoted' : 'Upvote'}
-              </button>
-              {/* Compare toggle */}
-              <button
-                onClick={() => {
-                  if (!isComparing(tool.id) && !canCompare) {
-                    toast.error('You can compare up to 3 tools at a time');
-                    return;
-                  }
-                  compareToggle(tool);
-                  if (!isComparing(tool.id)) toast.success(`${tool.name} added to comparison`);
-                }}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '10px 24px', borderRadius: '12px',
-                  border: isComparing(tool.id) ? '1.5px solid #BFDBFE' : '1.5px solid #E2E8F0',
-                  background: isComparing(tool.id) ? '#EFF6FF' : '#FFFFFF',
-                  color: isComparing(tool.id) ? '#1D4ED8' : '#374151',
-                  fontWeight: 700, fontSize: '14px', cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => { if (!isComparing(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#BFDBFE'; (e.currentTarget as HTMLButtonElement).style.color = '#1D4ED8'; (e.currentTarget as HTMLButtonElement).style.background = '#EFF6FF'; } }}
-                onMouseLeave={e => { if (!isComparing(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
-              >
-                <GitCompareArrows style={{ width: '15px', height: '15px' }} />
-                {isComparing(tool.id) ? 'Comparing' : 'Compare'}
-              </button>
-              {/* Bookmark / Save */}
-              <button
-                onClick={() => {
-                  toggleSave(tool.id);
-                  toast.success(isSaved(tool.id) ? `Removed ${tool.name} from saved` : `Saved ${tool.name}!`);
-                }}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '10px 24px', borderRadius: '12px',
-                  border: isSaved(tool.id) ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
-                  background: isSaved(tool.id) ? '#FFFBEB' : '#FFFFFF',
-                  color: isSaved(tool.id) ? '#B45309' : '#374151',
-                  fontWeight: 700, fontSize: '14px', cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => { if (!isSaved(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; } }}
-                onMouseLeave={e => { if (!isSaved(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
-              >
-                <Bookmark style={{ width: '15px', height: '15px', fill: isSaved(tool.id) ? '#F59E0B' : 'none' }} />
-                {isSaved(tool.id) ? 'Saved' : 'Save'}
-              </button>
-              {/* Write a Review — auth-gated */}
-              <button
-                onClick={handleWriteReview}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '10px 24px', borderRadius: '12px',
-                  border: '1.5px solid #E2E8F0',
-                  background: '#FFFFFF',
-                  color: '#374151',
-                  fontWeight: 700, fontSize: '14px', cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B';
-                  (e.currentTarget as HTMLButtonElement).style.color = '#B45309';
-                  (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0';
-                  (e.currentTarget as HTMLButtonElement).style.color = '#374151';
-                  (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF';
-                }}
-              >
-                <MessageSquare style={{ width: '15px', height: '15px' }} />
-                Write a Review
-              </button>
+
+              {/* Secondary actions row */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                {/* Upvote */}
+                <button
+                  onClick={handleUpvote}
+                  title="Upvote"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    padding: '9px 10px', borderRadius: '10px',
+                    border: upvoted ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
+                    background: upvoted ? '#FFFBEB' : '#FFFFFF',
+                    color: upvoted ? '#B45309' : '#374151',
+                    fontWeight: 700, fontSize: '12px', cursor: upvoted ? 'default' : 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  <ChevronUp style={{ width: '14px', height: '14px' }} />
+                  {upvoted ? 'Upvoted' : 'Upvote'}
+                </button>
+
+                {/* Save */}
+                <button
+                  onClick={() => {
+                    toggleSave(tool.id);
+                    toast.success(isSaved(tool.id) ? `Removed from saved` : `Saved ${tool.name}!`);
+                  }}
+                  title="Save"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    padding: '9px 10px', borderRadius: '10px',
+                    border: isSaved(tool.id) ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
+                    background: isSaved(tool.id) ? '#FFFBEB' : '#FFFFFF',
+                    color: isSaved(tool.id) ? '#B45309' : '#374151',
+                    fontWeight: 700, fontSize: '12px', cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { if (!isSaved(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; } }}
+                  onMouseLeave={e => { if (!isSaved(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; } }}
+                >
+                  <Bookmark style={{ width: '13px', height: '13px', fill: isSaved(tool.id) ? '#F59E0B' : 'none' }} />
+                  {isSaved(tool.id) ? 'Saved' : 'Save'}
+                </button>
+
+                {/* Compare */}
+                <button
+                  onClick={() => {
+                    if (!isComparing(tool.id) && !canCompare) { toast.error('Compare up to 3 tools at a time'); return; }
+                    compareToggle(tool);
+                    if (!isComparing(tool.id)) toast.success(`${tool.name} added to comparison`);
+                  }}
+                  title="Compare"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    padding: '9px 10px', borderRadius: '10px',
+                    border: isComparing(tool.id) ? '1.5px solid #BFDBFE' : '1.5px solid #E2E8F0',
+                    background: isComparing(tool.id) ? '#EFF6FF' : '#FFFFFF',
+                    color: isComparing(tool.id) ? '#1D4ED8' : '#374151',
+                    fontWeight: 700, fontSize: '12px', cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { if (!isComparing(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#BFDBFE'; (e.currentTarget as HTMLButtonElement).style.color = '#1D4ED8'; (e.currentTarget as HTMLButtonElement).style.background = '#EFF6FF'; } }}
+                  onMouseLeave={e => { if (!isComparing(tool.id)) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
+                >
+                  <GitCompareArrows style={{ width: '13px', height: '13px' }} />
+                  Compare
+                </button>
+
+                {/* Write Review */}
+                <button
+                  onClick={handleWriteReview}
+                  title="Write a Review"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    padding: '9px 10px', borderRadius: '10px',
+                    border: '1.5px solid #E2E8F0',
+                    background: '#FFFFFF',
+                    color: '#374151',
+                    fontWeight: 700, fontSize: '12px', cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; }}
+                >
+                  <MessageSquare style={{ width: '13px', height: '13px' }} />
+                  Review
+                </button>
+              </div>
+
+              {/* Website URL hint */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center', paddingTop: '2px' }}>
+                <Globe style={{ width: '11px', height: '11px', color: '#94A3B8', flexShrink: 0 }} />
+                <span style={{ fontSize: '11px', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '160px' }}>
+                  {tool.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </header>
 
       {/* ══ MAIN CONTENT ════════════════════════════════════════════════════ */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ padding: '40px 40px', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '28px', alignItems: 'start' }}>
