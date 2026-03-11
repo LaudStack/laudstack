@@ -28,6 +28,20 @@ const RATING_OPTIONS = [
   { value: 3.5, label: '3.5★ & above' },
 ];
 
+// Badge display labels
+const BADGE_LABELS: Record<string, string> = {
+  editors_pick: "Editor's Pick",
+  top_rated: 'Top Rated',
+  featured: 'Featured',
+  verified: 'Verified',
+  new_launch: 'New Launch',
+  trending: 'Trending',
+  pro_founder: 'Pro Founder',
+  community_pick: 'Community Pick',
+  best_value: 'Best Value',
+  laudstack_pick: 'LaudStack Pick',
+};
+
 // Helper: parse all filter params from a URLSearchParams object
 function parseParams(params: URLSearchParams) {
   const cat = params.get('category');
@@ -35,12 +49,14 @@ function parseParams(params: URLSearchParams) {
   const rating = params.get('rating');
   const sort = params.get('sort');
   const q = params.get('q');
+  const badge = params.get('badge');
   return {
     categories: cat ? decodeURIComponent(cat).split(',').map(c => c.trim()).filter(Boolean) : [],
     pricing: pricing ? decodeURIComponent(pricing).split(',').map(p => p.trim()).filter(Boolean) : [],
     rating: rating ? parseFloat(rating) : 0,
     sort: sort || 'rank_score',
     search: q ? decodeURIComponent(q) : '',
+    badge: badge || '',
   };
 }
 
@@ -55,6 +71,7 @@ export default function AllTools() {
   const [selectedPricing, setSelectedPricing] = useState<string[]>(initialParams.pricing);
   const [minRating, setMinRating] = useState(initialParams.rating);
   const [sortBy, setSortBy] = useState(initialParams.sort);
+  const [activeBadge, setActiveBadge] = useState(initialParams.badge);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [catExpanded, setCatExpanded] = useState(true);
@@ -72,13 +89,14 @@ export default function AllTools() {
     if (minRating > 0) params.set('rating', String(minRating));
     if (sortBy !== 'rank_score') params.set('sort', sortBy);
     if (search.trim()) params.set('q', search.trim());
+    if (activeBadge) params.set('badge', activeBadge);
     const qs = params.toString();
     const newPath = qs ? `/tools?${qs}` : '/tools';
     // Only push if the URL actually changed to avoid history spam
     if (window.location.pathname + window.location.search !== newPath) {
       navigate(newPath, { replace: true });
     }
-  }, [selectedCategories, selectedPricing, minRating, sortBy, search]);
+  }, [selectedCategories, selectedPricing, minRating, sortBy, search, activeBadge]);
 
   // ── Inbound: read URL → filter state when location changes externally ───────
   useEffect(() => {
@@ -92,6 +110,7 @@ export default function AllTools() {
     setMinRating(parsed.rating);
     setSortBy(parsed.sort);
     setSearch(parsed.search);
+    setActiveBadge(parsed.badge);
     // Release the sync lock after state has been applied
     setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
@@ -121,6 +140,10 @@ export default function AllTools() {
       tools = tools.filter(t => (t.average_rating || 0) >= minRating);
     }
 
+    if (activeBadge) {
+      tools = tools.filter(t => (t.badges || []).includes(activeBadge as any));
+    }
+
     tools.sort((a, b) => {
       switch (sortBy) {
         case 'average_rating': return (b.average_rating || 0) - (a.average_rating || 0);
@@ -133,7 +156,7 @@ export default function AllTools() {
     });
 
     return tools;
-  }, [search, selectedCategories, selectedPricing, minRating, sortBy]);
+  }, [search, selectedCategories, selectedPricing, minRating, sortBy, activeBadge]);
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories(prev =>
@@ -153,9 +176,10 @@ export default function AllTools() {
     setSelectedPricing([]);
     setMinRating(0);
     setSortBy('rank_score');
+    setActiveBadge('');
   };
 
-  const hasFilters = selectedCategories.length > 0 || selectedPricing.length > 0 || minRating > 0 || search.trim();
+  const hasFilters = selectedCategories.length > 0 || selectedPricing.length > 0 || minRating > 0 || search.trim() || !!activeBadge;
 
   // Category counts
   const catCounts = useMemo(() => {
@@ -361,6 +385,12 @@ export default function AllTools() {
                     <button onClick={() => togglePricing(p)}><X className="h-3 w-3" /></button>
                   </span>
                 ))}
+                {activeBadge && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-xs text-purple-300 font-medium">
+                    🏅 {BADGE_LABELS[activeBadge] || activeBadge}
+                    <button onClick={() => setActiveBadge('')}><X className="h-3 w-3" /></button>
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
