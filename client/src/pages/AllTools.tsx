@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import ToolCard from '@/components/ToolCard';
 import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
 import { Search, SlidersHorizontal, X, ChevronDown, ChevronUp, Grid3X3, List } from 'lucide-react';
@@ -114,38 +115,41 @@ export default function AllTools() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Page Header */}
-      <div className="bg-white border-b border-gray-200 pt-20">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-amber-500">Directory</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900">All Tools</h1>
-              <p className="text-slate-500 mt-1 text-sm">
-                {MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community
-              </p>
-            </div>
-            {/* Search bar */}
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+      <PageHero
+        eyebrow="Directory"
+        title="All Tools"
+        subtitle={`${MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community.`}
+        accent="amber"
+        stats={[
+          { value: String(MOCK_TOOLS.length),                                              label: 'Total Tools' },
+          { value: String(CATEGORIES.length - 1),                                          label: 'Categories' },
+          { value: String(MOCK_TOOLS.filter(t => t.pricing_model === 'Free').length),      label: 'Free Tools' },
+          { value: String(MOCK_TOOLS.filter(t => t.is_verified).length),                   label: 'Verified' },
+        ]}
+        actions={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ position: 'relative' }}>
+              <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }} />
               <input
                 type="text"
                 placeholder="Search tools..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-gray-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
+                style={{
+                  width: '260px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '10px', padding: '10px 12px 10px 36px', fontSize: '13px',
+                  color: '#FFFFFF', outline: 'none', fontFamily: 'inherit',
+                }}
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900">
-                  <X className="h-3.5 w-3.5" />
+                <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', display: 'flex' }}>
+                  <X style={{ width: '13px', height: '13px' }} />
                 </button>
               )}
             </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="flex-1 max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">

@@ -10,6 +10,7 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS } from '@/lib/mockData';
 import {
   TrendingUp, Flame, Search, Star, MessageSquare,
@@ -151,43 +152,18 @@ export default function Trending() {
     <div style={{ minHeight: '100vh', background: '#FAFAFA', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8ECF0', paddingTop: '80px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px 40px' }}>
-
-          {/* Label */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-              color: '#D97706', background: '#FFF7ED', border: '1px solid #FCD34D',
-              padding: '4px 12px', borderRadius: '20px',
-            }}>
-              <Flame style={{ width: '11px', height: '11px' }} />
-              Trending This Week
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1 style={{
-            fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#171717',
-            letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '12px',
-          }}>
-            What's Hot Right Now
-          </h1>
-          <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.6, maxWidth: '560px', marginBottom: '32px' }}>
-            Tools ranked by weekly position gain — the fastest-climbing AI and SaaS products in the community right now.
-          </p>
-
-          {/* Stats row */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <StatCard value={String(totalRising)} label="Rising Tools" sub="with positive momentum" />
-            <StatCard value={`+${topGain}`}       label="Top Gain"     sub="biggest weekly jump" />
-            <StatCard value={`+${avgGain}`}        label="Avg Gain"     sub="across all rising tools" />
-            <StatCard value={String(rocketCount)}  label="🚀 Rocket Tier" sub="≥20 positions gained" />
-          </div>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="Trending This Week"
+        title="What's Hot Right Now"
+        subtitle="Tools ranked by weekly position gain — the fastest-climbing AI and SaaS products in the community right now."
+        accent="amber"
+        stats={[
+          { value: String(totalRising), label: 'Rising Tools' },
+          { value: `+${topGain}`,       label: 'Top Gain' },
+          { value: `+${avgGain}`,       label: 'Avg Gain' },
+          { value: String(rocketCount), label: 'Rocket Tier' },
+        ]}
+      />
 
       {/* ── Filters + List ──────────────────────────────────────────────── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '32px 24px 64px' }}>

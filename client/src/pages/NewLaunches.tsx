@@ -6,6 +6,7 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
 import { Zap, Star, BarChart3, Rocket, Shield, ChevronRight, Calendar, Filter } from 'lucide-react';
 import { toast } from 'sonner';
@@ -74,47 +75,18 @@ export default function NewLaunches() {
     <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* ── Hero ── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8ECF0', paddingTop: '72px' }}>
-        <div className="max-w-[1280px] mx-auto px-6 lg:px-10" style={{ paddingTop: '48px', paddingBottom: '40px' }}>
-          {/* Label */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              padding: '4px 12px', borderRadius: '999px',
-              background: '#FFFBEB', border: '1px solid #FCD34D',
-              fontSize: '11px', fontWeight: 800, color: '#D97706',
-              textTransform: 'uppercase', letterSpacing: '0.07em',
-            }}>
-              <Zap style={{ width: '11px', height: '11px' }} /> New Launches
-            </span>
-          </div>
-
-          <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#171717', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '12px' }}>
-            Recently Added Tools
-          </h1>
-          <p style={{ fontSize: '16px', color: '#6B7280', maxWidth: '560px', lineHeight: 1.6, marginBottom: '32px' }}>
-            The freshest AI &amp; SaaS tools submitted by founders — sorted by launch date, newest first.
-          </p>
-
-          {/* Stats bar */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {[
-              { value: newCount, label: 'This Month', color: '#22C55E' },
-              { value: filteredTools.length, label: 'Total Tools', color: '#F59E0B' },
-              { value: '7+', label: 'Added Weekly', color: '#171717' },
-            ].map(stat => (
-              <div key={stat.label} style={{
-                background: '#F9FAFB', border: '1px solid #E8ECF0', borderRadius: '14px',
-                padding: '16px 24px', minWidth: '120px', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: '24px', fontWeight: 900, color: stat.color, letterSpacing: '-0.02em' }}>{stat.value}</div>
-                <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, marginTop: '2px' }}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="New Launches"
+        title="Recently Added Tools"
+        subtitle="The freshest AI & SaaS tools submitted by founders — sorted by launch date, newest first."
+        accent="green"
+        stats={[
+          { value: String(newCount),            label: 'This Month' },
+          { value: String(filteredTools.length), label: 'Total Tools' },
+          { value: '7+',                         label: 'Added Weekly' },
+          { value: String(MOCK_TOOLS.filter(t => t.is_verified).length), label: 'Verified' },
+        ]}
+      />
 
       {/* ── Filters ── */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8ECF0', position: 'sticky', top: '64px', zIndex: 40 }}>

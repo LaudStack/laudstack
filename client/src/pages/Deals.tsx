@@ -10,6 +10,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 type DealType = 'all' | 'lifetime' | 'discount' | 'free-trial' | 'exclusive';
 
@@ -330,40 +331,20 @@ export default function Deals() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
       <Navbar />
-      <div className="mt-[72px] flex-1">
-
-        {/* Hero */}
-        <div className="bg-gray-50 text-slate-900 border-b border-gray-200">
-          <div className="max-w-[1300px] mx-auto px-4 py-14">
-            <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
-              <Tag className="w-4 h-4" />
-              Exclusive SaaS Deals
-            </div>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight">
-                  Save on the tools<br />
-                  <span className="text-amber-400">your team already uses</span>
-                </h1>
-                <p className="text-slate-500 text-lg max-w-xl leading-relaxed">
-                  Exclusive discounts, lifetime deals, and extended trials negotiated by LaudStack for our community.
-                </p>
-              </div>
-              <div className="flex gap-6 flex-shrink-0">
-                {[
-                  { value: `${DEALS.length}`, label: 'Active Deals' },
-                  { value: `${lifetimeDeals.length}`, label: 'Lifetime Deals' },
-                  { value: 'Up to 50%', label: 'Max Discount' },
-                ].map(stat => (
-                  <div key={stat.label} className="text-center">
-                    <div className="text-2xl font-black text-amber-400">{stat.value}</div>
-                    <div className="text-slate-500 text-xs font-medium">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1">
+        <PageHero
+          eyebrow="Exclusive SaaS Deals"
+          title="Save on the tools your team uses"
+          subtitle="Exclusive discounts, lifetime deals, and extended trials negotiated by LaudStack for our community."
+          accent="rose"
+          badge="Live"
+          stats={[
+            { value: String(DEALS.length),         label: 'Active Deals' },
+            { value: String(lifetimeDeals.length),  label: 'Lifetime Deals' },
+            { value: 'Up to 50%',                   label: 'Max Discount' },
+            { value: '12k+',                        label: 'Members Saved' },
+          ]}
+        />
 
         <div className="max-w-[1300px] mx-auto px-4 py-8">
 

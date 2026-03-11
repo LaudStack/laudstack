@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS } from '@/lib/mockData';
 import { Star, Award, ChevronRight, MessageSquare, ThumbsUp, Shield, Crown } from 'lucide-react';
 
@@ -102,42 +103,18 @@ export default function TopRated() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200 pt-20">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-xs font-bold text-amber-400 uppercase tracking-widest">
-              <Award className="h-3 w-3" /> Top Rated
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3">
-            Highest Community Scores
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl">
-            Tools ranked by verified community ratings — weighted by review count, recency, and reviewer credibility.
-          </p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
-            <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-amber-400">{sortedTools.length}</div>
-              <div className="text-xs text-slate-500 mt-0.5 font-medium">Rated Tools</div>
-            </div>
-            <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-green-500">{top3[0]?.average_rating.toFixed(1) || '—'}</div>
-              <div className="text-xs text-slate-500 mt-0.5 font-medium">Top Score</div>
-            </div>
-            <div className="bg-gray-100/60 border border-gray-300 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-slate-900">
-                {sortedTools.length
-                  ? (sortedTools.reduce((s, t) => s + t.average_rating, 0) / sortedTools.length).toFixed(1)
-                  : '—'}
-              </div>
-              <div className="text-xs text-slate-500 mt-0.5 font-medium">Avg Rating</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="Top Rated"
+        title="Highest Community Scores"
+        subtitle="Tools ranked by verified community ratings — weighted by review count, recency, and reviewer credibility."
+        accent="amber"
+        stats={[
+          { value: String(sortedTools.length), label: 'Rated Tools' },
+          { value: top3[0]?.average_rating.toFixed(1) || '—', label: 'Top Score' },
+          { value: sortedTools.length ? (sortedTools.reduce((s, t) => s + t.average_rating, 0) / sortedTools.length).toFixed(1) : '—', label: 'Avg Rating' },
+          { value: String(MOCK_TOOLS.filter(t => t.review_count >= 10).length), label: '10+ Reviews' },
+        ]}
+      />
 
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}

@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Templates', icon: <Layers className="w-4 h-4" /> },
@@ -206,40 +207,19 @@ export default function Templates() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
       <Navbar />
-      <div className="mt-[72px] flex-1">
-
-        {/* Hero */}
-        <div className="bg-gray-50 text-slate-900 border-b border-gray-200">
-          <div className="max-w-[1300px] mx-auto px-4 py-14">
-            <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
-              <Package className="w-4 h-4" />
-              Template Marketplace
-            </div>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight">
-                  Ship faster with<br />
-                  <span className="text-amber-400">premium templates</span>
-                </h1>
-                <p className="text-slate-500 text-lg max-w-xl leading-relaxed">
-                  Production-ready templates for SaaS, dashboards, landing pages, and more. Built by the community, vetted by LaudStack.
-                </p>
-              </div>
-              <div className="flex gap-6 flex-shrink-0">
-                {[
-                  { value: `${TEMPLATES.length}+`, label: 'Templates' },
-                  { value: `${TEMPLATES.filter(t => t.price === 0).length}`, label: 'Free' },
-                  { value: '4.7★', label: 'Avg Rating' },
-                ].map(stat => (
-                  <div key={stat.label} className="text-center">
-                    <div className="text-2xl font-black text-amber-400">{stat.value}</div>
-                    <div className="text-slate-500 text-xs font-medium">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1">
+        <PageHero
+          eyebrow="Template Marketplace"
+          title="Ship faster with premium templates"
+          subtitle="Production-ready templates for SaaS, dashboards, landing pages, and more. Built by the community, vetted by LaudStack."
+          accent="blue"
+          stats={[
+            { value: `${TEMPLATES.length}+`,                              label: 'Templates' },
+            { value: String(TEMPLATES.filter(t => t.price === 0).length), label: 'Free' },
+            { value: '4.7★',                                              label: 'Avg Rating' },
+            { value: '2.4k+',                                              label: 'Downloads' },
+          ]}
+        />
 
         <div className="max-w-[1300px] mx-auto px-4 py-8">
 
