@@ -163,7 +163,8 @@ export default function ToolDetail() {
   const scrollToSection = (id: string) => {
     const el = document.getElementById(`section-${id}`);
     if (!el) return;
-    const offset = 80; // sticky tab bar height
+    // 72px Navbar (fixed) + 48px sticky tab bar + 16px breathing room
+    const offset = 144;
     const top = el.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: 'smooth' });
   };
@@ -228,7 +229,7 @@ export default function ToolDetail() {
   const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC', paddingTop: '72px' }}>
       <Navbar />
 
       {/* ══ TOOL PRODUCT HEADER ═════════════════════════════════════════════ */}
@@ -478,7 +479,8 @@ export default function ToolDetail() {
       </header>
 
       {/* ══ STICKY SECTION TAB BAR ══════════════════════════════════════════ */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 40, background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', boxShadow: '0 1px 6px rgba(15,23,42,0.06)' }}>
+      {/* Navbar is fixed at 72px height; tab bar sticks just below it */}
+      <div style={{ position: 'sticky', top: '72px', zIndex: 39, background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', boxShadow: '0 1px 6px rgba(15,23,42,0.06)' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <nav style={{ display: 'flex', alignItems: 'center', gap: '0', overflowX: 'auto', scrollbarWidth: 'none' }}>
             {([
