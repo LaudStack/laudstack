@@ -185,7 +185,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center shrink-0 h-8">
               {/* Always use light-background logo since hero is now light */}
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/logo_dark_transparent_5d3238b6.png"
+                src="https://private-us-east-1.manuscdn.com/user_upload_by_module/session_file/310519663413324407/AhIzdNYuJNLEabSR.png?Expires=1804743015&Signature=l~BTleEMWOa~2ekr8h1w~2CIxW3bDcGYKP7pMQsDMcSrWAzi01G8fMTBzRfWV~k36cHmR8-6h4vlHPLWaSVwDaNtoBsnPJdbDGl-sy1DzF5zPlNHneqBCP2Kaq25idIACvA9Ze6jZ8E8mFsyrx87Mw5S-CsA4ebvJcAOlHCh11s8uw8jHZK-nzdQaeGAeZw5-AwYes6Lh2xHylfdmurWy3Ua6B3VOybp3AYkvcfnO1cinGV-F-U0Fjpk9~WDgvMp414~9e4LqXovU2ro5Dbz4V5yhQGbohEsFqbfK6MwCtducx2C3hnKlmf7ZFd3K7v1QR5dmojOcEeOTq4rapqgIA__&Key-Pair-Id=K2HSFNDJXOU9YS"
                 alt="LaudStack"
                 className="h-8 w-auto"
                 style={{ filter: 'brightness(0) invert(1)' }}
@@ -423,13 +423,25 @@ export default function Navbar() {
               </Button>
             </div>
 
-            {/* ── Mobile Toggle ── */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden ml-auto p-2.5 rounded-xl transition-colors text-white/80 hover:bg-white/10"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            {/* ── Mobile Search + Toggle ── */}
+            <div className="lg:hidden ml-auto flex items-center gap-2">
+              {/* Mobile search pill — compact, expands to fill space */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all border text-white/60 hover:text-white bg-white/8 hover:bg-white/12 border-white/15"
+                style={{ minWidth: '140px' }}
+              >
+                <Search className="h-4 w-4 shrink-0" />
+                <span className="flex-1 text-left text-white/50">Search...</span>
+              </button>
+              {/* Hamburger */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="p-2.5 rounded-xl transition-colors text-white/80 hover:bg-white/10"
+              >
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
         </div>
 

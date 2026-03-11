@@ -234,11 +234,11 @@ export default function Home() {
           {/* Headline */}
           <motion.h1
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
-            style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(38px, 5.5vw, 64px)', fontWeight: 900, lineHeight: 1.04, letterSpacing: '-0.03em', color: '#171717', margin: 0 }}
+            style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(42px, 5.8vw, 68px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', color: '#171717', margin: 0 }}
           >
-            The Trusted Source for{' '}
-            <span style={{ background: '#F59E0B', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              AI & SaaS Tools.
+            The Trusted Source for<br />
+            <span style={{ color: '#F59E0B' }}>
+              AI &amp; SaaS Tools.
             </span>
           </motion.h1>
 
