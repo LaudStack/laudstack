@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { MOCK_REVIEWS, MOCK_TOOLS } from '@/lib/mockData';
 import type { Review } from '@/lib/types';
 
@@ -252,40 +253,39 @@ export default function ReviewsPage() {
     <div className="min-h-screen bg-slate-50">
       <Navbar />
 
-      {/* Hero */}
-      <section
-        className="pt-[72px] bg-white border-b border-gray-200"
+      <PageHero
+        eyebrow="Community Reviews"
+        title="Real reviews from real users"
+        subtitle="Every review on LaudStack is from a verified user. No fake ratings, no paid placements — just honest opinions from the community."
+        accent="amber"
+        layout="split"
+        size="md"
       >
-        <div className="max-w-[1300px] mx-auto px-6 lg:px-10 py-16">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold mb-5">
-              <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
-              Community Reviews
-            </div>
-            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 mb-3 leading-tight">
-              Real reviews from real users
-            </h1>
-            <p className="text-slate-500 text-base leading-relaxed mb-8">
-              Every review on LaudStack is from a verified user. No fake ratings, no paid placements — just honest opinions from the community.
-            </p>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { label: 'Total Reviews', value: totalReviews.toLocaleString() },
-                { label: 'Avg Rating', value: `${avgRating} / 5` },
-                { label: 'Verified Reviews', value: `${Math.round((verifiedCount / totalReviews) * 100)}%` },
-                { label: '5-Star Reviews', value: `${Math.round((fiveStarCount / totalReviews) * 100)}%` },
-              ].map(stat => (
-                <div key={stat.label} className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                  <div className="text-xl font-black text-slate-900">{stat.value}</div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">{stat.label}</div>
+        {/* Rating distribution snapshot */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '200px', flexShrink: 0 }}>
+          {[5, 4, 3, 2, 1].map(star => {
+            const count = enrichedReviews.filter(r => r.rating === star).length;
+            const pct = Math.round((count / totalReviews) * 100);
+            return (
+              <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', width: '14px', textAlign: 'right' }}>{star}</span>
+                <span style={{ fontSize: '11px', color: '#F59E0B' }}>★</span>
+                <div style={{ flex: 1, height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pct}%`, background: star >= 4 ? '#F59E0B' : star === 3 ? '#D97706' : '#EF4444', borderRadius: '3px', transition: 'width 0.4s' }} />
                 </div>
-              ))}
+                <span style={{ fontSize: '11px', color: '#9CA3AF', width: '28px' }}>{pct}%</span>
+              </div>
+            );
+          })}
+          <div style={{ marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 900, color: '#D97706' }}>{avgRating}</span>
+            <div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#111827' }}>avg rating</div>
+              <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{totalReviews.toLocaleString()} reviews · {Math.round((verifiedCount / totalReviews) * 100)}% verified</div>
             </div>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       {/* Main content */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-10 py-10">

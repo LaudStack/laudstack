@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { Calendar, Clock, Tag, ArrowRight, User, BookOpen, TrendingUp, Lightbulb, Zap, Star } from 'lucide-react';
 
 const ARTICLES = [
@@ -128,23 +129,44 @@ export default function Blog() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Hero */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-gray-200 pt-20">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-xs font-bold text-amber-400 uppercase tracking-widest">
-              <BookOpen className="h-3 w-3" /> LaudStack Blog
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3">
-            Insights for the Modern<br />
-            <span className="text-amber-400">Software Buyer</span>
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl">
-            In-depth reviews, comparisons, and guides to help you make smarter decisions about AI and SaaS tools.
-          </p>
+      <PageHero
+        eyebrow="LaudStack Blog"
+        title="Insights for the Modern Software Buyer"
+        subtitle="In-depth reviews, comparisons, and guides to help you make smarter decisions about AI and SaaS tools."
+        accent="amber"
+        layout="split"
+        size="md"
+      >
+        {/* Article category quick-links */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0, minWidth: '180px' }}>
+          {CATEGORIES.filter(c => c !== 'All').map(cat => {
+            const Icon = CATEGORY_ICONS[cat] || BookOpen;
+            const count = ARTICLES.filter(a => a.category === cat).length;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '7px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                  cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
+                  background: activeCategory === cat ? '#FFFBEB' : 'transparent',
+                  color: activeCategory === cat ? '#B45309' : '#374151',
+                  border: activeCategory === cat ? '1px solid #FDE68A' : '1px solid transparent',
+                }}
+                onMouseEnter={e => { if (activeCategory !== cat) { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.borderColor = '#E5E7EB'; } }}
+                onMouseLeave={e => { if (activeCategory !== cat) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; } }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                  <Icon style={{ width: '13px', height: '13px', opacity: 0.7 }} />
+                  {cat}
+                </span>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', background: '#F3F4F6', padding: '1px 6px', borderRadius: '10px' }}>{count}</span>
+              </button>
+            );
+          })}
         </div>
-      </div>
+      </PageHero>
 
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
