@@ -122,6 +122,65 @@ function getToolReviews(toolId: string): Review[] {
   ];
 }
 
+// ─── Share helpers ──────────────────────────────────────────────────────────
+function ShareButton({ label, icon, hoverColor, hoverBg, onClick }: {
+  label: string; icon: string; hoverColor: string; hoverBg: string; onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title={`Share on ${label}`}
+      style={{
+        flex: 1, padding: '8px 4px', borderRadius: '8px',
+        border: `1px solid ${hovered ? hoverColor : '#E2E8F0'}`,
+        background: hovered ? hoverBg : '#F8FAFC',
+        fontSize: '11px', fontWeight: 700,
+        color: hovered ? hoverColor : '#475569',
+        cursor: 'pointer', transition: 'all 0.15s',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+      }}
+    >
+      <span style={{ fontSize: '14px', lineHeight: 1 }}>{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function CopyLinkButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={handleCopy}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title="Copy link"
+      style={{
+        flex: 1, padding: '8px 4px', borderRadius: '8px',
+        border: `1px solid ${copied ? '#BBF7D0' : hovered ? '#F59E0B' : '#E2E8F0'}`,
+        background: copied ? '#F0FDF4' : hovered ? '#FFFBEB' : '#F8FAFC',
+        fontSize: '11px', fontWeight: 700,
+        color: copied ? '#15803D' : hovered ? '#B45309' : '#475569',
+        cursor: 'pointer', transition: 'all 0.15s',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+      }}
+    >
+      <span style={{ fontSize: '14px', lineHeight: 1 }}>{copied ? '✓' : '🔗'}</span>
+      <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+    </button>
+  );
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function ToolDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -932,17 +991,31 @@ export default function ToolDetail() {
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '20px 24px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#171717', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Share</h3>
             <div style={{ display: 'flex', gap: '8px' }}>
-              {['Twitter / X', 'LinkedIn', 'Copy Link'].map(platform => (
-                <button
-                  key={platform}
-                  onClick={() => toast.success(`${platform} share coming soon!`)}
-                  style={{ flex: 1, padding: '8px 4px', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#475569'; }}
-                >
-                  {platform}
-                </button>
-              ))}
+              {/* Twitter / X */}
+              <ShareButton
+                label="Twitter / X"
+                icon="𝕏"
+                hoverColor="#000"
+                hoverBg="#F9FAFB"
+                onClick={() => {
+                  const text = encodeURIComponent(`Check out ${tool.name} on @LaudStack — ${tool.tagline}`);
+                  const url = encodeURIComponent(window.location.href);
+                  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=600,height=400');
+                }}
+              />
+              {/* LinkedIn */}
+              <ShareButton
+                label="LinkedIn"
+                icon="in"
+                hoverColor="#0A66C2"
+                hoverBg="#EFF6FF"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.href);
+                  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'noopener,noreferrer,width=600,height=500');
+                }}
+              />
+              {/* Copy Link */}
+              <CopyLinkButton url={window.location.href} />
             </div>
           </motion.div>
         </div>

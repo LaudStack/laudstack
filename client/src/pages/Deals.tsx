@@ -5,12 +5,13 @@
  *           claim progress bars, copy-to-clipboard coupon codes, deal spotlight
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import {
   Tag, Clock, Zap, Star, ExternalLink, Crown, Flame,
   CheckCircle, Gift, Shield, TrendingUp, Users, Timer,
-  Copy, Check, SlidersHorizontal, X
+  Copy, Check, SlidersHorizontal, X, ArrowUpRight, Percent,
+  Building2, Mail, Globe, FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
@@ -407,9 +408,198 @@ function Countdown({ expiresAt, compact = false }: { expiresAt: string; compact?
   );
 }
 
+// ── Submit a Deal Modal ───────────────────────────────────────────────────────
+function SubmitDealModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({
+    toolName: '', toolUrl: '', email: '', discount: '', code: '',
+    expiresAt: '', description: '', category: 'AI Productivity',
+  });
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Deal submitted! Our team will review it within 48 hours.');
+    onClose();
+  };
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={e => { if (e.target === overlayRef.current) onClose(); }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+      }}
+    >
+      <div style={{
+        background: '#fff', borderRadius: 20, width: '100%', maxWidth: 520,
+        boxShadow: '0 24px 64px rgba(15,23,42,0.18)',
+        overflow: 'hidden',
+      }}>
+        {/* Header */}
+        <div style={{ padding: '22px 28px 18px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Gift style={{ width: 14, height: 14, color: '#D97706' }} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Submit a Deal</span>
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Share a deal with the community</h2>
+          </div>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <X style={{ width: 15, height: 15, color: '#64748B' }} />
+          </button>
+        </div>
+
+        {/* Step indicator */}
+        <div style={{ padding: '12px 28px', borderBottom: '1px solid #F8FAFC', display: 'flex', gap: 6 }}>
+          {[1, 2].map(s => (
+            <div key={s} style={{ flex: 1, height: 3, borderRadius: 99, background: s <= step ? '#F59E0B' : '#E2E8F0', transition: 'background 0.2s' }} />
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {step === 1 ? (
+              <>
+                <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Tell us about the tool and the deal you want to share.</p>
+                {/* Tool name */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Tool Name *</label>
+                  <div style={{ position: 'relative' }}>
+                    <Building2 style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                    <input
+                      required value={form.toolName} onChange={e => update('toolName', e.target.value)}
+                      placeholder="e.g. Notion, Linear, Figma"
+                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+                {/* Tool URL */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Tool Website *</label>
+                  <div style={{ position: 'relative' }}>
+                    <Globe style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                    <input
+                      required type="url" value={form.toolUrl} onChange={e => update('toolUrl', e.target.value)}
+                      placeholder="https://yourtool.com"
+                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+                {/* Category */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Category *</label>
+                  <select
+                    value={form.category} onChange={e => update('category', e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', background: '#fff', boxSizing: 'border-box' }}
+                  >
+                    {['AI Productivity','AI Writing','AI Image','AI Code','Marketing','Project Management','CRM','Design','Developer Tools','Communication','Analytics','Sales'].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Now tell us the deal details and how to reach you.</p>
+                {/* Discount */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Discount *</label>
+                    <div style={{ position: 'relative' }}>
+                      <Percent style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                      <input
+                        required value={form.discount} onChange={e => update('discount', e.target.value)}
+                        placeholder="e.g. 50% OFF"
+                        style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Coupon Code</label>
+                    <div style={{ position: 'relative' }}>
+                      <Tag style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                      <input
+                        value={form.code} onChange={e => update('code', e.target.value)}
+                        placeholder="LAUDSTACK20"
+                        style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* Expiry */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Expiry Date *</label>
+                  <input
+                    required type="date" value={form.expiresAt} onChange={e => update('expiresAt', e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {/* Description */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Deal Description</label>
+                  <textarea
+                    value={form.description} onChange={e => update('description', e.target.value)}
+                    rows={3} placeholder="What's included in this deal? Any special conditions?"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {/* Email */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Your Email *</label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                    <input
+                      required type="email" value={form.email} onChange={e => update('email', e.target.value)}
+                      placeholder="you@company.com"
+                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div style={{ padding: '16px 28px', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            {step === 2 ? (
+              <button type="button" onClick={() => setStep(1)} style={{ fontSize: 13, fontWeight: 700, color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                ← Back
+              </button>
+            ) : <div />}
+            {step === 1 ? (
+              <button
+                type="button"
+                onClick={() => { if (!form.toolName || !form.toolUrl) { toast.error('Please fill in all required fields'); return; } setStep(2); }}
+                style={{ padding: '10px 24px', borderRadius: 10, background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: 13, border: 'none', cursor: 'pointer' }}
+              >
+                Continue →
+              </button>
+            ) : (
+              <button
+                type="submit"
+                style={{ padding: '10px 24px', borderRadius: 10, background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: 13, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <Gift style={{ width: 13, height: 13 }} /> Submit Deal
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ── Deal card ─────────────────────────────────────────────────────────────────
 function DealCard({ deal, featured = false }: { deal: Deal; featured?: boolean }) {
   const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const { total } = useCountdown(deal.expiresAt);
   const claimedPct = Math.min(100, Math.round((deal.claimed / deal.maxClaims) * 100));
   const isUrgent   = total > 0 && total < 3 * 24 * 60 * 60 * 1000;
@@ -423,130 +613,165 @@ function DealCard({ deal, featured = false }: { deal: Deal; featured?: boolean }
     });
   };
 
-  const progressColor =
-    claimedPct >= 90 ? 'bg-rose-400' :
-    claimedPct >= 60 ? 'bg-amber-400' :
-    'bg-emerald-400';
+  const claimedColor = claimedPct >= 90 ? '#F87171' : claimedPct >= 60 ? '#FBBF24' : '#34D399';
+
+  // Discount badge colours
+  const discountStyle: React.CSSProperties =
+    deal.type === 'lifetime'   ? { background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE' } :
+    deal.type === 'free-trial' ? { background: '#F0F9FF', color: '#0369A1', border: '1px solid #BAE6FD' } :
+    deal.type === 'exclusive'  ? { background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A' } :
+                                 { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' };
 
   return (
-    <div className={`bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-200 ${
-      featured
-        ? 'border-2 border-amber-400 shadow-lg shadow-amber-500/10'
-        : isUrgent
-        ? 'border border-rose-200 hover:border-rose-300 hover:shadow-md'
-        : 'border border-gray-200 hover:border-amber-400/50 hover:shadow-md'
-    }`}>
-
-      {/* Urgency banner */}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: '#fff',
+        borderRadius: 18,
+        border: '1.5px solid',
+        borderColor: featured ? '#FDE68A' : isUrgent ? '#FECACA' : hovered ? '#CBD5E1' : '#E8EDF2',
+        boxShadow: featured
+          ? '0 4px 20px rgba(245,158,11,0.12)'
+          : hovered
+          ? '0 10px 32px rgba(15,23,42,0.10)'
+          : '0 1px 4px rgba(15,23,42,0.04)',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Top banner */}
       {isUrgent && !isExpired && (
-        <div className="bg-rose-50 border-b border-rose-100 px-4 py-2 flex items-center gap-2">
-          <Flame className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-          <span className="text-rose-600 text-xs font-bold">Ending soon — don't miss this deal!</span>
+        <div style={{ padding: '7px 18px', background: '#FFF1F2', borderBottom: '1px solid #FECDD3', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Flame style={{ width: 13, height: 13, color: '#F43F5E' }} />
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#BE123C' }}>Ending soon — grab it before it's gone!</span>
         </div>
       )}
       {featured && !isUrgent && (
-        <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2">
-          <Star className="w-3.5 h-3.5 text-amber-500 shrink-0 fill-amber-500" />
-          <span className="text-amber-700 text-xs font-bold">Featured Deal — Exclusive to LaudStack</span>
+        <div style={{ padding: '7px 18px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Star style={{ width: 12, height: 12, color: '#D97706', fill: '#D97706' }} />
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#92400E' }}>Featured Deal · Exclusive to LaudStack</span>
         </div>
       )}
 
-      <div className="p-5 flex-1 flex flex-col gap-4">
+      <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-        {/* Header row */}
-        <div className="flex items-start gap-3">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl shrink-0 border border-black/10"
-            style={{ background: deal.logoColor, color: deal.logoTextColor || '#fff' }}
-          >
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          {/* Logo */}
+          <div style={{
+            width: 52, height: 52, borderRadius: 13, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 900, fontSize: 20, border: '1px solid rgba(0,0,0,0.08)',
+            boxShadow: '0 1px 4px rgba(15,23,42,0.08)',
+            background: deal.logoColor, color: deal.logoTextColor || '#fff',
+          }}>
             {deal.logo}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-slate-900 font-bold text-sm">{deal.name}</h3>
+
+          {/* Info */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginBottom: 3 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.015em' }}>{deal.name}</h3>
               {deal.badge && (
-                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${BADGE_STYLES[deal.badgeColor!] || BADGE_STYLES.amber}`}>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 100, ...discountStyle }}>
                   {deal.badge}
                 </span>
               )}
             </div>
-            <p className="text-slate-500 text-xs mt-0.5 leading-snug line-clamp-2">{deal.tagline}</p>
-            <span className="inline-block mt-1 text-[10px] font-bold text-slate-400 bg-gray-100 px-2 py-0.5 rounded-full">
-              {deal.category}
-            </span>
+            <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 6px', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {deal.tagline}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 6, background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0' }}>
+                {deal.category}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Star style={{ width: 11, height: 11, fill: '#FBBF24', color: '#FBBF24' }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{deal.rating}</span>
+                <span style={{ fontSize: 11, color: '#94A3B8' }}>({deal.reviews.toLocaleString()})</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Pricing block */}
-        <div className="bg-gray-50 rounded-xl p-3 flex items-center justify-between gap-3">
-          <div>
-            <div className="text-slate-400 text-xs line-through leading-none mb-0.5">{deal.originalPrice}</div>
-            <div className="text-slate-900 font-black text-xl leading-tight">{deal.dealPrice}</div>
-          </div>
-          <div className={`px-3 py-1.5 rounded-lg font-black text-sm shrink-0 ${
-            deal.type === 'lifetime'   ? 'bg-purple-100 text-purple-700' :
-            deal.type === 'free-trial' ? 'bg-sky-100 text-sky-700' :
-            deal.type === 'exclusive'  ? 'bg-amber-100 text-amber-700' :
-            'bg-emerald-100 text-emerald-700'
-          }`}>
+          {/* Discount badge */}
+          <div style={{
+            ...discountStyle,
+            padding: '6px 12px', borderRadius: 10, fontWeight: 900, fontSize: 13,
+            flexShrink: 0, textAlign: 'center', lineHeight: 1.2,
+          }}>
             {deal.discount}
           </div>
         </div>
 
-        {/* Countdown */}
-        <div className="flex items-center justify-between">
-          <Countdown expiresAt={deal.expiresAt} />
-          <div className="flex items-center gap-1">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            <span className="text-slate-700 font-semibold text-xs">{deal.rating}</span>
-            <span className="text-slate-400 text-xs">({deal.reviews.toLocaleString()})</span>
+        {/* ── Pricing row ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #F1F5F9' }}>
+          <div>
+            <div style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through', marginBottom: 2 }}>{deal.originalPrice}</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1 }}>{deal.dealPrice}</div>
           </div>
+          <Countdown expiresAt={deal.expiresAt} />
         </div>
 
-        {/* Features */}
-        <div className="space-y-1.5 flex-1">
+        {/* ── Features ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
           {deal.features.map(f => (
-            <div key={f} className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span className="text-slate-600 text-xs">{f}</span>
+            <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <CheckCircle style={{ width: 13, height: 13, color: '#22C55E', flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 12, color: '#475569', lineHeight: 1.4 }}>{f}</span>
             </div>
           ))}
         </div>
 
-        {/* Claim progress */}
+        {/* ── Claim progress ── */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-slate-500 text-xs">{deal.claimed.toLocaleString()} claimed</span>
-            <span className={`text-xs font-bold ${claimedPct >= 90 ? 'text-rose-600' : 'text-slate-500'}`}>
-              {claimedPct}% of {deal.maxClaims.toLocaleString()}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 11.5, color: '#64748B', fontWeight: 500 }}>
+              <span style={{ fontWeight: 700, color: '#0F172A' }}>{deal.claimed.toLocaleString()}</span> of {deal.maxClaims.toLocaleString()} claimed
             </span>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: claimedPct >= 90 ? '#EF4444' : '#64748B' }}>{claimedPct}%</span>
           </div>
-          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all ${progressColor}`} style={{ width: `${claimedPct}%` }} />
+          <div style={{ height: 5, background: '#F1F5F9', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{ height: '100%', borderRadius: 99, background: claimedColor, width: `${claimedPct}%`, transition: 'width 0.4s' }} />
           </div>
         </div>
 
-        {/* CTA row */}
-        <div className="flex gap-2 pt-1">
+        {/* ── CTA row ── */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {/* Copy code */}
           <button
             onClick={handleCopy}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 border ${
-              copied
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : 'bg-gray-50 hover:bg-gray-100 text-slate-700 border-gray-200 hover:border-gray-300'
-            }`}
+            style={{
+              flex: 1, padding: '10px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              border: '1.5px solid', cursor: 'pointer', transition: 'all 0.15s',
+              background: copied ? '#F0FDF4' : '#F8FAFC',
+              borderColor: copied ? '#BBF7D0' : '#E2E8F0',
+              color: copied ? '#15803D' : '#374151',
+            }}
           >
             {copied
-              ? <><Check className="w-3.5 h-3.5" /> Copied!</>
-              : <><Copy className="w-3.5 h-3.5" /> {deal.code}</>
+              ? <><Check style={{ width: 13, height: 13 }} /> Copied!</>
+              : <><Copy style={{ width: 13, height: 13 }} /> {deal.code || 'No code needed'}</>
             }
           </button>
+          {/* Get deal */}
           <button
-            onClick={() => toast.info(`Opening ${deal.name} deal page…`)}
-            className="px-3 py-2.5 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50 text-slate-500 hover:text-amber-700 transition-all"
-            title="Get deal"
+            onClick={() => window.open(deal.url || '#', '_blank', 'noopener,noreferrer')}
+            style={{
+              padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 13,
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: '#F59E0B', color: '#0A0A0A', border: 'none', cursor: 'pointer',
+              transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FBBF24'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F59E0B'; }}
           >
-            <ExternalLink className="w-4 h-4" />
+            Get Deal <ArrowUpRight style={{ width: 13, height: 13 }} />
           </button>
         </div>
       </div>
@@ -617,6 +842,8 @@ export default function Deals() {
 
   const lifetimeDeals = DEALS.filter(d => d.type === 'lifetime');
   const hasFilters = activeType !== 'all' || activeCategory !== 'All Categories';
+
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const clearFilters = () => {
     setActiveType('all');
@@ -787,7 +1014,7 @@ export default function Deals() {
             <p className="text-slate-500 text-sm">Submit a deal for your tool and reach 12,000+ potential customers.</p>
           </div>
           <button
-            onClick={() => toast.info('Deal submission form coming soon!')}
+            onClick={() => setShowSubmitModal(true)}
             className="bg-amber-500 hover:bg-amber-400 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors flex items-center gap-2 shrink-0"
           >
             <Gift className="w-4 h-4" />
@@ -797,6 +1024,7 @@ export default function Deals() {
       </div>
 
       <Footer />
+      {showSubmitModal && <SubmitDealModal onClose={() => setShowSubmitModal(false)} />}
     </div>
   );
 }
