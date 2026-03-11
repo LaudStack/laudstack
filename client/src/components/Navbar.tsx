@@ -148,15 +148,16 @@ export default function Navbar() {
 
   const go = () => toast.info('Feature coming soon!');
 
-  // Hero is now light (G2-style), so nav text is always dark
-  const navText   = 'text-slate-800 hover:text-slate-950';
-  const navHoverBg = 'hover:bg-slate-100';
+  // Dark header — white text on #171717 background
+  const navText    = 'text-white/80 hover:text-white';
+  const navHoverBg = 'hover:bg-white/10';
 
   return (
     <>
       {/* ── HEADER ──────────────────────────────────────── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-[0_1px_3px_0_rgba(0,0,0,0.06)]"
+        className="fixed top-0 left-0 right-0 z-50 border-b border-white/10"
+        style={{ background: '#0F1629' }}
       >
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-center h-[72px] gap-6">
@@ -168,7 +169,7 @@ export default function Navbar() {
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/logo_dark_transparent_5d3238b6.png"
                 alt="LaudStack"
                 className="h-8 w-auto"
-                style={{ filter: 'brightness(0) saturate(100%)' }}
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </Link>
 
@@ -232,11 +233,11 @@ export default function Navbar() {
               {/* Search pill */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border-slate-200"
+                className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-white/60 hover:text-white bg-white/8 hover:bg-white/12 border-white/15"
               >
                 <Search className="h-4 w-4" />
                 <span className="hidden xl:inline">Search tools...</span>
-                <kbd className="hidden xl:inline text-[10px] px-1.5 py-0.5 rounded font-mono bg-slate-200 text-slate-400">⌘K</kbd>
+                <kbd className="hidden xl:inline text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/15 text-white/50">⌘K</kbd>
               </button>
 
               {/* Auth — Sign In or Avatar */}
@@ -335,7 +336,7 @@ export default function Navbar() {
               ) : (
                 <button
                   onClick={() => navigate('/signin')}
-                  className="text-sm font-semibold px-4 py-2 rounded-xl transition-all text-slate-800 hover:text-slate-950 hover:bg-slate-100"
+                  className="text-sm font-semibold px-4 py-2 rounded-xl transition-all text-white/80 hover:text-white hover:bg-white/10"
                 >
                   Sign In
                 </button>
@@ -355,7 +356,7 @@ export default function Navbar() {
             {/* ── Mobile Toggle ── */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden ml-auto p-2.5 rounded-xl transition-colors text-slate-700 hover:bg-slate-100"
+              className="lg:hidden ml-auto p-2.5 rounded-xl transition-colors text-white/80 hover:bg-white/10"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -369,19 +370,20 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-t border-slate-100 overflow-hidden"
+              className="lg:hidden border-t border-white/10 overflow-hidden"
+              style={{ background: '#0F1629' }}
             >
               <div className="px-6 py-5 space-y-1">
                 {NAV_ITEMS.map(item => (
                   <button
                     key={item.label}
                     onClick={() => (item as any).href ? navigate((item as any).href) : go()}
-                    className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                   >
                     {item.label}
                   </button>
                 ))}
-                <div className="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
+                  <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
                   {isAuthenticated && user ? (
                     <>
                       {/* Mobile user info */}
@@ -393,25 +395,25 @@ export default function Navbar() {
                           {getInitials(user.name)}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                          <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                          <p className="text-sm font-bold text-white truncate">{user.name}</p>
+                          <p className="text-xs text-white/50 truncate">{user.email}</p>
                         </div>
                       </div>
-                      <button onClick={() => { navigate('/reviews'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl flex items-center gap-2">
-                        <PenSquare className="h-4 w-4 text-slate-400" /> My Reviews
+                      <button onClick={() => { navigate('/reviews'); setMobileOpen(false); }} className="text-sm font-medium text-white/80 hover:text-white px-3 py-2.5 text-left hover:bg-white/10 rounded-xl flex items-center gap-2">
+                        <PenSquare className="h-4 w-4 text-white/40" /> My Reviews
                       </button>
-                      <button onClick={() => { navigate('/saved'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl flex items-center gap-2">
-                        <Bookmark className="h-4 w-4 text-amber-500" /> Saved Tools
+                      <button onClick={() => { navigate('/saved'); setMobileOpen(false); }} className="text-sm font-medium text-white/80 hover:text-white px-3 py-2.5 text-left hover:bg-white/10 rounded-xl flex items-center gap-2">
+                        <Bookmark className="h-4 w-4 text-amber-400" /> Saved Tools
                       </button>
-                      <button onClick={() => { navigate('/launchpad'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-slate-400" /> My Submissions
+                      <button onClick={() => { navigate('/launchpad'); setMobileOpen(false); }} className="text-sm font-medium text-white/80 hover:text-white px-3 py-2.5 text-left hover:bg-white/10 rounded-xl flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-white/40" /> My Submissions
                       </button>
-                      <button onClick={() => { handleSignOut(); setMobileOpen(false); }} className="text-sm font-medium text-red-600 px-3 py-2.5 text-left hover:bg-red-50 rounded-xl flex items-center gap-2">
+                      <button onClick={() => { handleSignOut(); setMobileOpen(false); }} className="text-sm font-medium text-red-400 hover:text-red-300 px-3 py-2.5 text-left hover:bg-red-500/10 rounded-xl flex items-center gap-2">
                         <LogOut className="h-4 w-4" /> Sign Out
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => { navigate('/signin'); setMobileOpen(false); }} className="text-sm font-medium text-slate-700 px-3 py-2.5 text-left hover:bg-slate-50 rounded-xl">
+                    <button onClick={() => { navigate('/signin'); setMobileOpen(false); }} className="text-sm font-medium text-white/80 hover:text-white px-3 py-2.5 text-left hover:bg-white/10 rounded-xl">
                       Sign In
                     </button>
                   )}
