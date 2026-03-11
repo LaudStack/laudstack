@@ -63,8 +63,8 @@ const NAV_ITEMS = [
       { icon: '🔧', label: 'Developer Tools',     desc: 'APIs, infra & DevOps',        href: '/tools?category=Developer+Tools' },
     ],
   },
-  { label: 'Categories', href: '/categories' },
-  { label: 'SaaS Deals', href: '/deals' },
+  { label: 'Templates', href: '/templates' },
+  { label: 'Deals', href: '/deals' },
   {
     label: 'Resources',
     megaMenu: [
@@ -250,10 +250,10 @@ export default function Navbar() {
                                 <p className="text-xs text-slate-500 mt-0.5">Explore {(item.megaMenu as any[]).length} categories</p>
                               </div>
                               <button
-                                onClick={() => { setActiveMega(null); navigate('/categories'); }}
+                                onClick={() => { setActiveMega(null); navigate('/tools'); }}
                                 className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 transition-colors"
                               >
-                                All Categories <ArrowRight className="h-3 w-3" />
+                                All Tools <ArrowRight className="h-3 w-3" />
                               </button>
                             </div>
                             {/* Grid */}

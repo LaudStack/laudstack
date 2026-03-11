@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const QUICK_LINKS = [
-  { label: 'Browse All Tools', href: '/categories', icon: Compass },
+  { label: 'Browse All Tools', href: '/tools', icon: Compass },
   { label: 'Launch Leaderboard', href: '/launches', icon: ArrowRight },
   { label: 'Submit Your Tool', href: '/launchpad', icon: ArrowRight },
   { label: 'Contact Us', href: '/contact', icon: ArrowRight },

@@ -11,7 +11,6 @@ import Home from "./pages/Home";
 import ToolDetail from "./pages/ToolDetail";
 import SearchResults from './pages/SearchResults';
 import LaunchPad from './pages/LaunchPad';
-import Categories from './pages/Categories';
 import Reviews from './pages/Reviews';
 import SignIn from './pages/SignIn';
 import Compare from './pages/Compare';
@@ -48,7 +47,7 @@ function Router() {
         <Route path="/tools/:slug" component={ToolDetail} />
         <Route path="/search" component={SearchResults} />
         <Route path="/launchpad" component={LaunchPad} />
-        <Route path="/categories" component={Categories} />
+        <Route path="/categories" component={AllTools} />
         <Route path="/reviews" component={Reviews} />
         <Route path="/signin" component={SignIn} />
         <Route path="/compare" component={Compare} />

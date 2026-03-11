@@ -114,10 +114,10 @@ export default function Saved() {
                 <Search style={{ width: '14px', height: '14px' }} /> Browse All Tools
               </Link>
               <Link
-                href="/categories"
+                href="/tools"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '12px 24px', borderRadius: '12px', background: '#FFFFFF', color: '#374151', fontWeight: 700, fontSize: '14px', textDecoration: 'none', border: '1.5px solid #E2E8F0' }}
               >
-                Explore Categories <ChevronRight style={{ width: '14px', height: '14px' }} />
+                Explore All Tools <ChevronRight style={{ width: '14px', height: '14px' }} />
               </Link>
             </div>
           </motion.div>
