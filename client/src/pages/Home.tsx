@@ -120,6 +120,7 @@ export default function Home() {
   const [selectedPricing, setSelectedPricing] = useState<string>('All');
   const [browseSort, setBrowseSort] = useState<'top_rated' | 'trending' | 'newest' | 'most_reviewed'>('top_rated');
   const [browseVisible, setBrowseVisible] = useState(20);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [bannerVisible, setBannerVisible]        = useState(true);
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -141,7 +142,8 @@ export default function Home() {
     : MOCK_TOOLS.filter(t => t.category === selectedCategory);
 
   const allToolsSorted = (() => {
-    const base = selectedPricing === 'All' ? filteredBase : filteredBase.filter(t => t.pricing_model === selectedPricing);
+    let base = selectedPricing === 'All' ? filteredBase : filteredBase.filter(t => t.pricing_model === selectedPricing);
+    if (featuredOnly) base = base.filter(t => t.is_featured);
     const copy = [...base];
     if (browseSort === 'top_rated')     copy.sort((a, b) => b.average_rating - a.average_rating);
     if (browseSort === 'trending')      copy.sort((a, b) => (b.weekly_rank_change ?? 0) - (a.weekly_rank_change ?? 0));
@@ -948,7 +950,26 @@ export default function Home() {
 
             {/* Divider */}
             <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
-
+            {/* Featured toggle */}
+            <button
+              onClick={() => { setFeaturedOnly(f => !f); setBrowseVisible(20); }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '5px 12px', borderRadius: '7px', cursor: 'pointer',
+                fontSize: '11px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
+                border: featuredOnly ? '1.5px solid #F59E0B' : '1.5px solid #E8ECF0',
+                background: featuredOnly ? '#FFF7ED' : 'transparent',
+                color: featuredOnly ? '#B45309' : '#9CA3AF',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FDE68A'; b.style.color = '#D97706'; b.style.background = '#FFFBEB'; } }}
+              onMouseLeave={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#9CA3AF'; b.style.background = 'transparent'; } }}
+            >
+              <Sparkles style={{ width: '10px', height: '10px' }} />
+              Featured
+            </button>
+            {/* Divider */}
+            <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
             {/* Sort select */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>Sort</span>
@@ -968,9 +989,9 @@ export default function Home() {
             <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#171717' }}>{allToolsSorted.length}</span>
               <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>tools</span>
-              {(selectedPricing !== 'All') && (
+              {(selectedPricing !== 'All' || featuredOnly) && (
                 <button
-                  onClick={() => { setSelectedPricing('All'); setBrowseVisible(20); }}
+                  onClick={() => { setSelectedPricing('All'); setFeaturedOnly(false); setBrowseVisible(20); }}
                   style={{ marginLeft: '4px', fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: 'inherit' }}
                 >Clear</button>
               )}

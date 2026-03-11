@@ -57,6 +57,7 @@ export default function SearchResults() {
   const [inputValue,      setInputValue]      = useState(initialQ);
   const [selectedCat,     setSelectedCat]     = useState('All');
   const [sortBy,          setSortBy]          = useState('relevance');
+  const [featuredOnly,    setFeaturedOnly]    = useState(false);
   const [, navigate]                          = useLocation();
 
   // ── Filter + sort ──────────────────────────────────────────────────────────
@@ -72,8 +73,9 @@ export default function SearchResults() {
         || tool.category.toLowerCase().includes(q);
 
       const matchesCat = selectedCat === 'All' || tool.category === selectedCat;
+      const matchesFeatured = !featuredOnly || tool.is_featured;
 
-      return matchesQuery && matchesCat;
+      return matchesQuery && matchesCat && matchesFeatured;
     });
 
     switch (sortBy) {
@@ -85,7 +87,7 @@ export default function SearchResults() {
     }
 
     return filtered;
-  }, [query, selectedCat, sortBy]);
+  }, [query, selectedCat, sortBy, featuredOnly]);
 
   const handleSearch = () => {
     const trimmed = inputValue.trim();
@@ -171,6 +173,25 @@ export default function SearchResults() {
 
             {/* Spacer */}
             <div style={{ flex: 1 }} />
+
+            {/* Featured toggle */}
+            <button
+              onClick={() => setFeaturedOnly(f => !f)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '5px 12px', borderRadius: '8px', cursor: 'pointer',
+                fontSize: '12px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
+                border: featuredOnly ? '1.5px solid #F59E0B' : '1px solid #E2E8F0',
+                background: featuredOnly ? '#FFF7ED' : '#fff',
+                color: featuredOnly ? '#B45309' : '#475569',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FDE68A'; b.style.color = '#D97706'; b.style.background = '#FFFBEB'; } }}
+              onMouseLeave={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E2E8F0'; b.style.color = '#475569'; b.style.background = '#fff'; } }}
+            >
+              <Sparkles style={{ width: '11px', height: '11px' }} />
+              Featured Only
+            </button>
 
             {/* Sort */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>

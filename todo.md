@@ -46,6 +46,9 @@
 
 ## Pending / Future Features
 
+- [x] Add Featured filter toggle to homepage Browse section
+- [x] Add Featured filter toggle to Search page
+
 - [ ] Discussions / Community forum
 - [ ] Events page
 - [ ] Slack Community integration
