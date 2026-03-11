@@ -213,6 +213,8 @@ export default function Templates() {
           title="Ship faster with premium templates"
           subtitle="Production-ready templates for SaaS, dashboards, landing pages, and more. Built by the community, vetted by LaudStack."
           accent="blue"
+          layout="centered"
+          size="lg"
           stats={[
             { value: `${TEMPLATES.length}+`,                              label: 'Templates' },
             { value: String(TEMPLATES.filter(t => t.price === 0).length), label: 'Free' },

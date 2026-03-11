@@ -108,6 +108,8 @@ export default function TopRated() {
         title="Highest Community Scores"
         subtitle="Tools ranked by verified community ratings — weighted by review count, recency, and reviewer credibility."
         accent="amber"
+        layout="split"
+        size="md"
         stats={[
           { value: String(sortedTools.length), label: 'Rated Tools' },
           { value: top3[0]?.average_rating.toFixed(1) || '—', label: 'Top Score' },

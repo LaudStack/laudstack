@@ -338,6 +338,8 @@ export default function Deals() {
           subtitle="Exclusive discounts, lifetime deals, and extended trials negotiated by LaudStack for our community."
           accent="rose"
           badge="Live"
+          layout="split"
+          size="md"
           stats={[
             { value: String(DEALS.length),         label: 'Active Deals' },
             { value: String(lifetimeDeals.length),  label: 'Lifetime Deals' },

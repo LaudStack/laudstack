@@ -80,6 +80,8 @@ export default function NewLaunches() {
         title="Recently Added Tools"
         subtitle="The freshest AI & SaaS tools submitted by founders — sorted by launch date, newest first."
         accent="green"
+        layout="default"
+        size="md"
         stats={[
           { value: String(newCount),            label: 'This Month' },
           { value: String(filteredTools.length), label: 'Total Tools' },

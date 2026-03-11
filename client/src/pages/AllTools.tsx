@@ -116,10 +116,12 @@ export default function AllTools() {
       <Navbar />
 
       <PageHero
-        eyebrow="Directory"
+        eyebrow="Tool Directory"
         title="All Tools"
         subtitle={`${MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community.`}
         accent="amber"
+        layout="default"
+        size="md"
         stats={[
           { value: String(MOCK_TOOLS.length),                                              label: 'Total Tools' },
           { value: String(CATEGORIES.length - 1),                                          label: 'Categories' },
@@ -129,20 +131,20 @@ export default function AllTools() {
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ position: 'relative' }}>
-              <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }} />
+              <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#9CA3AF', pointerEvents: 'none' }} />
               <input
                 type="text"
                 placeholder="Search tools..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{
-                  width: '260px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                  width: '260px', background: '#F9FAFB', border: '1px solid #E5E7EB',
                   borderRadius: '10px', padding: '10px 12px 10px 36px', fontSize: '13px',
-                  color: '#FFFFFF', outline: 'none', fontFamily: 'inherit',
+                  color: '#111827', outline: 'none', fontFamily: 'inherit',
                 }}
               />
               {search && (
-                <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', display: 'flex' }}>
+                <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', display: 'flex' }}>
                   <X style={{ width: '13px', height: '13px' }} />
                 </button>
               )}

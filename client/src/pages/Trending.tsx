@@ -157,6 +157,8 @@ export default function Trending() {
         title="What's Hot Right Now"
         subtitle="Tools ranked by weekly position gain — the fastest-climbing AI and SaaS products in the community right now."
         accent="amber"
+        layout="split"
+        size="lg"
         stats={[
           { value: String(totalRising), label: 'Rising Tools' },
           { value: `+${topGain}`,       label: 'Top Gain' },
