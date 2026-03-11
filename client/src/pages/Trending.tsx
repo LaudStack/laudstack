@@ -5,7 +5,7 @@
  * Typography: Inter variable font, tabular-nums rank display
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -96,13 +96,55 @@ function StatCard({ value, label, sub }: { value: string; label: string; sub?: s
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
+// Helper: parse Trending filter params from URL
+function parseTrendingParams(params: URLSearchParams) {
+  return {
+    period:   params.get('period')   || '7d',
+    category: params.get('category') || 'All Categories',
+    sort:     params.get('sort')     || 'rank_change',
+    query:    params.get('q')        ? decodeURIComponent(params.get('q')!) : '',
+  };
+}
+
 export default function Trending() {
-  const [, navigate] = useLocation();
-  const [period,   setPeriod]   = useState('7d');
-  const [category, setCategory] = useState('All Categories');
-  const [sortBy,   setSortBy]   = useState('rank_change');
-  const [query,    setQuery]    = useState('');
+  const [location, navigate] = useLocation();
+
+  const initial = useMemo(() => parseTrendingParams(new URLSearchParams(window.location.search)), []);
+
+  const [period,      setPeriod]      = useState(initial.period);
+  const [category,    setCategory]    = useState(initial.category);
+  const [sortBy,      setSortBy]      = useState(initial.sort);
+  const [query,       setQuery]       = useState(initial.query);
   const [showFilters, setShowFilters] = useState(false);
+  const [syncingFromUrl, setSyncingFromUrl] = useState(false);
+
+  // ── Outbound: write filter state → URL ──────────────────────────────────────
+  useEffect(() => {
+    if (syncingFromUrl) return;
+    const params = new URLSearchParams();
+    if (period   !== '7d')             params.set('period',   period);
+    if (category !== 'All Categories') params.set('category', category);
+    if (sortBy   !== 'rank_change')    params.set('sort',     sortBy);
+    if (query.trim())                  params.set('q',        query.trim());
+    const qs = params.toString();
+    const newPath = qs ? `/trending?${qs}` : '/trending';
+    if (window.location.pathname + window.location.search !== newPath) {
+      navigate(newPath, { replace: true });
+    }
+  }, [period, category, sortBy, query]);
+
+  // ── Inbound: read URL → filter state on external navigation ─────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.toString()) return;
+    const parsed = parseTrendingParams(params);
+    setSyncingFromUrl(true);
+    setPeriod(parsed.period);
+    setCategory(parsed.category);
+    setSortBy(parsed.sort);
+    setQuery(parsed.query);
+    setTimeout(() => setSyncingFromUrl(false), 0);
+  }, [location]);
 
   const trendingTools = useMemo(() => {
     let tools = MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) > 0);
