@@ -18,6 +18,7 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import { useCompare } from '@/contexts/CompareContext';
 import { MOCK_TOOLS } from '@/lib/mockData';
+import { getToolExtras } from '@/lib/toolExtras';
 import type { Tool } from '@/lib/types';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -168,6 +169,14 @@ export default function Compare() {
   // Build feature maps
   const featureMaps = tools.map(t => getFeatures(t));
 
+  // Build pricing data from toolExtras
+  const pricingExtras = tools.map(t => getToolExtras(t.slug, t.name, t.pricing_model));
+
+  // Collect all unique tier names across all tools
+  const allTierNames = Array.from(
+    new Set(pricingExtras.flatMap(e => e.pricing_tiers.map((tier: { name: string }) => tier.name)))
+  );
+
   function getCellValue(tool: typeof tools[0], key: string, featMap: Record<string, boolean>): React.ReactNode {
     switch (key) {
       case 'category':       return <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{tool.category}</span>;
@@ -206,7 +215,7 @@ export default function Compare() {
   const gridCols = `220px repeat(${colCount}, 1fr)`;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC', paddingTop: '72px' }}>
       <Navbar />
       <PageHero
         eyebrow="Side-by-side"
@@ -382,6 +391,75 @@ export default function Compare() {
                 ))}
               </div>
             ))}
+          </div>
+        </motion.div>
+
+        {/* ── Pricing comparison ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.28 }}
+          style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)', marginBottom: '20px' }}
+        >
+          <div style={{ padding: '14px 24px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pricing</span>
+          </div>
+
+          {/* Tier rows */}
+          {allTierNames.map((tierName, ri) => (
+            <div
+              key={tierName}
+              style={{
+                display: 'grid', gridTemplateColumns: gridCols, gap: '16px',
+                padding: '16px 24px', alignItems: 'start',
+                background: ri % 2 === 0 ? '#FFFFFF' : '#FAFAFA',
+                borderBottom: ri < allTierNames.length - 1 ? '1px solid #F1F5F9' : 'none',
+              }}
+            >
+              {/* Row label */}
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#374151', paddingTop: '4px' }}>{tierName}</div>
+
+              {/* Per-tool pricing cell */}
+              {pricingExtras.map((extras, ti) => {
+                const tier = extras.pricing_tiers.find((t: { name: string }) => t.name === tierName);
+                if (!tier) {
+                  return (
+                    <div key={tools[ti].id} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#CBD5E1' }}>
+                      <Minus style={{ width: '14px', height: '14px' }} />
+                      <span style={{ fontSize: '12px', color: '#CBD5E1' }}>Not available</span>
+                    </div>
+                  );
+                }
+                return (
+                  <div key={tools[ti].id} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '18px', fontWeight: 900, color: '#171717', letterSpacing: '-0.02em' }}>{tier.price}</span>
+                      {tier.period && <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>{tier.period}</span>}
+                      {tier.highlighted && (
+                        <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 7px', borderRadius: '100px', background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A', marginLeft: '4px' }}>Popular</span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: '11px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>{tier.description}</p>
+                    {tier.features && tier.features.length > 0 && (
+                      <ul style={{ margin: '4px 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {tier.features.slice(0, 4).map((f: string, fi: number) => (
+                          <li key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '5px', fontSize: '11px', color: '#374151' }}>
+                            <CheckCircle2 style={{ width: '11px', height: '11px', color: '#22C55E', flexShrink: 0, marginTop: '1px' }} />
+                            {f}
+                          </li>
+                        ))}
+                        {tier.features.length > 4 && (
+                          <li style={{ fontSize: '11px', color: '#94A3B8' }}>+{tier.features.length - 4} more features</li>
+                        )}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+
+          {/* Pricing disclaimer */}
+          <div style={{ padding: '12px 24px', background: '#F8FAFC', borderTop: '1px solid #F1F5F9' }}>
+            <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Pricing is indicative. Visit each tool’s website for the latest plans and pricing.</p>
           </div>
         </motion.div>
 
