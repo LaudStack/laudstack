@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -531,36 +532,28 @@ export default function LaunchPad() {
     <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* ── Hero ── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '72px 24px 56px', textAlign: 'center', marginTop: '72px' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '20px', background: '#FEF3C7', border: '1px solid #FDE68A', marginBottom: '20px' }}>
-            <Rocket style={{ width: '14px', height: '14px', color: '#D97706' }} />
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#B45309', letterSpacing: '0.06em', textTransform: 'uppercase' }}>LaunchPad</span>
-          </div>
-          <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#171717', lineHeight: 1.2, marginBottom: '14px' }}>
-            Get your tool in front of<br />
-            <span style={{ color: '#F59E0B' }}>thousands of buyers</span>
-          </h1>
-          <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, marginBottom: '32px' }}>
-            List your AI or SaaS tool on LaudStack. Free to submit — no credit card required. Listings go live within 48 hours after review.
-          </p>
-          {/* Trust bar */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', flexWrap: 'wrap' }}>
-            {[
-              { icon: Zap, label: '5 min setup' },
-              { icon: Shield, label: 'Free to list' },
-              { icon: BarChart3, label: 'Real analytics' },
-              { icon: Users, label: '12,000+ buyers' },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Icon style={{ width: '14px', height: '14px', color: '#F59E0B' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{label}</span>
-              </div>
-            ))}
-          </div>
+      <PageHero
+        eyebrow="LaunchPad"
+        title="Get your tool in front of thousands of buyers"
+        subtitle="List your AI or SaaS tool on LaudStack. Free to submit — no credit card required. Listings go live within 48 hours after review."
+        accent="amber"
+        layout="centered"
+        size="md"
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', flexWrap: 'wrap', marginTop: '4px' }}>
+          {[
+            { icon: Zap, label: '5 min setup' },
+            { icon: Shield, label: 'Free to list' },
+            { icon: BarChart3, label: 'Real analytics' },
+            { icon: Users, label: '12,000+ buyers' },
+          ].map(({ icon: Icon, label }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Icon style={{ width: '14px', height: '14px', color: '#F59E0B' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{label}</span>
+            </div>
+          ))}
         </div>
-      </div>
+      </PageHero>
 
       {/* ── Form ── */}
       <div style={{ flex: 1, padding: '48px 24px 80px', maxWidth: '760px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>

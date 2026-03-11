@@ -28,6 +28,7 @@ import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
 import { useSavedTools } from '@/hooks/useSavedTools';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
 
@@ -198,20 +199,34 @@ export default function ToolDetail() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
       <Navbar />
-      <div style={{ height: '72px', flexShrink: 0 }} />
-
-      {/* ══ BREADCRUMB ══════════════════════════════════════════════════════ */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ padding: '12px 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
-            <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
-            <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>{tool.category}</Link>
-            <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <span style={{ color: '#171717', fontWeight: 600 }}>{tool.name}</span>
-          </div>
+      <PageHero
+        eyebrow={tool.category}
+        title={tool.name}
+        subtitle={tool.tagline}
+        accent="amber"
+        layout="split"
+        size="sm"
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+          {tool.is_verified && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px', background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' }}>
+              <ShieldCheck style={{ width: '11px', height: '11px' }} /> Verified
+            </span>
+          )}
+          {tool.badges.slice(0, 3).map(b => {
+            const cfg = BADGE_CONFIG[b];
+            if (!cfg) return null;
+            return (
+              <span key={b} style={{ fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+                {cfg.label}
+              </span>
+            );
+          })}
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B' }}>
+            {tool.average_rating.toFixed(1)} ★ &nbsp;({tool.review_count.toLocaleString()} reviews)
+          </span>
         </div>
-      </div>
+      </PageHero>
 
       {/* ══ TOOL HERO HEADER ════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '40px 0 36px' }}>
