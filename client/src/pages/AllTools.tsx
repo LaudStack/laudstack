@@ -28,36 +28,72 @@ const RATING_OPTIONS = [
   { value: 3.5, label: '3.5★ & above' },
 ];
 
+// Helper: parse all filter params from a URLSearchParams object
+function parseParams(params: URLSearchParams) {
+  const cat = params.get('category');
+  const pricing = params.get('pricing');
+  const rating = params.get('rating');
+  const sort = params.get('sort');
+  const q = params.get('q');
+  return {
+    categories: cat ? decodeURIComponent(cat).split(',').map(c => c.trim()).filter(Boolean) : [],
+    pricing: pricing ? decodeURIComponent(pricing).split(',').map(p => p.trim()).filter(Boolean) : [],
+    rating: rating ? parseFloat(rating) : 0,
+    sort: sort || 'rank_score',
+    search: q ? decodeURIComponent(q) : '',
+  };
+}
+
 export default function AllTools() {
   const [location, navigate] = useLocation();
-  const [search, setSearch] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
-    // Read ?category param on initial render — supports comma-separated values
-    const params = new URLSearchParams(window.location.search);
-    const cat = params.get('category');
-    if (!cat) return [];
-    return decodeURIComponent(cat).split(',').map(c => c.trim()).filter(Boolean);
-  });
-  const [selectedPricing, setSelectedPricing] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState(0);
-  const [sortBy, setSortBy] = useState('rank_score');
+
+  // Initialise all filter state from URL params on first render
+  const initialParams = useMemo(() => parseParams(new URLSearchParams(window.location.search)), []);
+
+  const [search, setSearch] = useState(initialParams.search);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialParams.categories);
+  const [selectedPricing, setSelectedPricing] = useState<string[]>(initialParams.pricing);
+  const [minRating, setMinRating] = useState(initialParams.rating);
+  const [sortBy, setSortBy] = useState(initialParams.sort);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [catExpanded, setCatExpanded] = useState(true);
   const [pricingExpanded, setPricingExpanded] = useState(true);
   const [ratingExpanded, setRatingExpanded] = useState(true);
+  // Track whether we're currently syncing FROM the URL to avoid loops
+  const [syncingFromUrl, setSyncingFromUrl] = useState(false);
 
-  // Re-apply ?category param whenever the URL changes (e.g. back-link navigation)
+  // ── Outbound: write filter state → URL whenever filters change ──────────────
+  useEffect(() => {
+    if (syncingFromUrl) return;
+    const params = new URLSearchParams();
+    if (selectedCategories.length > 0) params.set('category', selectedCategories.join(','));
+    if (selectedPricing.length > 0) params.set('pricing', selectedPricing.join(','));
+    if (minRating > 0) params.set('rating', String(minRating));
+    if (sortBy !== 'rank_score') params.set('sort', sortBy);
+    if (search.trim()) params.set('q', search.trim());
+    const qs = params.toString();
+    const newPath = qs ? `/tools?${qs}` : '/tools';
+    // Only push if the URL actually changed to avoid history spam
+    if (window.location.pathname + window.location.search !== newPath) {
+      navigate(newPath, { replace: true });
+    }
+  }, [selectedCategories, selectedPricing, minRating, sortBy, search]);
+
+  // ── Inbound: read URL → filter state when location changes externally ───────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const cat = params.get('category');
-    if (cat) {
-      // Support comma-separated multi-category: ?category=AI+Writing,Design
-      const cats = decodeURIComponent(cat).split(',').map(c => c.trim()).filter(Boolean);
-      setSelectedCategories(cats);
-      // Clean the URL param after applying so the filter bar stays in sync
-      navigate('/tools', { replace: true });
-    }
+    // Only re-apply if there are actual filter params (e.g. back-link navigation)
+    if (!params.toString()) return;
+    const parsed = parseParams(params);
+    setSyncingFromUrl(true);
+    setSelectedCategories(parsed.categories);
+    setSelectedPricing(parsed.pricing);
+    setMinRating(parsed.rating);
+    setSortBy(parsed.sort);
+    setSearch(parsed.search);
+    // Release the sync lock after state has been applied
+    setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
 
   const filtered = useMemo(() => {
