@@ -74,3 +74,22 @@
 - [x] Build Careers page (/careers) with culture, open positions, and application process
 - [x] Register /careers route in App.tsx
 - [x] Add /careers link to footer Company section
+
+## User Panel & Authentication (Phase 2)
+- [x] AuthContext upgraded to use real Manus OAuth via tRPC auth.me hook
+- [x] SignIn page redesigned with Manus OAuth redirect (polished split-panel design)
+- [x] User Dashboard rebuilt with 5 tabs: Profile · My Reviews · Saved Tools · Notifications · Settings
+  - [x] Profile tab: avatar, stats, editable profile fields, activity feed
+  - [x] My Reviews tab: list of reviews with ratings, pros/cons, edit/delete actions
+  - [x] Saved Tools tab: bookmarked tools with quick actions
+  - [x] Notifications tab: notification feed with read/unread states
+  - [x] Settings tab: account settings, notification preferences, privacy, danger zone
+- [x] Founder Dashboard rebuilt with 7 tabs: Overview · My Tools · Reviews · Deals · Analytics · Promote · Settings
+  - [x] Overview tab: stats grid, performance chart, pending replies, quick actions
+  - [x] My Tools tab: tool management with inline edit form, stats per tool
+  - [x] Reviews tab: full review management with reply feature, rating distribution, filters
+  - [x] Deals tab: create/manage deals with usage tracking, toggle active/inactive
+  - [x] Analytics tab: views/clicks/reviews charts, per-tool breakdown, period selector
+  - [x] Promote tab: promotion options (Featured, Newsletter, Social, LaudStack Pick)
+  - [x] Settings tab: founder profile, notifications, privacy, danger zone
+- [x] Navbar dropdown enhanced with sections (My Account / Founder Tools), quick stats, descriptions, and better visual hierarchy
