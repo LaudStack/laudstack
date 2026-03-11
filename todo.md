@@ -69,3 +69,8 @@
 - [x] Build Events page (/events)
 - [x] Build Sitemap page (/sitemap)
 - [x] Register all new routes in App.tsx
+
+## Careers Page
+- [x] Build Careers page (/careers) with culture, open positions, and application process
+- [x] Register /careers route in App.tsx
+- [x] Add /careers link to footer Company section
