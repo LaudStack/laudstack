@@ -33,6 +33,7 @@ import Trending from './pages/Trending';
 import TopRated from './pages/TopRated';
 import NewLaunches from './pages/NewLaunches';
 import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import Changelog from './pages/Changelog';
 import Legal from './pages/Legal';
 import Affiliates from './pages/Affiliates';
@@ -70,6 +71,7 @@ function Router() {
         <Route path="/top-rated" component={TopRated} />
         <Route path="/new-launches" component={NewLaunches} />
         <Route path="/blog" component={Blog} />
+        <Route path="/blog/:slug" component={BlogPost} />
         <Route path="/changelog" component={Changelog} />
         <Route path="/affiliates" component={Affiliates} />
         <Route path="/privacy" component={Legal} />
