@@ -671,65 +671,157 @@ export default function Home() {
           {newLaunches.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
               <p style={{ fontSize: '15px', fontWeight: 500 }}>No recent launches in this category yet.</p>
-              <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#1D4ED8', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>View all categories</button>
+              <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}>View all categories</button>
             </div>
           ) : (
-          <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" style={{ gap: '16px' }}>
-            {newLaunches.map((tool, i) => (
-              <motion.div
-                key={tool.id}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}
-                onClick={() => goToTool(tool.slug)}
-                style={{
-                  background: '#FFFFFF', borderRadius: '18px', border: '1px solid #E2E8F0',
-                  overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column',
-                  boxShadow: '0 1px 4px rgba(15,23,42,0.05)', transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
-                }}
-                whileHover={{ y: -5, boxShadow: '0 14px 36px rgba(15,23,42,0.10)', borderColor: '#CBD5E1' }}
-              >
-                {/* Gradient accent bar */}
-                <div style={{ height: '3px', background: `linear-gradient(90deg, ${LAUNCH_ACCENTS[i % 4].from}, ${LAUNCH_ACCENTS[i % 4].to})` }} />
-
-                <div style={{ padding: '20px 20px 18px', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {/* Logo + name + upvote — all on same horizontal line */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
-                      <div style={{ width: '46px', height: '46px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E2E8F0', flexShrink: 0, background: '#F8FAFC' }}>
-                        <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
-                       </div>
-                      <h3 style={{ fontWeight: 800, fontSize: '15px', color: '#171717', margin: 0, fontFamily: "'Inter', sans-serif", lineHeight: 1.2, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" style={{ gap: '20px' }}>
+            {newLaunches.map((tool, i) => {
+              // Time since launch
+              const launchedDate = new Date(tool.launched_at);
+              const now = new Date();
+              const diffDays = Math.floor((now.getTime() - launchedDate.getTime()) / (1000 * 60 * 60 * 24));
+              const timeLabel = diffDays === 0 ? 'Today' : diffDays === 1 ? '1 day ago' : diffDays < 30 ? `${diffDays}d ago` : diffDays < 365 ? `${Math.floor(diffDays / 30)}mo ago` : `${Math.floor(diffDays / 365)}y ago`;
+              // Fallback screenshot
+              const fallbackShots = [
+                'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=500&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=500&fit=crop&auto=format',
+              ];
+              const screenshotSrc = tool.screenshot_url ?? fallbackShots[i % 4];
+              return (
+                <motion.div
+                  key={tool.id}
+                  initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}
+                  onClick={() => goToTool(tool.slug)}
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: '16px',
+                    border: '1px solid #E8ECF0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+                  }}
+                  whileHover={{ y: -4, boxShadow: '0 12px 36px rgba(0,0,0,0.10)', borderColor: '#FCD34D' }}
+                >
+                  {/* ── Header: logo + name + category + upvote ── */}
+                  <div style={{ padding: '14px 14px 10px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    {/* Logo */}
+                    <div style={{
+                      width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
+                      border: '1px solid #E8ECF0', background: '#F8FAFC',
+                      overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <img
+                        src={tool.logo_url}
+                        alt={tool.name}
+                        style={{ width: '36px', height: '36px', objectFit: 'contain' }}
+                        onError={e => {
+                          const t = e.currentTarget;
+                          t.style.display = 'none';
+                          const p = t.parentElement;
+                          if (p) { p.innerHTML = `<span style="font-size:18px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; }
+                        }}
+                      />
                     </div>
+
+                    {/* Name + category */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: 800, color: '#171717', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</span>
+                        {tool.is_verified && (
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="#3B82F6"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>{tool.category}</span>
+                      </div>
+                    </div>
+
+                    {/* Upvote button */}
                     <button
-                      onClick={e => { e.stopPropagation(); go(); }}
-                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px', padding: '7px 11px', borderRadius: '10px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', cursor: 'pointer', transition: 'all 0.15s ease', minWidth: '44px', flexShrink: 0 }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; }}
+                      onClick={e => { e.stopPropagation(); toast.success('Upvoted!'); }}
+                      style={{
+                        flexShrink: 0, display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center', gap: '1px',
+                        padding: '6px 10px', borderRadius: '10px',
+                        border: '1.5px solid #E8ECF0', background: '#F9FAFB',
+                        cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                        minWidth: '42px',
+                      }}
+                      onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#F59E0B'; b.style.background = '#FFFBEB'; }}
+                      onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.background = '#F9FAFB'; }}
                     >
-                      <ChevronUp style={{ width: '14px', height: '14px', color: '#64748B' }} />
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151', lineHeight: 1 }}>{tool.upvote_count}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#374151', lineHeight: 1.2 }}>{tool.upvote_count > 999 ? `${(tool.upvote_count / 1000).toFixed(1)}k` : tool.upvote_count}</span>
                     </button>
                   </div>
 
-                  {/* Tagline */}
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '13px', color: '#64748B', fontWeight: 400, margin: 0, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tool.tagline}</p>
+                  {/* ── Screenshot ── */}
+                  <div style={{ position: 'relative', width: '100%', paddingTop: '58%', overflow: 'hidden', background: '#F3F4F6', flexShrink: 0 }}>
+                    <img
+                      src={screenshotSrc}
+                      alt={`${tool.name} screenshot`}
+                      style={{
+                        position: 'absolute', inset: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: 'top center',
+                        transition: 'transform 0.4s ease',
+                      }}
+                      onError={e => { (e.target as HTMLImageElement).src = fallbackShots[i % 4]; }}
+                    />
+                    {/* Stats overlay on screenshot */}
+                    <div style={{
+                      position: 'absolute', top: '8px', left: '8px',
+                      background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)',
+                      borderRadius: '6px', padding: '3px 8px',
+                      display: 'flex', alignItems: 'center', gap: '4px',
+                    }}>
+                      <BarChart3 style={{ width: '10px', height: '10px', color: '#9CA3AF' }} />
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#E5E7EB' }}>{(tool.upvote_count * 3 + tool.review_count * 12).toLocaleString()}</span>
+                    </div>
+                    {/* New badge */}
+                    <div style={{
+                      position: 'absolute', top: '8px', right: '8px',
+                      background: '#F59E0B', borderRadius: '5px',
+                      padding: '2px 7px',
+                    }}>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#0A0A0A', letterSpacing: '0.06em', textTransform: 'uppercase' }}>New</span>
+                    </div>
                   </div>
 
-                  {/* Footer row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Star style={{ width: '13px', height: '13px', fill: '#FBBF24', color: '#FBBF24' }} />
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#171717' }}>{tool.average_rating.toFixed(1)}</span>
-                      <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>({tool.review_count})</span>
-                    </div>
-                    <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', textTransform: 'uppercase', letterSpacing: '0.06em' }}>New</span>
+                  {/* ── Description ── */}
+                  <div style={{ padding: '10px 14px 0' }}>
+                    <p style={{ fontSize: '12px', color: '#6B7280', lineHeight: 1.55, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tool.tagline}</p>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  {/* ── Footer ── */}
+                  <div style={{
+                    padding: '10px 14px 13px',
+                    marginTop: '10px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    borderTop: '1px solid #F3F4F6',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {/* Time since launch */}
+                      <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500 }}>{timeLabel}</span>
+                      <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#D1D5DB', display: 'inline-block' }} />
+                      {/* Rating */}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '11px', fontWeight: 700, color: '#374151' }}>
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        {tool.average_rating.toFixed(1)}
+                      </span>
+                    </div>
+                    {/* Pricing */}
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', background: '#F3F4F6', padding: '2px 8px', borderRadius: '5px' }}>{tool.pricing_model}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
-          </>
           )}
         </div>
       </section>
