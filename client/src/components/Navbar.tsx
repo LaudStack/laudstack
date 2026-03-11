@@ -173,6 +173,17 @@ export default function Navbar() {
               />
             </Link>
 
+            {/* ── Search pill (after logo) ── */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-white/60 hover:text-white bg-white/8 hover:bg-white/12 border-white/15"
+              style={{ minWidth: '220px' }}
+            >
+              <Search className="h-4 w-4 shrink-0" />
+              <span className="flex-1 text-left">Search tools...</span>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/15 text-white/50">⌘K</kbd>
+            </button>
+
             {/* ── Desktop Nav ── */}
             <nav className="hidden lg:flex items-center gap-0.5 flex-1">
               {NAV_ITEMS.map(item => (
@@ -230,16 +241,6 @@ export default function Navbar() {
 
             {/* ── Right Actions ── */}
             <div className="hidden lg:flex items-center gap-2 ml-auto">
-              {/* Search pill */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-white/60 hover:text-white bg-white/8 hover:bg-white/12 border-white/15"
-              >
-                <Search className="h-4 w-4" />
-                <span className="hidden xl:inline">Search tools...</span>
-                <kbd className="hidden xl:inline text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/15 text-white/50">⌘K</kbd>
-              </button>
-
               {/* Auth — Sign In or Avatar */}
               {isAuthenticated && user ? (
                 <div className="relative" ref={avatarRef}>
