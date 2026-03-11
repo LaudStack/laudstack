@@ -38,6 +38,12 @@
 - [x] App.tsx: All new routes registered (/community-picks, /editors-picks, /faq)
 - [x] Vitest tests for newsletter subscription flow (7 tests passing)
 
+- [x] Removed Categories route (/categories) from App.tsx
+- [x] Removed Categories, API Access, Discussions, API Docs, Status from Footer
+- [x] Added replacement footer items: Top Rated, Saved Tools, Sponsored Listings, Tool Templates
+- [x] Added Saved Tools and SaaS Deals to Navbar Discover mega-menu
+- [x] Added Blog and Changelog to Navbar Resources mega-menu
+
 ## Pending / Future Features
 
 - [ ] Discussions / Community forum

@@ -51,7 +51,6 @@ function Router() {
         <Route path="/tools/:slug" component={ToolDetail} />
         <Route path="/search" component={SearchResults} />
         <Route path="/launchpad" component={LaunchPad} />
-        <Route path="/categories" component={AllTools} />
         <Route path="/reviews" component={Reviews} />
         <Route path="/signin" component={SignIn} />
         <Route path="/compare" component={Compare} />

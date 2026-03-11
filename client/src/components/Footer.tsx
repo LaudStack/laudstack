@@ -21,8 +21,8 @@ const FOOTER_SECTIONS = [
     heading: 'Discover',
     links: [
       { label: 'Browse All Tools', href: '/tools', live: true },
-      { label: 'Categories', href: '/categories', live: true },
       { label: 'Trending This Week', href: '/trending', live: true },
+      { label: 'Top Rated', href: '/top-rated', live: true },
       { label: 'Fresh Launches', href: '/launches', live: true },
       { label: 'Community Picks', href: '/community-picks', live: true },
       { label: "Editor's Picks", href: '/editors-picks', live: true },
@@ -33,13 +33,12 @@ const FOOTER_SECTIONS = [
   {
     heading: 'Community',
     links: [
-      { label: 'Leaderboard', href: '/launches', live: true },
+      { label: 'Leaderboard', href: '/trending', live: true },
       { label: 'Write a Review', href: '/tools', live: true },
       { label: 'Top Reviewers', href: '/community-picks', live: true },
-      { label: 'Discussions', href: '/discussions', live: false },
+      { label: 'Saved Tools', href: '/saved', live: true },
       { label: 'Newsletter', href: '/newsletter', live: false },
       { label: 'Events', href: '/events', live: false },
-      { label: 'Slack Community', href: '/slack', live: false },
     ],
   },
   {
@@ -51,7 +50,7 @@ const FOOTER_SECTIONS = [
       { label: 'Pricing', href: '/pricing', live: true },
       { label: 'Affiliate Program', href: '/affiliates', live: true },
       { label: 'Advertise', href: '/advertise', live: false },
-      { label: 'API Access', href: '/api', live: false },
+      { label: 'Sponsored Listings', href: '/advertise', live: false },
     ],
   },
   {
@@ -62,8 +61,7 @@ const FOOTER_SECTIONS = [
       { label: 'Trust Framework', href: '/trust', live: true },
       { label: 'Review Guidelines', href: '/trust', live: true },
       { label: 'Changelog', href: '/changelog', live: true },
-      { label: 'API Docs', href: '/api', live: false },
-      { label: 'Status', href: '/status', live: false },
+      { label: 'Tool Templates', href: '/templates', live: true },
     ],
   },
   {
