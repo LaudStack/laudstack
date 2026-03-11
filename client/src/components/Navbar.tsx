@@ -42,6 +42,27 @@ const NAV_ITEMS = [
       { icon: Shield,    label: 'Editor\'s Picks', desc: 'Curated by our team', href: '/launches' },
     ],
   },
+  {
+    label: 'Tools',
+    href: '/tools',
+    categoryMenu: true,
+    megaMenu: [
+      // AI column
+      { icon: '⚡', label: 'AI Productivity',    desc: 'Automation & productivity',   href: '/tools?category=AI+Productivity' },
+      { icon: '✍️', label: 'AI Writing',          desc: 'Content & copywriting',       href: '/tools?category=AI+Writing' },
+      { icon: '🎨', label: 'AI Image',            desc: 'Image generation & editing',  href: '/tools?category=AI+Image' },
+      { icon: '🎬', label: 'AI Video',            desc: 'Video creation & editing',    href: '/tools?category=AI+Video' },
+      { icon: '💻', label: 'AI Code',             desc: 'Coding assistants & IDEs',    href: '/tools?category=AI+Code' },
+      { icon: '📊', label: 'AI Analytics',        desc: 'Data & research tools',       href: '/tools?category=AI+Analytics' },
+      // Business column
+      { icon: '📣', label: 'Marketing',           desc: 'SEO, ads & growth',           href: '/tools?category=Marketing' },
+      { icon: '📋', label: 'Project Management',  desc: 'Tasks & team workflows',      href: '/tools?category=Project+Management' },
+      { icon: '🤝', label: 'CRM',                 desc: 'Customer relationships',      href: '/tools?category=CRM' },
+      { icon: '💰', label: 'Sales',               desc: 'Outreach & pipeline',         href: '/tools?category=Sales' },
+      { icon: '🖌️', label: 'Design',              desc: 'UI, graphics & branding',     href: '/tools?category=Design' },
+      { icon: '🔧', label: 'Developer Tools',     desc: 'APIs, infra & DevOps',        href: '/tools?category=Developer+Tools' },
+    ],
+  },
   { label: 'Categories', href: '/categories' },
   { label: 'SaaS Deals', href: '/deals' },
   {
@@ -213,25 +234,75 @@ export default function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.98 }}
                         transition={{ duration: 0.13 }}
-                        className="absolute top-full left-0 mt-1.5 w-72 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100/80 overflow-hidden"
+                        className={(item as any).categoryMenu
+                          ? 'absolute top-full left-0 mt-1.5 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100/80 overflow-hidden'
+                          : 'absolute top-full left-0 mt-1.5 w-72 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100/80 overflow-hidden'
+                        }
+                        style={(item as any).categoryMenu ? { width: '560px' } : {}}
                       >
-                        <div className="p-2">
-                          {(item.megaMenu as Array<{ icon: React.ElementType; label: string; desc: string; href?: string }>).map((menuItem) => (
-                            <button
-                              key={menuItem.label}
-                              onClick={() => { setActiveMega(null); if (menuItem.href) navigate(menuItem.href); else go(); }}
-                              className="w-full flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left group"
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-100 transition-colors">
-                                <menuItem.icon className="h-4 w-4 text-amber-600" />
-                              </div>
+                        {(item as any).categoryMenu ? (
+                          /* ── Two-column category menu ── */
+                          <div>
+                            {/* Header */}
+                            <div className="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
                               <div>
-                                <div className="text-sm font-bold text-slate-900">{menuItem.label}</div>
-                                <div className="text-xs text-slate-600 mt-0.5 font-medium">{menuItem.desc}</div>
+                                <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Browse by Category</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Explore {(item.megaMenu as any[]).length} categories</p>
                               </div>
-                            </button>
-                          ))}
-                        </div>
+                              <button
+                                onClick={() => { setActiveMega(null); navigate('/categories'); }}
+                                className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 transition-colors"
+                              >
+                                All Categories <ArrowRight className="h-3 w-3" />
+                              </button>
+                            </div>
+                            {/* Grid */}
+                            <div className="p-3 grid grid-cols-2 gap-0.5">
+                              {(item.megaMenu as Array<{ icon: string; label: string; desc: string; href?: string }>).map((menuItem) => (
+                                <button
+                                  key={menuItem.label}
+                                  onClick={() => { setActiveMega(null); if (menuItem.href) navigate(menuItem.href); else go(); }}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left group"
+                                >
+                                  <span className="text-lg leading-none w-7 text-center shrink-0">{menuItem.icon}</span>
+                                  <div className="min-w-0">
+                                    <div className="text-sm font-bold text-slate-900 group-hover:text-amber-600 transition-colors truncate">{menuItem.label}</div>
+                                    <div className="text-xs text-slate-500 mt-0.5 truncate">{menuItem.desc}</div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                            {/* Footer CTA */}
+                            <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60">
+                              <button
+                                onClick={() => { setActiveMega(null); navigate('/tools'); }}
+                                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 transition-colors text-sm font-bold text-slate-900"
+                              >
+                                <Layers className="h-4 w-4" />
+                                Browse All Tools
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* ── Standard icon mega-menu ── */
+                          <div className="p-2">
+                            {(item.megaMenu as Array<{ icon: React.ElementType; label: string; desc: string; href?: string }>).map((menuItem) => (
+                              <button
+                                key={menuItem.label}
+                                onClick={() => { setActiveMega(null); if (menuItem.href) navigate(menuItem.href); else go(); }}
+                                className="w-full flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left group"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-100 transition-colors">
+                                  <menuItem.icon className="h-4 w-4 text-amber-600" />
+                                </div>
+                                <div>
+                                  <div className="text-sm font-bold text-slate-900">{menuItem.label}</div>
+                                  <div className="text-xs text-slate-600 mt-0.5 font-medium">{menuItem.desc}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
