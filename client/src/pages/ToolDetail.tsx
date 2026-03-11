@@ -860,24 +860,72 @@ export default function ToolDetail() {
             </div>
           </motion.div>
 
-          {/* Founder CTA */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.18 }}
-            style={{ background: '#171717', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <User2 style={{ width: '16px', height: '16px', color: '#F59E0B' }} />
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>For Founders</span>
-            </div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 8px', lineHeight: 1.3 }}>Is this your tool?</h3>
-            <p style={{ fontSize: '13px', color: '#94A3B8', lineHeight: 1.6, margin: '0 0 16px' }}>Claim your listing to respond to reviews, add a banner, and access analytics.</p>
-            <button
-              onClick={() => toast.info('LaunchPad coming soon!')}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#F59E0B', color: '#171717', fontWeight: 800, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#FBBF24')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#F59E0B')}
-            >
-              Claim This Listing
-            </button>
-          </motion.div>
+          {/* Claim This Listing CTA — only for unverified tools */}
+          {!tool.is_verified && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.18 }}
+              style={{ background: '#0F1629', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 24px rgba(15,23,42,0.18)', position: 'relative', overflow: 'hidden' }}>
+
+              {/* Subtle amber glow accent */}
+              <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '120px', height: '120px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+              {/* Eyebrow */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', borderRadius: '100px', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', marginBottom: '14px' }}>
+                <Building2 style={{ width: '11px', height: '11px', color: '#F59E0B' }} />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>For Founders</span>
+              </div>
+
+              <h3 style={{ fontSize: '16px', fontWeight: 900, color: '#FFFFFF', margin: '0 0 6px', lineHeight: 1.3, letterSpacing: '-0.02em' }}>Is this your tool?</h3>
+              <p style={{ fontSize: '13px', color: '#94A3B8', lineHeight: 1.6, margin: '0 0 16px' }}>Claim this listing to unlock founder tools and grow faster.</p>
+
+              {/* Benefit list */}
+              <ul style={{ margin: '0 0 20px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                {[
+                  'Respond to reviews publicly',
+                  'Add a promotional banner',
+                  'Access traffic & analytics',
+                  'Get a Verified badge',
+                ].map((benefit, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <CheckCircle2 style={{ width: '10px', height: '10px', color: '#F59E0B' }} />
+                    </div>
+                    <span style={{ fontSize: '12px', color: '#CBD5E1', fontWeight: 500 }}>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Primary CTA */}
+              <button
+                onClick={() => { navigate('/launchpad'); }}
+                style={{ width: '100%', padding: '11px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 4px 14px rgba(245,158,11,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FBBF24'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(245,158,11,0.45)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 14px rgba(245,158,11,0.35)'; }}
+              >
+                <Building2 style={{ width: '13px', height: '13px' }} />
+                Claim This Listing
+              </button>
+
+              {/* Secondary link */}
+              <p style={{ fontSize: '11px', color: '#475569', textAlign: 'center', margin: '10px 0 0' }}>
+                Free to claim &middot;{' '}
+                <button onClick={() => toast.info('Learn more about LaunchPad coming soon!')} style={{ background: 'none', border: 'none', padding: 0, fontSize: '11px', color: '#64748B', cursor: 'pointer', textDecoration: 'underline' }}>Learn more</button>
+              </p>
+            </motion.div>
+          )}
+
+          {/* Verified badge notice — shown when tool IS verified */}
+          {tool.is_verified && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.18 }}
+              style={{ background: '#F0FDF4', borderRadius: '16px', border: '1.5px solid #BBF7D0', padding: '18px 20px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#DCFCE7', border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ShieldCheck style={{ width: '16px', height: '16px', color: '#15803D' }} />
+              </div>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: 800, color: '#166534', margin: '0 0 3px' }}>Verified Listing</p>
+                <p style={{ fontSize: '12px', color: '#15803D', margin: 0, lineHeight: 1.5 }}>This tool has been claimed and verified by its founder.</p>
+              </div>
+            </motion.div>
+          )}
 
           {/* Share */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.22 }}
