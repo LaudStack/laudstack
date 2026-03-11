@@ -498,61 +498,142 @@ export default function Home() {
               <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>View all categories</button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '14px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '12px' }}>
               {trendingTools.map((tool, i) => {
                 const change = tool.weekly_rank_change ?? 0;
                 const momentum = change >= 20 ? 'rocket' : change >= 12 ? 'hot' : 'rising';
-                const momentumLabel = momentum === 'rocket' ? '🚀 Rocket' : momentum === 'hot' ? '🔥 Hot' : '📈 Rising';
+                const momentumEmoji = momentum === 'rocket' ? '🚀' : momentum === 'hot' ? '🔥' : '📈';
+                const momentumLabel = momentum === 'rocket' ? 'Rocket' : momentum === 'hot' ? 'Hot' : 'Rising';
                 const momentumColor = momentum === 'rocket' ? '#F59E0B' : momentum === 'hot' ? '#D97706' : '#16A34A';
-                const momentumBg = momentum === 'rocket' ? '#F5F3FF' : momentum === 'hot' ? '#FFF7ED' : '#ECFDF5';
-                // Mini sparkline bars (simulated 7-day trend)
-                const sparkBars = [0.3, 0.45, 0.4, 0.55, 0.65, 0.8, 1.0].map((h, bi) => (
-                  <div key={bi} style={{ width: '5px', height: `${h * 28}px`, background: momentumColor, borderRadius: '2px', opacity: 0.4 + h * 0.6 }} />
-                ));
+                const momentumTextBg = momentum === 'rocket' ? '#FFFBEB' : momentum === 'hot' ? '#FFF7ED' : '#F0FDF4';
+                const momentumBorder = momentum === 'rocket' ? '#FDE68A' : momentum === 'hot' ? '#FCD34D' : '#BBF7D0';
+                // 7-day sparkline heights (ascending trend)
+                const sparkHeights = [0.25, 0.38, 0.32, 0.50, 0.62, 0.80, 1.0];
                 return (
-                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.08}>
-                    <div style={{ background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '16px', padding: '0', overflow: 'hidden', transition: 'border-color 0.2s, box-shadow 0.2s', cursor: 'pointer' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 24px rgba(245,158,11,0.10)'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
+                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.07}>
+                    <div
+                      style={{
+                        background: '#FFFFFF',
+                        border: '1px solid #E8ECF0',
+                        borderRadius: '14px',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'box-shadow 0.18s, border-color 0.18s, transform 0.18s',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                      }}
+                      onMouseEnter={e => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.boxShadow = '0 8px 32px rgba(245,158,11,0.13), 0 2px 8px rgba(0,0,0,0.06)';
+                        el.style.borderColor = '#FCD34D';
+                        el.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={e => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)';
+                        el.style.borderColor = '#E8ECF0';
+                        el.style.transform = 'translateY(0)';
+                      }}
                       onClick={() => navigate(`/tools/${tool.slug}`)}
                     >
-                      {/* Top accent bar */}
-                      <div style={{ height: '3px', background: `linear-gradient(90deg, ${momentumColor}, ${momentumColor}88)` }} />
-                      <div style={{ padding: '18px 20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-                          {/* Rank badge */}
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-                            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${momentumBg}`, border: `1.5px solid ${momentumColor}33`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span style={{ fontSize: '16px', lineHeight: 1 }}>{momentum === 'rocket' ? '🚀' : momentum === 'hot' ? '🔥' : '📈'}</span>
-                            </div>
-                            <span style={{ fontSize: '10px', fontWeight: 800, color: momentumColor, letterSpacing: '0.02em' }}>#{i + 1}</span>
+                      {/* Rank accent stripe */}
+                      <div style={{ height: '2px', background: `linear-gradient(90deg, ${momentumColor} 0%, ${momentumColor}40 100%)` }} />
+
+                      <div style={{ padding: '16px 18px 14px' }}>
+                        {/* Row 1: rank number + tool identity + momentum badge */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+                          {/* Bold rank number */}
+                          <div style={{ flexShrink: 0, width: '32px', textAlign: 'center' }}>
+                            <span style={{
+                              fontSize: '22px',
+                              fontWeight: 900,
+                              color: i === 0 ? '#F59E0B' : i === 1 ? '#94A3B8' : '#CBD5E1',
+                              lineHeight: 1,
+                              letterSpacing: '-0.03em',
+                              fontVariantNumeric: 'tabular-nums',
+                            }}>{String(i + 1).padStart(2, '0')}</span>
                           </div>
-                          {/* Tool info */}
+
+                          {/* Tool logo */}
+                          <div style={{ width: '40px', height: '40px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#F8FAFC', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img
+                              src={tool.logo_url}
+                              alt={tool.name}
+                              style={{ width: '32px', height: '32px', objectFit: 'contain' }}
+                              onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=32`; }}
+                            />
+                          </div>
+
+                          {/* Name + category */}
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                              <img src={tool.logo_url} alt={tool.name}
-                                style={{ width: '28px', height: '28px', borderRadius: '7px', objectFit: 'cover', background: '#F1F5F9', border: '1px solid #E2E8F0', flexShrink: 0 }}
-                                onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=28`; }} />
-                              <span style={{ fontSize: '15px', fontWeight: 800, color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{tool.name}</span>
-                              <span style={{ fontSize: '11px', fontWeight: 700, color: momentumColor, background: momentumBg, border: `1px solid ${momentumColor}33`, padding: '2px 8px', borderRadius: '20px', whiteSpace: 'nowrap' }}>{momentumLabel}</span>
-                            </div>
-                            <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.4, marginBottom: '10px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{tool.tagline}</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, color: '#F59E0B' }}>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                {tool.average_rating.toFixed(1)}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '14px', fontWeight: 800, color: '#171717', letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '170px' }}>{tool.name}</span>
+                              {/* Momentum badge */}
+                              <span style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '3px',
+                                fontSize: '10px', fontWeight: 700,
+                                color: momentumColor,
+                                background: momentumTextBg,
+                                border: `1px solid ${momentumBorder}`,
+                                padding: '2px 7px', borderRadius: '20px',
+                                letterSpacing: '0.02em', whiteSpace: 'nowrap',
+                              }}>
+                                <span style={{ fontSize: '9px' }}>{momentumEmoji}</span>
+                                {momentumLabel}
                               </span>
-                              <span style={{ fontSize: '12px', color: '#94A3B8' }}>{tool.review_count} reviews</span>
-                              <span style={{ fontSize: '12px', color: '#94A3B8' }}>{tool.pricing_model}</span>
                             </div>
+                            <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>{tool.tagline}</p>
                           </div>
-                          {/* Sparkline + rank change */}
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '28px' }}>{sparkBars}</div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', background: `${momentumBg}`, border: `1px solid ${momentumColor}33`, borderRadius: '8px', padding: '3px 8px' }}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={momentumColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                              <span style={{ fontSize: '12px', fontWeight: 800, color: momentumColor }}>+{change}</span>
-                            </div>
+
+                          {/* Rank change pill */}
+                          <div style={{
+                            flexShrink: 0,
+                            display: 'flex', alignItems: 'center', gap: '3px',
+                            background: momentumTextBg,
+                            border: `1px solid ${momentumBorder}`,
+                            borderRadius: '8px', padding: '4px 9px',
+                          }}>
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={momentumColor} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span style={{ fontSize: '12px', fontWeight: 800, color: momentumColor, letterSpacing: '-0.01em' }}>+{change}</span>
+                          </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div style={{ height: '1px', background: '#F1F5F9', margin: '12px 0' }} />
+
+                        {/* Row 2: stats + sparkline */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                          {/* Stats row */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                            {/* Rating */}
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '12px', fontWeight: 700, color: '#374151' }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                              {tool.average_rating.toFixed(1)}
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500 }}>{tool.review_count} reviews</span>
+                            <span style={{
+                              fontSize: '10px', fontWeight: 600,
+                              color: '#6B7280',
+                              background: '#F3F4F6',
+                              padding: '2px 7px', borderRadius: '5px',
+                              letterSpacing: '0.01em',
+                            }}>{tool.pricing_model}</span>
+                          </div>
+
+                          {/* Sparkline */}
+                          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '22px', flexShrink: 0 }}>
+                            {sparkHeights.map((h, bi) => (
+                              <div
+                                key={bi}
+                                style={{
+                                  width: '4px',
+                                  height: `${h * 22}px`,
+                                  borderRadius: '2px',
+                                  background: bi === 6 ? momentumColor : `${momentumColor}${Math.round(35 + h * 120).toString(16).padStart(2, '0')}`,
+                                  transition: 'height 0.3s ease',
+                                }}
+                              />
+                            ))}
                           </div>
                         </div>
                       </div>
