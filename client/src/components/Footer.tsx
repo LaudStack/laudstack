@@ -89,9 +89,9 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/logo_dark_transparent_5d3238b6.png"
+                src="/logo_dark_transparent.png"
                 alt="LaudStack"
-                className="h-9 w-auto cursor-pointer"
+                className="h-10 w-auto cursor-pointer"
               />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mt-3 mb-6 max-w-xs font-medium">
