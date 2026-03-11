@@ -184,10 +184,9 @@ export default function Navbar() {
             {/* ── Logo ── */}
             <Link href="/" className="flex items-center shrink-0 h-10">
               <img
-                src="/logo_dark_transparent.png"
+                src="/logo-dark-transparent.png"
                 alt="LaudStack"
                 className="h-10 w-auto"
-                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </Link>
 
