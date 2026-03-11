@@ -118,6 +118,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery]           = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPricing, setSelectedPricing] = useState<string>('All');
+  const [browseSort, setBrowseSort] = useState<'top_rated' | 'trending' | 'newest' | 'most_reviewed'>('top_rated');
+  const [browseVisible, setBrowseVisible] = useState(20);
   const [bannerVisible, setBannerVisible]        = useState(true);
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -138,9 +140,16 @@ export default function Home() {
     ? MOCK_TOOLS
     : MOCK_TOOLS.filter(t => t.category === selectedCategory);
 
-  const allTools = selectedPricing === 'All'
-    ? filteredBase
-    : filteredBase.filter(t => t.pricing_model === selectedPricing);
+  const allToolsSorted = (() => {
+    const base = selectedPricing === 'All' ? filteredBase : filteredBase.filter(t => t.pricing_model === selectedPricing);
+    const copy = [...base];
+    if (browseSort === 'top_rated')     copy.sort((a, b) => b.average_rating - a.average_rating);
+    if (browseSort === 'trending')      copy.sort((a, b) => (b.weekly_rank_change ?? 0) - (a.weekly_rank_change ?? 0));
+    if (browseSort === 'newest')        copy.sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime());
+    if (browseSort === 'most_reviewed') copy.sort((a, b) => b.review_count - a.review_count);
+    return copy;
+  })();
+  const allTools = allToolsSorted.slice(0, browseVisible);
 
   // Trending: top 4 tools with the biggest weekly_rank_change (last 7 days)
   const trendingTools = [...(selectedCategory === 'All' ? MOCK_TOOLS : filteredBase)]
@@ -750,34 +759,38 @@ export default function Home() {
             onCta={go}
           />
 
-          {/* Category pills — single-row scroll on mobile, wrap on desktop */}
-          <div style={{ marginBottom: '36px', paddingBottom: '28px', borderBottom: '1px solid #E2E8F0' }}>
-            <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+          {/* ── Category tab strip ─────────────────────────────────────────── */}
+          <div style={{ marginBottom: '0', paddingBottom: '20px' }}>
+            {/* Scrollable strip */}
+            <div
+              className="flex gap-1.5 overflow-x-auto"
+              style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}
+            >
               {CATEGORIES.map(({ name, icon, count }) => {
                 const active = selectedCategory === name;
                 return (
                   <button
                     key={name}
-                    onClick={() => setSelectedCategory(name)}
+                    onClick={() => { setSelectedCategory(name); setBrowseVisible(20); }}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '7px',
-                      padding: '8px 14px', borderRadius: '10px', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
-                      flexShrink: 0,
-                      border: active ? '1.5px solid #171717' : '1.5px solid #E2E8F0',
-                      background: active ? '#171717' : '#FFFFFF',
-                      color: active ? '#FFFFFF' : '#374151',
-                      boxShadow: active ? '0 2px 8px rgba(15,23,42,0.15)' : '0 1px 2px rgba(15,23,42,0.04)',
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '7px 13px', borderRadius: '8px', cursor: 'pointer',
+                      fontSize: '12px', fontWeight: 700, transition: 'all 0.14s',
+                      flexShrink: 0, whiteSpace: 'nowrap', fontFamily: 'inherit',
+                      border: active ? '1.5px solid #F59E0B' : '1.5px solid #E8ECF0',
+                      background: active ? '#F59E0B' : '#FFFFFF',
+                      color: active ? '#0A0A0A' : '#6B7280',
+                      boxShadow: active ? '0 2px 10px rgba(245,158,11,0.22)' : 'none',
                     }}
-                    onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; } }}
-                    onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; } }}
+                    onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FCD34D'; b.style.color = '#B45309'; b.style.background = '#FFFBEB'; } }}
+                    onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#6B7280'; b.style.background = '#FFFFFF'; } }}
                   >
-                    <span style={{ fontSize: '14px', lineHeight: 1 }}>{icon}</span>
+                    <span style={{ fontSize: '13px', lineHeight: 1 }}>{icon}</span>
                     <span>{name}</span>
                     <span style={{
-                      fontSize: '11px', fontWeight: 700, padding: '2px 6px', borderRadius: '5px',
-                      background: active ? 'rgba(255,255,255,0.15)' : '#F1F5F9',
-                      color: active ? '#FFFFFF' : '#64748B',
+                      fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px',
+                      background: active ? 'rgba(0,0,0,0.12)' : '#F3F4F6',
+                      color: active ? '#0A0A0A' : '#9CA3AF',
                     }}>{count}</span>
                   </button>
                 );
@@ -785,49 +798,73 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Pricing filter row */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Filter by Pricing</span>
-              {selectedPricing !== 'All' && (
-                <button
-                  onClick={() => setSelectedPricing('All')}
-                  style={{ fontSize: '11px', fontWeight: 600, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px' }}
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/* ── Combined filter bar ────────────────────────────────────────── */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
+            padding: '12px 16px', marginBottom: '24px', marginTop: '16px',
+            background: '#FFFFFF', border: '1px solid #E8ECF0', borderRadius: '12px',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          }}>
+            {/* Pricing pills */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap', marginRight: '2px' }}>Pricing</span>
               {([
-                { key: 'All',         label: 'All Pricing',  emoji: '🔍', activeColor: '#171717', activeBg: '#F1F5F9', activeBorder: '#CBD5E1' },
-                { key: 'Free',        label: 'Free',         emoji: '🎁', activeColor: '#065F46', activeBg: '#ECFDF5', activeBorder: '#6EE7B7' },
-                { key: 'Freemium',    label: 'Freemium',     emoji: '⚡', activeColor: '#92400E', activeBg: '#FFFBEB', activeBorder: '#FCD34D' },
-                { key: 'Paid',        label: 'Paid',         emoji: '💳', activeColor: '#1E3A5F', activeBg: '#EFF6FF', activeBorder: '#93C5FD' },
-                { key: 'Free Trial',  label: 'Free Trial',   emoji: '🕐', activeColor: '#4C1D95', activeBg: '#F5F3FF', activeBorder: '#C4B5FD' },
-                { key: 'Open Source', label: 'Open Source',  emoji: '🔓', activeColor: '#1F2937', activeBg: '#F9FAFB', activeBorder: '#9CA3AF' },
-              ] as const).map(({ key, label, emoji, activeColor, activeBg, activeBorder }) => {
+                { key: 'All',         label: 'All',         activeColor: '#374151', activeBg: '#F3F4F6', activeBorder: '#D1D5DB' },
+                { key: 'Free',        label: 'Free',        activeColor: '#065F46', activeBg: '#ECFDF5', activeBorder: '#6EE7B7' },
+                { key: 'Freemium',    label: 'Freemium',    activeColor: '#92400E', activeBg: '#FFFBEB', activeBorder: '#FCD34D' },
+                { key: 'Paid',        label: 'Paid',        activeColor: '#1E3A5F', activeBg: '#EFF6FF', activeBorder: '#93C5FD' },
+                { key: 'Free Trial',  label: 'Free Trial',  activeColor: '#4C1D95', activeBg: '#F5F3FF', activeBorder: '#C4B5FD' },
+                { key: 'Open Source', label: 'Open Source', activeColor: '#1F2937', activeBg: '#F9FAFB', activeBorder: '#9CA3AF' },
+              ] as const).map(({ key, label, activeColor, activeBg, activeBorder }) => {
                 const active = selectedPricing === key;
                 return (
                   <button
                     key={key}
-                    onClick={() => setSelectedPricing(key)}
+                    onClick={() => { setSelectedPricing(key); setBrowseVisible(20); }}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '6px',
-                      padding: '7px 14px', borderRadius: '10px', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
-                      border: active ? `1.5px solid ${activeBorder}` : '1.5px solid #E2E8F0',
-                      background: active ? activeBg : '#FFFFFF',
-                      color: active ? activeColor : '#64748B',
-                      boxShadow: active ? `0 2px 8px ${activeBorder}55` : '0 1px 2px rgba(15,23,42,0.04)',
-                      transform: active ? 'translateY(-1px)' : 'translateY(0)',
+                      padding: '4px 11px', borderRadius: '6px', cursor: 'pointer',
+                      fontSize: '11px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
+                      border: active ? `1.5px solid ${activeBorder}` : '1.5px solid #E8ECF0',
+                      background: active ? activeBg : 'transparent',
+                      color: active ? activeColor : '#9CA3AF',
                     }}
+                    onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#D1D5DB'; b.style.color = '#374151'; } }}
+                    onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#9CA3AF'; } }}
                   >
-                    <span style={{ fontSize: '14px', lineHeight: 1 }}>{emoji}</span>
                     {label}
                   </button>
                 );
               })}
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
+
+            {/* Sort select */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>Sort</span>
+              <select
+                value={browseSort}
+                onChange={e => { setBrowseSort(e.target.value as typeof browseSort); setBrowseVisible(20); }}
+                style={{ fontSize: '12px', fontWeight: 700, color: '#374151', background: '#F9FAFB', border: '1.5px solid #E8ECF0', borderRadius: '7px', padding: '5px 10px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                <option value="top_rated">Top Rated</option>
+                <option value="trending">Trending</option>
+                <option value="newest">Newest</option>
+                <option value="most_reviewed">Most Reviewed</option>
+              </select>
+            </div>
+
+            {/* Result count */}
+            <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#171717' }}>{allToolsSorted.length}</span>
+              <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>tools</span>
+              {(selectedPricing !== 'All') && (
+                <button
+                  onClick={() => { setSelectedPricing('All'); setBrowseVisible(20); }}
+                  style={{ marginLeft: '4px', fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: 'inherit' }}
+                >Clear</button>
+              )}
             </div>
           </div>
 
@@ -836,24 +873,15 @@ export default function Home() {
 
             {/* Tools grid (2/3) */}
             <div className="lg:col-span-2">
-              {/* Result bar */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '10px 16px', background: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 500 }}>
-                    {selectedCategory === 'All' ? 'All Tools' : selectedCategory}
-                  </span>
-                  <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#CBD5E1', display: 'inline-block' }} />
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#171717' }}>{allTools.length} results</span>
-                </div>
-                <select
-                  style={{ fontSize: '12px', fontWeight: 600, color: '#374151', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 10px', outline: 'none', cursor: 'pointer' }}
-                  onChange={go}
-                >
-                  <option>Top Rated</option>
-                  <option>Trending</option>
-                  <option>Newest</option>
-                  <option>Most Reviewed</option>
-                </select>
+              {/* Slim context bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#171717' }}>
+                  {selectedCategory === 'All' ? 'All Tools' : selectedCategory}
+                </span>
+                <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#D1D5DB', display: 'inline-block' }} />
+                <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>
+                  showing {Math.min(browseVisible, allToolsSorted.length)} of {allToolsSorted.length}
+                </span>
               </div>
 
               <div className="flex flex-col" style={{ gap: '12px' }}>
@@ -864,15 +892,22 @@ export default function Home() {
                 ))}
               </div>
 
+              {/* Show more / all shown */}
               <div style={{ marginTop: '28px', textAlign: 'center' }}>
-                <button
-                  onClick={go}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 28px', borderRadius: '12px', border: '1.5px solid #E2E8F0', fontSize: '13px', fontWeight: 700, color: '#374151', background: '#FFFFFF', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(15,23,42,0.05)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF'; }}
-                >
-                  Load more tools <ArrowRight style={{ width: '13px', height: '13px' }} />
-                </button>
+                {browseVisible < allToolsSorted.length ? (
+                  <button
+                    onClick={() => setBrowseVisible(v => v + 20)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '10px 28px', borderRadius: '10px', border: '1.5px solid #E8ECF0', fontSize: '13px', fontWeight: 700, color: '#374151', background: '#FFFFFF', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', fontFamily: 'inherit' }}
+                    onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#F59E0B'; b.style.color = '#B45309'; b.style.background = '#FFFBEB'; }}
+                    onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#374151'; b.style.background = '#FFFFFF'; }}
+                  >
+                    Show 20 more <ArrowRight style={{ width: '13px', height: '13px' }} />
+                  </button>
+                ) : (
+                  <p style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>
+                    All {allToolsSorted.length} tools shown
+                  </p>
+                )}
               </div>
             </div>
 
