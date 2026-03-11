@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 const TEAM = [
   { name: 'Alex Rivera', role: 'Co-founder & CEO', bio: 'Former product lead at a Series B SaaS company. Built LaudStack to solve the tool discovery problem he faced every week.', initials: 'AR' },
@@ -50,25 +51,15 @@ export default function About() {
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
-      <div className="mt-[72px] flex-1">
-      {/* Hero */}
-      <div className="relative overflow-hidden border-b border-gray-200">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="max-w-4xl mx-auto px-4 py-20 relative text-center">
-          <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
-            <Heart className="w-4 h-4" />
-            Our Story
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
-            We built the platform<br />
-            <span className="text-amber-400">we always wanted.</span>
-          </h1>
-          <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
-            LaudStack started as a shared Notion doc between two founders who were tired of wasting hours evaluating tools that looked great on landing pages but fell apart in practice.
-          </p>
-        </div>
-      </div>
+      <div className="flex-1">
+      <PageHero
+        eyebrow="Our Story"
+        title="We built the platform we always wanted."
+        subtitle="LaudStack started as a shared Notion doc between two founders who were tired of wasting hours evaluating tools that looked great on landing pages but fell apart in practice."
+        accent="amber"
+        layout="centered"
+        size="lg"
+      />
 
       {/* Stats */}
       <div className="border-b border-gray-200 bg-white/50">
@@ -169,7 +160,7 @@ export default function About() {
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-r from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-10 text-center">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-10 text-center">
           <TrendingUp className="w-10 h-10 text-amber-400 mx-auto mb-4" />
           <h3 className="text-slate-900 font-black text-2xl mb-3">Join the LaudStack community</h3>
           <p className="text-slate-500 mb-6 max-w-lg mx-auto">

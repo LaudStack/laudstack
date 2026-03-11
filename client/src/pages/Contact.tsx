@@ -6,6 +6,7 @@ import { Mail, MessageSquare, Zap, Shield, Users, ChevronRight, CheckCircle } fr
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 const CONTACT_TOPICS = [
   { value: 'general', label: 'General Inquiry', icon: <MessageSquare className="w-4 h-4" /> },
@@ -59,21 +60,15 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
-      <div className="mt-[72px] flex-1">
-      {/* Hero */}
-      <div className="relative overflow-hidden border-b border-gray-200">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
-        <div className="max-w-4xl mx-auto px-4 py-16 relative">
-          <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
-            <Mail className="w-4 h-4" />
-            Get in Touch
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Contact LaudStack</h1>
-          <p className="text-slate-500 text-lg max-w-xl">
-            Have a question, want to submit a tool, or need to report something? We read every message and respond within 2 business days.
-          </p>
-        </div>
-      </div>
+      <div className="flex-1">
+      <PageHero
+        eyebrow="Get in Touch"
+        title="Contact LaudStack"
+        subtitle="Have a question, want to submit a tool, or need to report something? We read every message and respond within 2 business days."
+        accent="amber"
+        layout="default"
+        size="sm"
+      />
 
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="grid md:grid-cols-5 gap-10">

@@ -14,6 +14,7 @@ import {
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import { useCompare } from '@/contexts/CompareContext';
 import { MOCK_TOOLS } from '@/lib/mockData';
@@ -207,81 +208,34 @@ export default function Compare() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
       <Navbar />
-      <div style={{ height: '72px', flexShrink: 0 }} />
-
-      {/* ── Breadcrumb ── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
-        <div className="max-w-[1200px] mx-auto" style={{ padding: '12px 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
-            <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
-            <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <span style={{ color: '#171717', fontWeight: 600 }}>Compare Tools</span>
+      <PageHero
+        eyebrow="Side-by-side"
+        title="Tool Comparison"
+        subtitle={`Comparing ${tools.length} tool${tools.length !== 1 ? 's' : ''} — ratings, features, pricing, and more.`}
+        accent="amber"
+        layout="default"
+        size="sm"
+      >
+        {/* Action row: share + back + shareable URL */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleShare}
+            style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 16px', borderRadius: '9px', border: copied ? '1.5px solid #BBF7D0' : '1.5px solid #E2E8F0', background: copied ? '#F0FDF4' : '#F8FAFC', color: copied ? '#15803D' : '#374151', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
+          >
+            {copied ? <><Check style={{ width: '13px', height: '13px' }} /> Copied!</> : <><Share2 style={{ width: '13px', height: '13px' }} /> Share</>}
+          </button>
+          <button
+            onClick={() => { clear(); navigate('/'); }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '9px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#374151', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+          >
+            <ArrowLeft style={{ width: '13px', height: '13px' }} /> Back
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '9px', maxWidth: '400px', overflow: 'hidden' }}>
+            <Link2 style={{ width: '13px', height: '13px', color: '#94A3B8', flexShrink: 0 }} />
+            <span style={{ fontSize: '11px', color: '#64748B', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>{buildShareUrl(tools)}</span>
           </div>
         </div>
-      </div>
-
-      {/* ── Page header ── */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '32px 0 28px' }}>
-        <div className="max-w-[1200px] mx-auto" style={{ padding: '0 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <GitCompareArrows style={{ width: '20px', height: '20px', color: '#fff' }} />
-              </div>
-              <div>
-                <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 2px' }}>Side-by-side</p>
-                <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '24px', fontWeight: 900, color: '#171717', margin: 0, letterSpacing: '-0.03em' }}>
-                  Tool Comparison
-                </h1>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {/* Share button */}
-              <button
-                onClick={handleShare}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '7px',
-                  padding: '9px 18px', borderRadius: '10px',
-                  border: copied ? '1.5px solid #BBF7D0' : '1.5px solid #E2E8F0',
-                  background: copied ? '#F0FDF4' : '#F8FAFC',
-                  color: copied ? '#15803D' : '#374151',
-                  fontWeight: 700, fontSize: '13px', cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => { if (!copied) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#F59E0B'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFBEB'; (e.currentTarget as HTMLButtonElement).style.color = '#B45309'; } }}
-                onMouseLeave={e => { if (!copied) { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; } }}
-              >
-                {copied
-                  ? <><Check style={{ width: '13px', height: '13px' }} /> Copied!</>
-                  : <><Share2 style={{ width: '13px', height: '13px' }} /> Share Comparison</>
-                }
-              </button>
-              <button
-                onClick={() => { clear(); navigate('/'); }}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#374151', fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLButtonElement).style.background = '#F1F5F9'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; }}
-              >
-                <ArrowLeft style={{ width: '13px', height: '13px' }} /> Back to Browse
-              </button>
-            </div>
-          </div>
-
-          {/* Shareable URL preview bar */}
-          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', maxWidth: '600px' }}>
-            <Link2 style={{ width: '14px', height: '14px', color: '#94A3B8', flexShrink: 0 }} />
-            <span style={{ fontSize: '12px', color: '#64748B', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
-              {buildShareUrl(tools)}
-            </span>
-            <button
-              onClick={handleShare}
-              style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0 4px' }}
-            >
-              {copied ? '✓ Copied' : 'Copy'}
-            </button>
-          </div>
-        </div>
-      </section>
+      </PageHero>
 
       {/* ── Main content ── */}
       <div className="max-w-[1200px] mx-auto" style={{ padding: '40px 40px 80px', width: '100%', boxSizing: 'border-box' }}>

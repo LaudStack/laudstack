@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, X, ArrowRight, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import ToolCard from '@/components/ToolCard';
 import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
 
@@ -109,52 +110,42 @@ export default function SearchResults() {
     <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <Navbar />
 
-      {/* ── Search Header ──────────────────────────────────────────────────── */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', paddingTop: '88px', paddingBottom: '28px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
-
-          {/* Search bar */}
-          <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '14px', boxShadow: '0 2px 20px rgba(0,0,0,0.08)', border: '1.5px solid #E2E8F0', overflow: 'hidden', maxWidth: '760px' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <Search style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#94A3B8' }} />
-              <input
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                placeholder="Search tools by name, category, or tag..."
-                autoFocus
-                style={{ width: '100%', paddingLeft: '50px', paddingRight: inputValue ? '44px' : '16px', height: '54px', fontSize: '15px', color: '#171717', background: 'transparent', border: 'none', outline: 'none' }}
-              />
-              {inputValue && (
-                <button onClick={clearSearch} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex', alignItems: 'center', padding: '4px' }}>
-                  <X style={{ width: '16px', height: '16px' }} />
-                </button>
-              )}
-            </div>
-            <button
-              onClick={handleSearch}
-              style={{ height: '54px', padding: '0 28px', fontWeight: 700, color: '#fff', fontSize: '14px', background: '#F59E0B', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-            >
-              Search
-            </button>
+      <PageHero
+        eyebrow="Search"
+        title={query ? `Results for "${query}"` : 'Search All Tools'}
+        subtitle={query
+          ? `${results.length} tool${results.length !== 1 ? 's' : ''} found${selectedCat !== 'All' ? ` in ${selectedCat}` : ''} — refine below or try a different query.`
+          : 'Find the right AI and SaaS tool from our directory of 95+ verified products.'}
+        accent="amber"
+        layout="default"
+        size="sm"
+      >
+        {/* Inline search bar */}
+        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.07)', border: '1.5px solid #E2E8F0', overflow: 'hidden', maxWidth: '680px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#94A3B8' }} />
+            <input
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              placeholder="Search tools by name, category, or tag..."
+              autoFocus
+              style={{ width: '100%', paddingLeft: '46px', paddingRight: inputValue ? '40px' : '14px', height: '46px', fontSize: '14px', color: '#171717', background: 'transparent', border: 'none', outline: 'none' }}
+            />
+            {inputValue && (
+              <button onClick={clearSearch} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex', alignItems: 'center', padding: '4px' }}>
+                <X style={{ width: '14px', height: '14px' }} />
+              </button>
+            )}
           </div>
-
-          {/* Result summary */}
-          {query && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '14px', color: '#64748B' }}>
-                <strong style={{ color: '#171717' }}>{results.length}</strong> result{results.length !== 1 ? 's' : ''} for
-              </span>
-              <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717', background: '#F1F5F9', padding: '2px 10px', borderRadius: '6px' }}>"{query}"</span>
-              {selectedCat !== 'All' && (
-                <span style={{ fontSize: '13px', color: '#64748B' }}>in <strong>{selectedCat}</strong></span>
-              )}
-            </motion.div>
-          )}
+          <button
+            onClick={handleSearch}
+            style={{ height: '46px', padding: '0 22px', fontWeight: 700, color: '#0A0A0A', fontSize: '13px', background: '#F59E0B', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >Search</button>
         </div>
-      </div>
+      </PageHero>
 
       {/* ── Filters bar ────────────────────────────────────────────────────── */}
       <div style={{ background: '#fff', borderBottom: '1px solid #F1F5F9', position: 'sticky', top: '72px', zIndex: 40 }}>

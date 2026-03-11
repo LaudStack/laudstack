@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS } from '@/lib/mockData';
 
 type Step = 'search' | 'verify' | 'details' | 'submitted';
@@ -67,25 +68,15 @@ export default function ClaimTool() {
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
-      <div className="mt-[72px] flex-1">
-
-        {/* Hero */}
-        <div className="relative overflow-hidden border-b border-gray-200">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
-          <div className="max-w-4xl mx-auto px-4 py-14 relative text-center">
-            <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
-              <Shield className="w-4 h-4" />
-              Verified Founder Program
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
-              Claim your tool on<br />
-              <span className="text-amber-400">LaudStack</span>
-            </h1>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
-              Verify ownership, respond to reviews, access analytics, and unlock Pro founder features.
-            </p>
-          </div>
-        </div>
+      <div className="flex-1">
+        <PageHero
+          eyebrow="Verified Founder Program"
+          title="Claim your tool on LaudStack"
+          subtitle="Verify ownership, respond to reviews, access analytics, and unlock Pro founder features."
+          accent="amber"
+          layout="centered"
+          size="sm"
+        />
 
         <div className="max-w-[1300px] mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">

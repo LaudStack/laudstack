@@ -69,8 +69,6 @@ const NAV_ITEMS = [
     label: 'Resources',
     megaMenu: [
       { icon: BookOpen,  label: 'Reviews',           desc: 'Community reviews & ratings',          href: '/reviews' },
-      { icon: Package,   label: 'Templates',        desc: 'Production-ready starter kits',        href: '/templates' },
-      { icon: Crown,     label: 'Pricing',          desc: 'Free, Pro & Enterprise plans',         href: '/pricing' },
       { icon: Rocket,    label: 'Claim Your Tool',  desc: 'Verify ownership & get Pro badge',     href: '/claim' },
       { icon: Shield,    label: 'Trust Framework',  desc: 'How we verify reviews',                href: '/trust' },
       { icon: Users,     label: 'About LaudStack',  desc: 'Our mission and team',                 href: '/about' },

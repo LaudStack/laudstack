@@ -12,6 +12,7 @@ import { MOCK_TOOLS } from '@/lib/mockData';
 import type { Tool } from '@/lib/types';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -451,50 +452,41 @@ export default function Launches() {
     <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
 
-      {/* ── Hero ── */}
-      <div className="relative overflow-hidden border-b border-gray-200 mt-[72px]">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-slate-900/50" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="max-w-[1300px] mx-auto px-4 py-16 relative">
-          <div className="flex items-center gap-2 text-amber-400 text-sm font-medium mb-4">
-            <Trophy className="w-4 h-4" />
-            <span>LaudStack Leaderboard</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3">
-            Top AI & SaaS Tools
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl">
-            {periodInfo.description}. Rankings use momentum scoring — rewarding recent engagement over raw historical counts.
-          </p>
-
-          {/* Period tabs */}
-          <div className="flex items-center gap-2 mt-8 flex-wrap">
-            {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => {
-              const info = PERIOD_LABELS[p];
-              const isActive = period === p;
-              return (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'bg-amber-400 text-slate-900'
-                      : 'bg-gray-100 text-slate-600 hover:bg-gray-200 hover:text-slate-900'
-                  }`}
-                >
-                  {info.icon}
-                  {info.label}
-                </button>
-              );
-            })}
-
-            <div className="ml-auto flex items-center gap-2 text-slate-500 text-sm">
-              <Clock className="w-4 h-4" />
-              <span>Updated hourly</span>
-            </div>
+      <PageHero
+        eyebrow="LaudStack Leaderboard"
+        title="Top AI & SaaS Tools"
+        subtitle={`${periodInfo.description}. Rankings use momentum scoring — rewarding recent engagement over raw historical counts.`}
+        accent="amber"
+        layout="default"
+        size="md"
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => {
+            const info = PERIOD_LABELS[p];
+            const isActive = period === p;
+            return (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                  cursor: 'pointer', transition: 'all 0.15s', border: '1.5px solid',
+                  background: isActive ? '#F59E0B' : '#F8FAFC',
+                  borderColor: isActive ? '#F59E0B' : '#E2E8F0',
+                  color: isActive ? '#0A0A0A' : '#374151',
+                }}
+              >
+                {info.icon}{info.label}
+              </button>
+            );
+          })}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#9CA3AF' }}>
+            <Clock style={{ width: '13px', height: '13px' }} />
+            Updated hourly
           </div>
         </div>
-      </div>
+      </PageHero>
 
       <div className="max-w-[1300px] mx-auto px-4 py-10 w-full flex-1">
 
@@ -573,7 +565,7 @@ export default function Launches() {
         </div>
 
         {/* ── Bottom CTA ── */}
-        <div className="mt-10 bg-gradient-to-r from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-8 text-center">
+        <div className="mt-10 bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
           <h3 className="text-slate-900 font-bold text-xl mb-2">Is your tool missing from the leaderboard?</h3>
           <p className="text-slate-500 mb-5">Submit your AI or SaaS product to LaudStack and start collecting reviews from real users. Schedule a launch date to build anticipation.</p>
           <Link href="/launchpad">

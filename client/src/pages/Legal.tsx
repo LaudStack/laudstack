@@ -2,6 +2,7 @@
 import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { Shield, FileText, Cookie, ChevronRight } from 'lucide-react';
 
 type LegalType = 'privacy' | 'terms' | 'cookies';
@@ -154,21 +155,14 @@ function LegalPage({ type }: LegalPageProps) {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Hero */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-gray-200 pt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-              <Icon className="h-5 w-5 text-amber-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900">{content.title}</h1>
-              <p className="text-slate-500 text-sm mt-0.5">Last updated: {content.updated}</p>
-            </div>
-          </div>
-          <p className="text-slate-500 text-lg">{content.subtitle}</p>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="Legal"
+        title={content.title}
+        subtitle={`${content.subtitle} Last updated: ${content.updated}`}
+        accent="amber"
+        layout="default"
+        size="sm"
+      />
 
       <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

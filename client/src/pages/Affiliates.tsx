@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { DollarSign, Users, TrendingUp, Star, Check, ArrowRight, Zap, Shield, BarChart3, Gift } from 'lucide-react';
 
 const TIERS = [
@@ -93,28 +94,23 @@ export default function Affiliates() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Hero */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-gray-200 pt-20">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">
-            <Gift className="h-3 w-3" /> Affiliate Program
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-4">
-            Earn Up to <span className="text-amber-400">40%</span><br />Recurring Commission
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto mb-8">
-            Join 1,200+ affiliates earning passive income by recommending LaudStack to their audience of founders, marketers, and developers.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <a href="#apply" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-400 transition-colors">
-              Apply Now — It's Free <ArrowRight className="h-4 w-4" />
-            </a>
-            <a href="#tiers" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 border border-gray-300 text-slate-900 font-bold text-sm hover:bg-gray-200 transition-colors">
-              View Commission Tiers
-            </a>
-          </div>
+      <PageHero
+        eyebrow="Affiliate Program"
+        title="Earn Up to 40% Recurring Commission"
+        subtitle="Join 1,200+ affiliates earning passive income by recommending LaudStack to their audience of founders, marketers, and developers."
+        accent="amber"
+        layout="centered"
+        size="md"
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <a href="#apply" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', textDecoration: 'none' }}>
+            Apply Now — It's Free <ArrowRight style={{ width: '14px', height: '14px' }} />
+          </a>
+          <a href="#tiers" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#F8FAFC', border: '1.5px solid #E2E8F0', color: '#374151', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}>
+            View Commission Tiers
+          </a>
         </div>
-      </div>
+      </PageHero>
 
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
 

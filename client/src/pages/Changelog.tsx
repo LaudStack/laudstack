@@ -1,6 +1,7 @@
 // Design: LaudStack dark-slate + amber accent. Changelog with timeline layout.
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 import { Zap, Shield, Star, Bug, TrendingUp, Package, Users, ArrowRight, Rocket } from 'lucide-react';
 
 const RELEASES = [
@@ -101,22 +102,14 @@ export default function Changelog() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Hero */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-gray-200 pt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-xs font-bold text-amber-400 uppercase tracking-widest">
-              <Zap className="h-3 w-3" /> Changelog
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3">
-            What's New in LaudStack
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl">
-            A running log of new features, improvements, and fixes — updated with every release.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="Changelog"
+        title="What's New in LaudStack"
+        subtitle="A running log of new features, improvements, and fixes — updated with every release."
+        accent="amber"
+        layout="default"
+        size="sm"
+      />
 
       {/* Timeline */}
       <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
@@ -172,7 +165,7 @@ export default function Changelog() {
         </div>
 
         {/* Subscribe CTA */}
-        <div className="mt-16 bg-gradient-to-r from-amber-500/20 to-amber-500/20 border border-amber-500/30 rounded-2xl p-8 text-center">
+        <div className="mt-16 bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
           <Zap className="h-10 w-10 text-amber-400 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-slate-900 mb-2">Stay Up to Date</h3>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">

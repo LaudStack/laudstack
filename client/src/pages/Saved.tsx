@@ -10,6 +10,7 @@ import { Bookmark, ArrowLeft, Search, Trash2, ChevronRight, ExternalLink } from 
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import ToolCard from '@/components/ToolCard';
 import { useSavedTools } from '@/hooks/useSavedTools';
@@ -32,61 +33,31 @@ export default function Saved() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
       <Navbar />
-      <div style={{ height: '72px', flexShrink: 0 }} />
-
-      {/* ── Breadcrumb ── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '12px 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
-            <Link href="/" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
-            <ChevronRight style={{ width: '12px', height: '12px' }} />
-            <span style={{ color: '#171717', fontWeight: 600 }}>Saved Tools</span>
-          </div>
+      <PageHero
+        eyebrow="Your Collection"
+        title={savedTools.length > 0 ? `Saved Tools (${savedTools.length})` : 'Saved Tools'}
+        subtitle="Tools you’ve bookmarked for quick access. Save any tool from the directory to build your personal stack."
+        accent="amber"
+        layout="default"
+        size="sm"
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {savedTools.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '9px', border: '1.5px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+            >
+              <Trash2 style={{ width: '13px', height: '13px' }} /> Clear All
+            </button>
+          )}
+          <button
+            onClick={() => navigate('/')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '9px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#374151', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+          >
+            <ArrowLeft style={{ width: '13px', height: '13px' }} /> Browse Tools
+          </button>
         </div>
-      </div>
-
-      {/* ── Page header ── */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '32px 0 28px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Bookmark style={{ width: '20px', height: '20px', color: '#fff', fill: '#fff' }} />
-              </div>
-              <div>
-                <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 2px' }}>Your collection</p>
-                <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '24px', fontWeight: 900, color: '#171717', margin: 0, letterSpacing: '-0.03em' }}>
-                  Saved Tools
-                  {savedTools.length > 0 && (
-                    <span style={{ marginLeft: '10px', fontSize: '16px', fontWeight: 700, color: '#94A3B8' }}>({savedTools.length})</span>
-                  )}
-                </h1>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {savedTools.length > 0 && (
-                <button
-                  onClick={handleClearAll}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: '1.5px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FEE2E2'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FEF2F2'; }}
-                >
-                  <Trash2 style={{ width: '13px', height: '13px' }} /> Clear All
-                </button>
-              )}
-              <button
-                onClick={() => navigate('/')}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#374151', fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLButtonElement).style.background = '#F1F5F9'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; }}
-              >
-                <ArrowLeft style={{ width: '13px', height: '13px' }} /> Browse Tools
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      </PageHero>
 
       {/* ── Content ── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 40px 80px', width: '100%', boxSizing: 'border-box', flex: 1 }}>

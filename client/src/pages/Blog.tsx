@@ -178,7 +178,7 @@ export default function Blog() {
           >
             <div className="absolute inset-0">
               <img src={featured.image} alt={featured.title} className="w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent" />
+              <div className="absolute inset-0 bg-white/85" />
             </div>
             <div className="relative p-8 md:p-12 max-w-2xl">
               <div className="flex items-center gap-3 mb-4">
@@ -286,7 +286,7 @@ export default function Blog() {
         )}
 
         {/* Newsletter CTA */}
-        <div className="mt-16 bg-gradient-to-r from-amber-500/20 to-amber-500/20 border border-amber-500/30 rounded-2xl p-8 text-center">
+        <div className="mt-16 bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
           <h3 className="text-xl font-bold text-slate-900 mb-2">Get the Weekly Digest</h3>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
             New tool reviews, comparison guides, and industry insights — delivered every Tuesday.
