@@ -77,6 +77,7 @@ export default function AllTools() {
   const [catExpanded, setCatExpanded] = useState(true);
   const [pricingExpanded, setPricingExpanded] = useState(true);
   const [ratingExpanded, setRatingExpanded] = useState(true);
+  const [badgeExpanded, setBadgeExpanded] = useState(true);
   // Track whether we're currently syncing FROM the URL to avoid loops
   const [syncingFromUrl, setSyncingFromUrl] = useState(false);
 
@@ -187,6 +188,22 @@ export default function AllTools() {
     MOCK_TOOLS.forEach(t => { counts[t.category] = (counts[t.category] || 0) + 1; });
     return counts;
   }, []);
+
+  // Badge counts — how many tools carry each badge
+  const badgeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    MOCK_TOOLS.forEach(t => {
+      (t.badges || []).forEach(b => { counts[b] = (counts[b] || 0) + 1; });
+    });
+    return counts;
+  }, []);
+
+  // Only show badges that have at least one tool
+  const availableBadges = useMemo(() =>
+    Object.entries(BADGE_LABELS)
+      .filter(([key]) => (badgeCounts[key] || 0) > 0)
+      .sort((a, b) => (badgeCounts[b[0]] || 0) - (badgeCounts[a[0]] || 0)),
+  [badgeCounts]);
 
   const categoryNames = useMemo(() => CATEGORIES.map(c => c.name), []);
 
@@ -322,6 +339,78 @@ export default function AllTools() {
                         <span className="text-xs text-slate-600 group-hover:text-slate-900 transition-colors">{p}</span>
                       </label>
                     ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Badge filter */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setBadgeExpanded(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-slate-900 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>Badges</span>
+                    {activeBadge && (
+                      <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" title="Badge filter active" />
+                    )}
+                  </div>
+                  {badgeExpanded ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />}
+                </button>
+                {badgeExpanded && (
+                  <div className="px-3 pb-3 space-y-0.5">
+                    {/* "Any badge" option to clear */}
+                    <label className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer group">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="badge"
+                          checked={activeBadge === ''}
+                          onChange={() => setActiveBadge('')}
+                          className="accent-amber-500 w-3.5 h-3.5"
+                        />
+                        <span className="text-xs text-slate-600 group-hover:text-slate-900 transition-colors">Any badge</span>
+                      </div>
+                      <span className="text-xs text-slate-400">{MOCK_TOOLS.length}</span>
+                    </label>
+                    {availableBadges.map(([key, label]) => {
+                      const count = badgeCounts[key] || 0;
+                      const isActive = activeBadge === key;
+                      // Pick a subtle accent colour per badge type
+                      const dotColor =
+                        key === 'editors_pick'   ? '#7C3AED' :
+                        key === 'top_rated'       ? '#D97706' :
+                        key === 'featured'        ? '#1D4ED8' :
+                        key === 'verified'        ? '#15803D' :
+                        key === 'new_launch'      ? '#0369A1' :
+                        key === 'trending'        ? '#C2410C' :
+                        key === 'pro_founder'     ? '#F59E0B' :
+                        key === 'community_pick'  ? '#BE123C' :
+                        key === 'best_value'      ? '#15803D' :
+                        '#D97706';
+                      return (
+                        <label key={key} className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg cursor-pointer group transition-colors ${
+                          isActive ? 'bg-amber-50' : 'hover:bg-gray-100'
+                        }`}>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="badge"
+                              checked={isActive}
+                              onChange={() => setActiveBadge(isActive ? '' : key)}
+                              className="accent-amber-500 w-3.5 h-3.5"
+                            />
+                            <span
+                              style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }}
+                            />
+                            <span className={`text-xs transition-colors ${
+                              isActive ? 'text-amber-700 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
+                            }`}>{label}</span>
+                          </div>
+                          <span className="text-xs text-slate-400">{count}</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 )}
               </div>
