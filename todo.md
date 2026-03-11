@@ -93,3 +93,18 @@
   - [x] Promote tab: promotion options (Featured, Newsletter, Social, LaudStack Pick)
   - [x] Settings tab: founder profile, notifications, privacy, danger zone
 - [x] Navbar dropdown enhanced with sections (My Account / Founder Tools), quick stats, descriptions, and better visual hierarchy
+
+## Login Page & Multi-Provider Auth (Phase 3)
+- [x] Polished login/signup page with split-panel design (dark brand left + white auth right)
+- [x] Tab switcher: Sign In / Create Account with smooth transitions
+- [x] Google OAuth button (via Manus OAuth portal with provider=google hint)
+- [x] LinkedIn OAuth button (via custom /api/auth/linkedin server route)
+- [x] Email/password form with inline validation and password strength indicator
+- [x] Password strength indicator (Weak/Fair/Good/Strong with 4 checks)
+- [x] Forgot password link (redirects to Manus OAuth portal)
+- [x] Error handling for OAuth failures (linkedin_denied, linkedin_failed, etc.)
+- [x] DB schema extended: firstName, lastName, city, state, country, linkedinId, linkedinUrl, avatarUrl, emailVerified, loginMethod, passwordHash
+- [x] LinkedIn OAuth server route (/api/auth/linkedin + /api/auth/linkedin/callback)
+- [x] LinkedIn profile extraction: first name, last name, email, city/state/country, profile photo
+- [x] Session cookie created after LinkedIn auth (same as Manus OAuth)
+- [ ] LinkedIn OAuth credentials (LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET) — add when ready

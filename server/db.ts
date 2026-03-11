@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, newsletterSubscribers, InsertNewsletterSubscriber } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -35,22 +35,36 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod"] as const;
+    const textFields = [
+      "name", "firstName", "lastName", "email", "avatarUrl",
+      "city", "state", "country", "linkedinUrl", "linkedinId",
+      "loginMethod", "passwordHash", "emailVerifyToken", "passwordResetToken",
+    ] as const;
     type TextField = (typeof textFields)[number];
 
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
       const normalized = value ?? null;
-      values[field] = normalized;
+      (values as Record<string, unknown>)[field] = normalized;
       updateSet[field] = normalized;
     };
 
     textFields.forEach(assignNullable);
 
+    // Boolean fields
+    if (user.emailVerified !== undefined) {
+      values.emailVerified = user.emailVerified;
+      updateSet.emailVerified = user.emailVerified;
+    }
+
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
       updateSet.lastSignedIn = user.lastSignedIn;
+    }
+    if (user.passwordResetExpires !== undefined) {
+      values.passwordResetExpires = user.passwordResetExpires;
+      updateSet.passwordResetExpires = user.passwordResetExpires;
     }
     if (user.role !== undefined) {
       values.role = user.role;
@@ -83,9 +97,35 @@ export async function getUserByOpenId(openId: string) {
     console.warn("[Database] Cannot get user: database not available");
     return undefined;
   }
-
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users)
+    .where(eq(users.email, email.toLowerCase().trim()))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByLinkedInId(linkedinId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users)
+    .where(eq(users.linkedinId, linkedinId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByEmailOrLinkedIn(email: string, linkedinId?: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const conditions = linkedinId
+    ? or(eq(users.email, email.toLowerCase().trim()), eq(users.linkedinId, linkedinId))
+    : eq(users.email, email.toLowerCase().trim());
+  const result = await db.select().from(users).where(conditions).limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
