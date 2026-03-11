@@ -61,6 +61,7 @@ export interface Tool {
   is_pro: boolean;
   promotional_banner?: string;
   promotional_cta?: string;
+  screenshot_url?: string;  // Platform homepage screenshot — uploaded by founder
   launched_at: string;
   created_at: string;
   updated_at: string;

@@ -86,6 +86,7 @@ export const MOCK_TOOLS: Tool[] = [
     is_featured: true, is_verified: true, is_pro: true,
     promotional_banner: 'Get 3 months free with code LAUNCH2026',
     promotional_cta: 'Claim Offer',
+    screenshot_url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&h=600&fit=crop&auto=format',
     launched_at: '2020-10-01', created_at: '2020-10-01', updated_at: '2026-03-01',
   },
   {
@@ -188,6 +189,7 @@ export const MOCK_TOOLS: Tool[] = [
     tags: ['image', 'game assets', 'AI', 'art'], badges: ['trending', 'new_launch'],
     upvote_count: 1870, review_count: 543, average_rating: 4.6, rank_score: 9000, weekly_rank_change: 25,
     is_featured: false, is_verified: true, is_pro: false,
+    screenshot_url: 'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=800&h=600&fit=crop&auto=format',
     launched_at: '2022-11-01', created_at: '2022-11-01', updated_at: '2026-03-01',
   },
   {
@@ -422,6 +424,7 @@ export const MOCK_TOOLS: Tool[] = [
     tags: ['voice cloning', 'AI', 'audio', 'enterprise'], badges: [],
     upvote_count: 540, review_count: 143, average_rating: 4.2, rank_score: 7600, weekly_rank_change: 23,
     is_featured: false, is_verified: true, is_pro: false,
+    screenshot_url: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800&h=600&fit=crop&auto=format',
     launched_at: '2019-01-01', created_at: '2019-01-01', updated_at: '2025-12-01',
   },
 
@@ -538,6 +541,7 @@ export const MOCK_TOOLS: Tool[] = [
     tags: ['coding', 'AI', 'editor', 'developer'], badges: ['trending', 'new_launch'],
     upvote_count: 2890, review_count: 743, average_rating: 4.7, rank_score: 9380, weekly_rank_change: 24,
     is_featured: true, is_verified: true, is_pro: false,
+    screenshot_url: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop&auto=format',
     launched_at: '2023-03-14', created_at: '2023-03-14', updated_at: '2026-03-07',
   },
   {
@@ -850,6 +854,7 @@ export const MOCK_TOOLS: Tool[] = [
     tags: ['research', 'academic', 'AI', 'papers'], badges: ['editors_pick'],
     upvote_count: 870, review_count: 234, average_rating: 4.5, rank_score: 8300, weekly_rank_change: 22,
     is_featured: false, is_verified: true, is_pro: false,
+    screenshot_url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&auto=format',
     launched_at: '2021-01-01', created_at: '2021-01-01', updated_at: '2026-02-01',
   },
   {
@@ -1006,6 +1011,7 @@ export const MOCK_TOOLS: Tool[] = [
     tags: ['sales', 'lead generation', 'AI', 'outreach'], badges: ['trending', 'editors_pick'],
     upvote_count: 1890, review_count: 654, average_rating: 4.5, rank_score: 8900, weekly_rank_change: 23,
     is_featured: false, is_verified: true, is_pro: false,
+    screenshot_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&auto=format',
     launched_at: '2015-01-01', created_at: '2015-01-01', updated_at: '2026-03-01',
   },
   {
