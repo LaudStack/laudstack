@@ -50,7 +50,7 @@ const FOOTER_SECTIONS = [
       { label: 'Pricing', href: '/pricing', live: true },
       { label: 'Affiliate Program', href: '/affiliates', live: true },
       { label: 'Advertise', href: '/advertise', live: false },
-      { label: 'Sponsored Listings', href: '/advertise', live: false },
+      { label: 'Success Stories', href: '/blog', live: true },
     ],
   },
   {
