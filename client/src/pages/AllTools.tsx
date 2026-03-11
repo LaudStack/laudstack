@@ -32,10 +32,11 @@ export default function AllTools() {
   const [location, navigate] = useLocation();
   const [search, setSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
-    // Read ?category param on initial render
+    // Read ?category param on initial render — supports comma-separated values
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');
-    return cat ? [decodeURIComponent(cat)] : [];
+    if (!cat) return [];
+    return decodeURIComponent(cat).split(',').map(c => c.trim()).filter(Boolean);
   });
   const [selectedPricing, setSelectedPricing] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
@@ -51,7 +52,9 @@ export default function AllTools() {
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');
     if (cat) {
-      setSelectedCategories([decodeURIComponent(cat)]);
+      // Support comma-separated multi-category: ?category=AI+Writing,Design
+      const cats = decodeURIComponent(cat).split(',').map(c => c.trim()).filter(Boolean);
+      setSelectedCategories(cats);
       // Clean the URL param after applying so the filter bar stays in sync
       navigate('/tools', { replace: true });
     }
