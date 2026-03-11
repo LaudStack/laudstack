@@ -11,7 +11,7 @@
  *   7. Related Tools
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import {
@@ -139,6 +139,34 @@ export default function ToolDetail() {
   const [upvoteCount, setUpvoteCount] = useState(0);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('about');
+
+  // Sticky tab bar — track active section via IntersectionObserver
+  useEffect(() => {
+    const sectionIds = ['about', 'screenshots', 'features', 'pricing', 'reviews'];
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach(id => {
+      const el = document.getElementById(`section-${id}`);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        { rootMargin: '-20% 0px -70% 0px', threshold: 0 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    return () => observers.forEach(o => o.disconnect());
+  }, [slug]);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(`section-${id}`);
+    if (!el) return;
+    const offset = 80; // sticky tab bar height
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
 
   const handleWriteReview = () => {
     if (!isAuthenticated) {
@@ -449,6 +477,44 @@ export default function ToolDetail() {
         </div>
       </header>
 
+      {/* ══ STICKY SECTION TAB BAR ══════════════════════════════════════════ */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 40, background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', boxShadow: '0 1px 6px rgba(15,23,42,0.06)' }}>
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '0', overflowX: 'auto', scrollbarWidth: 'none' }}>
+            {([
+              { id: 'about',       label: 'About' },
+              { id: 'screenshots', label: 'Screenshots' },
+              { id: 'features',    label: 'Features' },
+              { id: 'pricing',     label: 'Pricing' },
+              { id: 'reviews',     label: 'Reviews' },
+            ] as const).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => scrollToSection(tab.id)}
+                style={{
+                  flexShrink: 0,
+                  padding: '14px 18px',
+                  fontSize: '13px',
+                  fontWeight: activeSection === tab.id ? 700 : 500,
+                  color: activeSection === tab.id ? '#B45309' : '#64748B',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeSection === tab.id ? '2px solid #F59E0B' : '2px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'color 0.15s, border-color 0.15s',
+                  whiteSpace: 'nowrap',
+                  marginBottom: '-1px', // overlap the container border-bottom
+                }}
+                onMouseEnter={e => { if (activeSection !== tab.id) (e.currentTarget as HTMLButtonElement).style.color = '#374151'; }}
+                onMouseLeave={e => { if (activeSection !== tab.id) (e.currentTarget as HTMLButtonElement).style.color = '#64748B'; }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
       {/* ══ MAIN CONTENT ════════════════════════════════════════════════════ */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-10" style={{ padding: '40px 40px', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '28px', alignItems: 'start' }}>
 
@@ -456,7 +522,7 @@ export default function ToolDetail() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
 
           {/* Overview */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+          <motion.div id="section-about" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: '0 0 16px', letterSpacing: '-0.02em' }}>About {tool.name}</h2>
             <p style={{ fontSize: '15px', color: '#374151', lineHeight: 1.75, margin: '0 0 20px' }}>{tool.description}</p>
@@ -472,7 +538,7 @@ export default function ToolDetail() {
           </motion.div>
 
           {/* ── SCREENSHOT GALLERY ──────────────────────────────────────── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
+          <motion.div id="section-screenshots" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <div style={{ padding: '24px 28px 20px', borderBottom: '1px solid #F1F5F9' }}>
               <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>Screenshots</h2>
@@ -523,7 +589,7 @@ export default function ToolDetail() {
           </motion.div>
 
           {/* ── KEY FEATURES ────────────────────────────────────────────── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.07 }}
+          <motion.div id="section-features" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.07 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '28px 32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: '0 0 24px', letterSpacing: '-0.02em' }}>Key Features</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
@@ -541,7 +607,7 @@ export default function ToolDetail() {
           </motion.div>
 
           {/* ── PRICING TABLE ───────────────────────────────────────────── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.09 }}
+          <motion.div id="section-pricing" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.09 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '28px 32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '8px' }}>
               <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>Pricing</h2>
@@ -608,7 +674,7 @@ export default function ToolDetail() {
           </motion.div>
 
           {/* Ratings Summary */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}
+          <motion.div id="section-reviews" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}
             style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
               <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '18px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>Ratings & Reviews</h2>
