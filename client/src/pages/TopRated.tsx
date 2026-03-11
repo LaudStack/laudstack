@@ -8,9 +8,28 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS } from '@/lib/mockData';
-import { Star, Award, ChevronRight, MessageSquare, ThumbsUp, Shield, Crown } from 'lucide-react';
+import { Star, Award, ChevronRight, MessageSquare, ThumbsUp, Shield, Crown, X } from 'lucide-react';
 
 const CATEGORY_OPTIONS = ['All Categories', 'AI Writing', 'AI Image', 'AI Video', 'AI Code', 'AI Productivity', 'Design', 'Marketing', 'Developer Tools'];
+
+const BADGE_LABELS: Record<string, string> = {
+  editors_pick:   "Editor's Pick",
+  top_rated:      'Top Rated',
+  featured:       'Featured',
+  verified:       'Verified',
+  new_launch:     'New Launch',
+  trending:       'Trending',
+  pro_founder:    'Pro Founder',
+  community_pick: 'Community Pick',
+  best_value:     'Best Value',
+  laudstack_pick: 'LaudStack Pick',
+};
+
+const BADGE_DOT: Record<string, string> = {
+  editors_pick: '#7C3AED', top_rated: '#D97706', featured: '#1D4ED8',
+  verified: '#15803D', new_launch: '#0369A1', trending: '#C2410C',
+  pro_founder: '#F59E0B', community_pick: '#BE123C', best_value: '#15803D', laudstack_pick: '#D97706',
+};
 const MIN_REVIEWS = [
   { value: 0, label: 'Any reviews' },
   { value: 5, label: '5+ reviews' },
@@ -66,13 +85,14 @@ function PodiumCard({ tool, rank }: { tool: typeof MOCK_TOOLS[0]; rank: number }
   );
 }
 
-// ── URL helpers ─────────────────────────────────────────────────────────────
+// ── URL helpers ───────────────────────────────────────────────────────────────────────────────
 function parseUrlFilters() {
   const p = new URLSearchParams(window.location.search);
   return {
     category:    p.get('category') || 'All Categories',
     minReviews:  Number(p.get('min') || 0),
     pricing:     p.get('pricing') || '',
+    badge:       p.get('badge') || '',
   };
 }
 
@@ -85,6 +105,7 @@ export default function TopRated() {
   const [category,     setCategory]     = useState(initial.category);
   const [minReviews,   setMinReviews]   = useState(initial.minReviews);
   const [pricingFilter, setPricingFilter] = useState(initial.pricing);
+  const [activeBadge,  setActiveBadge]  = useState(initial.badge);
 
   // Inbound: URL → state (handles browser back/forward and shared links)
   useEffect(() => {
@@ -93,6 +114,7 @@ export default function TopRated() {
     setCategory(f.category);
     setMinReviews(f.minReviews);
     setPricingFilter(f.pricing);
+    setActiveBadge(f.badge);
     setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
 
@@ -103,9 +125,10 @@ export default function TopRated() {
     if (category    !== 'All Categories') p.set('category', category);
     if (minReviews  !== 0)               p.set('min', String(minReviews));
     if (pricingFilter !== '')            p.set('pricing', pricingFilter);
+    if (activeBadge !== '')             p.set('badge', activeBadge);
     const qs = p.toString();
     navigate(qs ? `/top-rated?${qs}` : '/top-rated', { replace: true });
-  }, [category, minReviews, pricingFilter, syncingFromUrl]);
+  }, [category, minReviews, pricingFilter, activeBadge, syncingFromUrl]);
 
   const sortedTools = useMemo(() => {
     let tools = [...MOCK_TOOLS];
@@ -122,6 +145,10 @@ export default function TopRated() {
       tools = tools.filter(t => t.pricing_model === pricingFilter);
     }
 
+    if (activeBadge) {
+      tools = tools.filter(t => (t.badges || []).includes(activeBadge as any));
+    }
+
     tools.sort((a, b) => {
       // Primary: average_rating, secondary: review_count (credibility weight)
       const ratingDiff = b.average_rating - a.average_rating;
@@ -130,7 +157,7 @@ export default function TopRated() {
     });
 
     return tools;
-  }, [category, minReviews, pricingFilter]);
+  }, [category, minReviews, pricingFilter, activeBadge]);
 
   const top3 = sortedTools.slice(0, 3);
   const rest = sortedTools.slice(3, 50);
@@ -183,7 +210,7 @@ export default function TopRated() {
 
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 mb-8">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
@@ -208,6 +235,56 @@ export default function TopRated() {
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
+          {/* Badge active chip */}
+          {activeBadge && (
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-xs text-purple-700 font-semibold">
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: BADGE_DOT[activeBadge] || '#7C3AED', display: 'inline-block', flexShrink: 0 }} />
+              {BADGE_LABELS[activeBadge] || activeBadge}
+              <button onClick={() => setActiveBadge('')} className="ml-0.5 text-purple-400 hover:text-purple-700">
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+          {(category !== 'All Categories' || minReviews > 0 || pricingFilter || activeBadge) && (
+            <button
+              onClick={() => { setCategory('All Categories'); setMinReviews(0); setPricingFilter(''); setActiveBadge(''); }}
+              className="text-xs text-amber-600 hover:text-amber-500 font-semibold"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {/* Badge filter pills */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-400 self-center mr-1">Badges:</span>
+          <button
+            onClick={() => setActiveBadge('')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+              activeBadge === '' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-gray-200 hover:border-slate-400'
+            }`}
+          >
+            All
+          </button>
+          {Object.entries(BADGE_LABELS).map(([key, label]) => {
+            const count = MOCK_TOOLS.filter(t => (t.badges || []).includes(key as any)).length;
+            if (count === 0) return null;
+            const isActive = activeBadge === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveBadge(isActive ? '' : key)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                  isActive ? 'text-white border-transparent' : 'bg-white text-slate-600 border-gray-200 hover:border-slate-400'
+                }`}
+                style={isActive ? { background: BADGE_DOT[key] || '#7C3AED', borderColor: BADGE_DOT[key] || '#7C3AED' } : {}}
+              >
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: isActive ? 'rgba(255,255,255,0.7)' : (BADGE_DOT[key] || '#7C3AED'), display: 'inline-block', flexShrink: 0 }} />
+                {label}
+                <span className={`${isActive ? 'text-white/70' : 'text-slate-400'}`}>({count})</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Podium top 3 */}

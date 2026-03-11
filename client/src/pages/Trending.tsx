@@ -96,6 +96,25 @@ function StatCard({ value, label, sub }: { value: string; label: string; sub?: s
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
+const BADGE_LABELS: Record<string, string> = {
+  editors_pick:   "Editor's Pick",
+  top_rated:      'Top Rated',
+  featured:       'Featured',
+  verified:       'Verified',
+  new_launch:     'New Launch',
+  trending:       'Trending',
+  pro_founder:    'Pro Founder',
+  community_pick: 'Community Pick',
+  best_value:     'Best Value',
+  laudstack_pick: 'LaudStack Pick',
+};
+
+const BADGE_DOT: Record<string, string> = {
+  editors_pick: '#7C3AED', top_rated: '#D97706', featured: '#1D4ED8',
+  verified: '#15803D', new_launch: '#0369A1', trending: '#C2410C',
+  pro_founder: '#F59E0B', community_pick: '#BE123C', best_value: '#15803D', laudstack_pick: '#D97706',
+};
+
 // Helper: parse Trending filter params from URL
 function parseTrendingParams(params: URLSearchParams) {
   return {
@@ -103,6 +122,7 @@ function parseTrendingParams(params: URLSearchParams) {
     category: params.get('category') || 'All Categories',
     sort:     params.get('sort')     || 'rank_change',
     query:    params.get('q')        ? decodeURIComponent(params.get('q')!) : '',
+    badge:    params.get('badge')    || '',
   };
 }
 
@@ -115,6 +135,7 @@ export default function Trending() {
   const [category,    setCategory]    = useState(initial.category);
   const [sortBy,      setSortBy]      = useState(initial.sort);
   const [query,       setQuery]       = useState(initial.query);
+  const [activeBadge, setActiveBadge] = useState(initial.badge);
   const [showFilters, setShowFilters] = useState(false);
   const [syncingFromUrl, setSyncingFromUrl] = useState(false);
 
@@ -126,12 +147,13 @@ export default function Trending() {
     if (category !== 'All Categories') params.set('category', category);
     if (sortBy   !== 'rank_change')    params.set('sort',     sortBy);
     if (query.trim())                  params.set('q',        query.trim());
+    if (activeBadge)                   params.set('badge',    activeBadge);
     const qs = params.toString();
     const newPath = qs ? `/trending?${qs}` : '/trending';
     if (window.location.pathname + window.location.search !== newPath) {
       navigate(newPath, { replace: true });
     }
-  }, [period, category, sortBy, query]);
+  }, [period, category, sortBy, query, activeBadge]);
 
   // ── Inbound: read URL → filter state on external navigation ─────────────────
   useEffect(() => {
@@ -143,6 +165,7 @@ export default function Trending() {
     setCategory(parsed.category);
     setSortBy(parsed.sort);
     setQuery(parsed.query);
+    setActiveBadge(parsed.badge);
     setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
 
@@ -162,6 +185,10 @@ export default function Trending() {
       );
     }
 
+    if (activeBadge) {
+      tools = tools.filter(t => (t.badges || []).includes(activeBadge as any));
+    }
+
     tools.sort((a, b) => {
       if (sortBy === 'rank_change') return (b.weekly_rank_change || 0) - (a.weekly_rank_change || 0);
       if (sortBy === 'rating')      return b.average_rating - a.average_rating;
@@ -171,7 +198,7 @@ export default function Trending() {
     });
 
     return tools;
-  }, [period, category, sortBy, query]);
+  }, [period, category, sortBy, query, activeBadge]);
 
   const topGain   = MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) > 0)
                                .reduce((max, t) => Math.max(max, t.weekly_rank_change || 0), 0);
@@ -284,10 +311,58 @@ export default function Trending() {
             </select>
           </div>
 
+          {/* Active badge chip */}
+          {activeBadge && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '20px', background: '#F5F3FF', border: '1px solid #DDD6FE', fontSize: '12px', fontWeight: 700, color: '#6D28D9' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: BADGE_DOT[activeBadge] || '#7C3AED', display: 'inline-block', flexShrink: 0 }} />
+              {BADGE_LABELS[activeBadge] || activeBadge}
+              <button onClick={() => setActiveBadge('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#A78BFA', display: 'flex', alignItems: 'center' }}>
+                <X style={{ width: '12px', height: '12px' }} />
+              </button>
+            </span>
+          )}
+
           {/* Result count */}
           <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500, marginLeft: 'auto' }}>
             {trendingTools.length} tool{trendingTools.length !== 1 ? 's' : ''}
           </span>
+        </div>
+
+        {/* Badge filter pills */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '24px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Badges:</span>
+          <button
+            onClick={() => setActiveBadge('')}
+            style={{
+              padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
+              cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+              background: activeBadge === '' ? '#171717' : '#FFFFFF',
+              color: activeBadge === '' ? '#FFFFFF' : '#6B7280',
+              border: activeBadge === '' ? '1px solid #171717' : '1px solid #E8ECF0',
+            }}
+          >All</button>
+          {Object.entries(BADGE_LABELS).map(([key, label]) => {
+            const count = MOCK_TOOLS.filter(t => (t.badges || []).includes(key as any)).length;
+            if (count === 0) return null;
+            const isActive = activeBadge === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveBadge(isActive ? '' : key)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
+                  cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                  background: isActive ? (BADGE_DOT[key] || '#7C3AED') : '#FFFFFF',
+                  color: isActive ? '#FFFFFF' : '#6B7280',
+                  border: `1px solid ${isActive ? (BADGE_DOT[key] || '#7C3AED') : '#E8ECF0'}`,
+                }}
+              >
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: isActive ? 'rgba(255,255,255,0.7)' : (BADGE_DOT[key] || '#7C3AED'), display: 'inline-block', flexShrink: 0 }} />
+                {label} <span style={{ opacity: 0.6 }}>({count})</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Ranked list ─────────────────────────────────────────────── */}
