@@ -1,37 +1,40 @@
 /*
- * LaudStack — SaaS Deals Page
- * Design: white bg, amber accents, rose urgency indicators, no gradients
- * Features: live countdown timers, dual filters (type + category), URL persistence,
- *           claim progress bars, copy-to-clipboard coupon codes, deal spotlight
+ * LaudStack — Deals Page
+ * Design: white bg (#FAFAFA), amber accents, rose urgency, no gradients
+ * Layout: PageHero → Deal of the Day spotlight → filter bar → deals grid
+ * Features: live countdown, dual filters + sort, URL persistence,
+ *           claim progress, coupon copy, submit deal modal
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import {
   Tag, Clock, Zap, Star, ExternalLink, Crown, Flame,
   CheckCircle, Gift, Shield, TrendingUp, Users, Timer,
   Copy, Check, SlidersHorizontal, X, ArrowUpRight, Percent,
-  Building2, Mail, Globe, FileText
+  Building2, Globe, ChevronRight, Sparkles, BadgePercent,
+  Trophy, Bolt,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 type DealType = 'all' | 'lifetime' | 'discount' | 'free-trial' | 'exclusive';
 
 interface Deal {
   id: string;
   name: string;
   tagline: string;
+  description: string;
   category: string;
   type: Exclude<DealType, 'all'>;
   originalPrice: string;
   dealPrice: string;
   discount: string;
   code: string;
-  expiresAt: string; // ISO date string
+  expiresAt: string;
   claimed: number;
   maxClaims: number;
   rating: number;
@@ -44,14 +47,16 @@ interface Deal {
   logoTextColor?: string;
   url?: string;
   featured?: boolean;
+  dealOfDay?: boolean;
 }
 
-// ── Deal data — expiry dates set relative to Mar 11 2026 ─────────────────────
+// ── Deal data ─────────────────────────────────────────────────────────────────
 const DEALS: Deal[] = [
   {
     id: 'd1',
     name: 'Notion AI',
     tagline: 'All-in-one workspace with AI writing assistant',
+    description: 'Notion AI supercharges your workspace with smart writing, summarization, and action-item extraction — all inside the tool your team already uses.',
     category: 'AI Productivity',
     type: 'exclusive',
     originalPrice: '$16/mo',
@@ -70,11 +75,13 @@ const DEALS: Deal[] = [
     logoColor: '#171717',
     logoTextColor: '#ffffff',
     featured: true,
+    dealOfDay: true,
   },
   {
     id: 'd2',
     name: 'Linear',
     tagline: 'Issue tracking built for modern software teams',
+    description: 'Linear is the project management tool loved by high-performance engineering teams. Pay once, use forever with this exclusive lifetime deal.',
     category: 'Project Management',
     type: 'lifetime',
     originalPrice: '$8/mo',
@@ -98,6 +105,7 @@ const DEALS: Deal[] = [
     id: 'd3',
     name: 'Loom',
     tagline: 'Async video messaging for teams',
+    description: 'Replace meetings with quick video messages. Loom\'s extended trial gives you 3 months to experience the full power of async communication.',
     category: 'Communication',
     type: 'free-trial',
     originalPrice: '$12.50/mo',
@@ -120,6 +128,7 @@ const DEALS: Deal[] = [
     id: 'd4',
     name: 'Framer',
     tagline: 'Design and publish websites without code',
+    description: 'Framer is the fastest way to design and ship stunning websites. This deal is ending soon — grab 50% off before it\'s gone.',
     category: 'Design',
     type: 'discount',
     originalPrice: '$30/mo',
@@ -142,6 +151,7 @@ const DEALS: Deal[] = [
     id: 'd5',
     name: 'Descript',
     tagline: 'Video and podcast editing with AI transcription',
+    description: 'Edit video like a doc. Descript\'s AI removes filler words, transcribes instantly, and lets you overdub your own voice.',
     category: 'AI Video',
     type: 'lifetime',
     originalPrice: '$24/mo',
@@ -164,6 +174,7 @@ const DEALS: Deal[] = [
     id: 'd6',
     name: 'Webflow',
     tagline: 'Visual web development platform',
+    description: 'Build production-ready websites visually. Webflow gives designers full code-level control without writing a single line.',
     category: 'No-Code',
     type: 'exclusive',
     originalPrice: '$23/mo',
@@ -186,6 +197,7 @@ const DEALS: Deal[] = [
     id: 'd7',
     name: 'Airtable',
     tagline: 'Spreadsheet-database hybrid for teams',
+    description: 'Airtable combines the simplicity of a spreadsheet with the power of a database. 60 days free to explore every feature.',
     category: 'Productivity',
     type: 'free-trial',
     originalPrice: '$20/mo',
@@ -208,6 +220,7 @@ const DEALS: Deal[] = [
     id: 'd8',
     name: 'Typeform',
     tagline: 'Engaging forms and surveys that people love',
+    description: 'Typeform turns boring forms into conversations. Higher completion rates, better data, and a beautiful experience.',
     category: 'Forms',
     type: 'discount',
     originalPrice: '$25/mo',
@@ -230,6 +243,7 @@ const DEALS: Deal[] = [
     id: 'd9',
     name: 'Figma',
     tagline: 'Collaborative interface design tool',
+    description: 'The industry-standard design tool. Figma\'s real-time collaboration makes it the go-to for product teams worldwide.',
     category: 'Design',
     type: 'discount',
     originalPrice: '$15/mo',
@@ -252,6 +266,7 @@ const DEALS: Deal[] = [
     id: 'd10',
     name: 'Zapier',
     tagline: 'Automate workflows between 6,000+ apps',
+    description: 'Connect your apps and automate workflows in minutes. Zapier\'s exclusive LaudStack deal gives you 41% off the Pro plan.',
     category: 'Automation',
     type: 'exclusive',
     originalPrice: '$49/mo',
@@ -274,6 +289,7 @@ const DEALS: Deal[] = [
     id: 'd11',
     name: 'Intercom',
     tagline: 'AI-first customer service platform',
+    description: 'Intercom\'s AI inbox resolves 50% of support questions automatically. Extended 45-day trial — no credit card needed.',
     category: 'CRM',
     type: 'free-trial',
     originalPrice: '$74/mo',
@@ -296,6 +312,7 @@ const DEALS: Deal[] = [
     id: 'd12',
     name: 'Surfer SEO',
     tagline: 'AI-powered content optimization for SEO',
+    description: 'Surfer SEO analyzes top-ranking pages and tells you exactly what to write. Lifetime access — pay once, rank forever.',
     category: 'Marketing',
     type: 'lifetime',
     originalPrice: '$89/mo',
@@ -316,99 +333,445 @@ const DEALS: Deal[] = [
   },
 ];
 
-const DEAL_TYPES: { id: DealType; label: string; icon: React.ElementType }[] = [
-  { id: 'all',        label: 'All Deals',       icon: Tag },
-  { id: 'lifetime',   label: 'Lifetime',         icon: Crown },
-  { id: 'exclusive',  label: 'Exclusive',        icon: Zap },
-  { id: 'discount',   label: 'Discounts',        icon: TrendingUp },
-  { id: 'free-trial', label: 'Extended Trials',  icon: Gift },
+const DEAL_TYPES: { id: DealType; label: string; icon: React.ElementType; color: string }[] = [
+  { id: 'all',        label: 'All Deals',       icon: Tag,          color: '' },
+  { id: 'lifetime',   label: 'Lifetime',         icon: Crown,        color: 'text-purple-600' },
+  { id: 'exclusive',  label: 'Exclusive',        icon: Bolt,         color: 'text-amber-600' },
+  { id: 'discount',   label: 'Discounts',        icon: BadgePercent, color: 'text-emerald-600' },
+  { id: 'free-trial', label: 'Extended Trials',  icon: Gift,         color: 'text-sky-600' },
 ];
 
 const TOOL_CATEGORIES = [
-  'All Categories',
-  'AI Productivity',
-  'AI Video',
-  'Automation',
-  'Communication',
-  'CRM',
-  'Design',
-  'Forms',
-  'Marketing',
-  'No-Code',
-  'Productivity',
-  'Project Management',
+  'All Categories', 'AI Productivity', 'AI Video', 'Automation',
+  'Communication', 'CRM', 'Design', 'Forms', 'Marketing',
+  'No-Code', 'Productivity', 'Project Management',
 ];
 
-const BADGE_STYLES: Record<string, string> = {
-  amber:  'bg-amber-50 text-amber-700 border border-amber-200',
-  purple: 'bg-purple-50 text-purple-700 border border-purple-200',
-  sky:    'bg-sky-50 text-sky-700 border border-sky-200',
-  rose:   'bg-rose-50 text-rose-700 border border-rose-200',
-};
-
-// ── Countdown hook ────────────────────────────────────────────────────────────
+// ── Countdown hook ─────────────────────────────────────────────────────────────
 function useCountdown(expiresAt: string) {
   const getRemaining = useCallback(() => {
     const diff = new Date(expiresAt).getTime() - Date.now();
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
-    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    return { days, hours, minutes, seconds, total: diff };
+    return {
+      days:    Math.floor(diff / 86400000),
+      hours:   Math.floor((diff % 86400000) / 3600000),
+      minutes: Math.floor((diff % 3600000) / 60000),
+      seconds: Math.floor((diff % 60000) / 1000),
+      total:   diff,
+    };
   }, [expiresAt]);
 
   const [remaining, setRemaining] = useState(getRemaining);
-
   useEffect(() => {
     const id = setInterval(() => setRemaining(getRemaining()), 1000);
     return () => clearInterval(id);
   }, [getRemaining]);
-
   return remaining;
 }
 
-// ── Countdown display ─────────────────────────────────────────────────────────
-function Countdown({ expiresAt, compact = false }: { expiresAt: string; compact?: boolean }) {
+// ── Countdown display ──────────────────────────────────────────────────────────
+function CountdownPill({ expiresAt, large = false }: { expiresAt: string; large?: boolean }) {
   const { days, hours, minutes, seconds, total } = useCountdown(expiresAt);
-  const isUrgent = total > 0 && total < 3 * 24 * 60 * 60 * 1000; // < 3 days
+  const isUrgent = total > 0 && total < 3 * 86400000;
   const expired  = total <= 0;
 
-  if (expired) {
-    return <span className="text-xs font-bold text-slate-400">Expired</span>;
-  }
+  if (expired) return (
+    <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+      Expired
+    </span>
+  );
 
-  if (compact) {
+  const urgentCls = isUrgent ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-200 text-slate-600';
+
+  if (!large) {
     return (
-      <span className={`text-xs font-bold ${isUrgent ? 'text-rose-600' : 'text-slate-500'}`}>
-        {days > 0 ? `${days}d ${hours}h left` : `${hours}h ${minutes}m left`}
+      <span className={`inline-flex items-center gap-1.5 text-xs font-bold border px-2.5 py-1 rounded-full ${urgentCls}`}>
+        <Timer className="w-3 h-3" />
+        {days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`} left
       </span>
     );
   }
 
-  const unit = (val: number, label: string) => (
-    <div className="flex flex-col items-center">
-      <span className={`text-base font-black tabular-nums leading-none ${isUrgent ? 'text-rose-600' : 'text-slate-900'}`}>
+  const seg = (val: number, lbl: string) => (
+    <div className="flex flex-col items-center min-w-[40px]">
+      <span className={`text-2xl font-black tabular-nums leading-none ${isUrgent ? 'text-rose-600' : 'text-slate-900'}`}>
         {String(val).padStart(2, '0')}
       </span>
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{label}</span>
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{lbl}</span>
     </div>
   );
 
   return (
-    <div className={`flex items-end gap-1.5 ${isUrgent ? 'text-rose-600' : ''}`}>
-      <Timer className={`w-3.5 h-3.5 mb-0.5 ${isUrgent ? 'text-rose-500' : 'text-slate-400'}`} />
-      {days > 0 && <>{unit(days, 'days')}<span className="text-slate-300 font-bold text-sm mb-0.5">:</span></>}
-      {unit(hours, 'hrs')}
-      <span className="text-slate-300 font-bold text-sm mb-0.5">:</span>
-      {unit(minutes, 'min')}
-      <span className="text-slate-300 font-bold text-sm mb-0.5">:</span>
-      {unit(seconds, 'sec')}
+    <div className={`inline-flex items-center gap-1 border rounded-xl px-4 py-2.5 ${urgentCls}`}>
+      <Timer className={`w-4 h-4 mr-1 ${isUrgent ? 'text-rose-500' : 'text-slate-400'}`} />
+      {days > 0 && <>{seg(days, 'days')}<span className="text-slate-300 font-bold text-lg mx-1">:</span></>}
+      {seg(hours, 'hrs')}
+      <span className="text-slate-300 font-bold text-lg mx-1">:</span>
+      {seg(minutes, 'min')}
+      <span className="text-slate-300 font-bold text-lg mx-1">:</span>
+      {seg(seconds, 'sec')}
     </div>
   );
 }
 
-// ── Submit a Deal Modal ───────────────────────────────────────────────────────
+// ── Deal of the Day Spotlight ──────────────────────────────────────────────────
+function DealOfDaySpotlight({ deal }: { deal: Deal }) {
+  const [copied, setCopied] = useState(false);
+  const claimedPct = Math.min(100, Math.round((deal.claimed / deal.maxClaims) * 100));
+  const urgentPct  = claimedPct >= 90;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(deal.code).then(() => {
+      setCopied(true);
+      toast.success(`Code "${deal.code}" copied to clipboard!`);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  return (
+    <section className="mb-10">
+      {/* Section header */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 border border-amber-200">
+          <Trophy className="w-4 h-4 text-amber-600" />
+        </div>
+        <h2 className="text-lg font-black text-slate-900 tracking-tight">Deal of the Day</h2>
+        <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200">
+          Exclusive · Limited slots
+        </span>
+      </div>
+
+      {/* Spotlight card */}
+      <div className="bg-white border-2 border-amber-200 rounded-2xl overflow-hidden"
+           style={{ boxShadow: '0 4px 24px rgba(245,158,11,0.10)' }}>
+
+        {/* Top banner */}
+        <div className="bg-amber-50 border-b border-amber-100 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-bold text-amber-800">Today's featured deal — exclusively negotiated for LaudStack members</span>
+          </div>
+          <CountdownPill expiresAt={deal.expiresAt} />
+        </div>
+
+        <div className="p-6 md:p-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+
+            {/* Left: tool info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-5 mb-5">
+                {/* Logo */}
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black shrink-0 border border-black/10"
+                     style={{ background: deal.logoColor, color: deal.logoTextColor || '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.12)' }}>
+                  {deal.logo}
+                </div>
+                {/* Name + tagline */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap mb-1">
+                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">{deal.name}</h3>
+                    <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200">
+                      {deal.discount}
+                    </span>
+                  </div>
+                  <p className="text-slate-500 text-sm mb-2">{deal.tagline}</p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">{deal.category}</span>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span className="text-sm font-bold text-slate-800">{deal.rating}</span>
+                      <span className="text-xs text-slate-400">({deal.reviews.toLocaleString()} reviews)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-slate-600 text-sm leading-relaxed mb-5">{deal.description}</p>
+
+              {/* Features */}
+              <div className="grid grid-cols-2 gap-2 mb-5">
+                {deal.features.map(f => (
+                  <div key={f} className="flex items-center gap-2">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span className="text-sm text-slate-700 font-medium">{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Claim progress */}
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">
+                  <span className={urgentPct ? 'text-rose-600' : 'text-slate-700'}>{deal.claimed.toLocaleString()}</span> / {deal.maxClaims.toLocaleString()} claimed
+                </span>
+                <span className={`text-xs font-bold ${urgentPct ? 'text-rose-600' : 'text-slate-500'}`}>{claimedPct}% claimed</span>
+              </div>
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${claimedPct}%`, background: urgentPct ? '#F87171' : claimedPct >= 60 ? '#FBBF24' : '#34D399' }}
+                />
+              </div>
+              {urgentPct && (
+                <p className="text-xs font-bold text-rose-600 mt-1.5 flex items-center gap-1">
+                  <Flame className="w-3 h-3" /> Only {deal.maxClaims - deal.claimed} slots remaining!
+                </p>
+              )}
+            </div>
+
+            {/* Right: pricing + CTA */}
+            <div className="lg:w-72 shrink-0">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                {/* Pricing */}
+                <div className="mb-5">
+                  <div className="text-xs font-semibold text-slate-400 line-through mb-1">{deal.originalPrice}</div>
+                  <div className="text-4xl font-black text-slate-900 tracking-tight mb-1">{deal.dealPrice}</div>
+                  <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-full">
+                    <BadgePercent className="w-3 h-3" />
+                    {deal.discount} savings
+                  </div>
+                </div>
+
+                {/* Countdown */}
+                <div className="mb-5">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Deal expires in</p>
+                  <CountdownPill expiresAt={deal.expiresAt} large />
+                </div>
+
+                {/* Coupon code */}
+                {deal.code && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Coupon code</p>
+                    <button
+                      onClick={handleCopy}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-dashed font-mono text-sm font-bold transition-all"
+                      style={{
+                        borderColor: copied ? '#86EFAC' : '#CBD5E1',
+                        background: copied ? '#F0FDF4' : '#fff',
+                        color: copied ? '#15803D' : '#334155',
+                      }}
+                    >
+                      <span>{deal.code}</span>
+                      {copied
+                        ? <Check className="w-4 h-4 text-emerald-500" />
+                        : <Copy className="w-4 h-4 text-slate-400" />
+                      }
+                    </button>
+                  </div>
+                )}
+
+                {/* CTA */}
+                <a
+                  href={deal.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all"
+                  style={{ background: '#F59E0B', color: '#0A0A0A' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#FBBF24')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#F59E0B')}
+                >
+                  Get This Deal
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+                <p className="text-center text-xs text-slate-400 mt-2.5">No credit card required to claim</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Deal Card ──────────────────────────────────────────────────────────────────
+function DealCard({ deal, featured }: { deal: Deal; featured?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const { total } = useCountdown(deal.expiresAt);
+  const claimedPct = Math.min(100, Math.round((deal.claimed / deal.maxClaims) * 100));
+  const isUrgent   = total > 0 && total < 3 * 86400000;
+  const isExpired  = total <= 0;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(deal.code).then(() => {
+      setCopied(true);
+      toast.success(`Code "${deal.code}" copied!`);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  // Badge styles
+  const badgeStyle: React.CSSProperties =
+    deal.type === 'lifetime'   ? { background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE' } :
+    deal.type === 'free-trial' ? { background: '#F0F9FF', color: '#0369A1', border: '1px solid #BAE6FD' } :
+    deal.type === 'exclusive'  ? { background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A' } :
+                                 { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' };
+
+  const progressColor = claimedPct >= 90 ? '#F87171' : claimedPct >= 60 ? '#FBBF24' : '#34D399';
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: '#fff',
+        borderRadius: 18,
+        border: '1.5px solid',
+        borderColor: isUrgent ? '#FECACA' : featured ? '#FDE68A' : hovered ? '#CBD5E1' : '#E8EDF2',
+        boxShadow: hovered
+          ? '0 12px 36px rgba(15,23,42,0.10)'
+          : featured
+          ? '0 4px 16px rgba(245,158,11,0.10)'
+          : '0 1px 4px rgba(15,23,42,0.04)',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+      }}
+    >
+      {/* Urgency / featured banner */}
+      {isUrgent && !isExpired && (
+        <div style={{ padding: '7px 18px', background: '#FFF1F2', borderBottom: '1px solid #FECDD3', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Flame style={{ width: 12, height: 12, color: '#F43F5E' }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#BE123C' }}>Ending soon — grab it before it's gone!</span>
+        </div>
+      )}
+      {featured && !isUrgent && (
+        <div style={{ padding: '7px 18px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Star style={{ width: 11, height: 11, color: '#D97706', fill: '#D97706' }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#92400E' }}>Featured · Exclusive to LaudStack</span>
+        </div>
+      )}
+
+      <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+        {/* ── Header row ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
+          {/* Logo */}
+          <div style={{
+            width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 900, fontSize: 20, border: '1px solid rgba(0,0,0,0.08)',
+            boxShadow: '0 2px 8px rgba(15,23,42,0.10)',
+            background: deal.logoColor, color: deal.logoTextColor || '#fff',
+          }}>
+            {deal.logo}
+          </div>
+
+          {/* Name + meta */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 2 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.015em' }}>{deal.name}</h3>
+              {deal.badge && (
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 100, ...badgeStyle }}>
+                  {deal.badge}
+                </span>
+              )}
+            </div>
+            <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 5px', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {deal.tagline}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0' }}>
+                {deal.category}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Star style={{ width: 10, height: 10, fill: '#FBBF24', color: '#FBBF24' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#374151' }}>{deal.rating}</span>
+                <span style={{ fontSize: 10, color: '#94A3B8' }}>({deal.reviews.toLocaleString()})</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Discount badge */}
+          <div style={{
+            ...badgeStyle,
+            padding: '5px 10px', borderRadius: 10, fontWeight: 900, fontSize: 12,
+            flexShrink: 0, textAlign: 'center', lineHeight: 1.3,
+          }}>
+            {deal.discount}
+          </div>
+        </div>
+
+        {/* ── Pricing row ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '11px 14px', background: '#F8FAFC', borderRadius: 12,
+          border: '1px solid #F1F5F9', marginBottom: 14,
+        }}>
+          <div>
+            <div style={{ fontSize: 10, color: '#94A3B8', textDecoration: 'line-through', marginBottom: 1 }}>{deal.originalPrice}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1 }}>{deal.dealPrice}</div>
+          </div>
+          <CountdownPill expiresAt={deal.expiresAt} />
+        </div>
+
+        {/* ── Features ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px 10px', marginBottom: 14 }}>
+          {deal.features.map(f => (
+            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <CheckCircle style={{ width: 12, height: 12, color: '#10B981', flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: '#475569', fontWeight: 500 }}>{f}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Claim progress ── */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+            <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>
+              {deal.claimed.toLocaleString()} / {deal.maxClaims.toLocaleString()} claimed
+            </span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: claimedPct >= 90 ? '#F87171' : '#94A3B8' }}>{claimedPct}%</span>
+          </div>
+          <div style={{ height: 4, background: '#F1F5F9', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${claimedPct}%`, background: progressColor, borderRadius: 99, transition: 'width 0.5s' }} />
+          </div>
+        </div>
+
+        {/* ── Action row ── */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+          {/* Copy code */}
+          <button
+            onClick={handleCopy}
+            style={{
+              flex: 1, padding: '9px 12px', borderRadius: 10, fontWeight: 700, fontSize: 11,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              border: '1.5px dashed', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'monospace',
+              background: copied ? '#F0FDF4' : '#F8FAFC',
+              borderColor: copied ? '#BBF7D0' : '#CBD5E1',
+              color: copied ? '#15803D' : '#475569',
+            }}
+          >
+            {copied
+              ? <><Check style={{ width: 12, height: 12 }} /> Copied!</>
+              : <><Copy style={{ width: 12, height: 12 }} /> {deal.code || 'No code'}</>
+            }
+          </button>
+
+          {/* Get deal */}
+          <button
+            onClick={() => window.open(deal.url || '#', '_blank', 'noopener,noreferrer')}
+            style={{
+              padding: '9px 16px', borderRadius: 10, fontWeight: 800, fontSize: 12,
+              display: 'flex', alignItems: 'center', gap: 4,
+              background: '#F59E0B', color: '#0A0A0A', border: 'none', cursor: 'pointer',
+              transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FBBF24'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F59E0B'; }}
+          >
+            Get Deal <ArrowUpRight style={{ width: 12, height: 12 }} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Submit a Deal Modal ────────────────────────────────────────────────────────
 function SubmitDealModal({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
@@ -416,7 +779,6 @@ function SubmitDealModal({ onClose }: { onClose: () => void }) {
     expiresAt: '', description: '', category: 'AI Productivity',
   });
   const overlayRef = useRef<HTMLDivElement>(null);
-
   const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -429,19 +791,11 @@ function SubmitDealModal({ onClose }: { onClose: () => void }) {
     <div
       ref={overlayRef}
       onClick={e => { if (e.target === overlayRef.current) onClose(); }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
-      }}
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
     >
-      <div style={{
-        background: '#fff', borderRadius: 20, width: '100%', maxWidth: 520,
-        boxShadow: '0 24px 64px rgba(15,23,42,0.18)',
-        overflow: 'hidden',
-      }}>
+      <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 520, boxShadow: '0 24px 64px rgba(15,23,42,0.18)', overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto' }}>
         {/* Header */}
-        <div style={{ padding: '22px 28px 18px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '22px 28px 18px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <div style={{ width: 28, height: 28, borderRadius: 8, background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -451,7 +805,7 @@ function SubmitDealModal({ onClose }: { onClose: () => void }) {
             </div>
             <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Share a deal with the community</h2>
           </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <X style={{ width: 15, height: 15, color: '#64748B' }} />
           </button>
         </div>
@@ -468,98 +822,66 @@ function SubmitDealModal({ onClose }: { onClose: () => void }) {
             {step === 1 ? (
               <>
                 <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Tell us about the tool and the deal you want to share.</p>
-                {/* Tool name */}
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Tool Name *</label>
-                  <div style={{ position: 'relative' }}>
-                    <Building2 style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
-                    <input
-                      required value={form.toolName} onChange={e => update('toolName', e.target.value)}
-                      placeholder="e.g. Notion, Linear, Figma"
-                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                    />
+                {[
+                  { key: 'toolName', label: 'Tool Name *', placeholder: 'e.g. Notion, Linear, Figma', icon: Building2, type: 'text', required: true },
+                  { key: 'toolUrl',  label: 'Tool Website *', placeholder: 'https://yourtool.com', icon: Globe, type: 'url', required: true },
+                ].map(({ key, label, placeholder, icon: Icon, type, required }) => (
+                  <div key={key}>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>{label}</label>
+                    <div style={{ position: 'relative' }}>
+                      <Icon style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                      <input
+                        required={required} type={type}
+                        value={(form as any)[key]} onChange={e => update(key, e.target.value)}
+                        placeholder={placeholder}
+                        style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
                   </div>
-                </div>
-                {/* Tool URL */}
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Tool Website *</label>
-                  <div style={{ position: 'relative' }}>
-                    <Globe style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
-                    <input
-                      required type="url" value={form.toolUrl} onChange={e => update('toolUrl', e.target.value)}
-                      placeholder="https://yourtool.com"
-                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                </div>
-                {/* Category */}
+                ))}
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Category *</label>
-                  <select
-                    value={form.category} onChange={e => update('category', e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', background: '#fff', boxSizing: 'border-box' }}
-                  >
-                    {['AI Productivity','AI Writing','AI Image','AI Code','Marketing','Project Management','CRM','Design','Developer Tools','Communication','Analytics','Sales'].map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
+                  <select value={form.category} onChange={e => update('category', e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
+                    {TOOL_CATEGORIES.filter(c => c !== 'All Categories').map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </>
             ) : (
               <>
                 <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Now tell us the deal details and how to reach you.</p>
-                {/* Discount */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Discount *</label>
-                    <div style={{ position: 'relative' }}>
-                      <Percent style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
-                      <input
-                        required value={form.discount} onChange={e => update('discount', e.target.value)}
-                        placeholder="e.g. 50% OFF"
-                        style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                      />
+                  {[
+                    { key: 'discount', label: 'Discount *', placeholder: '50% OFF', icon: Percent, required: true },
+                    { key: 'code',     label: 'Coupon Code', placeholder: 'LAUDSTACK20', icon: Tag, required: false },
+                  ].map(({ key, label, placeholder, icon: Icon, required }) => (
+                    <div key={key}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>{label}</label>
+                      <div style={{ position: 'relative' }}>
+                        <Icon style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                        <input required={required} value={(form as any)[key]} onChange={e => update(key, e.target.value)} placeholder={placeholder}
+                          style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Coupon Code</label>
-                    <div style={{ position: 'relative' }}>
-                      <Tag style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
-                      <input
-                        value={form.code} onChange={e => update('code', e.target.value)}
-                        placeholder="LAUDSTACK20"
-                        style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
-                {/* Expiry */}
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Expiry Date *</label>
-                  <input
-                    required type="date" value={form.expiresAt} onChange={e => update('expiresAt', e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                  />
+                  <input required type="date" value={form.expiresAt} onChange={e => update('expiresAt', e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
                 </div>
-                {/* Description */}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Deal Description</label>
-                  <textarea
-                    value={form.description} onChange={e => update('description', e.target.value)}
-                    rows={3} placeholder="What's included in this deal? Any special conditions?"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
-                  />
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Description</label>
+                  <textarea value={form.description} onChange={e => update('description', e.target.value)} rows={3}
+                    placeholder="What makes this deal special?"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
                 </div>
-                {/* Email */}
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Your Email *</label>
                   <div style={{ position: 'relative' }}>
-                    <Mail style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
-                    <input
-                      required type="email" value={form.email} onChange={e => update('email', e.target.value)}
-                      placeholder="you@company.com"
-                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                    />
+                    <ExternalLink style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                    <input required type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@company.com"
+                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                 </div>
               </>
@@ -567,26 +889,22 @@ function SubmitDealModal({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Footer */}
-          <div style={{ padding: '16px 28px', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-            {step === 2 ? (
-              <button type="button" onClick={() => setStep(1)} style={{ fontSize: 13, fontWeight: 700, color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                ← Back
+          <div style={{ padding: '16px 28px', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+            {step === 2 && (
+              <button type="button" onClick={() => setStep(1)}
+                style={{ padding: '10px 20px', borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 700, color: '#374151', cursor: 'pointer' }}>
+                Back
               </button>
-            ) : <div />}
+            )}
             {step === 1 ? (
-              <button
-                type="button"
-                onClick={() => { if (!form.toolName || !form.toolUrl) { toast.error('Please fill in all required fields'); return; } setStep(2); }}
-                style={{ padding: '10px 24px', borderRadius: 10, background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: 13, border: 'none', cursor: 'pointer' }}
-              >
-                Continue →
+              <button type="button" onClick={() => { if (!form.toolName || !form.toolUrl) { toast.error('Please fill in all required fields.'); return; } setStep(2); }}
+                style={{ marginLeft: 'auto', padding: '10px 24px', borderRadius: 10, background: '#F59E0B', border: 'none', fontSize: 13, fontWeight: 800, color: '#0A0A0A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                Next <ChevronRight style={{ width: 14, height: 14 }} />
               </button>
             ) : (
-              <button
-                type="submit"
-                style={{ padding: '10px 24px', borderRadius: 10, background: '#F59E0B', color: '#0A0A0A', fontWeight: 800, fontSize: 13, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                <Gift style={{ width: 13, height: 13 }} /> Submit Deal
+              <button type="submit"
+                style={{ marginLeft: 'auto', padding: '10px 24px', borderRadius: 10, background: '#F59E0B', border: 'none', fontSize: 13, fontWeight: 800, color: '#0A0A0A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                Submit Deal <CheckCircle style={{ width: 14, height: 14 }} />
               </button>
             )}
           </div>
@@ -596,209 +914,26 @@ function SubmitDealModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Deal card ─────────────────────────────────────────────────────────────────
-function DealCard({ deal, featured = false }: { deal: Deal; featured?: boolean }) {
-  const [copied, setCopied] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const { total } = useCountdown(deal.expiresAt);
-  const claimedPct = Math.min(100, Math.round((deal.claimed / deal.maxClaims) * 100));
-  const isUrgent   = total > 0 && total < 3 * 24 * 60 * 60 * 1000;
-  const isExpired  = total <= 0;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(deal.code).then(() => {
-      setCopied(true);
-      toast.success(`Code "${deal.code}" copied!`);
-      setTimeout(() => setCopied(false), 2500);
-    });
-  };
-
-  const claimedColor = claimedPct >= 90 ? '#F87171' : claimedPct >= 60 ? '#FBBF24' : '#34D399';
-
-  // Discount badge colours
-  const discountStyle: React.CSSProperties =
-    deal.type === 'lifetime'   ? { background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE' } :
-    deal.type === 'free-trial' ? { background: '#F0F9FF', color: '#0369A1', border: '1px solid #BAE6FD' } :
-    deal.type === 'exclusive'  ? { background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A' } :
-                                 { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' };
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: '#fff',
-        borderRadius: 18,
-        border: '1.5px solid',
-        borderColor: featured ? '#FDE68A' : isUrgent ? '#FECACA' : hovered ? '#CBD5E1' : '#E8EDF2',
-        boxShadow: featured
-          ? '0 4px 20px rgba(245,158,11,0.12)'
-          : hovered
-          ? '0 10px 32px rgba(15,23,42,0.10)'
-          : '0 1px 4px rgba(15,23,42,0.04)',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Top banner */}
-      {isUrgent && !isExpired && (
-        <div style={{ padding: '7px 18px', background: '#FFF1F2', borderBottom: '1px solid #FECDD3', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Flame style={{ width: 13, height: 13, color: '#F43F5E' }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#BE123C' }}>Ending soon — grab it before it's gone!</span>
-        </div>
-      )}
-      {featured && !isUrgent && (
-        <div style={{ padding: '7px 18px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Star style={{ width: 12, height: 12, color: '#D97706', fill: '#D97706' }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#92400E' }}>Featured Deal · Exclusive to LaudStack</span>
-        </div>
-      )}
-
-      <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-        {/* ── Header ── */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-          {/* Logo */}
-          <div style={{
-            width: 52, height: 52, borderRadius: 13, flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 900, fontSize: 20, border: '1px solid rgba(0,0,0,0.08)',
-            boxShadow: '0 1px 4px rgba(15,23,42,0.08)',
-            background: deal.logoColor, color: deal.logoTextColor || '#fff',
-          }}>
-            {deal.logo}
-          </div>
-
-          {/* Info */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginBottom: 3 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.015em' }}>{deal.name}</h3>
-              {deal.badge && (
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 100, ...discountStyle }}>
-                  {deal.badge}
-                </span>
-              )}
-            </div>
-            <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 6px', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {deal.tagline}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 6, background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0' }}>
-                {deal.category}
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                <Star style={{ width: 11, height: 11, fill: '#FBBF24', color: '#FBBF24' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{deal.rating}</span>
-                <span style={{ fontSize: 11, color: '#94A3B8' }}>({deal.reviews.toLocaleString()})</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Discount badge */}
-          <div style={{
-            ...discountStyle,
-            padding: '6px 12px', borderRadius: 10, fontWeight: 900, fontSize: 13,
-            flexShrink: 0, textAlign: 'center', lineHeight: 1.2,
-          }}>
-            {deal.discount}
-          </div>
-        </div>
-
-        {/* ── Pricing row ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #F1F5F9' }}>
-          <div>
-            <div style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through', marginBottom: 2 }}>{deal.originalPrice}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1 }}>{deal.dealPrice}</div>
-          </div>
-          <Countdown expiresAt={deal.expiresAt} />
-        </div>
-
-        {/* ── Features ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
-          {deal.features.map(f => (
-            <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-              <CheckCircle style={{ width: 13, height: 13, color: '#22C55E', flexShrink: 0, marginTop: 1 }} />
-              <span style={{ fontSize: 12, color: '#475569', lineHeight: 1.4 }}>{f}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Claim progress ── */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 11.5, color: '#64748B', fontWeight: 500 }}>
-              <span style={{ fontWeight: 700, color: '#0F172A' }}>{deal.claimed.toLocaleString()}</span> of {deal.maxClaims.toLocaleString()} claimed
-            </span>
-            <span style={{ fontSize: 11.5, fontWeight: 700, color: claimedPct >= 90 ? '#EF4444' : '#64748B' }}>{claimedPct}%</span>
-          </div>
-          <div style={{ height: 5, background: '#F1F5F9', borderRadius: 99, overflow: 'hidden' }}>
-            <div style={{ height: '100%', borderRadius: 99, background: claimedColor, width: `${claimedPct}%`, transition: 'width 0.4s' }} />
-          </div>
-        </div>
-
-        {/* ── CTA row ── */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          {/* Copy code */}
-          <button
-            onClick={handleCopy}
-            style={{
-              flex: 1, padding: '10px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              border: '1.5px solid', cursor: 'pointer', transition: 'all 0.15s',
-              background: copied ? '#F0FDF4' : '#F8FAFC',
-              borderColor: copied ? '#BBF7D0' : '#E2E8F0',
-              color: copied ? '#15803D' : '#374151',
-            }}
-          >
-            {copied
-              ? <><Check style={{ width: 13, height: 13 }} /> Copied!</>
-              : <><Copy style={{ width: 13, height: 13 }} /> {deal.code || 'No code needed'}</>
-            }
-          </button>
-          {/* Get deal */}
-          <button
-            onClick={() => window.open(deal.url || '#', '_blank', 'noopener,noreferrer')}
-            style={{
-              padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 13,
-              display: 'flex', alignItems: 'center', gap: 5,
-              background: '#F59E0B', color: '#0A0A0A', border: 'none', cursor: 'pointer',
-              transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FBBF24'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F59E0B'; }}
-          >
-            Get Deal <ArrowUpRight style={{ width: 13, height: 13 }} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
+// ── Main page ──────────────────────────────────────────────────────────────────
 export default function Deals() {
   const [location, navigate] = useLocation();
 
-  // Parse initial state from URL
   const parseParams = () => {
-    const params = new URLSearchParams(window.location.search);
+    const p = new URLSearchParams(window.location.search);
     return {
-      type:     (params.get('type') as DealType) || 'all',
-      category: params.get('category') || 'All Categories',
-      sort:     params.get('sort') || 'featured',
+      type:     (p.get('type') as DealType) || 'all',
+      category: p.get('category') || 'All Categories',
+      sort:     p.get('sort') || 'featured',
     };
   };
 
-  const [activeType, setActiveType]         = useState<DealType>(() => parseParams().type);
+  const [activeType,     setActiveType]     = useState<DealType>(() => parseParams().type);
   const [activeCategory, setActiveCategory] = useState(() => parseParams().category);
-  const [sort, setSort]                     = useState(() => parseParams().sort);
+  const [sort,           setSort]           = useState(() => parseParams().sort);
   const [syncingFromUrl, setSyncingFromUrl] = useState(false);
+  const [showSubmit,     setShowSubmit]     = useState(false);
 
-  // Sync URL → state on navigation
+  // URL → state
   useEffect(() => {
     setSyncingFromUrl(true);
     const p = parseParams();
@@ -808,51 +943,39 @@ export default function Deals() {
     setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
 
-  // Sync state → URL
+  // state → URL
   useEffect(() => {
     if (syncingFromUrl) return;
     const params = new URLSearchParams();
-    if (activeType !== 'all')                    params.set('type', activeType);
-    if (activeCategory !== 'All Categories')     params.set('category', activeCategory);
-    if (sort !== 'featured')                     params.set('sort', sort);
+    if (activeType !== 'all')                params.set('type', activeType);
+    if (activeCategory !== 'All Categories') params.set('category', activeCategory);
+    if (sort !== 'featured')                 params.set('sort', sort);
     const qs = params.toString();
     navigate(qs ? `/deals?${qs}` : '/deals', { replace: true });
   }, [activeType, activeCategory, sort, syncingFromUrl]);
 
-  // Filter + sort
-  const filtered = DEALS
+  const hasFilters = activeType !== 'all' || activeCategory !== 'All Categories';
+
+  const filtered = useMemo(() => DEALS
     .filter(d => activeType === 'all' || d.type === activeType)
     .filter(d => activeCategory === 'All Categories' || d.category === activeCategory)
     .sort((a, b) => {
-      if (sort === 'expiry') {
-        return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
-      }
-      if (sort === 'discount') {
-        const pctA = parseInt(a.discount) || 0;
-        const pctB = parseInt(b.discount) || 0;
-        return pctB - pctA;
-      }
-      if (sort === 'rating') return b.rating - a.rating;
-      // featured: featured first, then by expiry
-      const fa = a.featured ? 0 : 1;
-      const fb = b.featured ? 0 : 1;
+      if (sort === 'expiry')    return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
+      if (sort === 'discount')  return (parseInt(b.discount) || 0) - (parseInt(a.discount) || 0);
+      if (sort === 'rating')    return b.rating - a.rating;
+      const fa = a.featured ? 0 : 1, fb = b.featured ? 0 : 1;
       if (fa !== fb) return fa - fb;
       return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
-    });
+    }), [activeType, activeCategory, sort]);
 
+  const dealOfDay    = DEALS.find(d => d.dealOfDay);
   const lifetimeDeals = DEALS.filter(d => d.type === 'lifetime');
-  const hasFilters = activeType !== 'all' || activeCategory !== 'All Categories';
+  const hasUrgent    = filtered.some(d => { const t = new Date(d.expiresAt).getTime() - Date.now(); return t > 0 && t < 3 * 86400000; });
 
-  const [showSubmitModal, setShowSubmitModal] = useState(false);
-
-  const clearFilters = () => {
-    setActiveType('all');
-    setActiveCategory('All Categories');
-    setSort('featured');
-  };
+  const clearFilters = () => { setActiveType('all'); setActiveCategory('All Categories'); setSort('featured'); };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       <Navbar />
 
       <PageHero
@@ -863,23 +986,28 @@ export default function Deals() {
         layout="split"
         size="md"
         stats={[
-          { value: String(DEALS.length),        label: 'Active Deals' },
-          { value: String(lifetimeDeals.length), label: 'Lifetime Deals' },
-          { value: 'Up to 50%',                  label: 'Max Discount' },
-          { value: '12k+',                       label: 'Members Saved' },
+          { value: String(DEALS.length),         label: 'Active Deals' },
+          { value: String(lifetimeDeals.length),  label: 'Lifetime Deals' },
+          { value: 'Up to 50%',                   label: 'Max Discount' },
+          { value: '12k+',                        label: 'Members Saved' },
         ]}
       />
 
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
-        {/* ── Lifetime Deals spotlight (shown when no filters active) ── */}
+        {/* ── Deal of the Day (only when no filters active) ── */}
+        {!hasFilters && dealOfDay && <DealOfDaySpotlight deal={dealOfDay} />}
+
+        {/* ── Lifetime Deals spotlight (only when no filters active) ── */}
         {!hasFilters && (
           <section className="mb-10">
             <div className="flex items-center gap-3 mb-5">
-              <Crown className="w-5 h-5 text-purple-500" />
-              <h2 className="text-xl font-black text-slate-900">Lifetime Deals</h2>
-              <span className="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-200">
-                Pay once, use forever
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-50 border border-purple-200">
+                <Crown className="w-4 h-4 text-purple-600" />
+              </div>
+              <h2 className="text-lg font-black text-slate-900 tracking-tight">Lifetime Deals</h2>
+              <span className="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-200">
+                Pay once · Use forever
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -888,20 +1016,20 @@ export default function Deals() {
           </section>
         )}
 
-        {/* ── Filters bar ── */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-          <div className="flex flex-wrap gap-3 items-start">
+        {/* ── Filter bar ── */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+          <div className="flex flex-wrap gap-3 items-center">
 
             {/* Deal type pills */}
             <div className="flex flex-wrap gap-2">
-              {DEAL_TYPES.map(({ id, label, icon: Icon }) => (
+              {DEAL_TYPES.map(({ id, label, icon: Icon, color }) => (
                 <button
                   key={id}
                   onClick={() => setActiveType(id)}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
                     activeType === id
                       ? 'bg-amber-500 text-white shadow-sm'
-                      : 'bg-gray-100 text-slate-600 hover:bg-gray-200'
+                      : `bg-gray-100 hover:bg-gray-200 ${color || 'text-slate-600'}`
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -910,31 +1038,22 @@ export default function Deals() {
               ))}
             </div>
 
-            {/* Divider */}
             <div className="hidden sm:block w-px bg-gray-200 self-stretch mx-1" />
 
-            {/* Category select */}
+            {/* Category */}
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4 text-slate-400 shrink-0" />
-              <select
-                value={activeCategory}
-                onChange={e => setActiveCategory(e.target.value)}
-                className="text-sm font-medium text-slate-700 bg-gray-100 border-0 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
-              >
-                {TOOL_CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
+              <select value={activeCategory} onChange={e => setActiveCategory(e.target.value)}
+                className="text-sm font-medium text-slate-700 bg-gray-100 border-0 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer">
+                {TOOL_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
 
-            {/* Sort select */}
+            {/* Sort */}
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-slate-400 shrink-0" />
-              <select
-                value={sort}
-                onChange={e => setSort(e.target.value)}
-                className="text-sm font-medium text-slate-700 bg-gray-100 border-0 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
-              >
+              <select value={sort} onChange={e => setSort(e.target.value)}
+                className="text-sm font-medium text-slate-700 bg-gray-100 border-0 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer">
                 <option value="featured">Featured first</option>
                 <option value="expiry">Expiring soonest</option>
                 <option value="discount">Biggest discount</option>
@@ -942,29 +1061,22 @@ export default function Deals() {
               </select>
             </div>
 
-            {/* Clear filters */}
             {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-gray-100 transition-all ml-auto"
-              >
-                <X className="h-3.5 w-3.5" />
-                Clear
+              <button onClick={clearFilters}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-gray-100 transition-all ml-auto">
+                <X className="h-3.5 w-3.5" /> Clear
               </button>
             )}
           </div>
         </div>
 
-        {/* ── Results count ── */}
+        {/* ── Results header ── */}
         <div className="flex items-center justify-between mb-5">
           <p className="text-sm text-slate-500 font-medium">
             {filtered.length} deal{filtered.length !== 1 ? 's' : ''}
             {hasFilters && <span className="text-amber-600 font-bold"> · filtered</span>}
           </p>
-          {filtered.some(d => {
-            const t = new Date(d.expiresAt).getTime() - Date.now();
-            return t > 0 && t < 3 * 24 * 60 * 60 * 1000;
-          }) && (
+          {hasUrgent && (
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full">
               <Flame className="w-3 h-3" />
               Some deals expire in &lt; 3 days
@@ -993,12 +1105,14 @@ export default function Deals() {
         {/* ── Trust strip ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
           {[
-            { icon: Shield,     color: 'text-emerald-500', title: 'Verified Deals',        desc: 'Every deal is verified directly with the vendor before listing.' },
-            { icon: Users,      color: 'text-sky-500',     title: 'Community Negotiated',  desc: 'Our growing community gives us leverage to negotiate better rates.' },
-            { icon: TrendingUp, color: 'text-amber-500',   title: 'Updated Weekly',        desc: 'New deals added every week. Subscribe to get notified first.' },
-          ].map(({ icon: Icon, color, title, desc }) => (
-            <div key={title} className="bg-white border border-gray-200 rounded-2xl p-5 flex items-start gap-4">
-              <Icon className={`w-5 h-5 ${color} shrink-0 mt-0.5`} />
+            { icon: Shield,     color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-100', title: 'Verified Deals',       desc: 'Every deal is verified directly with the vendor before listing.' },
+            { icon: Users,      color: 'text-sky-500',     bg: 'bg-sky-50',     border: 'border-sky-100',     title: 'Community Negotiated', desc: 'Our growing community gives us leverage to negotiate better rates.' },
+            { icon: TrendingUp, color: 'text-amber-500',   bg: 'bg-amber-50',   border: 'border-amber-100',   title: 'Updated Weekly',       desc: 'New deals added every week. Subscribe to get notified first.' },
+          ].map(({ icon: Icon, color, bg, border, title, desc }) => (
+            <div key={title} className={`bg-white border border-gray-200 rounded-2xl p-5 flex items-start gap-4`}>
+              <div className={`w-9 h-9 rounded-xl ${bg} border ${border} flex items-center justify-center shrink-0 mt-0.5`}>
+                <Icon className={`w-4.5 h-4.5 ${color}`} />
+              </div>
               <div>
                 <div className="text-slate-900 font-bold text-sm mb-1">{title}</div>
                 <div className="text-slate-500 text-xs leading-relaxed">{desc}</div>
@@ -1007,15 +1121,20 @@ export default function Deals() {
           ))}
         </div>
 
-        {/* ── Submit a deal CTA ── */}
+        {/* ── Submit a Deal CTA ── */}
         <div className="bg-white border border-gray-200 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <h3 className="text-xl font-black text-slate-900 mb-1">Have a deal to share?</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <Gift className="w-5 h-5 text-amber-500" />
+              <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">For Founders</span>
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-1 tracking-tight">Have a deal to share?</h3>
             <p className="text-slate-500 text-sm">Submit a deal for your tool and reach 12,000+ potential customers.</p>
           </div>
           <button
-            onClick={() => setShowSubmitModal(true)}
-            className="bg-amber-500 hover:bg-amber-400 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors flex items-center gap-2 shrink-0"
+            onClick={() => setShowSubmit(true)}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors flex items-center gap-2 shrink-0"
+            style={{ boxShadow: '0 2px 12px rgba(245,158,11,0.25)' }}
           >
             <Gift className="w-4 h-4" />
             Submit a Deal
@@ -1024,7 +1143,7 @@ export default function Deals() {
       </div>
 
       <Footer />
-      {showSubmitModal && <SubmitDealModal onClose={() => setShowSubmitModal(false)} />}
+      {showSubmit && <SubmitDealModal onClose={() => setShowSubmit(false)} />}
     </div>
   );
 }
