@@ -43,11 +43,11 @@ const NAV_ITEMS = [
     ],
   },
   { label: 'Categories', href: '/categories' },
-  { label: 'Reviews', href: '/reviews' },
+  { label: 'SaaS Deals', href: '/deals' },
   {
     label: 'Resources',
     megaMenu: [
-      { icon: Tag,       label: 'SaaS Deals',       desc: 'Exclusive discounts & lifetime deals', href: '/deals' },
+      { icon: BookOpen,  label: 'Reviews',           desc: 'Community reviews & ratings',          href: '/reviews' },
       { icon: Package,   label: 'Templates',        desc: 'Production-ready starter kits',        href: '/templates' },
       { icon: Crown,     label: 'Pricing',          desc: 'Free, Pro & Enterprise plans',         href: '/pricing' },
       { icon: Rocket,    label: 'Claim Your Tool',  desc: 'Verify ownership & get Pro badge',     href: '/claim' },
