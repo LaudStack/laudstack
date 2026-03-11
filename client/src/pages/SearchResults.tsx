@@ -20,11 +20,12 @@ import ToolCard from '@/components/ToolCard';
 import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
 
 const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Most Relevant' },
-  { value: 'rating',    label: 'Highest Rated' },
-  { value: 'reviews',   label: 'Most Reviewed' },
-  { value: 'newest',    label: 'Newest First' },
-  { value: 'upvotes',   label: 'Most Upvoted' },
+  { value: 'relevance',      label: 'Most Relevant' },
+  { value: 'featured_first', label: '✦ Featured First' },
+  { value: 'rating',         label: 'Highest Rated' },
+  { value: 'reviews',        label: 'Most Reviewed' },
+  { value: 'newest',         label: 'Newest First' },
+  { value: 'upvotes',        label: 'Most Upvoted' },
 ];
 
 const SUGGESTED_SEARCHES = [
@@ -82,7 +83,8 @@ export default function SearchResults() {
       case 'rating':    filtered = [...filtered].sort((a, b) => b.average_rating - a.average_rating); break;
       case 'reviews':   filtered = [...filtered].sort((a, b) => b.review_count - a.review_count); break;
       case 'newest':    filtered = [...filtered].sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime()); break;
-      case 'upvotes':   filtered = [...filtered].sort((a, b) => b.upvote_count - a.upvote_count); break;
+      case 'upvotes':        filtered = [...filtered].sort((a, b) => b.upvote_count - a.upvote_count); break;
+      case 'featured_first': filtered = [...filtered].sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0)); break;
       default: break; // relevance = natural order
     }
 
