@@ -182,12 +182,11 @@ export default function Navbar() {
           <div className="flex items-center h-[72px] gap-6">
 
             {/* ── Logo ── */}
-            <Link href="/" className="flex items-center shrink-0 h-8">
-              {/* Always use light-background logo since hero is now light */}
+            <Link href="/" className="flex items-center shrink-0 h-10">
               <img
-                src="https://private-us-east-1.manuscdn.com/user_upload_by_module/session_file/310519663413324407/AhIzdNYuJNLEabSR.png?Expires=1804743015&Signature=l~BTleEMWOa~2ekr8h1w~2CIxW3bDcGYKP7pMQsDMcSrWAzi01G8fMTBzRfWV~k36cHmR8-6h4vlHPLWaSVwDaNtoBsnPJdbDGl-sy1DzF5zPlNHneqBCP2Kaq25idIACvA9Ze6jZ8E8mFsyrx87Mw5S-CsA4ebvJcAOlHCh11s8uw8jHZK-nzdQaeGAeZw5-AwYes6Lh2xHylfdmurWy3Ua6B3VOybp3AYkvcfnO1cinGV-F-U0Fjpk9~WDgvMp414~9e4LqXovU2ro5Dbz4V5yhQGbohEsFqbfK6MwCtducx2C3hnKlmf7ZFd3K7v1QR5dmojOcEeOTq4rapqgIA__&Key-Pair-Id=K2HSFNDJXOU9YS"
+                src="/logo_dark_transparent.png"
                 alt="LaudStack"
-                className="h-8 w-auto"
+                className="h-10 w-auto"
                 style={{ filter: 'brightness(0) invert(1)' }}
               />
             </Link>
