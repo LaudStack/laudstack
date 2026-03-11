@@ -1,7 +1,7 @@
 // Design: LaudStack amber + neutral. New Launches page with TAAFT-style screenshot cards.
 // Consistent with homepage Fresh Launches section card design.
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -48,13 +48,53 @@ const fadeUp = {
   visible: (d: number) => ({ opacity: 1, y: 0, transition: { duration: 0.4, delay: d, ease: 'easeOut' as const } }),
 };
 
+// Helper: parse New Launches filter params from URL
+function parseNewLaunchesParams(params: URLSearchParams) {
+  return {
+    category: params.get('category') || 'All',
+    pricing:  params.get('pricing')  || 'All Pricing',
+    sort:     params.get('sort')     || 'newest',
+  };
+}
+
 export default function NewLaunches() {
-  const [, navigate] = useLocation();
-  const [category, setCategory] = useState('All');
-  const [pricing, setPricing] = useState('All Pricing');
-  const [sort, setSort] = useState('newest');
+  const [location, navigate] = useLocation();
+
+  const initial = useMemo(() => parseNewLaunchesParams(new URLSearchParams(window.location.search)), []);
+
+  const [category, setCategory] = useState(initial.category);
+  const [pricing,  setPricing]  = useState(initial.pricing);
+  const [sort,     setSort]     = useState(initial.sort);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [visible, setVisible] = useState(20);
+  const [visible,  setVisible]  = useState(20);
+  const [syncingFromUrl, setSyncingFromUrl] = useState(false);
+
+  // Outbound: write filter state to URL
+  useEffect(() => {
+    if (syncingFromUrl) return;
+    const params = new URLSearchParams();
+    if (category !== 'All')         params.set('category', category);
+    if (pricing  !== 'All Pricing') params.set('pricing',  pricing);
+    if (sort     !== 'newest')      params.set('sort',     sort);
+    const qs = params.toString();
+    const newPath = qs ? `/launches?${qs}` : '/launches';
+    if (window.location.pathname + window.location.search !== newPath) {
+      navigate(newPath, { replace: true });
+    }
+  }, [category, pricing, sort]);
+
+  // Inbound: read URL to filter state on external navigation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.toString()) return;
+    const parsed = parseNewLaunchesParams(params);
+    setSyncingFromUrl(true);
+    setCategory(parsed.category);
+    setPricing(parsed.pricing);
+    setSort(parsed.sort);
+    setVisible(20);
+    setTimeout(() => setSyncingFromUrl(false), 0);
+  }, [location]);
 
   const allCategories = ['All', ...CATEGORIES.map(c => c.name).filter(n => n !== 'All')];
 
