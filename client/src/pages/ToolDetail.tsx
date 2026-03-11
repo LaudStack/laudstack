@@ -206,6 +206,7 @@ export default function ToolDetail() {
         accent="amber"
         layout="split"
         size="sm"
+        backLink={{ href: `/tools?category=${encodeURIComponent(tool.category)}`, label: `Back to ${tool.category}` }}
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
           {tool.is_verified && (

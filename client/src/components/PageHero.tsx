@@ -31,6 +31,11 @@ interface StatItem {
   label: string;
 }
 
+interface BackLink {
+  href: string;
+  label: string;
+}
+
 interface PageHeroProps {
   eyebrow?:   string;
   title:      React.ReactNode;
@@ -43,6 +48,7 @@ interface PageHeroProps {
   size?:      SizeKey;
   layout?:    LayoutKey;
   className?: string;
+  backLink?:  BackLink;
 }
 
 const ACCENT: Record<AccentKey, {
@@ -97,6 +103,32 @@ function StatRow({ stats, a, centered }: { stats: StatItem[]; a: typeof ACCENT['
   );
 }
 
+function BackLinkRow({ backLink, a }: { backLink: BackLink; a: typeof ACCENT['amber'] }) {
+  return (
+    <a
+      href={backLink.href}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        fontSize: '12px',
+        fontWeight: 600,
+        color: '#6B7280',
+        textDecoration: 'none',
+        marginBottom: '10px',
+        transition: 'color 0.15s',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.color = a.eyebrow)}
+      onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+        <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {backLink.label}
+    </a>
+  );
+}
+
 export default function PageHero({
   eyebrow,
   title,
@@ -109,6 +141,7 @@ export default function PageHero({
   size      = 'md',
   layout    = 'default',
   className = '',
+  backLink,
 }: PageHeroProps) {
   const a = ACCENT[accent];
   const s = SIZE[size];
@@ -137,6 +170,7 @@ export default function PageHero({
         {/* ── DEFAULT layout ── */}
         {layout === 'default' && (
           <>
+            {backLink && <BackLinkRow backLink={backLink} a={a} />}
             <EyebrowBadge eyebrow={eyebrow} badge={badge} a={a} />
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 0', minWidth: '260px' }}>
@@ -161,6 +195,7 @@ export default function PageHero({
         {/* ── CENTERED layout ── */}
         {layout === 'centered' && (
           <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
+            {backLink && <div style={{ marginBottom: '8px' }}><BackLinkRow backLink={backLink} a={a} /></div>}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
               {eyebrow && (
                 <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: a.eyebrow }}>
@@ -193,6 +228,7 @@ export default function PageHero({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '48px', flexWrap: 'wrap' }}>
             {/* Left: text */}
             <div style={{ flex: '1 1 0', minWidth: '260px' }}>
+              {backLink && <BackLinkRow backLink={backLink} a={a} />}
               <EyebrowBadge eyebrow={eyebrow} badge={badge} a={a} />
               <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 900, color: '#111827', margin: 0, letterSpacing: '-0.025em', lineHeight: 1.2 }}>
                 {title}
