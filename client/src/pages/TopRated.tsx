@@ -1,7 +1,8 @@
 // Design: LaudStack dark-slate + amber accent. Top Rated tools with podium and rating breakdown.
 // Layout: Podium top-3 + ranked list with rating bars.
+// URL persistence: ?category=AI+Writing&min=10&pricing=Free — defaults omitted for clean links.
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -65,11 +66,46 @@ function PodiumCard({ tool, rank }: { tool: typeof MOCK_TOOLS[0]; rank: number }
   );
 }
 
+// ── URL helpers ─────────────────────────────────────────────────────────────
+function parseUrlFilters() {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    category:    p.get('category') || 'All Categories',
+    minReviews:  Number(p.get('min') || 0),
+    pricing:     p.get('pricing') || '',
+  };
+}
+
 export default function TopRated() {
-  const [, navigate] = useLocation();
-  const [category, setCategory] = useState('All Categories');
-  const [minReviews, setMinReviews] = useState(0);
-  const [pricingFilter, setPricingFilter] = useState('');
+  const [location, navigate] = useLocation();
+  const [syncingFromUrl, setSyncingFromUrl] = useState(false);
+
+  // Initialise from URL on first render
+  const initial = parseUrlFilters();
+  const [category,     setCategory]     = useState(initial.category);
+  const [minReviews,   setMinReviews]   = useState(initial.minReviews);
+  const [pricingFilter, setPricingFilter] = useState(initial.pricing);
+
+  // Inbound: URL → state (handles browser back/forward and shared links)
+  useEffect(() => {
+    setSyncingFromUrl(true);
+    const f = parseUrlFilters();
+    setCategory(f.category);
+    setMinReviews(f.minReviews);
+    setPricingFilter(f.pricing);
+    setTimeout(() => setSyncingFromUrl(false), 0);
+  }, [location]);
+
+  // Outbound: state → URL (omit defaults to keep URLs clean)
+  useEffect(() => {
+    if (syncingFromUrl) return;
+    const p = new URLSearchParams();
+    if (category    !== 'All Categories') p.set('category', category);
+    if (minReviews  !== 0)               p.set('min', String(minReviews));
+    if (pricingFilter !== '')            p.set('pricing', pricingFilter);
+    const qs = p.toString();
+    navigate(qs ? `/top-rated?${qs}` : '/top-rated', { replace: true });
+  }, [category, minReviews, pricingFilter, syncingFromUrl]);
 
   const sortedTools = useMemo(() => {
     let tools = [...MOCK_TOOLS];
