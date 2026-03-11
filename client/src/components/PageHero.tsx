@@ -82,6 +82,7 @@ export default function PageHero({
         background: '#FFFFFF',
         borderBottom: '1px solid #E5E7EB',
         position: 'relative',
+        paddingTop: '64px', /* offset for fixed navbar */
       }}
     >
       {/* Left accent bar */}
