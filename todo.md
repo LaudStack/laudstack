@@ -103,3 +103,14 @@
 - [x] Fix search page to correctly display 44 tools from database
 - [x] Ensure search filtering works correctly
 - [x] Test search page on live Vercel site (stripe=1 result, AI=36 results)
+
+## Phase 9 — User Profile & UX Enhancements
+- [x] Replace email with user's name under profile in user panel
+- [x] Fix profile photo upload and populating issues (switched to Supabase Storage)
+- [x] Add initial/avatar fallback when no profile photo is uploaded
+- [x] Create user onboarding flow to capture profile details (3-step flow)
+- [x] Store onboarding data in database for admin visibility (jobTitle, company, useCase, referralSource)
+- [x] Enhance founder's public profile with their tools and executive styling
+- [x] Add user badges & achievements to public profile (7 badge types)
+- [x] Rename "My Profile" to "My Dashboard" in logged-in user header dropdown
+- [x] Fix flashing/flickering when navigating between dashboard and main pages (added authLoading state)
