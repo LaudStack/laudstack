@@ -11,42 +11,10 @@ export const users = mysqlTable("users", {
    * Use this for relations between tables.
    */
   id: int("id").autoincrement().primaryKey(),
-  /**
-   * Manus OAuth identifier (openId) returned from the OAuth callback.
-   * For LinkedIn users this is set to "linkedin:<linkedinId>".
-   * For email/password users this is set to "email:<email>".
-   * Unique per user.
-   */
-  openId: varchar("openId", { length: 128 }).notNull().unique(),
-  /** Full display name */
+  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
+  openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
-  /** First name extracted from OAuth profile (Google, LinkedIn) */
-  firstName: varchar("firstName", { length: 128 }),
-  /** Last name extracted from OAuth profile (Google, LinkedIn) */
-  lastName: varchar("lastName", { length: 128 }),
   email: varchar("email", { length: 320 }),
-  /** URL to the user's profile photo from OAuth provider */
-  avatarUrl: text("avatarUrl"),
-  /** City extracted from LinkedIn profile */
-  city: varchar("city", { length: 128 }),
-  /** State/region extracted from LinkedIn profile */
-  state: varchar("state", { length: 128 }),
-  /** Country extracted from LinkedIn profile */
-  country: varchar("country", { length: 128 }),
-  /** LinkedIn profile URL */
-  linkedinUrl: text("linkedinUrl"),
-  /** LinkedIn member ID for deduplication */
-  linkedinId: varchar("linkedinId", { length: 64 }).unique(),
-  /** Hashed password for email/password auth (bcrypt) */
-  passwordHash: text("passwordHash"),
-  /** Whether the email has been verified */
-  emailVerified: boolean("emailVerified").default(false).notNull(),
-  /** Email verification token (short-lived) */
-  emailVerifyToken: varchar("emailVerifyToken", { length: 128 }),
-  /** Password reset token (short-lived) */
-  passwordResetToken: varchar("passwordResetToken", { length: 128 }),
-  /** When the password reset token expires */
-  passwordResetExpires: timestamp("passwordResetExpires"),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

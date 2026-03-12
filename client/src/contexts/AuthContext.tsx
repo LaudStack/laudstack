@@ -1,62 +1,64 @@
 /**
- * LaudStack AuthContext — Real tRPC + Manus OAuth authentication
- * Wraps the core useAuth hook from _core/hooks/useAuth.ts
- * Provides backward-compatible API for all existing components
+ * LaudStack AuthContext — mock authentication state
+ * Persists to sessionStorage so state survives HMR but resets on tab close.
+ * Replace with real Supabase auth when backend is integrated.
  */
-import { createContext, useContext, ReactNode } from 'react';
-import { useAuth as useCoreAuth } from '@/_core/hooks/useAuth';
-import { getLoginUrl } from '@/const';
-import type { User } from '../../../drizzle/schema';
+
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  avatar?: string;
-  role: 'user' | 'admin';
+  avatar?: string;   // initials fallback if undefined
+  role: 'user' | 'founder' | 'admin';
   reviewCount: number;
   joinedAt: string;
 }
 
 interface AuthContextValue {
   user: AuthUser | null;
-  rawUser: User | null;
   isAuthenticated: boolean;
-  loading: boolean;
-  signIn: () => void;
+  signIn: (name: string, email: string) => void;
   signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function mapUser(raw: User | null | undefined): AuthUser | null {
-  if (!raw) return null;
-  return {
-    id: String(raw.id),
-    name: raw.name || raw.email?.split('@')[0] || 'User',
-    email: raw.email || '',
-    role: raw.role === 'admin' ? 'admin' : 'user',
-    reviewCount: 0,
-    joinedAt: raw.createdAt ? new Date(raw.createdAt).toISOString() : new Date().toISOString(),
-  };
+const SESSION_KEY = 'laudstack_auth_user';
+
+function loadFromSession(): AuthUser | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as AuthUser) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user: rawUser, isAuthenticated, loading, logout } = useCoreAuth();
+  const [user, setUser] = useState<AuthUser | null>(loadFromSession);
 
-  const signIn = () => {
-    window.location.href = getLoginUrl();
-  };
+  const signIn = useCallback((name: string, email: string) => {
+    const newUser: AuthUser = {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      role: 'user',
+      reviewCount: 0,
+      joinedAt: new Date().toISOString(),
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
+    setUser(newUser);
+  }, []);
 
-  const signOut = async () => {
-    await logout();
-    window.location.href = '/';
-  };
-
-  const user = mapUser(rawUser);
+  const signOut = useCallback(() => {
+    sessionStorage.removeItem(SESSION_KEY);
+    setUser(null);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, rawUser: rawUser ?? null, isAuthenticated, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -349,111 +349,57 @@ export default function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.97 }}
                         transition={{ duration: 0.13 }}
-                        className="absolute top-full right-0 mt-2.5 w-72 bg-white rounded-2xl z-50"
-                        style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05)', border: '1px solid #F1F5F9' }}
+                        className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl shadow-slate-200/70 border border-slate-100 overflow-hidden z-50"
                       >
                         {/* User info header */}
-                        <div className="px-4 pt-4 pb-3 border-b border-slate-100">
+                        <div className="px-4 py-3.5 border-b border-slate-100">
                           <div className="flex items-center gap-3">
                             <div
-                              className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-black text-slate-900 shrink-0"
+                              className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black text-white shrink-0"
                               style={{ background: '#F59E0B' }}
                             >
                               {getInitials(user.name)}
                             </div>
-                            <div className="min-w-0 flex-1">
+                            <div className="min-w-0">
                               <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                              <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                              <p className="text-xs text-slate-500 truncate font-medium">{user.email}</p>
                             </div>
-                            <div className="shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center" title="Online">
-                              <div className="w-2 h-2 rounded-full bg-green-500" />
-                            </div>
-                          </div>
-                          {/* Quick stats */}
-                          <div className="grid grid-cols-3 gap-2 mt-3">
-                            {[
-                              { label: 'Reviews', value: '12' },
-                              { label: 'Saved',   value: String(savedIds.length) },
-                              { label: 'Tools',   value: '3' },
-                            ].map(({ label, value }) => (
-                              <div key={label} className="text-center bg-slate-50 rounded-xl py-2">
-                                <div className="text-sm font-black text-slate-900">{value}</div>
-                                <div className="text-xs text-slate-400">{label}</div>
-                              </div>
-                            ))}
                           </div>
                         </div>
 
-                        {/* My Account section */}
-                        <div className="p-2">
-                          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 py-1.5">My Account</p>
+                        {/* Menu items */}
+                        <div className="p-1.5">
                           {[
-                            { icon: User,      label: 'My Profile',   desc: 'Reviews & saved tools',  action: () => { navigate('/dashboard'); setAvatarOpen(false); } },
-                            { icon: Bookmark,  label: 'Saved Tools',  desc: 'Your bookmarked tools',  action: () => { navigate('/saved'); setAvatarOpen(false); } },
-                            { icon: PenSquare, label: 'My Reviews',   desc: 'Reviews you\'ve written', action: () => { navigate('/dashboard'); setAvatarOpen(false); } },
-                          ].map(({ icon: Icon, label, desc, action }) => (
+                            { icon: User,       label: 'My Profile',        action: () => { navigate('/dashboard'); setAvatarOpen(false); } },
+                            { icon: BarChart3,  label: 'Founder Dashboard', action: () => { navigate('/dashboard/founder'); setAvatarOpen(false); } },
+                            { icon: Bookmark,   label: 'Saved Tools',       action: () => { navigate('/saved'); setAvatarOpen(false); } },
+                            { icon: PenSquare,  label: 'My Reviews',        action: () => { navigate('/reviews'); setAvatarOpen(false); } },
+                            { icon: FileText,   label: 'My Submissions',    action: () => { navigate('/launchpad'); setAvatarOpen(false); } },
+                            { icon: Settings,   label: 'Account Settings',  action: () => { navigate('/dashboard'); setAvatarOpen(false); } },
+                          ].map(({ icon: Icon, label, action }) => (
                             <button
                               key={label}
                               onClick={action}
-                              className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-slate-50 transition-colors text-left group"
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left group"
                             >
-                              <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-amber-50 transition-colors">
+                              <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-amber-50 transition-colors">
                                 <Icon className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-600 transition-colors" />
                               </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-semibold text-slate-800 leading-none mb-0.5">{label}</p>
-                                <p className="text-xs text-slate-400 truncate">{desc}</p>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Founder section */}
-                        <div className="p-2 border-t border-slate-100">
-                          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 py-1.5">Founder Tools</p>
-                          {[
-                            { icon: BarChart3, label: 'Founder Dashboard', desc: 'Manage tools & analytics', action: () => { navigate('/dashboard/founder'); setAvatarOpen(false); }, accent: true },
-                            { icon: FileText,  label: 'Submit a Tool',     desc: 'List your product',        action: () => { navigate('/launchpad'); setAvatarOpen(false); }, accent: false },
-                            { icon: Settings,  label: 'Account Settings',  desc: 'Profile & preferences',    action: () => { navigate('/dashboard'); setAvatarOpen(false); }, accent: false },
-                          ].map(({ icon: Icon, label, desc, action, accent }) => (
-                            <button
-                              key={label}
-                              onClick={action}
-                              className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors text-left group ${
-                                accent ? 'hover:bg-amber-50' : 'hover:bg-slate-50'
-                              }`}
-                            >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                                accent ? 'bg-amber-100 group-hover:bg-amber-200' : 'bg-slate-100 group-hover:bg-amber-50'
-                              }`}>
-                                <Icon className={`h-3.5 w-3.5 transition-colors ${
-                                  accent ? 'text-amber-600' : 'text-slate-500 group-hover:text-amber-600'
-                                }`} />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className={`text-sm font-semibold leading-none mb-0.5 ${
-                                  accent ? 'text-amber-700' : 'text-slate-800'
-                                }`}>{label}</p>
-                                <p className="text-xs text-slate-400 truncate">{desc}</p>
-                              </div>
-                              {accent && <div className="ml-auto shrink-0 w-1.5 h-1.5 rounded-full bg-amber-400" />}
+                              <span className="text-sm font-semibold text-slate-700">{label}</span>
                             </button>
                           ))}
                         </div>
 
                         {/* Sign out */}
-                        <div className="p-2 border-t border-slate-100">
+                        <div className="p-1.5 border-t border-slate-100">
                           <button
                             onClick={handleSignOut}
-                            className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-red-50 transition-colors text-left group"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors text-left group"
                           >
-                            <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-red-100 transition-colors">
+                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-red-100 transition-colors">
                               <LogOut className="h-3.5 w-3.5 text-slate-500 group-hover:text-red-500 transition-colors" />
                             </div>
-                            <div>
-                              <p className="text-sm font-semibold text-slate-700 group-hover:text-red-600 transition-colors leading-none mb-0.5">Sign Out</p>
-                              <p className="text-xs text-slate-400">End your session</p>
-                            </div>
+                            <span className="text-sm font-semibold text-slate-700 group-hover:text-red-600 transition-colors">Sign Out</span>
                           </button>
                         </div>
                       </motion.div>

@@ -1,10 +1,7 @@
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
-/**
- * Generate login URL at runtime so redirect URI reflects the current origin.
- * @param provider - Optional provider hint: 'google' | 'email' | undefined (shows all options)
- */
-export const getLoginUrl = (provider?: 'google' | 'email') => {
+// Generate login URL at runtime so redirect URI reflects the current origin.
+export const getLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
@@ -15,12 +12,6 @@ export const getLoginUrl = (provider?: 'google' | 'email') => {
   url.searchParams.set("redirectUri", redirectUri);
   url.searchParams.set("state", state);
   url.searchParams.set("type", "signIn");
-  if (provider) {
-    url.searchParams.set("provider", provider);
-  }
 
   return url.toString();
 };
-
-/** LinkedIn OAuth URL — handled by our own server route */
-export const getLinkedInLoginUrl = () => `/api/auth/linkedin`;
