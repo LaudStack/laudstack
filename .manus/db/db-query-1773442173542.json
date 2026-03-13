@@ -1,0 +1,30 @@
+{
+  "query": "SHOW FULL TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 28uKLfuofPUb1xQ.root --database 3XGasP8CcX57JRU5Ai2Hv7 --execute SHOW FULL TABLES;",
+  "rows": [
+    {
+      "Tables_in_3XGasP8CcX57JRU5Ai2Hv7": "__drizzle_migrations",
+      "Table_type": "BASE TABLE"
+    },
+    {
+      "Tables_in_3XGasP8CcX57JRU5Ai2Hv7": "clicks",
+      "Table_type": "BASE TABLE"
+    },
+    {
+      "Tables_in_3XGasP8CcX57JRU5Ai2Hv7": "lauds",
+      "Table_type": "BASE TABLE"
+    },
+    {
+      "Tables_in_3XGasP8CcX57JRU5Ai2Hv7": "newsletter_subscribers",
+      "Table_type": "BASE TABLE"
+    },
+    {
+      "Tables_in_3XGasP8CcX57JRU5Ai2Hv7": "users",
+      "Table_type": "BASE TABLE"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_3XGasP8CcX57JRU5Ai2Hv7\tTable_type\n__drizzle_migrations\tBASE TABLE\nclicks\tBASE TABLE\nlauds\tBASE TABLE\nnewsletter_subscribers\tBASE TABLE\nusers\tBASE TABLE\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}
