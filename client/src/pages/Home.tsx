@@ -997,17 +997,15 @@ export default function Home() {
               </select>
             </div>
 
-            {/* Result count */}
-            <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#171717' }}>{allToolsSorted.length}</span>
-              <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>tools</span>
-              {(selectedPricing !== 'All' || featuredOnly) && (
+            {/* Clear filters */}
+            {(selectedPricing !== 'All' || featuredOnly) && (
+              <div style={{ flexShrink: 0, marginLeft: 'auto' }}>
                 <button
                   onClick={() => { setSelectedPricing('All'); setFeaturedOnly(false); setBrowseVisible(20); }}
-                  style={{ marginLeft: '4px', fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: 'inherit' }}
-                >Clear</button>
-              )}
-            </div>
+                  style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: 'inherit' }}
+                >Clear filters</button>
+              </div>
+            )}
             </div>
           </div>
           {/* End sticky container */}
@@ -1017,16 +1015,7 @@ export default function Home() {
 
             {/* Tools grid (2/3) */}
             <div className="lg:col-span-2">
-              {/* Slim context bar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#171717' }}>
-                  {selectedCategory === 'All' ? 'All Tools' : selectedCategory}
-                </span>
-                <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#D1D5DB', display: 'inline-block' }} />
-                <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>
-                  showing {Math.min(browseVisible, allToolsSorted.length)} of {allToolsSorted.length}
-                </span>
-              </div>
+
 
               <div className="flex flex-col" style={{ gap: '12px' }}>
                 {allTools.map((tool, i) => (
@@ -1036,9 +1025,9 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Show more / all shown */}
-              <div style={{ marginTop: '28px', textAlign: 'center' }}>
-                {browseVisible < allToolsSorted.length ? (
+              {/* Show more */}
+              {browseVisible < allToolsSorted.length && (
+                <div style={{ marginTop: '28px', textAlign: 'center' }}>
                   <button
                     onClick={() => setBrowseVisible(v => v + 20)}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '10px 28px', borderRadius: '10px', border: '1.5px solid #E8ECF0', fontSize: '13px', fontWeight: 700, color: '#374151', background: '#FFFFFF', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', fontFamily: 'inherit' }}
@@ -1047,12 +1036,8 @@ export default function Home() {
                   >
                     Show 20 more <ArrowRight style={{ width: '13px', height: '13px' }} />
                   </button>
-                ) : (
-                  <p style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500 }}>
-                    All {allToolsSorted.length} tools shown
-                  </p>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Sidebar (1/3) */}
