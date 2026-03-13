@@ -229,7 +229,7 @@ function FullCard({ tool, rank, rankChange }: ToolCardProps) {
     window.open(tool.website_url, '_blank', 'noopener,noreferrer');
   };
 
-  const visibleBadges = tool.badges.slice(0, 2);
+  const visibleBadges = tool.badges.slice(0, 1);
   const isFeatured = tool.is_featured;
 
   return (
@@ -299,13 +299,13 @@ function FullCard({ tool, rank, rankChange }: ToolCardProps) {
         )}
 
         {/* Logo */}
-        <ToolLogo tool={tool} size={60} />
+        <ToolLogo tool={tool} size={64} />
 
         {/* Name + tagline + rating */}
         <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, flexWrap: 'wrap' }}>
             <h3 style={{
-              fontWeight: 800, fontSize: 17, color: '#0F172A', margin: 0,
+              fontWeight: 800, fontSize: 18, color: '#0F172A', margin: 0,
               letterSpacing: '-0.02em', lineHeight: 1.2,
             }}>
               {tool.name}

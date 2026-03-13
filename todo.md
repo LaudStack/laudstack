@@ -119,3 +119,11 @@
 - [ ] Audit existing email/notification infrastructure
 - [ ] Implement welcome email in completeOnboarding action
 - [ ] Build, push, and test on Vercel
+
+## Category-Specific Hero Banners in Browse by Category
+- [x] Design category banner data (headline, description, icon, accent color per category)
+- [x] Create CategoryBanner component with smooth transition on category change
+- [x] Integrate banner into Browse by Category section (between section header and category tabs)
+- [x] Polish ToolCard: 64px logos, 18px bold names, max 1 badge
+- [x] Apply to both laudstack (Vite) and laudstack-next (Next.js)
+- [x] Test and push
