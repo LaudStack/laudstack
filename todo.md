@@ -135,3 +135,9 @@
 - [x] Register /categories route and add navigation link
 - [x] Apply to both laudstack (Vite) and laudstack-next (Next.js)
 - [x] Test and push
+
+## Trending This Week Section Redesign
+- [x] Redesign Trending section background to soft mint/green gradient with rounded container
+- [x] Layout: left-side text (heading + description + CTA) and right-side 2x2 grid of trending tool cards
+- [x] Match the attached screenshot design style
+- [ ] Apply to both Vite and Next.js projects
