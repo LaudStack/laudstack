@@ -427,63 +427,312 @@ export default function Home() {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          2. THREE PILLARS — Discover · Review · Launch
+          5. BROWSE BY CATEGORY + SIDEBAR
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#FFFFFF', padding: '88px 0 80px', borderBottom: '1px solid #F1F5F9' }}>
+      <section style={{ background: '#F8FAFC', padding: '80px 0 88px', borderBottom: '1px solid #E2E8F0' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
 
-          {/* Section header — centered */}
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
-              style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '14px' }}>
-              Everything in one place
-            </motion.p>
-            <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
-              style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 16px', lineHeight: 1.15 }}>
-              Built for how people actually choose tools
-            </motion.h2>
-            <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
-              style={{ fontSize: '16px', color: '#64748B', maxWidth: '500px', margin: '0 auto', lineHeight: 1.65, fontWeight: 400 }}>
-              LaudStack is where professionals discover, evaluate, and launch AI & SaaS tools.
-            </motion.p>
+          <SectionHeader
+            label="Browse by Category"
+            labelIcon={Filter}
+            labelColor="#F59E0B"
+            labelBg="#F1F5F9"
+            labelBorder="#E2E8F0"
+            headline="Find tools for every use case"
+            subtext={`${MOCK_TOOLS.length} verified tools across ${CATEGORIES.length - 1} categories.`}
+            cta="All Categories"
+            ctaColor="#D97706"
+            onCta={go}
+          />
+
+          {/* ── Category + Filter Container (full width, static) ── */}
+          <div
+            style={{
+              background: '#EFF3F8',
+              borderRadius: '14px',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: '24px',
+            }}
+          >
+            {/* Category tab strip */}
+            <div style={{ borderBottom: '1px solid #E2E8F0', padding: '0 16px' }}>
+              <div
+                className="flex gap-1.5 overflow-x-auto"
+                style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '0', paddingTop: '8px' }}
+              >
+                {CATEGORIES.map(({ name, icon, count }) => {
+                  const active = selectedCategory === name;
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => { setSelectedCategory(name); setBrowseVisible(20); }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        padding: '7px 13px', borderRadius: '8px', cursor: 'pointer',
+                        fontSize: '12px', fontWeight: 700, transition: 'all 0.14s',
+                        flexShrink: 0, whiteSpace: 'nowrap', fontFamily: 'inherit',
+                        border: active ? '1.5px solid #F59E0B' : '1.5px solid transparent',
+                        background: active ? '#F59E0B' : 'transparent',
+                        color: active ? '#0A0A0A' : '#6B7280',
+                        boxShadow: active ? '0 2px 10px rgba(245,158,11,0.22)' : 'none',
+                        marginBottom: '8px',
+                      }}
+                      onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.color = '#B45309'; b.style.background = 'rgba(245,158,11,0.08)'; } }}
+                      onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.color = '#6B7280'; b.style.background = 'transparent'; } }}
+                    >
+                      <span style={{ fontSize: '13px', lineHeight: 1 }}>{icon}</span>
+                      <span>{name}</span>
+                      <span style={{
+                        fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px',
+                        background: active ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.05)',
+                        color: active ? '#0A0A0A' : '#9CA3AF',
+                      }}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Filter bar */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
+              padding: '10px 16px',
+            }}>
+            {/* Pricing pills */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap', marginRight: '2px' }}>Pricing</span>
+              {([
+                { key: 'All',         label: 'All',         activeColor: '#374151', activeBg: '#F3F4F6', activeBorder: '#D1D5DB' },
+                { key: 'Free',        label: 'Free',        activeColor: '#065F46', activeBg: '#ECFDF5', activeBorder: '#6EE7B7' },
+                { key: 'Freemium',    label: 'Freemium',    activeColor: '#92400E', activeBg: '#FFFBEB', activeBorder: '#FCD34D' },
+                { key: 'Paid',        label: 'Paid',        activeColor: '#1E3A5F', activeBg: '#EFF6FF', activeBorder: '#93C5FD' },
+                { key: 'Free Trial',  label: 'Free Trial',  activeColor: '#4C1D95', activeBg: '#F5F3FF', activeBorder: '#C4B5FD' },
+                { key: 'Open Source', label: 'Open Source', activeColor: '#1F2937', activeBg: '#F9FAFB', activeBorder: '#9CA3AF' },
+              ] as const).map(({ key, label, activeColor, activeBg, activeBorder }) => {
+                const active = selectedPricing === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => { setSelectedPricing(key); setBrowseVisible(20); }}
+                    style={{
+                      padding: '4px 11px', borderRadius: '6px', cursor: 'pointer',
+                      fontSize: '11px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
+                      border: active ? `1.5px solid ${activeBorder}` : '1.5px solid #E8ECF0',
+                      background: active ? activeBg : 'transparent',
+                      color: active ? activeColor : '#9CA3AF',
+                    }}
+                    onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#D1D5DB'; b.style.color = '#374151'; } }}
+                    onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#9CA3AF'; } }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
+            {/* Featured toggle */}
+            <button
+              onClick={() => { setFeaturedOnly(f => !f); setBrowseVisible(20); }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '5px 12px', borderRadius: '7px', cursor: 'pointer',
+                fontSize: '11px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
+                border: featuredOnly ? '1.5px solid #F59E0B' : '1.5px solid #E8ECF0',
+                background: featuredOnly ? '#FFF7ED' : 'transparent',
+                color: featuredOnly ? '#B45309' : '#9CA3AF',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FDE68A'; b.style.color = '#D97706'; b.style.background = '#FFFBEB'; } }}
+              onMouseLeave={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#9CA3AF'; b.style.background = 'transparent'; } }}
+            >
+              <Sparkles style={{ width: '10px', height: '10px' }} />
+              Featured
+            </button>
+            {/* Divider */}
+            <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
+            {/* Sort select */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>Sort</span>
+              <select
+                value={browseSort}
+                onChange={e => { setBrowseSort(e.target.value as typeof browseSort); setBrowseVisible(20); }}
+                style={{ fontSize: '12px', fontWeight: 700, color: '#374151', background: '#F9FAFB', border: '1.5px solid #E8ECF0', borderRadius: '7px', padding: '5px 10px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                <option value="top_rated">Top Rated</option>
+                <option value="trending">Trending</option>
+                <option value="newest">Newest</option>
+                <option value="most_reviewed">Most Reviewed</option>
+                <option value="featured_first">✦ Featured First</option>
+              </select>
+            </div>
+
+            {/* Clear filters */}
+            {(selectedPricing !== 'All' || featuredOnly) && (
+              <div style={{ flexShrink: 0, marginLeft: 'auto' }}>
+                <button
+                  onClick={() => { setSelectedPricing('All'); setFeaturedOnly(false); setBrowseVisible(20); }}
+                  style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: 'inherit' }}
+                >Clear filters</button>
+              </div>
+            )}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '20px' }}>
-            {THREE_PILLARS.map(({ icon: Icon, accent, accentBg, accentBorder, label, headline, body, cta }, i) => (
-              <motion.div
-                key={label}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.1}
-                onClick={go}
-                style={{
-                  background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '20px',
-                  padding: '32px 28px 28px', cursor: 'pointer', position: 'relative', overflow: 'hidden',
-                  boxShadow: '0 1px 3px rgba(15,23,42,0.04)', transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-                }}
-                whileHover={{ y: -5, boxShadow: '0 16px 40px rgba(15,23,42,0.10)', borderColor: accentBorder }}
-              >
-                {/* Top accent bar */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: accent }} />
+          {/* ── Two-column layout ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: '32px' }}>
 
-                {/* Icon + heading row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
-                  <div style={{ width: '46px', height: '46px', borderRadius: '13px', background: accentBg, border: `1px solid ${accentBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon style={{ width: '20px', height: '20px', color: accent }} />
+            {/* Tools list (2/3) */}
+            <div className="lg:col-span-2">
+
+              <div className="flex flex-col" style={{ gap: '12px' }}>
+                {allTools.map((tool, i) => (
+                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.06}>
+                    <ToolCard tool={tool} />
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Show more */}
+              {browseVisible < allToolsSorted.length && (
+                <div style={{ marginTop: '28px', textAlign: 'center' }}>
+                  <button
+                    onClick={() => setBrowseVisible(v => v + 20)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '10px 28px', borderRadius: '10px', border: '1.5px solid #E8ECF0', fontSize: '13px', fontWeight: 700, color: '#374151', background: '#FFFFFF', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', fontFamily: 'inherit' }}
+                    onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#F59E0B'; b.style.color = '#B45309'; b.style.background = '#FFFBEB'; }}
+                    onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#374151'; b.style.background = '#FFFFFF'; }}
+                  >
+                    Show 20 more <ArrowRight style={{ width: '13px', height: '13px' }} />
+                  </button>
+                </div>
+              )}
+
+
+            </div>
+
+            {/* Sidebar (1/3) */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                {/* Weekly Leaderboard */}
+                <div style={{ background: '#FFFFFF', borderRadius: '18px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
+                  <div style={{ padding: '14px 18px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FAFAFA' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                      <div style={{ width: '30px', height: '30px', borderRadius: '9px', background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Trophy style={{ width: '13px', height: '13px', color: '#D97706' }} />
+                      </div>
+                      <div>
+                        <p style={{ fontSize: '10px', fontWeight: 700, color: '#D97706', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>This Week</p>
+                        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Top Ranked Tools</h3>
+                      </div>
+                    </div>
+                    <button onClick={go} style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'opacity 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                    >Full Board →</button>
                   </div>
                   <div>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', fontSize: '10px', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: accent, background: accentBg, border: `1px solid ${accentBorder}`, padding: '2px 8px', borderRadius: '100px', marginBottom: '5px' }}>
-                      {label}
-                    </div>
-                    <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '17px', fontWeight: 800, color: '#171717', margin: 0, lineHeight: 1.2, letterSpacing: '-0.02em' }}>{headline}</h3>
+                    {leaderboard.map(({ rank, tool, rank_change }: { rank: number; tool: import('@/lib/types').Tool; rank_change: number }, idx: number) => (
+                      <div
+                        key={tool.id}
+                        onClick={() => goToTool(tool.slug)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 18px', cursor: 'pointer', borderBottom: idx < leaderboard.length - 1 ? '1px solid #F8FAFC' : 'none', transition: 'background 0.12s' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <div style={{ width: '22px', textAlign: 'center', flexShrink: 0 }}>
+                          {rank <= 3
+                            ? <span style={{ fontSize: '15px' }}>{['🥇','🥈','🥉'][rank-1]}</span>
+                            : <span style={{ fontSize: '12px', fontWeight: 800, color: '#94A3B8' }}>{rank}</span>
+                          }
+                        </div>
+                        <div style={{ width: '34px', height: '34px', borderRadius: '10px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0, border: '1px solid #E2E8F0' }}>
+                           <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
+                         </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#171717', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
+                          <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.category}</p>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '12px', fontWeight: 700, color: '#374151' }}>
+                            <ChevronUp style={{ width: '11px', height: '11px', color: '#F59E0B' }} />
+                            {tool.upvote_count >= 1000 ? `${(tool.upvote_count/1000).toFixed(1)}k` : tool.upvote_count}
+                          </div>
+                          {rank_change !== 0 && (
+                            <span style={{ fontSize: '10px', fontWeight: 700, color: rank_change > 0 ? '#22C55E' : '#EF4444' }}>
+                              {rank_change > 0 ? `▲${rank_change}` : `▼${Math.abs(rank_change)}`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ padding: '10px 18px', background: '#FAFAFA', borderTop: '1px solid #F1F5F9' }}>
+                    <button onClick={go} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', transition: 'opacity 0.12s' }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                    >
+                      View Full Leaderboard <ArrowRight style={{ width: '12px', height: '12px' }} />
+                    </button>
                   </div>
                 </div>
 
-                <p style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.7, margin: '0 0 22px', fontWeight: 400 }}>{body}</p>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 700, color: accent }}>
-                  {cta} <ArrowRight style={{ width: '13px', height: '13px' }} />
+                {/* Recent Reviews */}
+                <div style={{ background: '#FFFFFF', borderRadius: '18px', border: '1px solid #E2E8F0', padding: '18px', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '16px' }}>
+                    <div style={{ width: '30px', height: '30px', borderRadius: '9px', background: '#F0FDF4', border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <MessageSquare style={{ width: '13px', height: '13px', color: '#16A34A' }} />
+                    </div>
+                    <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: 0 }}>Recent Reviews</h3>
+                  </div>
+                  {MOCK_REVIEWS.slice(0, 3).map((review, idx) => (
+                    <div key={review.id} style={{ marginBottom: idx < 2 ? '14px' : 0, paddingBottom: idx < 2 ? '14px' : 0, borderBottom: idx < 2 ? '1px solid #F1F5F9' : 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          {[1,2,3,4,5].map(i => (
+                            <Star key={i} style={{ width: '11px', height: '11px', fill: i <= review.rating ? '#FBBF24' : '#E2E8F0', color: i <= review.rating ? '#FBBF24' : '#E2E8F0' }} />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600 }}>{review.user?.name}</span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: '#374151', fontWeight: 500, margin: 0, lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{review.title}</p>
+                    </div>
+                  ))}
+                  <button onClick={go} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '14px', fontSize: '12px', fontWeight: 700, color: '#16A34A', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'opacity 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                  >
+                    Read All Reviews <ArrowRight style={{ width: '11px', height: '11px' }} />
+                  </button>
                 </div>
-              </motion.div>
-            ))}
+
+                {/* Founder CTA card */}
+                <div style={{ borderRadius: '18px', overflow: 'hidden', border: '1px solid #FDE68A', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 60%, #FFF7ED 100%)', padding: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '11px', marginBottom: '12px' }}>
+                    <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}>
+                      <Rocket style={{ width: '15px', height: '15px', color: '#FFFFFF' }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '10px', fontWeight: 700, color: '#92400E', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0 }}>For Founders</p>
+                      <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Are you a founder?</h3>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#78350F', fontWeight: 400, margin: '0 0 16px', lineHeight: 1.6 }}>Submit your tool and get discovered by thousands of buyers. Free to list.</p>
+                  <button
+                    onClick={go}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '11px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: '#F59E0B', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)' }}
+                    onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)')}
+                    onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(245,158,11,0.25)')}
+                  >
+                    <Rocket style={{ width: '13px', height: '13px' }} />
+                    Go to LaunchPad
+                  </button>
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -853,312 +1102,63 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          5. BROWSE BY CATEGORY + SIDEBAR
+          2. THREE PILLARS — Discover · Review · Launch
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#F8FAFC', padding: '80px 0 88px', borderBottom: '1px solid #E2E8F0' }}>
+      <section style={{ background: '#FFFFFF', padding: '88px 0 80px', borderBottom: '1px solid #F1F5F9' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
 
-          <SectionHeader
-            label="Browse by Category"
-            labelIcon={Filter}
-            labelColor="#F59E0B"
-            labelBg="#F1F5F9"
-            labelBorder="#E2E8F0"
-            headline="Find tools for every use case"
-            subtext={`${MOCK_TOOLS.length} verified tools across ${CATEGORIES.length - 1} categories.`}
-            cta="All Categories"
-            ctaColor="#D97706"
-            onCta={go}
-          />
-
-          {/* ── Category + Filter Container (full width, static) ── */}
-          <div
-            style={{
-              background: '#EFF3F8',
-              borderRadius: '14px',
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              marginBottom: '24px',
-            }}
-          >
-            {/* Category tab strip */}
-            <div style={{ borderBottom: '1px solid #E2E8F0', padding: '0 16px' }}>
-              <div
-                className="flex gap-1.5 overflow-x-auto"
-                style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '0', paddingTop: '8px' }}
-              >
-                {CATEGORIES.map(({ name, icon, count }) => {
-                  const active = selectedCategory === name;
-                  return (
-                    <button
-                      key={name}
-                      onClick={() => { setSelectedCategory(name); setBrowseVisible(20); }}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '6px',
-                        padding: '7px 13px', borderRadius: '8px', cursor: 'pointer',
-                        fontSize: '12px', fontWeight: 700, transition: 'all 0.14s',
-                        flexShrink: 0, whiteSpace: 'nowrap', fontFamily: 'inherit',
-                        border: active ? '1.5px solid #F59E0B' : '1.5px solid transparent',
-                        background: active ? '#F59E0B' : 'transparent',
-                        color: active ? '#0A0A0A' : '#6B7280',
-                        boxShadow: active ? '0 2px 10px rgba(245,158,11,0.22)' : 'none',
-                        marginBottom: '8px',
-                      }}
-                      onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.color = '#B45309'; b.style.background = 'rgba(245,158,11,0.08)'; } }}
-                      onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.color = '#6B7280'; b.style.background = 'transparent'; } }}
-                    >
-                      <span style={{ fontSize: '13px', lineHeight: 1 }}>{icon}</span>
-                      <span>{name}</span>
-                      <span style={{
-                        fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px',
-                        background: active ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.05)',
-                        color: active ? '#0A0A0A' : '#9CA3AF',
-                      }}>{count}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Filter bar */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
-              padding: '10px 16px',
-            }}>
-            {/* Pricing pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap', marginRight: '2px' }}>Pricing</span>
-              {([
-                { key: 'All',         label: 'All',         activeColor: '#374151', activeBg: '#F3F4F6', activeBorder: '#D1D5DB' },
-                { key: 'Free',        label: 'Free',        activeColor: '#065F46', activeBg: '#ECFDF5', activeBorder: '#6EE7B7' },
-                { key: 'Freemium',    label: 'Freemium',    activeColor: '#92400E', activeBg: '#FFFBEB', activeBorder: '#FCD34D' },
-                { key: 'Paid',        label: 'Paid',        activeColor: '#1E3A5F', activeBg: '#EFF6FF', activeBorder: '#93C5FD' },
-                { key: 'Free Trial',  label: 'Free Trial',  activeColor: '#4C1D95', activeBg: '#F5F3FF', activeBorder: '#C4B5FD' },
-                { key: 'Open Source', label: 'Open Source', activeColor: '#1F2937', activeBg: '#F9FAFB', activeBorder: '#9CA3AF' },
-              ] as const).map(({ key, label, activeColor, activeBg, activeBorder }) => {
-                const active = selectedPricing === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => { setSelectedPricing(key); setBrowseVisible(20); }}
-                    style={{
-                      padding: '4px 11px', borderRadius: '6px', cursor: 'pointer',
-                      fontSize: '11px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
-                      border: active ? `1.5px solid ${activeBorder}` : '1.5px solid #E8ECF0',
-                      background: active ? activeBg : 'transparent',
-                      color: active ? activeColor : '#9CA3AF',
-                    }}
-                    onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#D1D5DB'; b.style.color = '#374151'; } }}
-                    onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#9CA3AF'; } }}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Divider */}
-            <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
-            {/* Featured toggle */}
-            <button
-              onClick={() => { setFeaturedOnly(f => !f); setBrowseVisible(20); }}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                padding: '5px 12px', borderRadius: '7px', cursor: 'pointer',
-                fontSize: '11px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
-                border: featuredOnly ? '1.5px solid #F59E0B' : '1.5px solid #E8ECF0',
-                background: featuredOnly ? '#FFF7ED' : 'transparent',
-                color: featuredOnly ? '#B45309' : '#9CA3AF',
-                flexShrink: 0,
-              }}
-              onMouseEnter={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FDE68A'; b.style.color = '#D97706'; b.style.background = '#FFFBEB'; } }}
-              onMouseLeave={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#9CA3AF'; b.style.background = 'transparent'; } }}
-            >
-              <Sparkles style={{ width: '10px', height: '10px' }} />
-              Featured
-            </button>
-            {/* Divider */}
-            <div style={{ width: '1px', height: '24px', background: '#E8ECF0', flexShrink: 0 }} />
-            {/* Sort select */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>Sort</span>
-              <select
-                value={browseSort}
-                onChange={e => { setBrowseSort(e.target.value as typeof browseSort); setBrowseVisible(20); }}
-                style={{ fontSize: '12px', fontWeight: 700, color: '#374151', background: '#F9FAFB', border: '1.5px solid #E8ECF0', borderRadius: '7px', padding: '5px 10px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                <option value="top_rated">Top Rated</option>
-                <option value="trending">Trending</option>
-                <option value="newest">Newest</option>
-                <option value="most_reviewed">Most Reviewed</option>
-                <option value="featured_first">✦ Featured First</option>
-              </select>
-            </div>
-
-            {/* Clear filters */}
-            {(selectedPricing !== 'All' || featuredOnly) && (
-              <div style={{ flexShrink: 0, marginLeft: 'auto' }}>
-                <button
-                  onClick={() => { setSelectedPricing('All'); setFeaturedOnly(false); setBrowseVisible(20); }}
-                  style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: 'inherit' }}
-                >Clear filters</button>
-              </div>
-            )}
-            </div>
+          {/* Section header — centered */}
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+            <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+              style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '14px' }}>
+              Everything in one place
+            </motion.p>
+            <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 16px', lineHeight: 1.15 }}>
+              Built for how people actually choose tools
+            </motion.h2>
+            <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
+              style={{ fontSize: '16px', color: '#64748B', maxWidth: '500px', margin: '0 auto', lineHeight: 1.65, fontWeight: 400 }}>
+              LaudStack is where professionals discover, evaluate, and launch AI & SaaS tools.
+            </motion.p>
           </div>
 
-          {/* ── Two-column layout ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: '32px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '20px' }}>
+            {THREE_PILLARS.map(({ icon: Icon, accent, accentBg, accentBorder, label, headline, body, cta }, i) => (
+              <motion.div
+                key={label}
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.1}
+                onClick={go}
+                style={{
+                  background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '20px',
+                  padding: '32px 28px 28px', cursor: 'pointer', position: 'relative', overflow: 'hidden',
+                  boxShadow: '0 1px 3px rgba(15,23,42,0.04)', transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
+                }}
+                whileHover={{ y: -5, boxShadow: '0 16px 40px rgba(15,23,42,0.10)', borderColor: accentBorder }}
+              >
+                {/* Top accent bar */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: accent }} />
 
-            {/* Tools list (2/3) */}
-            <div className="lg:col-span-2">
-
-              <div className="flex flex-col" style={{ gap: '12px' }}>
-                {allTools.map((tool, i) => (
-                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.06}>
-                    <ToolCard tool={tool} />
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Show more */}
-              {browseVisible < allToolsSorted.length && (
-                <div style={{ marginTop: '28px', textAlign: 'center' }}>
-                  <button
-                    onClick={() => setBrowseVisible(v => v + 20)}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '10px 28px', borderRadius: '10px', border: '1.5px solid #E8ECF0', fontSize: '13px', fontWeight: 700, color: '#374151', background: '#FFFFFF', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', fontFamily: 'inherit' }}
-                    onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#F59E0B'; b.style.color = '#B45309'; b.style.background = '#FFFBEB'; }}
-                    onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#374151'; b.style.background = '#FFFFFF'; }}
-                  >
-                    Show 20 more <ArrowRight style={{ width: '13px', height: '13px' }} />
-                  </button>
-                </div>
-              )}
-
-
-            </div>
-
-            {/* Sidebar (1/3) */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-                {/* Weekly Leaderboard */}
-                <div style={{ background: '#FFFFFF', borderRadius: '18px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
-                  <div style={{ padding: '14px 18px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FAFAFA' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-                      <div style={{ width: '30px', height: '30px', borderRadius: '9px', background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Trophy style={{ width: '13px', height: '13px', color: '#D97706' }} />
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '10px', fontWeight: 700, color: '#D97706', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>This Week</p>
-                        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Top Ranked Tools</h3>
-                      </div>
-                    </div>
-                    <button onClick={go} style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'opacity 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                    >Full Board →</button>
+                {/* Icon + heading row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '13px', background: accentBg, border: `1px solid ${accentBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon style={{ width: '20px', height: '20px', color: accent }} />
                   </div>
                   <div>
-                    {leaderboard.map(({ rank, tool, rank_change }: { rank: number; tool: import('@/lib/types').Tool; rank_change: number }, idx: number) => (
-                      <div
-                        key={tool.id}
-                        onClick={() => goToTool(tool.slug)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 18px', cursor: 'pointer', borderBottom: idx < leaderboard.length - 1 ? '1px solid #F8FAFC' : 'none', transition: 'background 0.12s' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        <div style={{ width: '22px', textAlign: 'center', flexShrink: 0 }}>
-                          {rank <= 3
-                            ? <span style={{ fontSize: '15px' }}>{['🥇','🥈','🥉'][rank-1]}</span>
-                            : <span style={{ fontSize: '12px', fontWeight: 800, color: '#94A3B8' }}>{rank}</span>
-                          }
-                        </div>
-                        <div style={{ width: '34px', height: '34px', borderRadius: '10px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0, border: '1px solid #E2E8F0' }}>
-                           <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
-                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#171717', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
-                          <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.category}</p>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '12px', fontWeight: 700, color: '#374151' }}>
-                            <ChevronUp style={{ width: '11px', height: '11px', color: '#F59E0B' }} />
-                            {tool.upvote_count >= 1000 ? `${(tool.upvote_count/1000).toFixed(1)}k` : tool.upvote_count}
-                          </div>
-                          {rank_change !== 0 && (
-                            <span style={{ fontSize: '10px', fontWeight: 700, color: rank_change > 0 ? '#22C55E' : '#EF4444' }}>
-                              {rank_change > 0 ? `▲${rank_change}` : `▼${Math.abs(rank_change)}`}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ padding: '10px 18px', background: '#FAFAFA', borderTop: '1px solid #F1F5F9' }}>
-                    <button onClick={go} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#D97706', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', transition: 'opacity 0.12s' }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                    >
-                      View Full Leaderboard <ArrowRight style={{ width: '12px', height: '12px' }} />
-                    </button>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', fontSize: '10px', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: accent, background: accentBg, border: `1px solid ${accentBorder}`, padding: '2px 8px', borderRadius: '100px', marginBottom: '5px' }}>
+                      {label}
+                    </div>
+                    <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '17px', fontWeight: 800, color: '#171717', margin: 0, lineHeight: 1.2, letterSpacing: '-0.02em' }}>{headline}</h3>
                   </div>
                 </div>
 
-                {/* Recent Reviews */}
-                <div style={{ background: '#FFFFFF', borderRadius: '18px', border: '1px solid #E2E8F0', padding: '18px', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '16px' }}>
-                    <div style={{ width: '30px', height: '30px', borderRadius: '9px', background: '#F0FDF4', border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <MessageSquare style={{ width: '13px', height: '13px', color: '#16A34A' }} />
-                    </div>
-                    <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: 0 }}>Recent Reviews</h3>
-                  </div>
-                  {MOCK_REVIEWS.slice(0, 3).map((review, idx) => (
-                    <div key={review.id} style={{ marginBottom: idx < 2 ? '14px' : 0, paddingBottom: idx < 2 ? '14px' : 0, borderBottom: idx < 2 ? '1px solid #F1F5F9' : 'none' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          {[1,2,3,4,5].map(i => (
-                            <Star key={i} style={{ width: '11px', height: '11px', fill: i <= review.rating ? '#FBBF24' : '#E2E8F0', color: i <= review.rating ? '#FBBF24' : '#E2E8F0' }} />
-                          ))}
-                        </div>
-                        <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600 }}>{review.user?.name}</span>
-                      </div>
-                      <p style={{ fontSize: '12px', color: '#374151', fontWeight: 500, margin: 0, lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{review.title}</p>
-                    </div>
-                  ))}
-                  <button onClick={go} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '14px', fontSize: '12px', fontWeight: 700, color: '#16A34A', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'opacity 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                  >
-                    Read All Reviews <ArrowRight style={{ width: '11px', height: '11px' }} />
-                  </button>
-                </div>
+                <p style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.7, margin: '0 0 22px', fontWeight: 400 }}>{body}</p>
 
-                {/* Founder CTA card */}
-                <div style={{ borderRadius: '18px', overflow: 'hidden', border: '1px solid #FDE68A', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 60%, #FFF7ED 100%)', padding: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '11px', marginBottom: '12px' }}>
-                    <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}>
-                      <Rocket style={{ width: '15px', height: '15px', color: '#FFFFFF' }} />
-                    </div>
-                    <div>
-                      <p style={{ fontSize: '10px', fontWeight: 700, color: '#92400E', letterSpacing: '0.07em', textTransform: 'uppercase', margin: 0 }}>For Founders</p>
-                      <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Are you a founder?</h3>
-                    </div>
-                  </div>
-                  <p style={{ fontSize: '13px', color: '#78350F', fontWeight: 400, margin: '0 0 16px', lineHeight: 1.6 }}>Submit your tool and get discovered by thousands of buyers. Free to list.</p>
-                  <button
-                    onClick={go}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '11px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: '#F59E0B', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)' }}
-                    onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)')}
-                    onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(245,158,11,0.25)')}
-                  >
-                    <Rocket style={{ width: '13px', height: '13px' }} />
-                    Go to LaunchPad
-                  </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 700, color: accent }}>
+                  {cta} <ArrowRight style={{ width: '13px', height: '13px' }} />
                 </div>
-
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
