@@ -32,9 +32,11 @@ import BackToTop from '@/components/BackToTop';
 
 import ToolCard from '@/components/ToolCard';
 import { useLocation } from 'wouter';
-import { MOCK_TOOLS, MOCK_REVIEWS, MOCK_LEADERBOARD, CATEGORIES } from '@/lib/mockData';
+import { CATEGORIES } from '@/lib/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools, stackToTool } from '@/lib/stackAdapter';
 
 // ─── Animation variants ────────────────────────────────────────────────────
 const fadeUp = {
@@ -148,9 +150,7 @@ export default function Home() {
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
   const { slugs: recentSlugs } = useRecentlyViewed();
-  const recentTools = recentSlugs
-    .map(s => MOCK_TOOLS.find(t => t.slug === s))
-    .filter(Boolean) as typeof MOCK_TOOLS;
+  const recentTools: any[] = []; // Recently viewed disabled for now
   const go = () => navigate('/launchpad');
   const goTrending = () => navigate('/trending');
   const goToTool = (slug: string) => navigate(`/tools/${slug}`);
@@ -160,35 +160,41 @@ export default function Home() {
     else navigate('/search');
   };
 
-  const filteredBase = selectedCategory === 'All'
-    ? MOCK_TOOLS
-    : MOCK_TOOLS.filter(t => t.category === selectedCategory);
+  // ─── tRPC queries for real data ───────────────────────────────────────────
+  const sortMap: Record<string, string> = {
+    top_rated: 'top_rated', trending: 'trending', newest: 'newest',
+    most_reviewed: 'most_reviewed', featured_first: 'rank',
+  };
+  const { data: browseData } = trpc.stacks.list.useQuery({
+    status: 'published',
+    category: selectedCategory === 'All' ? undefined : selectedCategory,
+    pricingModel: selectedPricing === 'All' ? undefined : selectedPricing,
+    sort: (sortMap[browseSort] ?? 'rank') as any,
+    isFeatured: featuredOnly ? true : undefined,
+    limit: browseVisible,
+  });
+  const allTools = stacksToTools((browseData?.items ?? []) as any[]);
 
-  const allToolsSorted = (() => {
-    let base = selectedPricing === 'All' ? filteredBase : filteredBase.filter(t => t.pricing_model === selectedPricing);
-    if (featuredOnly) base = base.filter(t => t.is_featured);
-    const copy = [...base];
-    if (browseSort === 'top_rated')     copy.sort((a, b) => b.average_rating - a.average_rating);
-    if (browseSort === 'trending')      copy.sort((a, b) => (b.weekly_rank_change ?? 0) - (a.weekly_rank_change ?? 0));
-    if (browseSort === 'newest')        copy.sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime());
-    if (browseSort === 'most_reviewed') copy.sort((a, b) => b.review_count - a.review_count);
-    if (browseSort === 'featured_first') copy.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
-    return copy;
-  })();
-  const allTools = allToolsSorted.slice(0, browseVisible);
+  const { data: trendingData } = trpc.stacks.list.useQuery({
+    status: 'published', sort: 'trending', isTrending: true, limit: 4,
+  });
+  const trendingTools = stacksToTools((trendingData?.items ?? []) as any[]);
 
-  // Trending: top 4 tools with the biggest weekly_rank_change (last 7 days)
-  const trendingTools = [...(selectedCategory === 'All' ? MOCK_TOOLS : filteredBase)]
-    .filter(t => (t.weekly_rank_change ?? 0) > 0)
-    .sort((a, b) => (b.weekly_rank_change ?? 0) - (a.weekly_rank_change ?? 0))
-    .slice(0, 4);
+  const { data: newData } = trpc.stacks.list.useQuery({
+    status: 'published', sort: 'newest', limit: 4,
+    category: selectedCategory === 'All' ? undefined : selectedCategory,
+  });
+  const newLaunches = stacksToTools((newData?.items ?? []) as any[]);
 
-  // Fresh Launches: newest tools (by launched_at), filtered by category
-  const newLaunches = [...filteredBase]
-    .sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime())
-    .slice(0, 4);
-
-  const leaderboard = MOCK_LEADERBOARD.slice(0, 5);
+  // Leaderboard: top 5 by rank
+  const { data: leaderData } = trpc.stacks.list.useQuery({
+    status: 'published', sort: 'top_rated', limit: 5,
+  });
+  const leaderboard = stacksToTools((leaderData?.items ?? []) as any[]).map((t: any, i: number) => ({
+    rank: i + 1, name: t.name, slug: t.slug, logo_url: t.logo_url,
+    average_rating: t.average_rating, review_count: t.review_count,
+    weekly_rank_change: t.weekly_rank_change ?? 0,
+  }));
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
@@ -649,7 +655,7 @@ export default function Home() {
             labelBg="#F1F5F9"
             labelBorder="#E2E8F0"
             headline="Explore products by category"
-            subtext={`${MOCK_TOOLS.length} products across ${CATEGORIES.length - 1} categories — tools, deals, and templates.`}
+            subtext={`${browseData?.total ?? 0} products across ${CATEGORIES.length - 1} categories — tools, deals, and templates.`}
             cta="All Categories"
             ctaColor="#D97706"
             onCta={() => navigate('/categories')}
@@ -806,7 +812,7 @@ export default function Home() {
               </div>
 
               {/* Show more */}
-              {browseVisible < allToolsSorted.length && (
+              {browseVisible < (browseData?.total ?? 0) && (
                 <div style={{ marginTop: '28px', textAlign: 'center' }}>
                   <button
                     onClick={() => setBrowseVisible(v => v + 20)}
@@ -844,35 +850,35 @@ export default function Home() {
                     >Full Board →</button>
                   </div>
                   <div>
-                    {leaderboard.map(({ rank, tool, rank_change }: { rank: number; tool: import('@/lib/types').Tool; rank_change: number }, idx: number) => (
+                    {leaderboard.map((entry: any, idx: number) => (
                       <div
-                        key={tool.id}
-                        onClick={() => goToTool(tool.slug)}
+                        key={entry.slug}
+                        onClick={() => goToTool(entry.slug)}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 18px', cursor: 'pointer', borderBottom: idx < leaderboard.length - 1 ? '1px solid #F8FAFC' : 'none', transition: 'background 0.12s' }}
                         onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
                         <div style={{ width: '22px', textAlign: 'center', flexShrink: 0 }}>
-                          {rank <= 3
-                            ? <span style={{ fontSize: '15px' }}>{['🥇','🥈','🥉'][rank-1]}</span>
-                            : <span style={{ fontSize: '12px', fontWeight: 800, color: '#94A3B8' }}>{rank}</span>
+                          {entry.rank <= 3
+                            ? <span style={{ fontSize: '15px' }}>{['🥇','🥈','🥉'][entry.rank-1]}</span>
+                            : <span style={{ fontSize: '12px', fontWeight: 800, color: '#94A3B8' }}>{entry.rank}</span>
                           }
                         </div>
                         <div style={{ width: '34px', height: '34px', borderRadius: '10px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0, border: '1px solid #E2E8F0' }}>
-                           <img src={tool.logo_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
+                           <img src={entry.logo_url} alt={entry.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { const t = e.currentTarget; t.style.display='none'; const p = t.parentElement; if(p){ p.style.background='#F1F5F9'; p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${entry.name.charAt(0)}</span>`; } }} />
                          </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#171717', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
-                          <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.category}</p>
+                          <p style={{ fontSize: '13px', fontWeight: 700, color: '#171717', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</p>
+                          <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.average_rating?.toFixed(1) ?? '-'} ⭐</p>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '12px', fontWeight: 700, color: '#374151' }}>
                             <ChevronUp style={{ width: '11px', height: '11px', color: '#F59E0B' }} />
-                            {tool.upvote_count >= 1000 ? `${(tool.upvote_count/1000).toFixed(1)}k` : tool.upvote_count}
+                            {entry.review_count ?? 0}
                           </div>
-                          {rank_change !== 0 && (
-                            <span style={{ fontSize: '10px', fontWeight: 700, color: rank_change > 0 ? '#22C55E' : '#EF4444' }}>
-                              {rank_change > 0 ? `▲${rank_change}` : `▼${Math.abs(rank_change)}`}
+                          {(entry.weekly_rank_change ?? 0) !== 0 && (
+                            <span style={{ fontSize: '10px', fontWeight: 700, color: entry.weekly_rank_change > 0 ? '#22C55E' : '#EF4444' }}>
+                              {entry.weekly_rank_change > 0 ? `▲${entry.weekly_rank_change}` : `▼${Math.abs(entry.weekly_rank_change)}`}
                             </span>
                           )}
                         </div>
@@ -897,7 +903,7 @@ export default function Home() {
                     </div>
                     <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 800, color: '#171717', margin: 0 }}>Recent Reviews</h3>
                   </div>
-                  {MOCK_REVIEWS.slice(0, 3).map((review, idx) => (
+                  {([] as any[]).slice(0, 3).map((review: any, idx: number) => (
                     <div key={review.id} style={{ marginBottom: idx < 2 ? '14px' : 0, paddingBottom: idx < 2 ? '14px' : 0, borderBottom: idx < 2 ? '1px solid #F1F5F9' : 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>

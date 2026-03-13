@@ -7,7 +7,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import ToolCard from '@/components/ToolCard';
-import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
+import { CATEGORIES } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 import { Search, SlidersHorizontal, X, ChevronDown, ChevronUp, Grid3X3, List } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -116,48 +118,39 @@ export default function AllTools() {
     setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
 
+  // Map frontend sort values to backend sort enum
+  const sortMap: Record<string, string> = {
+    rank_score: 'rank', average_rating: 'top_rated', review_count: 'most_reviewed',
+    upvote_count: 'most_lauded', newest: 'newest', name: 'rank',
+  };
+  const { data: stackData } = trpc.stacks.list.useQuery({
+    status: 'published',
+    search: search.trim() || undefined,
+    category: selectedCategories.length === 1 ? selectedCategories[0] : undefined,
+    pricingModel: selectedPricing.length === 1 ? selectedPricing[0] : undefined,
+    sort: (sortMap[sortBy] ?? 'rank') as any,
+    limit: 100,
+  });
   const filtered = useMemo(() => {
-    let tools = [...MOCK_TOOLS];
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      tools = tools.filter(t =>
-        t.name.toLowerCase().includes(q) ||
-        t.tagline.toLowerCase().includes(q) ||
-        t.category.toLowerCase().includes(q) ||
-        (t.tags || []).some(tag => tag.toLowerCase().includes(q))
-      );
-    }
-
-    if (selectedCategories.length > 0) {
+    let tools = stacksToTools((stackData?.items ?? []) as any[]);
+    // Client-side secondary filters the backend doesn't handle
+    if (selectedCategories.length > 1) {
       tools = tools.filter(t => selectedCategories.includes(t.category));
     }
-
-    if (selectedPricing.length > 0) {
+    if (selectedPricing.length > 1) {
       tools = tools.filter(t => selectedPricing.includes(t.pricing_model));
     }
-
     if (minRating > 0) {
       tools = tools.filter(t => (t.average_rating || 0) >= minRating);
     }
-
     if (activeBadge) {
       tools = tools.filter(t => (t.badges || []).includes(activeBadge as any));
     }
-
-    tools.sort((a, b) => {
-      switch (sortBy) {
-        case 'average_rating': return (b.average_rating || 0) - (a.average_rating || 0);
-        case 'review_count': return (b.review_count || 0) - (a.review_count || 0);
-        case 'upvote_count': return (b.upvote_count || 0) - (a.upvote_count || 0);
-        case 'newest': return new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime();
-        case 'name': return a.name.localeCompare(b.name);
-        default: return (b.rank_score || 0) - (a.rank_score || 0);
-      }
-    });
-
+    if (sortBy === 'name') {
+      tools.sort((a, b) => a.name.localeCompare(b.name));
+    }
     return tools;
-  }, [search, selectedCategories, selectedPricing, minRating, sortBy, activeBadge]);
+  }, [stackData, selectedCategories, selectedPricing, minRating, sortBy, activeBadge]);
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories(prev =>
@@ -182,21 +175,23 @@ export default function AllTools() {
 
   const hasFilters = selectedCategories.length > 0 || selectedPricing.length > 0 || minRating > 0 || search.trim() || !!activeBadge;
 
-  // Category counts
+  // Category counts from current data
   const catCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    MOCK_TOOLS.forEach(t => { counts[t.category] = (counts[t.category] || 0) + 1; });
+    const tools = stacksToTools((stackData?.items ?? []) as any[]);
+    tools.forEach(t => { counts[t.category] = (counts[t.category] || 0) + 1; });
     return counts;
-  }, []);
+  }, [stackData]);
 
-  // Badge counts — how many tools carry each badge
+  // Badge counts from current data
   const badgeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    MOCK_TOOLS.forEach(t => {
+    const tools = stacksToTools((stackData?.items ?? []) as any[]);
+    tools.forEach(t => {
       (t.badges || []).forEach(b => { counts[b] = (counts[b] || 0) + 1; });
     });
     return counts;
-  }, []);
+  }, [stackData]);
 
   // Only show badges that have at least one tool
   const availableBadges = useMemo(() =>
@@ -214,7 +209,7 @@ export default function AllTools() {
       <PageHero
         eyebrow="Product Catalog"
         title="All Tools"
-        subtitle={`Discover ${MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community.`}
+        subtitle={`Discover ${stackData?.total ?? 0} AI & SaaS tools, verified and ranked by the community.`}
         accent="amber"
         layout="default"
         size="md"
@@ -371,7 +366,7 @@ export default function AllTools() {
                         />
                         <span className="text-xs text-slate-600 group-hover:text-slate-900 transition-colors">Any badge</span>
                       </div>
-                      <span className="text-xs text-slate-400">{MOCK_TOOLS.length}</span>
+                      <span className="text-xs text-slate-400">{stackData?.total ?? 0}</span>
                     </label>
                     {availableBadges.map(([key, label]) => {
                       const count = badgeCounts[key] || 0;

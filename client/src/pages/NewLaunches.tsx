@@ -7,7 +7,9 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
+import { CATEGORIES } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 import { Zap, Star, BarChart3, Rocket, Shield, ChevronRight, Calendar, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -98,8 +100,12 @@ export default function NewLaunches() {
 
   const allCategories = ['All', ...CATEGORIES.map(c => c.name).filter(n => n !== 'All')];
 
+  const { data: stackData } = trpc.stacks.list.useQuery({
+    status: 'published', sort: 'newest', limit: 100,
+  });
+
   const filteredTools = useMemo(() => {
-    let tools = [...MOCK_TOOLS];
+    let tools = stacksToTools((stackData?.items ?? []) as any[]);
     if (category !== 'All') tools = tools.filter(t => t.category === category);
     if (pricing !== 'All Pricing') tools = tools.filter(t => t.pricing_model === pricing);
     if (sort === 'newest') tools.sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime());
@@ -126,7 +132,7 @@ export default function NewLaunches() {
         {/* Latest activity strip */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Just added:</span>
-          {[...MOCK_TOOLS]
+          {stacksToTools((stackData?.items ?? []) as any[])
             .sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime())
             .slice(0, 4)
             .map(tool => (

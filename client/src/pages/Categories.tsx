@@ -5,7 +5,9 @@ import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
-import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
+import { CATEGORIES } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 
 // Accent colors per category (excluding "All")
 const CATEGORY_ACCENTS: Record<string, { bg: string; border: string; text: string; iconBg: string }> = {
@@ -41,12 +43,15 @@ export default function Categories() {
     );
   }, [searchQuery]);
 
+  const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', limit: 100 });
+  const allTools = stacksToTools((stackData?.items ?? []) as any[]);
+
   // Get top 3 tool logos per category
   const topToolsByCategory = useMemo(() => {
     const map: Record<string, { name: string; logo: string }[]> = {};
     for (const cat of CATEGORIES) {
       if (cat.name === 'All') continue;
-      const tools = MOCK_TOOLS
+      const tools = allTools
         .filter(t => t.category === cat.name)
         .sort((a, b) => b.average_rating - a.average_rating)
         .slice(0, 3)
@@ -54,9 +59,9 @@ export default function Categories() {
       map[cat.name] = tools;
     }
     return map;
-  }, []);
+  }, [stackData]);
 
-  const totalTools = MOCK_TOOLS.length;
+  const totalTools = stackData?.total ?? 0;
   const totalCategories = CATEGORIES.filter(c => c.name !== 'All').length;
 
   return (

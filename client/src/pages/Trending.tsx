@@ -11,7 +11,8 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { MOCK_TOOLS } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 import {
   TrendingUp, Flame, Search, Star, MessageSquare,
   ChevronRight, ArrowUpRight, SlidersHorizontal, X,
@@ -169,45 +170,25 @@ export default function Trending() {
     setTimeout(() => setSyncingFromUrl(false), 0);
   }, [location]);
 
+  const { data: stackData } = trpc.stacks.list.useQuery({
+    status: 'published', sort: 'trending', isTrending: true, limit: 100,
+    search: query.trim() || undefined,
+    category: category !== 'All Categories' ? category : undefined,
+  });
   const trendingTools = useMemo(() => {
-    let tools = MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) > 0);
-
-    if (category !== 'All Categories') {
-      tools = tools.filter(t => t.category === category);
-    }
-
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      tools = tools.filter(t =>
-        t.name.toLowerCase().includes(q) ||
-        t.tagline.toLowerCase().includes(q) ||
-        t.category.toLowerCase().includes(q)
-      );
-    }
-
+    let tools = stacksToTools((stackData?.items ?? []) as any[]);
     if (activeBadge) {
       tools = tools.filter(t => (t.badges || []).includes(activeBadge as any));
     }
-
-    tools.sort((a, b) => {
-      if (sortBy === 'rank_change') return (b.weekly_rank_change || 0) - (a.weekly_rank_change || 0);
-      if (sortBy === 'rating')      return b.average_rating - a.average_rating;
-      if (sortBy === 'upvotes')     return b.upvote_count - a.upvote_count;
-      if (sortBy === 'reviews')     return b.review_count - a.review_count;
-      return 0;
-    });
-
     return tools;
-  }, [period, category, sortBy, query, activeBadge]);
+  }, [stackData, activeBadge]);
 
-  const topGain   = MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) > 0)
-                               .reduce((max, t) => Math.max(max, t.weekly_rank_change || 0), 0);
-  const totalRising = MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) > 0).length;
-  const avgGain   = totalRising
-    ? Math.round(MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) > 0)
-        .reduce((s, t) => s + (t.weekly_rank_change || 0), 0) / totalRising)
+  const topGain = trendingTools.reduce((max, t) => Math.max(max, t.weekly_rank_change || 0), 0);
+  const totalRising = trendingTools.length;
+  const avgGain = totalRising
+    ? Math.round(trendingTools.reduce((s, t) => s + (t.weekly_rank_change || 0), 0) / totalRising)
     : 0;
-  const rocketCount = MOCK_TOOLS.filter(t => (t.weekly_rank_change || 0) >= 20).length;
+  const rocketCount = trendingTools.filter(t => (t.weekly_rank_change || 0) >= 20).length;
 
   const getMomentumColor = (change: number) =>
     change >= 20 ? '#F59E0B' : change >= 12 ? '#D97706' : '#16A34A';
@@ -342,7 +323,7 @@ export default function Trending() {
             }}
           >All</button>
           {Object.entries(BADGE_LABELS).map(([key, label]) => {
-            const count = MOCK_TOOLS.filter(t => (t.badges || []).includes(key as any)).length;
+            const count = trendingTools.filter((t: any) => (t.badges || []).includes(key as any)).length;
             if (count === 0) return null;
             const isActive = activeBadge === key;
             return (

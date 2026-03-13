@@ -17,7 +17,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import ToolCard from '@/components/ToolCard';
-import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
+import { CATEGORIES } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 
 const SORT_OPTIONS = [
   { value: 'relevance',      label: 'Most Relevant' },
@@ -61,22 +63,18 @@ export default function SearchResults() {
   const [featuredOnly,    setFeaturedOnly]    = useState(false);
   const [, navigate]                          = useLocation();
 
+  const { data: stackData } = trpc.stacks.list.useQuery({
+    status: 'published', search: query.trim() || undefined, limit: 100,
+  });
+
   // ── Filter + sort ──────────────────────────────────────────────────────────
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    let filtered = MOCK_TOOLS.filter(tool => {
-      const matchesQuery = !q
-        || tool.name.toLowerCase().includes(q)
-        || tool.tagline.toLowerCase().includes(q)
-        || tool.description.toLowerCase().includes(q)
-        || tool.tags.some(tag => tag.toLowerCase().includes(q))
-        || tool.category.toLowerCase().includes(q);
-
+    let filtered = stacksToTools((stackData?.items ?? []) as any[]).filter(tool => {
       const matchesCat = selectedCat === 'All' || tool.category === selectedCat;
       const matchesFeatured = !featuredOnly || tool.is_featured;
-
-      return matchesQuery && matchesCat && matchesFeatured;
+      return matchesCat && matchesFeatured;
     });
 
     switch (sortBy) {

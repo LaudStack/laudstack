@@ -17,7 +17,8 @@ import Navbar from '@/components/Navbar';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import { useCompare } from '@/contexts/CompareContext';
-import { MOCK_TOOLS } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 import { getToolExtras } from '@/lib/toolExtras';
 import type { Tool } from '@/lib/types';
 
@@ -97,6 +98,9 @@ export default function Compare() {
   const { selected, remove, clear, toggle } = useCompare();
   const [copied, setCopied] = useState(false);
 
+  const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', limit: 100 });
+  const allTools = stacksToTools((stackData?.items ?? []) as any[]);
+
   // ── Hydrate from URL query params (?tools=slug1,slug2,slug3) ──────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -109,7 +113,7 @@ export default function Compare() {
     // Only hydrate if the context is currently empty (avoid overwriting user selection)
     if (selected.length === 0) {
       const toolsFromUrl = slugs
-        .map(slug => MOCK_TOOLS.find(t => t.slug === slug))
+        .map(slug => allTools.find((t: any) => t.slug === slug))
         .filter((t): t is Tool => Boolean(t));
 
       toolsFromUrl.forEach(tool => toggle(tool));

@@ -7,7 +7,8 @@ import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { MOCK_TOOLS } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 import { Star, Award, ChevronRight, MessageSquare, ThumbsUp, Shield, Crown, X } from 'lucide-react';
 
 const CATEGORY_OPTIONS = ['All Categories', 'AI Writing', 'AI Image', 'AI Video', 'AI Code', 'AI Productivity', 'Design', 'Marketing', 'Developer Tools'];
@@ -50,7 +51,7 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
-function PodiumCard({ tool, rank }: { tool: typeof MOCK_TOOLS[0]; rank: number }) {
+function PodiumCard({ tool, rank }: { tool: any; rank: number }) {
   const [, navigate] = useLocation();
   const colors = {
     1: { border: 'border-amber-500/60', bg: 'bg-amber-500/10', text: 'text-amber-400', crown: 'text-amber-400' },
@@ -130,34 +131,21 @@ export default function TopRated() {
     navigate(qs ? `/top-rated?${qs}` : '/top-rated', { replace: true });
   }, [category, minReviews, pricingFilter, activeBadge, syncingFromUrl]);
 
+  const { data: stackData } = trpc.stacks.list.useQuery({
+    status: 'published', sort: 'top_rated', limit: 50,
+    category: category !== 'All Categories' ? category : undefined,
+    pricingModel: pricingFilter || undefined,
+  });
   const sortedTools = useMemo(() => {
-    let tools = [...MOCK_TOOLS];
-
-    if (category !== 'All Categories') {
-      tools = tools.filter(t => t.category === category);
-    }
-
+    let tools = stacksToTools((stackData?.items ?? []) as any[]);
     if (minReviews > 0) {
       tools = tools.filter(t => t.review_count >= minReviews);
     }
-
-    if (pricingFilter) {
-      tools = tools.filter(t => t.pricing_model === pricingFilter);
-    }
-
     if (activeBadge) {
       tools = tools.filter(t => (t.badges || []).includes(activeBadge as any));
     }
-
-    tools.sort((a, b) => {
-      // Primary: average_rating, secondary: review_count (credibility weight)
-      const ratingDiff = b.average_rating - a.average_rating;
-      if (Math.abs(ratingDiff) > 0.05) return ratingDiff;
-      return b.review_count - a.review_count;
-    });
-
     return tools;
-  }, [category, minReviews, pricingFilter, activeBadge]);
+  }, [stackData, minReviews, activeBadge]);
 
   const top3 = sortedTools.slice(0, 3);
   const rest = sortedTools.slice(3, 50);
@@ -267,7 +255,7 @@ export default function TopRated() {
             All
           </button>
           {Object.entries(BADGE_LABELS).map(([key, label]) => {
-            const count = MOCK_TOOLS.filter(t => (t.badges || []).includes(key as any)).length;
+            const count = sortedTools.filter((t: any) => (t.badges || []).includes(key as any)).length;
             if (count === 0) return null;
             const isActive = activeBadge === key;
             return (

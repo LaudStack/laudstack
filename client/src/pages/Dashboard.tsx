@@ -11,7 +11,8 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSavedTools } from '@/hooks/useSavedTools';
-import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -42,7 +43,7 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
   const [role, setRole] = useState('Founder');
   const [website, setWebsite] = useState('');
 
-  const userReviews = MOCK_REVIEWS.filter(r => r.user_id === 'u1').length;
+  const userReviews = 0; // Will be populated from real data
 
   const handleSave = () => {
     setEditing(false);
@@ -164,18 +165,20 @@ function ProfileTab({ user }: { user: { name: string; email: string } }) {
 }
 
 function ReviewsTab() {
-  const myReviews = MOCK_REVIEWS.slice(0, 3);
+  // Fetch all stacks to get user's reviews from them
+  const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', limit: 100 });
+  const reviews: any[] = []; // User reviews will be loaded when review system is fully wired
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-slate-900 font-bold">{myReviews.length} Reviews</h3>
+        <h3 className="text-slate-900 font-bold">{reviews.length} Reviews</h3>
         <Link href="/">
           <button className="text-sm text-amber-600 hover:text-amber-700 font-medium">Browse tools to review →</button>
         </Link>
       </div>
-      {myReviews.map(review => {
-        const tool = MOCK_TOOLS.find(t => t.id === review.tool_id);
+      {reviews.map((review: any) => {
+        const tool = review;
         return (
           <div key={review.id} className="bg-white border border-slate-200 rounded-2xl p-6">
             <div className="flex items-start justify-between mb-3">
@@ -234,7 +237,8 @@ function ReviewsTab() {
 
 function SavedTab() {
   const { savedIds, toggle } = useSavedTools();
-  const savedTools = MOCK_TOOLS.filter(t => savedIds.includes(t.id));
+  const { data: savedStacksData } = trpc.saves.mySavedStacks.useQuery(undefined, { enabled: savedIds.length > 0 });
+  const savedTools = stacksToTools((savedStacksData ?? []) as any[]);
 
   if (savedTools.length === 0) {
     return (

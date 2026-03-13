@@ -14,16 +14,16 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import ToolCard from '@/components/ToolCard';
 import { useSavedTools } from '@/hooks/useSavedTools';
-import { MOCK_TOOLS } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stacksToTools } from '@/lib/stackAdapter';
 
 export default function Saved() {
   const [, navigate] = useLocation();
   const { savedIds, isSaved, toggle, clear } = useSavedTools();
 
-  // Resolve saved IDs to full tool objects (maintain save order — most recent first)
-  const savedTools = savedIds
-    .map(id => MOCK_TOOLS.find(t => t.id === id))
-    .filter(Boolean) as typeof MOCK_TOOLS;
+  // Fetch saved stacks from the DB via tRPC
+  const { data: savedStacksData } = trpc.saves.mySavedStacks.useQuery(undefined, { enabled: savedIds.length > 0 });
+  const savedTools = stacksToTools((savedStacksData ?? []) as any[]);
 
   const handleClearAll = () => {
     clear();
