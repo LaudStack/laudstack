@@ -2,6 +2,7 @@
  * WriteReviewModal — LaudStack
  * Design: Clean white modal, enterprise-grade
  * Features: Interactive 5-star hover rating, title, body, pros/cons, submit
+ * Wired to real tRPC via onSubmit callback
  */
 
 import { useState } from 'react';
@@ -14,6 +15,8 @@ interface Props {
   onClose: () => void;
   toolName: string;
   toolLogo?: string;
+  stackId?: number;
+  onSubmit?: (data: { stackId: number; rating: number; title: string; body: string; pros?: string[]; cons?: string[] }) => Promise<void> | void;
 }
 
 const RATING_LABELS: Record<number, string> = {
@@ -24,7 +27,7 @@ const RATING_LABELS: Record<number, string> = {
   5: 'Excellent',
 };
 
-export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: Props) {
+export default function WriteReviewModal({ open, onClose, toolName, toolLogo, stackId, onSubmit }: Props) {
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
   const [title, setTitle]         = useState('');
@@ -52,15 +55,28 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
     }, 300);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!rating) { toast.error('Please select a star rating'); return; }
     if (!title.trim()) { toast.error('Please add a review title'); return; }
     if (body.trim().length < 30) { toast.error('Review body must be at least 30 characters'); return; }
     setSubmitting(true);
-    setTimeout(() => {
+    try {
+      if (onSubmit && stackId) {
+        await onSubmit({
+          stackId,
+          rating,
+          title: title.trim(),
+          body: body.trim(),
+          pros: pros.filter(p => p.trim()),
+          cons: cons.filter(c => c.trim()),
+        });
+      }
       setSubmitting(false);
       setSubmitted(true);
-    }, 1200);
+    } catch (err: any) {
+      setSubmitting(false);
+      toast.error(err?.message || 'Failed to submit review');
+    }
   };
 
   return (
@@ -127,7 +143,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: 800, color: '#171717', marginBottom: '8px' }}>Review Submitted!</div>
                   <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6, maxWidth: '360px', margin: '0 auto 28px' }}>
-                    Thank you for sharing your experience with <strong>{toolName}</strong>. Your review will be visible after a brief moderation check.
+                    Thank you for sharing your experience with <strong>{toolName}</strong>. Your review is now live.
                   </div>
                   <button
                     onClick={handleClose}

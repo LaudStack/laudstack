@@ -41,23 +41,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || (isSignUp && !name)) {
-      toast.error('Please fill in all required fields.');
-      return;
-    }
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    // Set the display name: for sign-in use email prefix, for sign-up use provided name
-    const displayName = isSignUp ? name : (name || email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
-    signIn(displayName, email);
-    setLoading(false);
-    setDone(true);
-    // Sign-up → verify email; sign-in → return URL
-    if (isSignUp) {
-      setTimeout(() => navigate('/verify-email'), 1500);
-    } else {
-      setTimeout(() => navigate(returnUrl), 1500);
-    }
+    signIn(); // Redirects to Manus OAuth
   };
 
   const handleSocial = (provider: string) => {

@@ -1,10 +1,12 @@
 /**
- * useSavedTools — LaudStack
- * Persists bookmarked tool IDs to localStorage so they survive page reloads.
- * Exposes toggle, isSaved, savedIds, and clear helpers.
+ * useSavedTools — real tRPC-backed saved tools hook
+ * Replaces the old localStorage version with real database saves.
+ * Falls back to localStorage for unauthenticated users.
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/contexts/AuthContext';
 
 const STORAGE_KEY = 'laudstack_saved_tools';
 
@@ -26,31 +28,48 @@ function writeToStorage(ids: string[]) {
 }
 
 export function useSavedTools() {
-  const [savedIds, setSavedIds] = useState<string[]>(() => readFromStorage());
+  const { isAuthenticated } = useAuth();
 
-  // Keep state in sync if another tab changes localStorage
+  // Real DB-backed saves for authenticated users
+  const { data: savedData } = trpc.saves.mySavedStacks.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  const saveMutation = trpc.saves.toggle.useMutation();
+  const utils = trpc.useUtils();
+
+  // localStorage fallback for unauthenticated users
+  const [localIds, setLocalIds] = useState<string[]>(() => readFromStorage());
+
   useEffect(() => {
     const handler = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) {
-        setSavedIds(readFromStorage());
-      }
+      if (e.key === STORAGE_KEY) setLocalIds(readFromStorage());
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
 
+  const savedIds = isAuthenticated
+    ? (savedData ?? []).map((s: any) => String(s.id))
+    : localIds;
+
   const isSaved = useCallback((id: string) => savedIds.includes(id), [savedIds]);
 
-  const toggle = useCallback((id: string) => {
-    setSavedIds(prev => {
-      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
-      writeToStorage(next);
-      return next;
-    });
-  }, []);
+  const toggle = useCallback(async (id: string) => {
+    if (isAuthenticated) {
+      await saveMutation.mutateAsync({ stackId: Number(id) });
+      utils.saves.mySavedStacks.invalidate();
+    } else {
+      setLocalIds(prev => {
+        const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+        writeToStorage(next);
+        return next;
+      });
+    }
+  }, [isAuthenticated, saveMutation, utils]);
 
   const clear = useCallback(() => {
-    setSavedIds([]);
+    setLocalIds([]);
     writeToStorage([]);
   }, []);
 

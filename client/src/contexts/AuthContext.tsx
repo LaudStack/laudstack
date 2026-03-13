@@ -1,64 +1,64 @@
 /**
- * LaudStack AuthContext — mock authentication state
- * Persists to sessionStorage so state survives HMR but resets on tab close.
- * Replace with real Supabase auth when backend is integrated.
+ * LaudStack AuthContext — compatibility wrapper around real Manus OAuth
+ * Delegates to the real useAuth from _core/hooks/useAuth
+ * Keeps the same API so existing pages don't need to change their imports
  */
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
+import { useAuth as useRealAuth } from '@/_core/hooks/useAuth';
+import { getLoginUrl } from '@/const';
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  avatar?: string;   // initials fallback if undefined
-  role: 'user' | 'founder' | 'admin';
-  reviewCount: number;
-  joinedAt: string;
+  avatar?: string;
+  role: 'user' | 'admin';
+  avatarUrl?: string | null;
 }
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  signIn: (name: string, email: string) => void;
+  loading: boolean;
+  signIn: () => void;
   signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const SESSION_KEY = 'laudstack_auth_user';
-
-function loadFromSession(): AuthUser | null {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(loadFromSession);
+  const real = useRealAuth();
 
-  const signIn = useCallback((name: string, email: string) => {
-    const newUser: AuthUser = {
-      id: crypto.randomUUID(),
-      name,
-      email,
-      role: 'user',
-      reviewCount: 0,
-      joinedAt: new Date().toISOString(),
-    };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
-    setUser(newUser);
-  }, []);
+  const user: AuthUser | null = real.user
+    ? {
+        id: String((real.user as any).id ?? ''),
+        name: (real.user as any).name ?? 'User',
+        email: (real.user as any).email ?? '',
+        avatar: (real.user as any).avatarUrl ?? undefined,
+        avatarUrl: (real.user as any).avatarUrl ?? null,
+        role: (real.user as any).role ?? 'user',
+      }
+    : null;
 
-  const signOut = useCallback(() => {
-    sessionStorage.removeItem(SESSION_KEY);
-    setUser(null);
-  }, []);
+  const signIn = () => {
+    window.location.href = getLoginUrl();
+  };
+
+  const signOut = () => {
+    real.logout();
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: real.isAuthenticated,
+        loading: real.loading,
+        signIn,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

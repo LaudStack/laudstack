@@ -1115,6 +1115,10 @@ export default function ToolDetail() {
         onClose={() => setReviewOpen(false)}
         toolName={tool.name}
         toolLogo={tool.logo_url}
+        stackId={stackData?.id}
+        onSubmit={async (data) => {
+          await createReview.mutateAsync(data);
+        }}
       />
     </div>
   );
