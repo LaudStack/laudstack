@@ -201,6 +201,7 @@ export default function ToolDetail() {
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('about');
+  const [activeScreenshot, setActiveScreenshot] = useState(0);
   const upvoted = laudState?.lauded ?? false;
   const isSaved = (id: string) => saveState?.saved ?? false;
 
@@ -306,7 +307,6 @@ export default function ToolDetail() {
   }));
   const relatedTools = stacksToTools(((relatedData as any)?.items ?? []).filter((s: any) => s.id !== stackData.id) as any[]).slice(0, 4);
   const extras = getToolExtras(tool.slug, tool.name, tool.pricing_model);
-  const [activeScreenshot, setActiveScreenshot] = useState(0);
 
   // Rating breakdown (simulated from average)
   const totalReviews = Math.max(reviews.length, tool.review_count);
