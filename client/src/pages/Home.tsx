@@ -32,7 +32,7 @@ import BackToTop from '@/components/BackToTop';
 
 import ToolCard from '@/components/ToolCard';
 import { useLocation } from 'wouter';
-import { CATEGORIES } from '@/lib/mockData';
+import { CATEGORY_DEFS as CATEGORIES } from '@/lib/categories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { trpc } from '@/lib/trpc';
@@ -165,6 +165,7 @@ export default function Home() {
     top_rated: 'top_rated', trending: 'trending', newest: 'newest',
     most_reviewed: 'most_reviewed', featured_first: 'rank',
   };
+  const { data: catCounts } = trpc.stacks.categoryCounts.useQuery();
   const { data: browseData } = trpc.stacks.list.useQuery({
     status: 'published',
     category: selectedCategory === 'All' ? undefined : selectedCategory,
@@ -677,7 +678,8 @@ export default function Home() {
                 className="flex gap-1.5 overflow-x-auto"
                 style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '0', paddingTop: '8px' }}
               >
-                {CATEGORIES.map(({ name, icon, count }) => {
+                {CATEGORIES.map(({ name, icon }) => {
+                  const count = name === 'All' ? (browseData?.total ?? 0) : (catCounts?.find((c: any) => c.category === name)?.count ?? 0);
                   const active = selectedCategory === name;
                   return (
                     <button

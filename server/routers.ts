@@ -37,6 +37,7 @@ import {
   getAdminDashboardStats,
   recalcRankScores,
   getAllUsers,
+  getCategoryCounts,
 } from "./db";
 import { sendWelcomeEmail } from "./newsletter";
 import { storagePut } from "./storage";
@@ -134,6 +135,10 @@ export const appRouter = router({
         await recordClick(input.stackId, input.type, ctx.user?.id);
         return { success: true };
       }),
+
+    categoryCounts: publicProcedure.query(async () => {
+      return getCategoryCounts();
+    }),
   }),
 
   // ─── Reviews ────────────────────────────────────────────────────────────

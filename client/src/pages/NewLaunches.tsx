@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { CATEGORIES } from '@/lib/mockData';
+import { CATEGORY_DEFS as CATEGORIES } from '@/lib/categories';
 import { trpc } from '@/lib/trpc';
 import { stacksToTools } from '@/lib/stackAdapter';
 import { Zap, Star, BarChart3, Rocket, Shield, ChevronRight, Calendar, Filter } from 'lucide-react';

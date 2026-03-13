@@ -502,3 +502,16 @@ export async function getAdminDashboardStats() {
     pendingVerifications: Number(pendingCount[0]?.count ?? 0),
   };
 }
+
+// ─── Category counts ───────────────────────────────────────────────────────
+
+export async function getCategoryCounts(): Promise<{ category: string; count: number }[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db
+    .select({ category: stacks.category, count: sql<number>`count(*)` })
+    .from(stacks)
+    .where(eq(stacks.status, "published"))
+    .groupBy(stacks.category);
+  return result.map((r) => ({ category: r.category, count: Number(r.count) }));
+}

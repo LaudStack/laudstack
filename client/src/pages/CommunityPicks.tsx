@@ -15,7 +15,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CATEGORIES } from '@/lib/mockData';
+import { CATEGORY_DEFS as CATEGORIES } from '@/lib/categories';
 import { trpc } from '@/lib/trpc';
 import { stacksToTools } from '@/lib/stackAdapter';
 import type { Tool } from '@/lib/types';

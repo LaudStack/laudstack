@@ -5,7 +5,7 @@ import { useLocation } from 'wouter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
-import { CATEGORIES } from '@/lib/mockData';
+import { CATEGORY_DEFS as CATEGORIES } from '@/lib/categories';
 import { trpc } from '@/lib/trpc';
 import { stacksToTools } from '@/lib/stackAdapter';
 
@@ -43,6 +43,7 @@ export default function Categories() {
     );
   }, [searchQuery]);
 
+  const { data: catCounts } = trpc.stacks.categoryCounts.useQuery();
   const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', limit: 100 });
   const allTools = stacksToTools((stackData?.items ?? []) as any[]);
 
@@ -197,7 +198,7 @@ export default function Categories() {
                               background: accent.bg, border: `1px solid ${accent.border}`,
                               padding: '2px 8px', borderRadius: '6px', display: 'inline-block', marginTop: '3px',
                             }}>
-                              {cat.count} tools
+                              {catCounts?.find((c: any) => c.category === cat.name)?.count ?? 0} tools
                             </span>
                           </div>
                         </div>
@@ -232,7 +233,7 @@ export default function Categories() {
                                 ))}
                               </div>
                               <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, marginLeft: '4px' }}>
-                                +{Math.max(0, cat.count - 3)} more
+                                +{Math.max(0, (catCounts?.find((c: any) => c.category === cat.name)?.count ?? 0) - 3)} more
                               </span>
                             </div>
                           )}
