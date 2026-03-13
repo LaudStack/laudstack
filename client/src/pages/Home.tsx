@@ -271,9 +271,9 @@ export default function Home() {
           {/* Subtext */}
           <motion.p
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
-            style={{ marginTop: '22px', fontSize: '18px', color: '#475569', lineHeight: 1.65, maxWidth: '540px', fontWeight: 400 }}
+            style={{ marginTop: '22px', fontSize: '18px', color: '#475569', lineHeight: 1.65, maxWidth: '620px', fontWeight: 400 }}
           >
-            The launch, discovery, and growth platform for AI and SaaS software. Launch products, read verified reviews, grab exclusive deals, and ship faster with templates.
+            Where founders launch Stacks, the community gives Laud, and builders discover tools, deals, and templates.
           </motion.p>
 
           {/* Search bar */}
@@ -1151,8 +1151,8 @@ export default function Home() {
               Everything you need to launch, discover, and grow
             </motion.h2>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
-              style={{ fontSize: '16px', color: '#64748B', maxWidth: '500px', margin: '0 auto', lineHeight: 1.65, fontWeight: 400 }}>
-              LaudStack combines product launches, verified reviews, exclusive deals, and ready-made templates — all in one platform for AI and SaaS software.
+              style={{ fontSize: '16px', color: '#64748B', maxWidth: '640px', margin: '0 auto', lineHeight: 1.65, fontWeight: 400 }}>
+              Where founders launch Stacks, the community gives Laud and reviews them, builders discover powerful tools, unlock exclusive deals, and ship faster with templates.
             </motion.p>
           </div>
 
