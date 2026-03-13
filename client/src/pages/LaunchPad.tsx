@@ -11,13 +11,16 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import {
   Rocket, CheckCircle2, ArrowRight, ArrowLeft, Upload,
   Globe, Tag, DollarSign, Image, Eye, X, Plus, Trash2,
   Zap, Shield, BarChart3, Users, Star, ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { getLoginUrl } from '@/const';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
@@ -456,10 +459,17 @@ function validate(step: number, form: FormData): string | null {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function LaunchPad() {
+  const { user, isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
   const [step, setStep]         = useState(1);
   const [form, setForm]         = useState<FormData>(INITIAL_FORM);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const launchMutation = trpc.founder.launch.useMutation({
+    onSuccess: () => { setSubmitting(false); setSubmitted(true); toast.success('Your stack has been submitted for review!'); },
+    onError: (err) => { setSubmitting(false); toast.error(err.message); },
+  });
 
   const goNext = () => {
     const err = validate(step, form);
@@ -473,10 +483,28 @@ export default function LaunchPad() {
   };
 
   const handleSubmit = () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to submit your tool');
+      window.location.href = getLoginUrl();
+      return;
+    }
     const err = validate(step, form);
     if (err) { toast.error(err); return; }
     setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); setSubmitted(true); }, 1500);
+    const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    launchMutation.mutate({
+      name: form.name.trim(),
+      slug,
+      tagline: form.tagline.trim(),
+      description: form.description.trim(),
+      logoUrl: form.logo || null,
+      screenshotUrl: form.screenshots.filter(Boolean)[0] || null,
+      websiteUrl: form.website || null,
+      category: form.category || 'AI Productivity',
+      pricingModel: form.pricingModel || 'Freemium',
+      pricingDetails: null,
+      tags: form.tags,
+    });
   };
 
   if (submitted) {

@@ -23,13 +23,13 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { getLoginUrl } from '@/const';
 import { useCompare } from '@/contexts/CompareContext';
-import { useSavedTools } from '@/hooks/useSavedTools';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
+import { trpc } from '@/lib/trpc';
+import { stackToTool, stacksToTools } from '@/lib/stackAdapter';
 import type { Tool, Review } from '@/lib/types';
 import { getToolExtras } from '@/lib/toolExtras';
 
@@ -78,49 +78,7 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
   );
 }
 
-// ─── Expanded mock reviews for tools without reviews ─────────────────────────
-function getToolReviews(toolId: string): Review[] {
-  const base = MOCK_REVIEWS.filter(r => r.tool_id === toolId);
-  if (base.length > 0) return base;
 
-  // Generate plausible reviews for any tool
-  const tool = MOCK_TOOLS.find(t => t.id === toolId);
-  if (!tool) return [];
-
-  return [
-    {
-      id: `${toolId}-r1`, tool_id: toolId, user_id: 'u10', rating: 5,
-      title: `${tool.name} has become essential to my workflow`,
-      body: `I've been using ${tool.name} for about 6 months and it's genuinely transformed how I work. The quality is consistently high and the team ships updates regularly. Highly recommend to anyone in this space.`,
-      pros: 'Reliable, well-designed, great support',
-      cons: 'Pricing could be more flexible for small teams',
-      use_case: 'Daily professional use',
-      is_verified_purchase: true, helpful_count: 34,
-      created_at: '2026-02-20',
-      user: { id: 'u10', name: 'Alex Morgan', role: 'Product Manager', company: 'TechCorp' },
-    },
-    {
-      id: `${toolId}-r2`, tool_id: toolId, user_id: 'u11', rating: 4,
-      title: 'Solid product, minor rough edges',
-      body: `${tool.name} delivers on its core promise. The main features work well and the onboarding is smooth. A few edge cases could be handled better but overall it's a strong product.`,
-      pros: 'Core features are excellent, fast and reliable',
-      cons: 'Some advanced features feel incomplete',
-      is_verified_purchase: true, helpful_count: 21,
-      created_at: '2026-02-10',
-      user: { id: 'u11', name: 'Jordan Lee', role: 'Senior Engineer', company: 'BuildFast' },
-    },
-    {
-      id: `${toolId}-r3`, tool_id: toolId, user_id: 'u12', rating: 5,
-      title: 'Best in class for this category',
-      body: `We evaluated 5 alternatives before choosing ${tool.name}. It came out ahead on every metric that mattered to us — quality, reliability, and support responsiveness.`,
-      pros: 'Best-in-class quality, excellent documentation',
-      cons: 'Learning curve for advanced features',
-      is_verified_purchase: true, helpful_count: 18,
-      created_at: '2026-01-28',
-      user: { id: 'u12', name: 'Sam Patel', role: 'CTO', company: 'Launchly' },
-    },
-  ];
-}
 
 // ─── Share helpers ──────────────────────────────────────────────────────────
 function ShareButton({ label, icon, hoverColor, hoverBg, onClick }: {
@@ -185,20 +143,66 @@ function CopyLinkButton({ url }: { url: string }) {
 export default function ToolDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [, navigate] = useLocation();
-  const { isAuthenticated } = useAuth();
-  const { recordVisit } = useRecentlyViewed();
+  const { isAuthenticated, user } = useAuth();
   const { toggle: compareToggle, isSelected: isComparing, canAdd: canCompare } = useCompare();
-  const { isSaved, toggle: toggleSave } = useSavedTools();
 
-  // Record this tool as visited whenever the slug changes
+  // Fetch stack from DB
+  const { data: stackData, isLoading: stackLoading } = trpc.stacks.getBySlug.useQuery(
+    { slug: slug || '' },
+    { enabled: !!slug }
+  );
+  // Fetch reviews from DB
+  const { data: dbReviews } = trpc.reviews.listByStack.useQuery(
+    { stackId: stackData?.id ?? 0 },
+    { enabled: !!stackData?.id }
+  );
+  // Fetch related stacks
+  const { data: relatedData } = trpc.stacks.list.useQuery(
+    { category: stackData?.category, limit: 5, status: 'published' },
+    { enabled: !!stackData?.category }
+  );
+  // Laud state
+  const { data: laudState } = trpc.lauds.check.useQuery(
+    { stackId: stackData?.id ?? 0 },
+    { enabled: !!stackData?.id && isAuthenticated }
+  );
+  const laudToggle = trpc.lauds.toggle.useMutation({
+    onSuccess: () => {
+      trpc.useUtils().lauds.check.invalidate({ stackId: stackData?.id ?? 0 });
+      trpc.useUtils().stacks.getBySlug.invalidate({ slug: slug || '' });
+    },
+  });
+  // Save state
+  const { data: saveState } = trpc.saves.check.useQuery(
+    { stackId: stackData?.id ?? 0 },
+    { enabled: !!stackData?.id && isAuthenticated }
+  );
+  const saveToggle = trpc.saves.toggle.useMutation({
+    onSuccess: () => {
+      trpc.useUtils().saves.check.invalidate({ stackId: stackData?.id ?? 0 });
+    },
+  });
+  // Record view
+  const recordView = trpc.stacks.recordView.useMutation();
   useEffect(() => {
-    if (slug) recordVisit(slug);
-  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [upvoted, setUpvoted] = useState(false);
-  const [upvoteCount, setUpvoteCount] = useState(0);
+    if (stackData?.id) recordView.mutate({ stackId: stackData.id });
+  }, [stackData?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Review mutation
+  const createReview = trpc.reviews.create.useMutation({
+    onSuccess: () => {
+      trpc.useUtils().reviews.listByStack.invalidate({ stackId: stackData?.id ?? 0 });
+      trpc.useUtils().stacks.getBySlug.invalidate({ slug: slug || '' });
+      toast.success('Review submitted!');
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const markHelpful = trpc.reviews.markHelpful.useMutation();
+
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('about');
+  const upvoted = laudState?.lauded ?? false;
+  const isSaved = (id: string) => saveState?.saved ?? false;
 
   // Sticky tab bar — track active section via IntersectionObserver
   useEffect(() => {
@@ -230,16 +234,43 @@ export default function ToolDetail() {
 
   const handleWriteReview = () => {
     if (!isAuthenticated) {
-      navigate(`/signin?return=/tools/${slug}`);
+      window.location.href = getLoginUrl();
       toast.info('Sign in to write a review');
       return;
     }
     setReviewOpen(true);
   };
 
-  const tool = MOCK_TOOLS.find(t => t.slug === slug);
+  const handleUpvote = () => {
+    if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
+    if (stackData?.id) laudToggle.mutate({ stackId: stackData.id });
+  };
 
-  if (!tool) {
+  const toggleSave = (id: string) => {
+    if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
+    if (stackData?.id) saveToggle.mutate({ stackId: stackData.id });
+  };
+
+  const handleHelpful = (reviewId: string) => {
+    if (helpfulMap[reviewId]) return;
+    setHelpfulMap(m => ({ ...m, [reviewId]: true }));
+    markHelpful.mutate({ reviewId: parseInt(reviewId) });
+    toast.success('Marked as helpful');
+  };
+
+  if (stackLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div style={{ height: '72px' }} />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="animate-pulse text-slate-400">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stackData) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -257,8 +288,23 @@ export default function ToolDetail() {
     );
   }
 
-  const reviews = getToolReviews(tool.id);
-  const relatedTools = MOCK_TOOLS.filter(t => t.category === tool.category && t.id !== tool.id).slice(0, 4);
+  const tool = stackToTool(stackData as any);
+  const reviews: Review[] = (dbReviews ?? []).map((r: any) => ({
+    id: String(r.id),
+    tool_id: String(r.stackId),
+    user_id: String(r.userId),
+    rating: r.rating,
+    title: r.title,
+    body: r.body,
+    pros: r.pros?.join(', ') ?? undefined,
+    cons: r.cons?.join(', ') ?? undefined,
+    is_verified_purchase: false,
+    helpful_count: r.helpfulCount ?? 0,
+    created_at: new Date(r.createdAt).toISOString(),
+    user: r.user ? { id: String(r.user.id ?? r.userId), name: r.user.name ?? 'User', role: r.user.role } : undefined,
+    founder_reply: r.founderReply ? { body: r.founderReply, created_at: r.founderReplyAt ? new Date(r.founderReplyAt).toISOString() : '' } : undefined,
+  }));
+  const relatedTools = stacksToTools(((relatedData as any)?.items ?? []).filter((s: any) => s.id !== stackData.id) as any[]).slice(0, 4);
   const extras = getToolExtras(tool.slug, tool.name, tool.pricing_model);
   const [activeScreenshot, setActiveScreenshot] = useState(0);
 
@@ -271,19 +317,6 @@ export default function ToolDetail() {
       : 0.05;
     return { star, count: Math.round(totalReviews * base) };
   });
-
-  const handleUpvote = () => {
-    if (upvoted) return;
-    setUpvoted(true);
-    setUpvoteCount(c => c + 1);
-    toast.success(`Upvoted ${tool.name}!`);
-  };
-
-  const handleHelpful = (reviewId: string) => {
-    if (helpfulMap[reviewId]) return;
-    setHelpfulMap(m => ({ ...m, [reviewId]: true }));
-    toast.success('Marked as helpful');
-  };
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -406,7 +439,7 @@ export default function ToolDetail() {
                       </div>
                     ),
                   },
-                  { label: 'Upvotes', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{(tool.upvote_count + upvoteCount).toLocaleString()}</span> },
+                  { label: 'Lauds', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{tool.upvote_count.toLocaleString()}</span> },
                   { label: 'Pricing', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{tool.pricing_model}</span> },
                   { label: 'Launched', value: <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>{new Date(tool.launched_at).getFullYear()}</span> },
                 ].map((stat, i, arr) => (
