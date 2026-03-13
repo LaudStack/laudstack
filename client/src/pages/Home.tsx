@@ -871,52 +871,62 @@ export default function Home() {
             onCta={go}
           />
 
-          {/* ── Category tab strip ─────────────────────────────────────────── */}
-          <div style={{ marginBottom: '0', paddingBottom: '20px' }}>
-            {/* Scrollable strip */}
-            <div
-              className="flex gap-1.5 overflow-x-auto"
-              style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}
-            >
-              {CATEGORIES.map(({ name, icon, count }) => {
-                const active = selectedCategory === name;
-                return (
-                  <button
-                    key={name}
-                    onClick={() => { setSelectedCategory(name); setBrowseVisible(20); }}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      padding: '7px 13px', borderRadius: '8px', cursor: 'pointer',
-                      fontSize: '12px', fontWeight: 700, transition: 'all 0.14s',
-                      flexShrink: 0, whiteSpace: 'nowrap', fontFamily: 'inherit',
-                      border: active ? '1.5px solid #F59E0B' : '1.5px solid #E8ECF0',
-                      background: active ? '#F59E0B' : '#FFFFFF',
-                      color: active ? '#0A0A0A' : '#6B7280',
-                      boxShadow: active ? '0 2px 10px rgba(245,158,11,0.22)' : 'none',
-                    }}
-                    onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FCD34D'; b.style.color = '#B45309'; b.style.background = '#FFFBEB'; } }}
-                    onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E8ECF0'; b.style.color = '#6B7280'; b.style.background = '#FFFFFF'; } }}
-                  >
-                    <span style={{ fontSize: '13px', lineHeight: 1 }}>{icon}</span>
-                    <span>{name}</span>
-                    <span style={{
-                      fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px',
-                      background: active ? 'rgba(0,0,0,0.12)' : '#F3F4F6',
-                      color: active ? '#0A0A0A' : '#9CA3AF',
-                    }}>{count}</span>
-                  </button>
-                );
-              })}
+          {/* ── Sticky Category + Filter Container ── */}
+          <div
+            className="sticky z-30"
+            style={{
+              top: '72px',
+              background: '#EFF3F8',
+              borderRadius: '14px',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: '24px',
+            }}
+          >
+            {/* Category tab strip */}
+            <div style={{ borderBottom: '1px solid #E2E8F0', padding: '0 16px' }}>
+              <div
+                className="flex gap-1.5 overflow-x-auto"
+                style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '0', paddingTop: '8px' }}
+              >
+                {CATEGORIES.map(({ name, icon, count }) => {
+                  const active = selectedCategory === name;
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => { setSelectedCategory(name); setBrowseVisible(20); }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        padding: '7px 13px', borderRadius: '8px', cursor: 'pointer',
+                        fontSize: '12px', fontWeight: 700, transition: 'all 0.14s',
+                        flexShrink: 0, whiteSpace: 'nowrap', fontFamily: 'inherit',
+                        border: active ? '1.5px solid #F59E0B' : '1.5px solid transparent',
+                        background: active ? '#F59E0B' : 'transparent',
+                        color: active ? '#0A0A0A' : '#6B7280',
+                        boxShadow: active ? '0 2px 10px rgba(245,158,11,0.22)' : 'none',
+                        marginBottom: '8px',
+                      }}
+                      onMouseEnter={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.color = '#B45309'; b.style.background = 'rgba(245,158,11,0.08)'; } }}
+                      onMouseLeave={e => { if (!active) { const b = e.currentTarget as HTMLButtonElement; b.style.color = '#6B7280'; b.style.background = 'transparent'; } }}
+                    >
+                      <span style={{ fontSize: '13px', lineHeight: 1 }}>{icon}</span>
+                      <span>{name}</span>
+                      <span style={{
+                        fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px',
+                        background: active ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.05)',
+                        color: active ? '#0A0A0A' : '#9CA3AF',
+                      }}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* ── Combined filter bar ────────────────────────────────────────── */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
-            padding: '12px 16px', marginBottom: '24px', marginTop: '16px',
-            background: '#FFFFFF', border: '1px solid #E8ECF0', borderRadius: '12px',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-          }}>
+            {/* Filter bar */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
+              padding: '10px 16px',
+            }}>
             {/* Pricing pills */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
               <span style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap', marginRight: '2px' }}>Pricing</span>
@@ -998,7 +1008,9 @@ export default function Home() {
                 >Clear</button>
               )}
             </div>
+            </div>
           </div>
+          {/* End sticky container */}
 
           {/* Two-column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: '32px' }}>

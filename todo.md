@@ -114,3 +114,8 @@
 - [x] Add user badges & achievements to public profile (7 badge types)
 - [x] Rename "My Profile" to "My Dashboard" in logged-in user header dropdown
 - [x] Fix flashing/flickering when navigating between dashboard and main pages (added authLoading state)
+
+## Phase 10 — Welcome Email on Onboarding
+- [ ] Audit existing email/notification infrastructure
+- [ ] Implement welcome email in completeOnboarding action
+- [ ] Build, push, and test on Vercel
