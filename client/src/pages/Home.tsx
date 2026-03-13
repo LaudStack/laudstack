@@ -29,7 +29,6 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
-import CategoryBanner from '@/components/CategoryBanner';
 import ToolCard from '@/components/ToolCard';
 import { useLocation } from 'wouter';
 import { MOCK_TOOLS, MOCK_REVIEWS, MOCK_LEADERBOARD, CATEGORIES } from '@/lib/mockData';
@@ -623,9 +622,6 @@ export default function Home() {
             ctaColor="#D97706"
             onCta={go}
           />
-
-          {/* ── Category Banner ── */}
-          <CategoryBanner selectedCategory={selectedCategory} toolCount={allToolsSorted.length} />
 
           {/* ── Category + Filter Container (full width, static) ── */}
           <div
