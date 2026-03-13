@@ -111,7 +111,7 @@ export default function ClaimTool() {
               {step === 'search' && (
                 <div className="bg-white/60 border border-gray-300/60 rounded-2xl p-6">
                   <h2 className="text-xl font-black text-slate-900 mb-2">Find your tool</h2>
-                  <p className="text-slate-500 text-sm mb-6">Search for your product in the LaudStack directory.</p>
+                  <p className="text-slate-500 text-sm mb-6">Search for your product on LaudStack.</p>
                   <div className="relative">
                     <input
                       type="text"
@@ -142,7 +142,7 @@ export default function ClaimTool() {
                   </div>
                   {query.length > 1 && filteredTools.length === 0 && (
                     <div className="mt-4 p-4 bg-gray-100/60 border border-gray-300/40 rounded-xl text-center">
-                      <p className="text-slate-500 text-sm mb-3">Tool not found in our directory?</p>
+                      <p className="text-slate-500 text-sm mb-3">Product not found on LaudStack?</p>
                       <Link href="/launchpad">
                         <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm transition-colors">
                           Submit Your Tool →
@@ -301,7 +301,7 @@ export default function ClaimTool() {
                   <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Verification Process</span>
                 </div>
                 <ol className="space-y-2">
-                  {['Find your tool in our directory', 'Choose a verification method', 'Complete your founder profile', 'Our team reviews in 1–2 days', 'Get your Verified badge'].map((s, i) => (
+                  {['Find your product on LaudStack', 'Choose a verification method', 'Complete your founder profile', 'Our team reviews in 1–2 days', 'Get your Verified badge'].map((s, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-slate-500">
                       <span className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center text-slate-500 font-bold flex-shrink-0 mt-0.5 text-[10px]">{i + 1}</span>
                       {s}

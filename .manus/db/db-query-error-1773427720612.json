@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, slug, name, screenshot_url FROM tools WHERE slug LIKE '%cursor%' OR slug LIKE '%perplexity%' OR name LIKE '%Cursor%' OR name LIKE '%Perplexity%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 28uKLfuofPUb1xQ.root --database 3XGasP8CcX57JRU5Ai2Hv7 --execute SELECT id, slug, name, screenshot_url FROM tools WHERE slug LIKE '%cursor%' OR slug LIKE '%perplexity%' OR name LIKE '%Cursor%' OR name LIKE '%Perplexity%';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table '3xgasp8ccx57jru5ai2hv7.tools' doesn't exist"
+  ]
+}

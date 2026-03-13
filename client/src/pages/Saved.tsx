@@ -36,7 +36,7 @@ export default function Saved() {
       <PageHero
         eyebrow="Your Collection"
         title={savedTools.length > 0 ? `Saved Tools (${savedTools.length})` : 'Saved Tools'}
-        subtitle="Tools you’ve bookmarked for quick access. Save any tool from the directory to build your personal stack."
+        subtitle="Products you've bookmarked for quick access. Save any product to build your personal stack."
         accent="amber"
         layout="default"
         size="sm"
@@ -82,7 +82,7 @@ export default function Saved() {
                 href="/"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '12px 24px', borderRadius: '12px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.3)' }}
               >
-                <Search style={{ width: '14px', height: '14px' }} /> Browse All Tools
+                <Search style={{ width: '14px', height: '14px' }} /> Browse All Products
               </Link>
               <Link
                 href="/tools"

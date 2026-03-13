@@ -135,3 +135,84 @@
 - [x] Register /categories route and update Navbar link
 - [x] Apply all changes to Next.js project
 - [x] Push both projects to GitHub for Vercel deployment
+
+## Fix Trending Container + Vercel Build Error
+- [ ] Restore Trending This Week container structure (was accidentally changed)
+- [ ] Only change the container background color to soft mint (#F0F7F4)
+- [ ] Fix framer-motion missing dependency in Next.js project
+- [ ] Push fix to GitHub and verify Vercel deployment
+
+## Platform Repositioning — Multi-Purpose Launch, Discovery & Growth Platform
+- [x] Audit all current files (Home, Navbar, Footer, mockData, categories, pages)
+- [x] Rewrite hero section: new tagline, subtitle, CTAs reflecting 5 pillars (Launches, Discovery, Reviews, Deals, Templates)
+- [x] Rewrite social proof bar to reflect platform breadth (not just "directory")
+- [x] Restructure Navbar: Launches, Discover, Reviews, Deals, Templates as primary nav
+- [x] Update Trending section copy — position as community-driven momentum
+- [x] Rewrite Fresh Launches section — emphasize Product Hunt-style launch culture
+- [x] Rewrite Three Pillars section — expand to 5 pillars matching platform positioning
+- [x] Rewrite LaunchPad CTA section — position for founders launching products
+- [x] Update Browse by Category section copy
+- [x] Update Footer copy, links, and sections to reflect full platform
+- [x] Update page title and meta description
+- [x] Remove all "directory" language across the platform
+- [x] Apply all changes to Next.js project
+- [x] Push to GitHub for Vercel deployment
+
+## Full Platform Repositioning — Comprehensive Overhaul
+### Phase 1: Hero & Global Fixes
+- [ ] Fix hero headline to "Launch, Discover & Grow with AI & SaaS."
+- [ ] Fix social proof: replace "98% verified" with "500+ products launched"
+- [ ] Bulk rename "tool/tools" to "product/products" across all user-facing copy
+
+### Phase 2: Navigation & Menu
+- [ ] Add Comparisons menu item under Discover
+- [ ] Add Alternatives menu item under Discover
+- [ ] Add Community Voting item under Launches
+- [ ] Update all menu descriptions to platform language
+
+### Phase 3: Page Updates (rename tools → products)
+- [ ] AllTools page → All Products page
+- [ ] ToolDetail page → Product Detail page with alternatives, similar products, voting
+- [ ] Trending page → rename tools to products
+- [ ] TopRated page → rename tools to products
+- [ ] NewLaunches page → rename tools to products
+- [ ] Saved page → rename tools to products
+- [ ] Search page → rename tools to products
+- [ ] Compare page → update to Product vs Product
+- [ ] Categories page → update copy
+- [ ] Reviews page → update copy
+- [ ] LaunchPad page → update copy
+- [ ] ClaimTool page → Claim Your Product page
+- [ ] Sitemap → update all references
+
+### Phase 4: Components
+- [ ] ToolCard → ProductCard (rename component and all references)
+- [ ] CompareBar → update copy
+- [ ] CategoryBanner → update copy
+- [ ] WriteReviewModal → update copy
+- [ ] PageHero → update any tool references
+- [ ] Footer → update any remaining tool references
+- [ ] Navbar → update any remaining tool references
+
+### Phase 5: Data & Hooks
+- [ ] mockData.ts → rename tool references to products
+- [ ] useToolsData → rename to useProductsData
+- [ ] useSavedTools → rename to useSavedProducts
+- [ ] blogData → update tool references
+
+### Phase 6: Product Detail Enhancements
+- [ ] Add Alternatives section to product detail page
+- [ ] Add Similar Products section
+- [ ] Add community voting UI (upvote/downvote)
+- [ ] Ensure comparison links work (Product A vs Product B)
+
+### Phase 7: Apply to Next.js & Push
+- [ ] Apply all changes to Next.js project
+- [ ] Build and verify
+- [ ] Push to GitHub for Vercel deployment
+
+## Build Missing Pages for All Menu Items
+- [ ] Build /alternatives page — find alternatives to any product
+- [ ] Build /community-voting page — upvote and discuss products  
+- [ ] Update Navbar links to point to new dedicated pages
+- [ ] Push all changes to GitHub

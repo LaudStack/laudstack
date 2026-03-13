@@ -18,72 +18,66 @@ import {
 
 const FOOTER_SECTIONS = [
   {
-    heading: 'Discover',
+    heading: 'Launches',
     links: [
-      { label: 'Browse All Tools', href: '/tools', live: true },
+      { label: 'LaunchPad', href: '/launchpad', live: true },
+      { label: 'New Launches', href: '/new-launches', live: true },
       { label: 'Trending This Week', href: '/trending', live: true },
-      { label: 'Top Rated', href: '/top-rated', live: true },
-      { label: 'Fresh Launches', href: '/launches', live: true },
       { label: 'Community Picks', href: '/community-picks', live: true },
       { label: "Editor's Picks", href: '/editors-picks', live: true },
-      { label: 'Compare Tools', href: '/compare', live: false },
-      { label: 'SaaS Deals', href: '/deals', live: false },
+    ],
+  },
+  {
+    heading: 'Discover',
+    links: [
+      { label: 'All Products', href: '/tools', live: true },
+      { label: 'Top Rated', href: '/top-rated', live: true },
+      { label: 'Categories', href: '/categories', live: true },
+      { label: 'Deals & Offers', href: '/deals', live: true },
+      { label: 'Templates', href: '/templates', live: true },
+      { label: 'Compare Products', href: '/compare', live: false },
     ],
   },
   {
     heading: 'Community',
     links: [
-      { label: 'Leaderboard', href: '/trending', live: true },
       { label: 'Write a Review', href: '/tools', live: true },
       { label: 'Top Reviewers', href: '/community-picks', live: true },
-      { label: 'Saved Tools', href: '/saved', live: true },
+      { label: 'Saved Products', href: '/saved', live: true },
       { label: 'Newsletter', href: '/newsletter', live: true },
-      { label: 'Events', href: '/events', live: true },
+      { label: 'Trust Framework', href: '/trust', live: true },
     ],
   },
   {
     heading: 'For Founders',
     links: [
-      { label: 'LaunchPad', href: '/launchpad', live: true },
-      { label: 'Claim Your Tool', href: '/claim', live: true },
+      { label: 'Submit Your Product', href: '/launchpad', live: true },
+      { label: 'Claim Your Product', href: '/claim', live: true },
       { label: 'Founder Dashboard', href: '/dashboard/founder', live: true },
+      { label: 'Run a Deal', href: '/deals', live: true },
       { label: 'Pricing', href: '/pricing', live: true },
-      { label: 'Affiliate Program', href: '/affiliates', live: true },
       { label: 'Advertise', href: '/advertise', live: true },
-      { label: 'Success Stories', href: '/blog', live: true },
-    ],
-  },
-  {
-    heading: 'Resources',
-    links: [
-      { label: 'Blog', href: '/blog', live: true },
-      { label: 'Help Centre / FAQ', href: '/faq', live: true },
-      { label: 'Trust Framework', href: '/trust', live: true },
-      { label: 'Review Guidelines', href: '/trust', live: true },
-      { label: 'Changelog', href: '/changelog', live: true },
-      { label: 'Tool Templates', href: '/templates', live: true },
     ],
   },
   {
     heading: 'Company',
     links: [
       { label: 'About LaudStack', href: '/about', live: true },
+      { label: 'Blog', href: '/blog', live: true },
       { label: 'Contact Us', href: '/contact', live: true },
-      { label: 'Careers', href: '/careers', live: true },
-      { label: 'Press Kit', href: '/press', live: true },
+      { label: 'Changelog', href: '/changelog', live: true },
       { label: 'Privacy Policy', href: '/privacy', live: true },
       { label: 'Terms of Service', href: '/terms', live: true },
-      { label: 'Cookie Policy', href: '/cookies', live: true },
     ],
   },
 ];
 
 const TRUST_STATS = [
-  { icon: Users, value: '12,000+', label: 'Professionals' },
-  { icon: Star, value: '4.9', label: 'Avg Rating' },
-  { icon: CheckCircle2, value: '98%', label: 'Verified Reviews' },
-  { icon: TrendingUp, value: '100+', label: 'Tools Listed' },
-  { icon: Rocket, value: '50+', label: 'New This Month' },
+  { icon: Users, value: '12,000+', label: 'Users' },
+  { icon: Rocket, value: '500+', label: 'Products Launched' },
+  { icon: CheckCircle2, value: '100%', label: 'Verified Reviews' },
+  { icon: Zap, value: '200+', label: 'Active Deals' },
+  { icon: Star, value: '50+', label: 'New This Month' },
 ];
 
 
@@ -150,7 +144,7 @@ export default function Footer() {
             </Link>
 
             <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.7, maxWidth: 280, fontWeight: 500, margin: 0 }}>
-              The professional platform for discovering, reviewing, and launching AI &amp; SaaS tools. Built for teams that care about quality.
+              The launch, discovery, and growth platform for AI &amp; SaaS software. Launch products, read reviews, grab deals, and ship faster with templates.
             </p>
 
             {/* Social links */}
@@ -209,7 +203,7 @@ export default function Footer() {
                 </span>
               </div>
               <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px', lineHeight: 1.5 }}>
-                Top tools, trending picks, and founder stories — every Monday.
+                  Top launches, trending products, deals, and founder stories — every Monday.
               </p>
               {subscribed ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 700, color: '#4ADE80' }}>

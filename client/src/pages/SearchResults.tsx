@@ -119,7 +119,7 @@ export default function SearchResults() {
         title={query ? `Results for "${query}"` : 'Search All Tools'}
         subtitle={query
           ? `${results.length} tool${results.length !== 1 ? 's' : ''} found${selectedCat !== 'All' ? ` in ${selectedCat}` : ''} — refine below or try a different query.`
-          : 'Find the right AI and SaaS tool from our directory of 95+ verified products.'}
+          : 'Find the right AI and SaaS product from 95+ verified launches, reviews, deals, and templates.'}
         accent="amber"
         layout="default"
         size="sm"

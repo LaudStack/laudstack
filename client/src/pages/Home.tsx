@@ -10,10 +10,10 @@
  *
  * Conversion flow:
  *  1. HERO             — Value prop + search + social proof
- *  2. THREE PILLARS    — Platform differentiation
+ *  2. FIVE PILLARS     — Platform differentiation (Launch · Discover · Review · Deal · Build)
  *  3. TRENDING         — Community momentum (FOMO)
  *  4. FRESH LAUNCHES   — Founder activity + novelty
- *  5. BROWSE + SIDEBAR — Full directory + leaderboard
+ *  5. BROWSE + SIDEBAR — Full catalog + leaderboard
  *  6. LAUNCHPAD CTA    — Founder conversion
  */
 
@@ -43,32 +43,53 @@ const fadeUp = {
 };
 
 // ─── Static data ───────────────────────────────────────────────────────────
-const POPULAR_SEARCHES = ['AI Writing', 'Code Editor', 'Project Management', 'Design Tools', 'Analytics', 'CRM'];
+const POPULAR_SEARCHES = ['AI Writing', 'Launch Tools', 'SaaS Deals', 'Code Assistants', 'Design Tools', 'Templates'];
 
-const THREE_PILLARS = [
+const FIVE_PILLARS = [
+  {
+    icon: Rocket,
+    accent: '#DC2626', accentBg: '#FFF1F2', accentBorder: '#FECDD3',
+    label: 'Launch',
+    headline: 'Launch your product to the world',
+    body: 'Submit via LaunchPad, get community votes, and build credibility through verified reviews and editorial features.',
+    cta: 'Go to LaunchPad',
+    href: '/launchpad',
+  },
   {
     icon: Search,
     accent: '#2563EB', accentBg: '#EFF6FF', accentBorder: '#BFDBFE',
     label: 'Discover',
     headline: 'Find the right tool, fast',
-    body: 'Browse 95+ AI and SaaS tools across 12 categories. Filter by pricing, rating, and use case. No noise — just the tools that matter.',
-    cta: 'Browse Tools',
+    body: 'Explore AI and SaaS tools across categories. Filter by pricing, rating, and use case. Curated picks, trending lists, and honest rankings.',
+    cta: 'Explore Tools',
+    href: '/tools',
   },
   {
     icon: Star,
     accent: '#D97706', accentBg: '#FFFBEB', accentBorder: '#FDE68A',
     label: 'Review',
     headline: 'Trust built on real evidence',
-    body: 'Every review is verified. Star breakdowns, written feedback, and founder replies give you the full picture before you commit.',
+    body: 'Verified reviews, star breakdowns, and founder replies. The full picture before you commit — no fake ratings, no paid placements.',
     cta: 'Read Reviews',
+    href: '/reviews',
   },
   {
-    icon: Rocket,
-    accent: '#DC2626', accentBg: '#FFF1F2', accentBorder: '#FECDD3',
-    label: 'Launch',
-    headline: 'Get your tool discovered',
-    body: 'Founders submit via LaunchPad and build credibility through community reviews, editorial features, and organic rankings.',
-    cta: 'Go to LaunchPad',
+    icon: Zap,
+    accent: '#7C3AED', accentBg: '#F5F3FF', accentBorder: '#DDD6FE',
+    label: 'Deals',
+    headline: 'Exclusive software deals',
+    body: 'Lifetime offers, startup discounts, and limited-time promotions on the best AI and SaaS tools. Save big on the software you need.',
+    cta: 'Browse Deals',
+    href: '/deals',
+  },
+  {
+    icon: BookOpen,
+    accent: '#059669', accentBg: '#ECFDF5', accentBorder: '#A7F3D0',
+    label: 'Templates',
+    headline: 'Ship faster with starter kits',
+    body: 'Production-ready templates and starter kits for SaaS, AI apps, and more. Skip the boilerplate and start building what matters.',
+    cta: 'Browse Templates',
+    href: '/templates',
   },
 ];
 
@@ -192,8 +213,8 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'center' }}>
                 <span style={{ fontSize: '13px' }}>🎉</span>
                 <p style={{ fontSize: '13px', color: '#CBD5E1', fontWeight: 500, margin: 0 }}>
-                  <strong style={{ color: '#F59E0B', fontWeight: 700 }}>50 new tools</strong> added this month — AI coding, design, and analytics.
-                  <button onClick={go} style={{ marginLeft: '10px', fontSize: '12px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', padding: 0 }}>Browse what's new →</button>
+                  <strong style={{ color: '#F59E0B', fontWeight: 700 }}>50 new products</strong> launched this month — AI tools, SaaS apps, and templates.
+                  <button onClick={go} style={{ marginLeft: '10px', fontSize: '12px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', padding: 0 }}>See what's new →</button>
                 </p>
               </div>
               <button
@@ -233,7 +254,7 @@ export default function Home() {
             style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: '#fff', border: '1px solid #E2E8F0', color: '#475569', fontSize: '12px', fontWeight: 600, padding: '6px 16px', borderRadius: '100px', boxShadow: '0 1px 6px rgba(0,0,0,0.06)', marginBottom: '32px' }}
           >
             <ShieldCheck style={{ width: '13px', height: '13px', color: '#22C55E' }} />
-            Trusted by 12,000+ professionals and founders
+            Where founders launch and professionals discover software
           </motion.div>
 
           {/* Headline */}
@@ -241,9 +262,9 @@ export default function Home() {
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
             style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(42px, 5.8vw, 68px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', color: '#171717', margin: 0 }}
           >
-            The Trusted Source for<br />
+            Launch. Discover. Grow.<br />
             <span style={{ color: '#F59E0B' }}>
-              AI &amp; SaaS Tools.
+              AI &amp; SaaS Software.
             </span>
           </motion.h1>
 
@@ -252,7 +273,7 @@ export default function Home() {
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
             style={{ marginTop: '22px', fontSize: '18px', color: '#475569', lineHeight: 1.65, maxWidth: '540px', fontWeight: 400 }}
           >
-            Real reviews. Honest rankings. The smartest way to discover, compare, and choose the tools your business actually needs.
+            The launch, discovery, and growth platform for AI and SaaS software. Launch products, read verified reviews, grab exclusive deals, and ship faster with templates.
           </motion.p>
 
           {/* Search bar */}
@@ -264,7 +285,7 @@ export default function Home() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                  placeholder="Search 95+ AI & SaaS tools..."
+                  placeholder="Search tools, deals, templates, and more..."
                   style={{ width: '100%', paddingLeft: '50px', paddingRight: '16px', height: '58px', fontSize: '15px', color: '#171717', background: 'transparent', border: 'none', outline: 'none' }}
                 />
               </div>
@@ -301,17 +322,17 @@ export default function Home() {
                   <img key={i} src={`https://i.pravatar.cc/32?img=${i}`} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '2px solid #fff', marginLeft: i === 11 ? 0 : '-8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }} />
                 ))}
               </div>
-              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>12,000+</strong> professionals</span>
+              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>12,000+</strong> users</span>
             </div>
             <div style={{ width: '1px', height: '20px', background: '#E2E8F0' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               {[1,2,3,4,5].map(i => <Star key={i} style={{ width: '14px', height: '14px', fill: '#FBBF24', color: '#FBBF24' }} />)}
-              <span style={{ fontSize: '13px', color: '#475569', marginLeft: '5px', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>4.9</strong> avg rating</span>
+              <span style={{ fontSize: '13px', color: '#475569', marginLeft: '5px', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>500+</strong> products launched</span>
             </div>
             <div style={{ width: '1px', height: '20px', background: '#E2E8F0' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CheckCircle2 style={{ width: '15px', height: '15px', color: '#22C55E' }} />
-              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>98%</strong> verified reviews</span>
+              <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}><strong style={{ color: '#171717', fontWeight: 700 }}>100%</strong> verified reviews</span>
             </div>
           </motion.div>
         </div>
@@ -431,27 +452,36 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           3. TRENDING THIS WEEK
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#F0F7F4', padding: '80px 0', borderBottom: '1px solid #E0EDE6' }}>
+      <section style={{ background: '#FFFFFF', padding: '56px 0 64px', borderBottom: '1px solid #F1F5F9' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <SectionHeader
-            label="Trending This Week"
-            labelIcon={Flame}
-            labelColor="#92400E"
-            labelBg="#FEF3C7"
-            labelBorder="#FDE68A"
-            headline="Biggest movers in the last 7 days"
-            subtext="Ranked by rank-position gain over the past week — tools climbing fastest right now."
-            cta="View All Trending"
-            ctaColor="#D97706"
-            onCta={goTrending}
-          />
-          {trendingTools.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
-              <p style={{ fontSize: '15px', fontWeight: 500 }}>No trending tools in this category yet.</p>
-              <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}>View all categories</button>
+          {/* Rounded container — soft mint background */}
+          <div style={{ background: '#F0F7F4', borderRadius: '24px', padding: '28px 28px 28px' }}>
+            {/* Header row inside the container */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <div>
+                <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(22px, 2.5vw, 28px)', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 4px', lineHeight: 1.2 }}>
+                  Trending This Week
+                </h2>
+                <p style={{ fontSize: '14px', color: '#64748B', fontWeight: 500, margin: 0, lineHeight: 1.6 }}>
+                  The most upvoted and discussed products this week — voted by the community.
+                </p>
+              </div>
+              <button
+                onClick={goTrending}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 24px', borderRadius: '100px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: '#F59E0B', border: 'none', cursor: 'pointer', transition: 'opacity 0.15s', flexShrink: 0 }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >
+                View All Trending <ArrowRight style={{ width: '14px', height: '14px' }} />
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: '16px' }}>
+            {trendingTools.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
+                <p style={{ fontSize: '15px', fontWeight: 500 }}>No trending tools in this category yet.</p>
+                <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}>View all categories</button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: '16px' }}>
               {trendingTools.map((tool, i) => {
                 const change = tool.weekly_rank_change ?? 0;
                 const momentum = change >= 20 ? 'rocket' : change >= 12 ? 'hot' : 'rising';
@@ -600,8 +630,9 @@ export default function Home() {
                   </motion.div>
                 );
               })}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -612,16 +643,16 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
 
           <SectionHeader
-            label="Browse by Category"
+            label="Explore by Category"
             labelIcon={Filter}
             labelColor="#F59E0B"
             labelBg="#F1F5F9"
             labelBorder="#E2E8F0"
-            headline="Find tools for every use case"
-            subtext={`${MOCK_TOOLS.length} verified tools across ${CATEGORIES.length - 1} categories.`}
+            headline="Explore products by category"
+            subtext={`${MOCK_TOOLS.length} products across ${CATEGORIES.length - 1} categories — tools, deals, and templates.`}
             cta="All Categories"
             ctaColor="#D97706"
-            onCta={go}
+            onCta={() => navigate('/categories')}
           />
 
           {/* ── Category + Filter Container (full width, static) ── */}
@@ -898,7 +929,7 @@ export default function Home() {
                       <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', fontWeight: 800, color: '#171717', margin: '2px 0 0' }}>Are you a founder?</h3>
                     </div>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#78350F', fontWeight: 400, margin: '0 0 16px', lineHeight: 1.6 }}>Submit your tool and get discovered by thousands of buyers. Free to list.</p>
+                  <p style={{ fontSize: '13px', color: '#78350F', fontWeight: 400, margin: '0 0 16px', lineHeight: 1.6 }}>Launch your product and get discovered by thousands of professionals. Free to list.</p>
                   <button
                     onClick={go}
                     style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 16px', borderRadius: '11px', fontSize: '13px', fontWeight: 700, color: '#FFFFFF', background: '#F59E0B', border: 'none', cursor: 'pointer', transition: 'box-shadow 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)' }}
@@ -927,8 +958,8 @@ export default function Home() {
             labelColor="#F59E0B"
             labelBg="#EFF6FF"
             labelBorder="#BFDBFE"
-            headline="Newly launched tools"
-            subtext="The latest AI and SaaS tools submitted by founders this week."
+            headline="Freshly launched products"
+            subtext="The latest AI and SaaS products submitted by founders — upvote your favorites."
             cta="View All Launches"
             ctaColor="#D97706"
             onCta={go}
@@ -1104,7 +1135,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          2. THREE PILLARS — Discover · Review · Launch
+          2. FIVE PILLARS — Launch · Discover · Review · Deal · Build
       ══════════════════════════════════════════════════════ */}
       <section style={{ background: '#FFFFFF', padding: '88px 0 80px', borderBottom: '1px solid #F1F5F9' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
@@ -1113,24 +1144,24 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
               style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '14px' }}>
-              Everything in one place
+              One platform, five ways to grow
             </motion.p>
             <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
               style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', margin: '0 0 16px', lineHeight: 1.15 }}>
-              Built for how people actually choose tools
+              Everything you need to launch, discover, and grow
             </motion.h2>
             <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
               style={{ fontSize: '16px', color: '#64748B', maxWidth: '500px', margin: '0 auto', lineHeight: 1.65, fontWeight: 400 }}>
-              LaudStack is where professionals discover, evaluate, and launch AI & SaaS tools.
+              LaudStack combines product launches, verified reviews, exclusive deals, and ready-made templates — all in one platform for AI and SaaS software.
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '20px' }}>
-            {THREE_PILLARS.map(({ icon: Icon, accent, accentBg, accentBorder, label, headline, body, cta }, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5" style={{ gap: '16px' }}>
+            {FIVE_PILLARS.map(({ icon: Icon, accent, accentBg, accentBorder, label, headline, body, cta, href }, i) => (
               <motion.div
                 key={label}
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.1}
-                onClick={go}
+                onClick={() => navigate(href)}
                 style={{
                   background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '20px',
                   padding: '32px 28px 28px', cursor: 'pointer', position: 'relative', overflow: 'hidden',
@@ -1180,10 +1211,10 @@ export default function Home() {
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', letterSpacing: '0.09em', textTransform: 'uppercase' }}>For Founders</span>
                 </div>
                 <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900, color: '#171717', letterSpacing: '-0.025em', lineHeight: 1.15, margin: '0 0 18px' }}>
-                  Get your tool in front of the right buyers
+                  Launch your product to the right audience
                 </h2>
                 <p style={{ fontSize: '16px', color: '#64748B', lineHeight: 1.7, margin: '0 0 36px', fontWeight: 400 }}>
-                  Submit your AI or SaaS tool via LaunchPad and start building credibility through verified community reviews. Free to list — no credit card required.
+                  Submit your AI or SaaS product via LaunchPad. Get community votes, verified reviews, and organic rankings. Run deals, collect feedback, and grow. Free to list.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                   <button
@@ -1212,12 +1243,12 @@ export default function Home() {
                 <p style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '28px' }}>What you get</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: '20px' }}>
                   {[
-                    { icon: Globe,         label: 'Global Visibility',  desc: 'Reach 12,000+ professionals' },
+                    { icon: Globe,         label: 'Global Visibility',  desc: 'Reach thousands of professionals' },
                     { icon: Shield,        label: 'Verified Reviews',   desc: 'Build authentic social proof' },
                     { icon: BarChart3,     label: 'Founder Analytics',  desc: 'Track visits and conversions' },
-                    { icon: MessageSquare, label: 'Review Replies',     desc: 'Engage directly with users' },
-                    { icon: Award,         label: 'Editorial Features', desc: 'Get hand-picked by our team' },
-                    { icon: TrendingUp,    label: 'Real Rankings',      desc: 'Earn your rank organically' },
+                    { icon: Zap,           label: 'Run Deals',          desc: 'Offer discounts and promotions' },
+                    { icon: Award,         label: 'Community Votes',    desc: 'Get upvoted by real users' },
+                    { icon: TrendingUp,    label: 'Organic Rankings',   desc: 'Earn your rank naturally' },
                   ].map(({ icon: Icon, label, desc }) => (
                     <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                       <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#FFF7ED', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

@@ -24,29 +24,17 @@ import { useSavedTools } from '@/hooks/useSavedTools';
 
 const NAV_ITEMS = [
   {
+    label: 'Launches',
+    megaMenu: [
+      { icon: Rocket,     label: 'LaunchPad',       desc: 'Submit your product',          href: '/launchpad' },
+      { icon: Zap,        label: 'New Launches',    desc: 'Freshly launched products',    href: '/new-launches' },
+      { icon: TrendingUp, label: 'Trending',        desc: 'Most upvoted this week',       href: '/trending' },
+      { icon: Trophy,     label: 'Weekly Rankings', desc: 'This week\'s top performers',  href: '/trending' },
+      { icon: Users,      label: 'Community Picks', desc: 'Voted by the community',       href: '/community-picks' },
+    ],
+  },
+  {
     label: 'Discover',
-    megaMenu: [
-      { icon: Layers,     label: 'All Tools',     desc: 'Browse the full directory',   href: '/tools' },
-      { icon: TrendingUp, label: 'Trending',       desc: 'What\'s hot right now',       href: '/trending' },
-      { icon: Star,       label: 'Top Rated',      desc: 'Highest community scores',     href: '/top-rated' },
-      { icon: Zap,        label: 'New Launches',   desc: 'Recently added tools',         href: '/new-launches' },
-      { icon: Bookmark,   label: 'Saved Tools',    desc: 'Your personal tool library',   href: '/saved' },
-      { icon: Tag,        label: 'SaaS Deals',     desc: 'Exclusive discounts & offers', href: '/deals' },
-    ],
-  },
-  {
-    label: 'Leaderboard',
-    href: '/trending',
-    megaMenu: [
-      { icon: Trophy,    label: 'Weekly Rankings', desc: 'This week\'s top performers',   href: '/trending' },
-      { icon: BarChart3, label: 'All-Time Best',   desc: 'Highest rated of all time',    href: '/top-rated' },
-      { icon: Users,     label: 'Community Picks', desc: 'Voted by the community',       href: '/community-picks' },
-      { icon: Shield,    label: "Editor's Picks",  desc: 'Curated by our team',          href: '/editors-picks' },
-    ],
-  },
-  {
-    label: 'Tools',
-    href: '/tools',
     categoryMenu: true,
     megaMenu: [
       // AI column
@@ -65,15 +53,22 @@ const NAV_ITEMS = [
       { icon: '🔧', label: 'Developer Tools',     desc: 'APIs, infra & DevOps',        href: '/tools?category=Developer+Tools' },
     ],
   },
-  { label: 'Templates', href: '/templates' },
+  {
+    label: 'Reviews',
+    megaMenu: [
+      { icon: Star,       label: 'All Reviews',     desc: 'Community reviews & ratings',  href: '/reviews' },
+      { icon: BarChart3,  label: 'Top Rated',       desc: 'Highest rated products',       href: '/top-rated' },
+      { icon: Shield,     label: "Editor's Picks",  desc: 'Curated by our team',          href: '/editors-picks' },
+      { icon: BookOpen,   label: 'Trust Framework', desc: 'How we verify reviews',        href: '/trust' },
+    ],
+  },
   { label: 'Deals', href: '/deals' },
+  { label: 'Templates', href: '/templates' },
   {
     label: 'Resources',
     megaMenu: [
-      { icon: BookOpen,  label: 'Blog',              desc: 'Insights, guides & tool news',         href: '/blog' },
-      { icon: BookOpen,  label: 'Reviews',           desc: 'Community reviews & ratings',          href: '/reviews' },
-      { icon: Rocket,    label: 'Claim Your Tool',   desc: 'Verify ownership & get Pro badge',     href: '/claim' },
-      { icon: Shield,    label: 'Trust Framework',   desc: 'How we verify reviews',                href: '/trust' },
+      { icon: BookOpen,  label: 'Blog',              desc: 'Insights, guides & product news',      href: '/blog' },
+      { icon: Rocket,    label: 'Claim Your Product', desc: 'Verify ownership & get Pro badge',    href: '/claim' },
       { icon: FileText,  label: 'Changelog',         desc: 'What\'s new on LaudStack',             href: '/changelog' },
       { icon: Users,     label: 'About LaudStack',   desc: 'Our mission and team',                 href: '/about' },
       { icon: FileText,  label: 'Contact Us',        desc: 'Get in touch with our team',           href: '/contact' },

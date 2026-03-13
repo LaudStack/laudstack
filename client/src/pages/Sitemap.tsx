@@ -1,5 +1,5 @@
 // LaudStack — Sitemap Page
-// Organized directory of all platform pages grouped by section
+// Organized sitemap of all platform pages grouped by section
 
 import { Link } from 'wouter';
 import {
@@ -27,7 +27,7 @@ const SECTIONS: SitemapSection[] = [
     title: 'Discover',
     icon: <Search className="w-5 h-5 text-amber-500" />,
     links: [
-      { label: 'Browse All Tools', href: '/tools', desc: 'Full directory of 95+ verified AI & SaaS tools' },
+      { label: 'Browse All Products', href: '/tools', desc: 'Full catalog of 95+ verified AI & SaaS products' },
       { label: 'Trending Tools', href: '/trending', desc: 'Fastest-rising tools ranked by community momentum' },
       { label: 'Top Rated', href: '/top-rated', desc: 'Highest-rated tools by verified community reviews' },
       { label: 'New Launches', href: '/new-launches', desc: 'Recently submitted tools from founders' },
@@ -99,7 +99,7 @@ export default function Sitemap() {
         <PageHero
           eyebrow="Sitemap"
           title="All pages on LaudStack"
-          subtitle="A complete directory of every section and page on the platform — organized for easy navigation."
+          subtitle="A complete map of every section and page on the platform — organized for easy navigation."
           accent="amber"
           layout="centered"
           size="md"

@@ -1,4 +1,4 @@
-// Design: LaudStack dark-slate + amber accent. Full directory with sidebar filters.
+// Design: LaudStack dark-slate + amber accent. Full product catalog with sidebar filters.
 // Layout: Left filter sidebar (fixed) + right scrollable tool grid.
 
 import { useState, useMemo, useEffect } from 'react';
@@ -212,7 +212,7 @@ export default function AllTools() {
       <Navbar />
 
       <PageHero
-        eyebrow="Tool Directory"
+        eyebrow="Product Catalog"
         title="All Tools"
         subtitle={`Discover ${MOCK_TOOLS.length} AI & SaaS tools, verified and ranked by the community.`}
         accent="amber"

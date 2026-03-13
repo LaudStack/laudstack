@@ -192,7 +192,7 @@ function CompactCard({ tool, rank, rankChange }: ToolCardProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FULL CARD — directory listing
+// FULL CARD — product listing
 // ═══════════════════════════════════════════════════════════════════════════════
 function FullCard({ tool, rank, rankChange }: ToolCardProps) {
   const [upvoted, setUpvoted] = useState(false);

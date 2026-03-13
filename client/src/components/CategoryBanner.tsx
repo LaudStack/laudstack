@@ -16,8 +16,8 @@ const CATEGORY_BANNERS: Record<string, {
   decorativeEmoji: string;
 }> = {
   'All': {
-    headline: 'Explore the Full Directory',
-    description: 'Browse every verified AI & SaaS tool on LaudStack — filtered, sorted, and reviewed by real users.',
+    headline: 'Explore All Products',
+    description: 'Browse every AI & SaaS product on LaudStack — launches, reviews, deals, and templates from the community.',
     accentFrom: '#F59E0B', accentTo: '#D97706',
     bgFrom: '#FFFBEB', bgTo: '#FEF3C7',
     textColor: '#78350F', subtextColor: '#92400E',

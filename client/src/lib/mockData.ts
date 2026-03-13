@@ -1169,7 +1169,7 @@ export const MOCK_REVIEWS: Review[] = [
   },
 ];
 
-// ── Category directory ────────────────────────────────────────────────────
+// ── Category catalog ────────────────────────────────────────────────────
 export const CATEGORIES: { name: string; icon: string; count: number; description: string }[] = [
   { name: 'All', icon: '🌐', count: MOCK_TOOLS.length, description: 'All tools on LaudStack' },
   { name: 'AI Productivity', icon: '⚡', count: MOCK_TOOLS.filter(t => t.category === 'AI Productivity').length, description: 'AI-powered productivity and automation tools' },
