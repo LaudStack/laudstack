@@ -430,7 +430,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           3. TRENDING THIS WEEK
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#F0F7F4', padding: '80px 0', borderBottom: '1px solid #E0EDE6' }}>
+      <section style={{ background: '#F5F0EB', padding: '80px 0', borderBottom: '1px solid #EDE5DC' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <SectionHeader
             label="Trending This Week"

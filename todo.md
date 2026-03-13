@@ -135,6 +135,3 @@
 - [x] Register /categories route and add navigation link
 - [x] Apply to both laudstack (Vite) and laudstack-next (Next.js)
 - [x] Test and push
-
-## Trending Section Background Color
-- [x] Change Trending This Week section background from warm beige (#F5F0EB) to soft mint (#F0F7F4) to match screenshot
