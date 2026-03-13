@@ -46,7 +46,6 @@ import Press from './pages/Press';
 import Events from './pages/Events';
 import Sitemap from './pages/Sitemap';
 import Careers from './pages/Careers';
-import Categories from './pages/Categories';
 import ScrollToTop from './components/ScrollToTop';
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -76,7 +75,6 @@ function Router() {
         <Route path="/templates" component={Templates} />
         <Route path="/deals" component={Deals} />
         <Route path="/tools" component={AllTools} />
-        <Route path="/categories" component={Categories} />
         <Route path="/trending" component={Trending} />
         <Route path="/top-rated" component={TopRated} />
         <Route path="/new-launches" component={NewLaunches} />
