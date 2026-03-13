@@ -430,136 +430,177 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           3. TRENDING THIS WEEK
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#FFFFFF', padding: '80px 0', borderBottom: '1px solid #E2E8F0' }}>
+      <section style={{ background: '#F5F0EB', padding: '80px 0', borderBottom: '1px solid #EDE5DC' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          {/* Soft mint/sage gradient container with rounded corners */}
-          <div style={{
-            background: 'linear-gradient(135deg, #F0F7F4 0%, #E8F5EE 40%, #F5FAF7 100%)',
-            borderRadius: '24px',
-            padding: '56px 48px',
-            position: 'relative',
-            overflow: 'hidden',
-            border: '1px solid #E0EDE6',
-          }}>
-            {/* Decorative soft circle — top-right */}
-            <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(245,158,11,0.04)', pointerEvents: 'none' }} />
-            {/* Decorative soft circle — bottom-left */}
-            <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(34,197,94,0.05)', pointerEvents: 'none' }} />
-
-            <div style={{ display: 'flex', gap: '48px', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-              {/* Left side — Text content */}
-              <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '8px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', width: 'fit-content' }}>
-                  <TrendingUp style={{ width: '22px', height: '22px', color: '#D97706' }} />
-                </div>
-                <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '32px', fontWeight: 800, color: '#171717', letterSpacing: '-0.025em', lineHeight: 1.15, margin: 0 }}>
-                  Trending<br />This Week
-                </h2>
-                <p style={{ fontSize: '15px', color: '#64748B', lineHeight: 1.65, fontWeight: 400, margin: 0 }}>
-                  The biggest movers over the past 7 days. Discover tools climbing fastest right now.
-                </p>
-                <button
-                  onClick={goTrending}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '8px',
-                    background: '#D97706', color: '#fff',
-                    fontSize: '14px', fontWeight: 700,
-                    padding: '12px 24px', borderRadius: '12px',
-                    border: 'none', cursor: 'pointer',
-                    transition: 'background 0.15s, transform 0.15s',
-                    width: 'fit-content',
-                    boxShadow: '0 2px 8px rgba(217,119,6,0.25)',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#B45309'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#D97706'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  View All Trending <ArrowRight style={{ width: '15px', height: '15px' }} />
-                </button>
-              </div>
-
-              {/* Right side — 2×2 grid of trending tool cards */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {trendingTools.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
-                    <p style={{ fontSize: '15px', fontWeight: 500 }}>No trending tools in this category yet.</p>
-                    <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}>View all categories</button>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
-                    {trendingTools.map((tool, i) => {
-                      const change = tool.weekly_rank_change ?? 0;
-                      const fallbackScreenshot = [
-                        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format',
-                        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&auto=format',
-                        'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop&auto=format',
-                        'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=600&fit=crop&auto=format',
-                      ][i % 4];
-                      const screenshotSrc = tool.screenshot_url ?? fallbackScreenshot;
-                      return (
-                        <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.07}>
-                          <div
-                            style={{
-                              position: 'relative',
-                              borderRadius: '16px',
-                              overflow: 'hidden',
-                              cursor: 'pointer',
-                              transition: 'box-shadow 0.2s, transform 0.2s',
-                              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                              aspectRatio: '16/10',
-                            }}
-                            onMouseEnter={e => {
-                              const el = e.currentTarget as HTMLDivElement;
-                              el.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
-                              el.style.transform = 'translateY(-3px)';
-                            }}
-                            onMouseLeave={e => {
-                              const el = e.currentTarget as HTMLDivElement;
-                              el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
-                              el.style.transform = 'translateY(0)';
-                            }}
-                            onClick={() => navigate(`/tools/${tool.slug}`)}
-                          >
-                            {/* Screenshot fills the entire card */}
-                            <img
-                              src={screenshotSrc}
-                              alt={`${tool.name}`}
-                              style={{
-                                position: 'absolute', inset: 0,
-                                width: '100%', height: '100%',
-                                objectFit: 'cover', objectPosition: 'top center',
-                                transition: 'transform 0.35s ease',
-                              }}
-                              onError={e => { (e.target as HTMLImageElement).src = fallbackScreenshot; }}
-                              onMouseEnter={e => { (e.target as HTMLImageElement).style.transform = 'scale(1.04)'; }}
-                              onMouseLeave={e => { (e.target as HTMLImageElement).style.transform = 'scale(1)'; }}
-                            />
-                            {/* Dark gradient overlay for text readability */}
-                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)', pointerEvents: 'none' }} />
-
-                            {/* Rank change pill — top-right */}
-                            <div style={{
-                              position: 'absolute', top: '10px', right: '10px',
-                              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)',
-                              borderRadius: '8px', padding: '3px 8px',
-                              display: 'flex', alignItems: 'center', gap: '3px',
-                            }}>
-                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                              <span style={{ fontSize: '11px', fontWeight: 800, color: '#22C55E' }}>+{change}</span>
-                            </div>
-
-                            {/* Tool name — bottom-left, white text over image */}
-                            <div style={{ position: 'absolute', bottom: '14px', left: '16px', right: '16px' }}>
-                              <p style={{ fontSize: '16px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em', lineHeight: 1.2, margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{tool.name}</p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+          <SectionHeader
+            label="Trending This Week"
+            labelIcon={Flame}
+            labelColor="#92400E"
+            labelBg="#FEF3C7"
+            labelBorder="#FDE68A"
+            headline="Biggest movers in the last 7 days"
+            subtext="Ranked by rank-position gain over the past week — tools climbing fastest right now."
+            cta="View All Trending"
+            ctaColor="#D97706"
+            onCta={goTrending}
+          />
+          {trendingTools.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
+              <p style={{ fontSize: '15px', fontWeight: 500 }}>No trending tools in this category yet.</p>
+              <button onClick={() => setSelectedCategory('All')} style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}>View all categories</button>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: '16px' }}>
+              {trendingTools.map((tool, i) => {
+                const change = tool.weekly_rank_change ?? 0;
+                const momentum = change >= 20 ? 'rocket' : change >= 12 ? 'hot' : 'rising';
+                const momentumEmoji = momentum === 'rocket' ? '🚀' : momentum === 'hot' ? '🔥' : '📈';
+                const momentumLabel = momentum === 'rocket' ? 'Rocket' : momentum === 'hot' ? 'Hot' : 'Rising';
+                const momentumColor = momentum === 'rocket' ? '#F59E0B' : momentum === 'hot' ? '#D97706' : '#16A34A';
+                const momentumTextBg = momentum === 'rocket' ? 'rgba(245,158,11,0.12)' : momentum === 'hot' ? 'rgba(217,119,6,0.12)' : 'rgba(22,163,74,0.12)';
+                const rankColor = i === 0 ? '#F59E0B' : i === 1 ? '#94A3B8' : i === 2 ? '#CD7F32' : '#CBD5E1';
+                // Fallback screenshot — abstract tech/UI image from Unsplash
+                const fallbackScreenshot = [
+                  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format',
+                  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&auto=format',
+                  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop&auto=format',
+                  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=600&fit=crop&auto=format',
+                ][i % 4];
+                const screenshotSrc = tool.screenshot_url ?? fallbackScreenshot;
+                return (
+                  <motion.div key={tool.id} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.07}>
+                    <div
+                      style={{
+                        background: '#FFFFFF',
+                        border: '1px solid #E8ECF0',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'box-shadow 0.2s, border-color 0.2s, transform 0.2s',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}
+                      onMouseEnter={e => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.boxShadow = '0 12px 40px rgba(245,158,11,0.15), 0 4px 12px rgba(0,0,0,0.08)';
+                        el.style.borderColor = '#FCD34D';
+                        el.style.transform = 'translateY(-3px)';
+                      }}
+                      onMouseLeave={e => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
+                        el.style.borderColor = '#E8ECF0';
+                        el.style.transform = 'translateY(0)';
+                      }}
+                      onClick={() => navigate(`/tools/${tool.slug}`)}
+                    >
+                      {/* ── Screenshot hero (square aspect ratio) ── */}
+                      <div style={{ position: 'relative', width: '100%', paddingTop: '72%', overflow: 'hidden', background: '#F3F4F6', flexShrink: 0 }}>
+                        <img
+                          src={screenshotSrc}
+                          alt={`${tool.name} screenshot`}
+                          style={{
+                            position: 'absolute', inset: 0,
+                            width: '100%', height: '100%',
+                            objectFit: 'cover', objectPosition: 'top center',
+                            transition: 'transform 0.35s ease',
+                          }}
+                          onError={e => { (e.target as HTMLImageElement).src = fallbackScreenshot; }}
+                          onMouseEnter={e => { (e.target as HTMLImageElement).style.transform = 'scale(1.04)'; }}
+                          onMouseLeave={e => { (e.target as HTMLImageElement).style.transform = 'scale(1)'; }}
+                        />
+                        {/* Gradient overlay at bottom of screenshot */}
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%)', pointerEvents: 'none' }} />
+
+                        {/* Rank badge — top-left */}
+                        <div style={{
+                          position: 'absolute', top: '10px', left: '10px',
+                          background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+                          borderRadius: '8px', padding: '3px 9px',
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                        }}>
+                          <span style={{ fontSize: '11px', fontWeight: 900, color: rankColor, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>#{i + 1}</span>
+                        </div>
+                        {/* Featured badge — below rank badge */}
+                        {tool.is_featured && (
+                          <div style={{
+                            position: 'absolute', top: '38px', left: '10px',
+                            background: '#F59E0B',
+                            borderRadius: '6px', padding: '2px 7px',
+                            display: 'flex', alignItems: 'center', gap: '3px',
+                          }}>
+                            <Sparkles style={{ width: '8px', height: '8px', color: '#fff' }} />
+                            <span style={{ fontSize: '9px', fontWeight: 800, color: '#fff', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Featured</span>
+                          </div>
+                        )}
+
+                        {/* Rank change pill — top-right */}
+                        <div style={{
+                          position: 'absolute', top: '10px', right: '10px',
+                          background: momentumTextBg, backdropFilter: 'blur(6px)',
+                          border: `1px solid ${momentumColor}50`,
+                          borderRadius: '8px', padding: '3px 8px',
+                          display: 'flex', alignItems: 'center', gap: '3px',
+                        }}>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={momentumColor} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                          <span style={{ fontSize: '11px', fontWeight: 800, color: momentumColor }}>+{change}</span>
+                        </div>
+
+                        {/* Tool logo — bottom-left of screenshot */}
+                        <div style={{
+                          position: 'absolute', bottom: '10px', left: '10px',
+                          width: '36px', height: '36px', borderRadius: '9px',
+                          border: '1.5px solid rgba(255,255,255,0.3)',
+                          background: 'rgba(255,255,255,0.95)',
+                          overflow: 'hidden', flexShrink: 0,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                        }}>
+                          <img
+                            src={tool.logo_url}
+                            alt={tool.name}
+                            style={{ width: '26px', height: '26px', objectFit: 'contain' }}
+                            onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=26`; }}
+                          />
+                        </div>
+
+                        {/* Momentum badge — bottom-right of screenshot */}
+                        <div style={{
+                          position: 'absolute', bottom: '10px', right: '10px',
+                          background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+                          borderRadius: '20px', padding: '3px 9px',
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                        }}>
+                          <span style={{ fontSize: '9px' }}>{momentumEmoji}</span>
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: momentumColor, letterSpacing: '0.02em' }}>{momentumLabel}</span>
+                        </div>
+                      </div>
+
+                      {/* ── Info panel ── */}
+                      <div style={{ padding: '13px 14px 14px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {/* Tool name + category */}
+                        <div>
+                          <p style={{ fontSize: '13px', fontWeight: 800, color: '#171717', letterSpacing: '-0.01em', lineHeight: 1.2, marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tool.name}</p>
+                          <p style={{ fontSize: '11px', color: '#6B7280', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{tool.tagline}</p>
+                        </div>
+
+                        {/* Stats row */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: 'auto', paddingTop: '4px', borderTop: '1px solid #F3F4F6' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', fontWeight: 700, color: '#374151' }}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            {tool.average_rating.toFixed(1)}
+                          </span>
+                          <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 500 }}>{tool.review_count} reviews</span>
+                          <span style={{ marginLeft: 'auto', fontSize: '10px', fontWeight: 600, color: '#6B7280', background: '#F3F4F6', padding: '2px 7px', borderRadius: '5px' }}>{tool.pricing_model}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
