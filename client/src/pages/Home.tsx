@@ -17,7 +17,7 @@
  *  6. LAUNCHPAD CTA    — Founder conversion
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Search, Rocket, Star, BarChart3, Shield, ArrowRight,
@@ -122,40 +122,7 @@ export default function Home() {
   const [browseVisible, setBrowseVisible] = useState(20);
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [bannerVisible, setBannerVisible]        = useState(true);
-  const [isStickyActive, setIsStickyActive] = useState(false);
-  const [isPastToolEnd, setIsPastToolEnd] = useState(false);
-  const stickyBarRef = useRef<HTMLDivElement>(null);
-  const topSentinelRef = useRef<HTMLDivElement>(null);
-  const bottomSentinelRef = useRef<HTMLDivElement>(null);
-  const toolListRef = useRef<HTMLDivElement>(null);
   const [, navigate] = useLocation();
-
-  // Dual IntersectionObserver for premium sticky behavior
-  useEffect(() => {
-    const topSentinel = topSentinelRef.current;
-    const bottomSentinel = bottomSentinelRef.current;
-    if (!topSentinel) return;
-
-    const topObserver = new IntersectionObserver(
-      ([entry]) => setIsStickyActive(!entry.isIntersecting),
-      { threshold: 0, rootMargin: '-73px 0px 0px 0px' }
-    );
-    topObserver.observe(topSentinel);
-
-    let bottomObserver: IntersectionObserver | null = null;
-    if (bottomSentinel) {
-      bottomObserver = new IntersectionObserver(
-        ([entry]) => setIsPastToolEnd(entry.isIntersecting),
-        { threshold: 0 }
-      );
-      bottomObserver.observe(bottomSentinel);
-    }
-
-    return () => {
-      topObserver.disconnect();
-      bottomObserver?.disconnect();
-    };
-  }, []);
   const { isAuthenticated, user } = useAuth();
   const { slugs: recentSlugs } = useRecentlyViewed();
   const recentTools = recentSlugs
@@ -904,35 +871,16 @@ export default function Home() {
             onCta={go}
           />
 
-          {/* ── Two-column layout ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: '32px' }}>
-
-            {/* Tools list (2/3) */}
-            <div className="lg:col-span-2" ref={toolListRef}>
-
-              {/* Top sentinel for sticky detection */}
-              <div ref={topSentinelRef} className="h-0 w-full" aria-hidden="true" />
-
-              {/* ── Sticky Category + Filter Container ── */}
-              <div
-                ref={stickyBarRef}
-                className={`z-30 transition-all duration-300 ease-out ${
-                  isStickyActive && !isPastToolEnd
-                    ? 'sticky'
-                    : ''
-                }`}
-                style={{
-                  top: '72px',
-                  background: isStickyActive && !isPastToolEnd ? '#E8ECF2' : '#EFF3F8',
-                  borderRadius: isStickyActive && !isPastToolEnd ? '0 0 14px 14px' : '14px',
-                  border: '1px solid #E2E8F0',
-                  borderColor: isStickyActive && !isPastToolEnd ? '#D1D5DB' : '#E2E8F0',
-                  boxShadow: isStickyActive && !isPastToolEnd
-                    ? '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.05)'
-                    : '0 2px 8px rgba(0,0,0,0.04)',
-                  marginBottom: '16px',
-                }}
-              >
+          {/* ── Category + Filter Container (full width, static) ── */}
+          <div
+            style={{
+              background: '#EFF3F8',
+              borderRadius: '14px',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: '24px',
+            }}
+          >
             {/* Category tab strip */}
             <div style={{ borderBottom: '1px solid #E2E8F0', padding: '0 16px' }}>
               <div
@@ -1057,9 +1005,13 @@ export default function Home() {
               </div>
             )}
             </div>
-              </div>
-              {/* End sticky container */}
+          </div>
 
+          {/* ── Two-column layout ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: '32px' }}>
+
+            {/* Tools list (2/3) */}
+            <div className="lg:col-span-2">
 
               <div className="flex flex-col" style={{ gap: '12px' }}>
                 {allTools.map((tool, i) => (
@@ -1083,8 +1035,7 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Bottom sentinel — detects end of tool list to release sticky */}
-              <div ref={bottomSentinelRef} className="h-0 w-full" aria-hidden="true" />
+
             </div>
 
             {/* Sidebar (1/3) */}
