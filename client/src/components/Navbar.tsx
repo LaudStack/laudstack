@@ -276,11 +276,11 @@ export default function Navbar() {
                             {/* Footer CTA */}
                             <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60">
                               <button
-                                onClick={() => { setActiveMega(null); navigate('/tools'); }}
+                                onClick={() => { setActiveMega(null); navigate('/categories'); }}
                                 className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 transition-colors text-sm font-bold text-slate-900"
                               >
                                 <Layers className="h-4 w-4" />
-                                Browse All Tools
+                                Browse All Categories
                               </button>
                             </div>
                           </div>

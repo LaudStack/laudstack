@@ -127,3 +127,11 @@
 - [x] Polish ToolCard: 64px logos, 18px bold names, max 1 badge
 - [x] Apply to both laudstack (Vite) and laudstack-next (Next.js)
 - [x] Test and push
+
+## Trending Container BG + Remove CategoryBanner + Categories Page
+- [x] Change Trending This Week container background color to soft mint (not full section)
+- [x] Remove CategoryBanner from Browse by Category section on homepage
+- [x] Build dedicated Categories page with polished grid of category cards
+- [x] Register /categories route and update Navbar link
+- [x] Apply all changes to Next.js project
+- [x] Push both projects to GitHub for Vercel deployment

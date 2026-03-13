@@ -29,7 +29,7 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
-import CategoryBanner from '@/components/CategoryBanner';
+
 import ToolCard from '@/components/ToolCard';
 import { useLocation } from 'wouter';
 import { MOCK_TOOLS, MOCK_REVIEWS, MOCK_LEADERBOARD, CATEGORIES } from '@/lib/mockData';
@@ -431,7 +431,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           3. TRENDING THIS WEEK
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: '#F5F0EB', padding: '80px 0', borderBottom: '1px solid #EDE5DC' }}>
+      <section style={{ background: '#F0F7F4', padding: '80px 0', borderBottom: '1px solid #E0EDE6' }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
           <SectionHeader
             label="Trending This Week"
@@ -623,9 +623,6 @@ export default function Home() {
             ctaColor="#D97706"
             onCta={go}
           />
-
-          {/* ── Category Banner ── */}
-          <CategoryBanner selectedCategory={selectedCategory} toolCount={allToolsSorted.length} />
 
           {/* ── Category + Filter Container (full width, static) ── */}
           <div
