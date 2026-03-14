@@ -525,4 +525,9 @@
 - [x] Remove tagline paragraph under the footer logo
 - [x] Keep top section: logo + social + newsletter + current 4 menu columns
 - [x] Add new bottom section: 5 additional menu columns in a grid (separated by border)
-- [ ] Build, test, and push to GitHub
+- [x] Build, test, and push to GitHub
+
+## Navbar Search Bar Visibility (March 14, 2026)
+- [ ] Make desktop search pill lighter/more visible against dark header
+- [ ] Make mobile search bar lighter/more visible against dark header
+- [ ] Push to GitHub

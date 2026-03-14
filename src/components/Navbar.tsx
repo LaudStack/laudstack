@@ -199,12 +199,12 @@ export default function Navbar() {
             {/* Desktop search pill */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-white/50 hover:text-white bg-white/8 hover:bg-white/12 border-white/15"
+              className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-white/70 hover:text-white bg-white/15 hover:bg-white/20 border-white/25"
               style={{ minWidth: '220px' }}
             >
               <Search className="h-4 w-4 shrink-0" />
-              <span className="flex-1 text-left">Search products...</span>
-              <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/12 text-white/40">&#8984;K</kbd>
+              <span className="flex-1 text-left">Search stacks...</span>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/20 text-white/50">&#8984;K</kbd>
             </button>
 
             {/* Desktop Nav */}
@@ -447,13 +447,13 @@ export default function Navbar() {
             {/* Mobile search bar */}
             <div className="mb-3">
               <div
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/15 bg-white/8"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/25 bg-white/15"
                 onClick={() => { setMobileOpen(false); setSearchOpen(true); }}
                 style={{ cursor: 'pointer' }}
               >
-                <Search className="h-4 w-4 text-white/50 shrink-0" />
-                <span className="text-[14px] text-white/50 font-medium flex-1">Search products...</span>
-                <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/15 text-white/40">&#8984;K</kbd>
+                <Search className="h-4 w-4 text-white/70 shrink-0" />
+                <span className="text-[14px] text-white/70 font-medium flex-1">Search stacks...</span>
+                <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/20 text-white/50">&#8984;K</kbd>
               </div>
             </div>
 
