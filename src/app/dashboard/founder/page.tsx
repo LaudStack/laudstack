@@ -1389,14 +1389,14 @@ function PromoteTab() {
       </div>
 
       {/* Share tools */}
-      {tools.length > 0 && (
+      {founderTools.length > 0 && (
         <div className="bg-white border border-slate-200 rounded-2xl p-6">
           <h4 className="text-slate-900 font-bold text-base mb-4 flex items-center gap-2">
             <Share2 className="w-4 h-4 text-slate-500" />
             Share Your Stacks
           </h4>
           <div className="space-y-3">
-            {tools.map((tool: any) => (
+            {founderTools.map((tool: any) => (
               <div key={tool.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                 <div className="w-8 h-8 rounded-lg border border-slate-200 bg-white overflow-hidden flex-shrink-0">
                   {tool.logoUrl ? (
