@@ -1,19 +1,20 @@
 "use client";
-export const dynamic = 'force-dynamic';
-/*
- * LaudStack — Launch Archive
+
+/**
+ * /launch-archive — LaudStack Launch Archive
  *
- * Browse all past product launches organized by month.
+ * Browse all past stack launches organized by month.
  * Timeline view with month-by-month grouping, search, and category filters.
+ * Data comes from useToolsData() → /api/homepage → Supabase.
  *
  * Design: light, consistent with platform theme — amber accents, slate typography.
  */
+
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Archive, Search, Star, ShieldCheck, ChevronUp,
-  Calendar, Filter, ArrowRight, Rocket, Clock,
-  ExternalLink, ChevronDown,
+  Calendar, Filter, ChevronDown,
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -41,15 +42,41 @@ function pricingStyle(model: string): React.CSSProperties {
   return { background: '#F8FAFC', color: '#475569', borderColor: '#CBD5E1' };
 }
 
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function MonthGroupSkeleton() {
+  return (
+    <div style={{ background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ padding: '18px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="animate-pulse" style={{ width: 16, height: 16, borderRadius: 4, background: '#F1F5F9' }} />
+        <div className="animate-pulse" style={{ width: 140, height: 18, borderRadius: 6, background: '#F1F5F9', flex: 1 }} />
+        <div className="animate-pulse" style={{ width: 70, height: 22, borderRadius: 6, background: '#FEF3C7' }} />
+      </div>
+      <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px', background: '#FAFBFC', borderRadius: 14 }}>
+            <div className="animate-pulse" style={{ width: 44, height: 44, borderRadius: 10, background: '#F1F5F9', flexShrink: 0 }} />
+            <div className="animate-pulse" style={{ width: 44, height: 44, borderRadius: 10, background: '#F1F5F9', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div className="animate-pulse" style={{ width: '50%', height: 14, borderRadius: 4, background: '#F1F5F9', marginBottom: 6 }} />
+              <div className="animate-pulse" style={{ width: '80%', height: 10, borderRadius: 4, background: '#F8FAFC' }} />
+            </div>
+            <div className="animate-pulse" style={{ width: 40, height: 40, borderRadius: 8, background: '#F8FAFC', flexShrink: 0 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Launch Card ──────────────────────────────────────────────────────────────
-function LaunchCard({ product }: { product: Tool }) {
+function LaunchCard({ tool }: { tool: Tool }) {
   const router = useRouter();
-  const launchDate = new Date(product.launched_at);
+  const launchDate = new Date(tool.launched_at);
   const dayStr = launchDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <div
-      onClick={() => router.push(`/tools/${product.slug}`)}
+      onClick={() => router.push(`/tools/${tool.slug}`)}
       style={{
         background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: 14,
         padding: '18px 20px', cursor: 'pointer', transition: 'all 0.18s',
@@ -68,10 +95,10 @@ function LaunchCard({ product }: { product: Tool }) {
       }}
     >
       {/* Date badge */}
-      <div style={{
+      <div className="hidden sm:flex" style={{
         width: 44, height: 44, borderRadius: 10, flexShrink: 0,
         background: '#FFFBEB', border: '1px solid #FDE68A',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       }}>
         <span style={{ fontSize: 9, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', lineHeight: 1 }}>
           {launchDate.toLocaleDateString('en-US', { month: 'short' })}
@@ -83,38 +110,56 @@ function LaunchCard({ product }: { product: Tool }) {
 
       {/* Logo */}
       <img
-        src={product.logo_url || `https://www.google.com/s2/favicons?domain=${product.website_url}&sz=64`}
-        alt={product.name}
+        src={tool.logo_url || `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`}
+        alt={tool.name}
         style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', border: '1px solid #F1F5F9', flexShrink: 0 }}
-        onError={e => { (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${product.website_url}&sz=64`; }}
+        onError={e => {
+          const img = e.target as HTMLImageElement;
+          // Prevent infinite loop — only try favicon fallback once
+          if (!img.dataset.fallback) {
+            img.dataset.fallback = '1';
+            img.src = `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`;
+          } else {
+            // Show text initial instead
+            img.style.display = 'none';
+            if (img.parentElement) {
+              const span = document.createElement('span');
+              span.style.cssText = 'width:44px;height:44px;border-radius:10px;background:#F1F5F9;border:1px solid #E2E8F0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#64748B;flex-shrink:0';
+              span.textContent = tool.name.charAt(0);
+              img.parentElement.insertBefore(span, img);
+            }
+          }
+        }}
       />
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 800, color: '#111827' }}>{product.name}</span>
-          {product.is_verified && <ShieldCheck style={{ width: 13, height: 13, color: '#22C55E' }} />}
-          <span style={{ ...pricingStyle(product.pricing_model), fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: '1px solid', lineHeight: '15px' }}>
-            {product.pricing_model}
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 800, color: '#111827' }}>{tool.name}</span>
+          {tool.is_verified && <ShieldCheck style={{ width: 13, height: 13, color: '#22C55E' }} />}
+          <span className="hidden sm:inline" style={{ ...pricingStyle(tool.pricing_model), fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: '1px solid', lineHeight: '15px' }}>
+            {tool.pricing_model}
           </span>
         </div>
         <p style={{ fontSize: 12, color: '#6B7280', margin: '3px 0 0', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          {product.tagline}
+          {tool.tagline}
         </p>
       </div>
 
       {/* Rating + lauds */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Star style={{ width: 13, height: 13, fill: '#F59E0B', color: '#F59E0B' }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{product.average_rating.toFixed(1)}</span>
-        </div>
+        {tool.average_rating > 0 && (
+          <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 3 }}>
+            <Star style={{ width: 13, height: 13, fill: '#F59E0B', color: '#F59E0B' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{tool.average_rating.toFixed(1)}</span>
+          </div>
+        )}
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
           padding: '6px 10px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0',
         }}>
           <ChevronUp style={{ width: 14, height: 14, color: '#94A3B8' }} />
-          <span style={{ fontSize: 11, fontWeight: 800, color: '#475569' }}>{product.upvote_count || 0}</span>
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#475569' }}>{tool.upvote_count || 0}</span>
         </div>
       </div>
     </div>
@@ -128,7 +173,7 @@ export default function LaunchArchivePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
 
-  // Group products by launch month
+  // Group stacks by launch month
   const monthGroups = useMemo(() => {
     let filtered = category === 'All' ? allTools : allTools.filter(t => t.category === category);
     if (searchQuery.trim()) {
@@ -138,17 +183,17 @@ export default function LaunchArchivePage() {
 
     const sorted = [...filtered].sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime());
 
-    const groups: { key: string; label: string; products: Tool[] }[] = [];
+    const groups: { key: string; label: string; tools: Tool[] }[] = [];
     const map = new Map<string, Tool[]>();
 
-    for (const product of sorted) {
-      const key = getMonthKey(new Date(product.launched_at));
+    for (const tool of sorted) {
+      const key = getMonthKey(new Date(tool.launched_at));
       if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(product);
+      map.get(key)!.push(tool);
     }
 
-    for (const [key, products] of map) {
-      groups.push({ key, label: getMonthLabel(key), products });
+    for (const [key, tools] of map) {
+      groups.push({ key, label: getMonthLabel(key), tools });
     }
 
     return groups;
@@ -170,30 +215,29 @@ export default function LaunchArchivePage() {
   };
 
   const categories = CATEGORY_META.filter(c => c.name !== 'All');
-  const totalLaunches = monthGroups.reduce((s, g) => s + g.products.length, 0);
+  const totalLaunches = monthGroups.reduce((s, g) => s + g.tools.length, 0);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
       <Navbar />
-      <div style={{ height: 72, flexShrink: 0 }} />
 
       <PageHero
-        layout="centered"
         eyebrow="LAUNCH ARCHIVE"
-        badge="Every Launch, Ever"
-        title="Product Launch Archive"
-        subtitle="Browse every product that has launched on LaudStack, organized by month. Discover the full history of SaaS and AI innovation."
+        title="Stack Launch Archive"
+        subtitle="Browse every stack that has launched on LaudStack, organized by month. Discover the full history of SaaS and AI innovation."
         accent="amber"
+        layout="default"
+        size="md"
       />
 
       <main style={{ flex: 1 }}>
         {/* ── Search + Filters ── */}
-        <section style={{ background: '#FFFFFF', padding: '24px 0', borderBottom: '1px solid #F1F5F9', position: 'sticky', top: 72, zIndex: 10 }}>
-          <div style={{ maxWidth: 1300, margin: '0 auto', padding: '0 24px' }}>
+        <section style={{ background: '#FFFFFF', padding: '24px 0', borderBottom: '1px solid #F1F5F9', position: 'sticky', top: 64, zIndex: 10 }}>
+          <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               {/* Search */}
               <div style={{
-                display: 'flex', alignItems: 'center', flex: 1, minWidth: 240,
+                display: 'flex', alignItems: 'center', flex: 1, minWidth: 200,
                 background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0', overflow: 'hidden',
               }}>
                 <Search style={{ marginLeft: 12, width: 14, height: 14, color: '#94A3B8', flexShrink: 0 }} />
@@ -223,17 +267,22 @@ export default function LaunchArchivePage() {
                   ))}
                 </select>
               </div>
+
+              {/* Results count */}
+              <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                <span style={{ color: '#171717', fontWeight: 800 }}>{totalLaunches}</span> stacks across{' '}
+                <span style={{ color: '#171717', fontWeight: 800 }}>{monthGroups.length}</span> months
+              </span>
             </div>
           </div>
         </section>
 
         {/* ── Timeline ── */}
-        <section style={{ background: '#FAFBFC', padding: '32px 0 56px' }}>
-          <div style={{ maxWidth: 1300, margin: '0 auto', padding: '0 24px' }}>
+        <section style={{ padding: '32px 0 56px' }}>
+          <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                <div style={{ width: 32, height: 32, border: '3px solid #E2E8F0', borderTopColor: '#F59E0B', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-                <p style={{ fontSize: 13, color: '#6B7280' }}>Loading archive...</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[1, 2, 3].map(i => <MonthGroupSkeleton key={i} />)}
               </div>
             ) : monthGroups.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -252,7 +301,7 @@ export default function LaunchArchivePage() {
                         onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FAFBFC'; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                       >
-                        <Calendar style={{ width: 18, height: 18, color: '#D97706', flexShrink: 0 }} />
+                        <Calendar style={{ width: 16, height: 16, color: '#F59E0B', flexShrink: 0 }} />
                         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 17, fontWeight: 900, color: '#111827', flex: 1, textAlign: 'left' }}>
                           {group.label}
                         </span>
@@ -260,7 +309,7 @@ export default function LaunchArchivePage() {
                           fontSize: 11, fontWeight: 700, color: '#D97706', background: '#FEF3C7',
                           padding: '3px 10px', borderRadius: 6, border: '1px solid #FDE68A',
                         }}>
-                          {group.products.length} {group.products.length === 1 ? 'launch' : 'launches'}
+                          {group.tools.length} {group.tools.length === 1 ? 'launch' : 'launches'}
                         </span>
                         <ChevronDown style={{
                           width: 16, height: 16, color: '#94A3B8', flexShrink: 0,
@@ -269,11 +318,11 @@ export default function LaunchArchivePage() {
                         }} />
                       </button>
 
-                      {/* Products */}
+                      {/* Tools in this month */}
                       {isExpanded && (
                         <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {group.products.map(product => (
-                            <LaunchCard key={product.slug} product={product} />
+                          {group.tools.map(tool => (
+                            <LaunchCard key={tool.slug} tool={tool} />
                           ))}
                         </div>
                       )}
