@@ -346,10 +346,10 @@ export default function Home() {
               {/* Header row inside the container */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                  <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>
                     Rising This Week
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-500 font-medium">
+                  <p className="text-sm sm:text-base text-gray-700 font-medium">
                     The most lauded and discussed stacks right now.
                   </p>
                 </div>

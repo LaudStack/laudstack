@@ -1,8 +1,8 @@
 "use client";
 
 /*
- * LaudStack Navbar — Very Light Navy Blue (#E8ECF4)
- * Soft navy-tinted background with dark text for clean professional look
+ * LaudStack Navbar — Light Sage (#E3EDE8)
+ * Matches Rising This Week section for cohesive look
  * Professional mobile hamburger with super-menu dropdowns
  * LaunchPad CTA hidden when logged in
  * Polished avatar with subtle container
@@ -203,8 +203,8 @@ export default function Navbar() {
             : ''
         }`}
         style={{
-          background: scrolled ? 'rgba(232, 236, 244, 0.95)' : '#E8ECF4',
-          borderBottom: '1px solid #D0D7E3',
+          background: scrolled ? 'rgba(227, 237, 232, 0.95)' : '#E3EDE8',
+          borderBottom: '1px solid #C8D5CD',
         }}
       >
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
