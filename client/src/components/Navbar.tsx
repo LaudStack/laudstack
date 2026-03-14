@@ -18,8 +18,7 @@ import {
   Tag, Package, DollarSign, Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { trpc } from '@/lib/trpc';
-import { stackToTool } from '@/lib/stackAdapter';
+import { MOCK_TOOLS } from '@/lib/mockData';
 import { useAuth, getInitials } from '@/contexts/AuthContext';
 import { useSavedTools } from '@/hooks/useSavedTools';
 
@@ -95,12 +94,18 @@ export default function Navbar() {
   const { savedIds } = useSavedTools();
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  // Live search results — top 5 matches from DB
-  const { data: searchData } = trpc.stacks.list.useQuery(
-    { search: searchInput.trim(), limit: 5, status: 'published' },
-    { enabled: searchInput.trim().length >= 1 }
-  );
-  const liveResults = (searchData?.items ?? []).map((s: any) => stackToTool(s));
+  // Live search results — top 5 matches
+  const liveResults = searchInput.trim().length >= 1
+    ? MOCK_TOOLS.filter(t => {
+        const q = searchInput.toLowerCase();
+        return (
+          t.name.toLowerCase().includes(q) ||
+          t.tagline.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q) ||
+          (t.tags ?? []).some((tag: string) => tag.toLowerCase().includes(q))
+        );
+      }).slice(0, 5)
+    : [];
 
   const handleNavSearch = (term?: string) => {
     const q = (term ?? searchInput).trim();

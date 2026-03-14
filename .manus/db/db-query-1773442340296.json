@@ -1,9 +1,0 @@
-{
-  "query": "DROP TABLE IF EXISTS clicks; DROP TABLE IF EXISTS lauds; DROP TABLE IF EXISTS reviews; DROP TABLE IF EXISTS saves; DROP TABLE IF EXISTS stack_screenshots; DROP TABLE IF EXISTS stacks; DROP TABLE IF EXISTS verification_requests; DROP TABLE IF EXISTS views;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 28uKLfuofPUb1xQ.root --database 3XGasP8CcX57JRU5Ai2Hv7 --execute DROP TABLE IF EXISTS clicks; DROP TABLE IF EXISTS lauds; DROP TABLE IF EXISTS reviews; DROP TABLE IF EXISTS saves; DROP TABLE IF EXISTS stack_screenshots; DROP TABLE IF EXISTS stacks; DROP TABLE IF EXISTS verification_requests; DROP TABLE IF EXISTS views;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 753
-}

@@ -15,8 +15,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { trpc } from '@/lib/trpc';
-import { stacksToTools } from '@/lib/stackAdapter';
+import { MOCK_TOOLS } from '@/lib/mockData';
 import type { Tool } from '@/lib/types';
 
 // ─── Editorial collections ────────────────────────────────────────────────────
@@ -76,9 +75,8 @@ function pricingStyle(model: string): React.CSSProperties {
   return { background: '#F8FAFC', color: '#475569', borderColor: '#CBD5E1' };
 }
 
-// getCollectionTools is now a hook-compatible function
-function useCollectionTools(allTools: Tool[], badgeFilter: string, limit: number): Tool[] {
-  return allTools
+function getCollectionTools(badgeFilter: string, limit: number): Tool[] {
+  return MOCK_TOOLS
     .filter(t => t.badges?.includes(badgeFilter as any))
     .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, limit);
@@ -274,14 +272,12 @@ function CompactCard({ tool, accentColor, accentBorder }: { tool: Tool; accentCo
 export default function EditorsPicks() {
   const [activeCollection, setActiveCollection] = useState(EDITORIAL_COLLECTIONS[0].id);
   const active = EDITORIAL_COLLECTIONS.find(c => c.id === activeCollection) ?? EDITORIAL_COLLECTIONS[0];
-  const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', limit: 100 });
-  const allTools = stacksToTools((stackData?.items ?? []) as any[]);
-  const collectionTools = useCollectionTools(allTools, active.badgeFilter, active.limit);
+  const collectionTools = getCollectionTools(active.badgeFilter, active.limit);
   const spotlightTool = collectionTools[0];
   const listTools = collectionTools.slice(1);
 
   // All editors_pick tools for the hero stats
-  const totalEditorsPicks = allTools.filter(t => t.badges?.includes('editors_pick' as any)).length;
+  const totalEditorsPicks = MOCK_TOOLS.filter(t => t.badges?.includes('editors_pick')).length;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
@@ -429,7 +425,7 @@ export default function EditorsPicks() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 16 }}>
             {EDITORIAL_COLLECTIONS.map(col => {
               const Icon = col.icon;
-              const tools = useCollectionTools(allTools, col.badgeFilter, col.limit);
+              const tools = getCollectionTools(col.badgeFilter, col.limit);
               return (
                 <button
                   key={col.id}

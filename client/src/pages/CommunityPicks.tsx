@@ -15,9 +15,7 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CATEGORY_DEFS as CATEGORIES } from '@/lib/categories';
-import { trpc } from '@/lib/trpc';
-import { stacksToTools } from '@/lib/stackAdapter';
+import { MOCK_TOOLS, CATEGORIES } from '@/lib/mockData';
 import type { Tool } from '@/lib/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -250,10 +248,8 @@ export default function CommunityPicks() {
     toast.success('Vote recorded! Thanks for supporting the community.');
   };
 
-  const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', sort: 'most_lauded', limit: 100 });
-
   const filteredTools = useMemo(() => {
-    let tools = stacksToTools((stackData?.items ?? []) as any[]);
+    let tools = [...MOCK_TOOLS];
 
     if (selectedCategory !== 'All') {
       tools = tools.filter(t => t.category === selectedCategory);
@@ -277,7 +273,7 @@ export default function CommunityPicks() {
   const visibleTools = filteredTools.slice(0, visibleCount);
 
   // Stats
-  const totalVotes = filteredTools.reduce((s: number, t: any) => s + (t.upvote_count || 0), 0);
+  const totalVotes = MOCK_TOOLS.reduce((s, t) => s + t.upvote_count, 0);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
@@ -305,7 +301,7 @@ export default function CommunityPicks() {
               {[
                 { icon: Users, value: '12,000+', label: 'Community Members' },
                 { icon: ChevronUp, value: totalVotes.toLocaleString(), label: 'Total Votes Cast' },
-                { icon: TrendingUp, value: `${stackData?.total ?? 0}+`, label: 'Tools Ranked' },
+                { icon: TrendingUp, value: `${MOCK_TOOLS.length}+`, label: 'Tools Ranked' },
               ].map(({ icon: Icon, value, label }) => (
                 <div key={label} style={{ textAlign: 'center', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 20px', minWidth: 110 }}>
                   <Icon style={{ width: 18, height: 18, color: '#F59E0B', margin: '0 auto 6px' }} />

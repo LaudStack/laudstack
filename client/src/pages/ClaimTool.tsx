@@ -12,8 +12,7 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { trpc } from '@/lib/trpc';
-import { stacksToTools } from '@/lib/stackAdapter';
+import { MOCK_TOOLS } from '@/lib/mockData';
 
 type Step = 'search' | 'verify' | 'details' | 'submitted';
 
@@ -29,7 +28,7 @@ const PRO_BENEFITS = [
 export default function ClaimTool() {
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');
-  const [selectedTool, setSelectedTool] = useState<any>(null);
+  const [selectedTool, setSelectedTool] = useState<typeof MOCK_TOOLS[0] | null>(null);
   const [verifyMethod, setVerifyMethod] = useState<'email' | 'dns' | 'file'>('email');
   const [founderName, setFounderName] = useState('');
   const [founderEmail, setFounderEmail] = useState('');
@@ -39,13 +38,14 @@ export default function ClaimTool() {
   const [linkedin, setLinkedin] = useState('');
   const [agreed, setAgreed] = useState(false);
 
-  const { data: searchData } = trpc.stacks.list.useQuery(
-    { status: 'published', search: query.trim(), limit: 6 },
-    { enabled: query.length > 1 }
-  );
-  const filteredTools = stacksToTools((searchData?.items ?? []) as any[]);
+  const filteredTools = query.length > 1
+    ? MOCK_TOOLS.filter(t =>
+        t.name.toLowerCase().includes(query.toLowerCase()) ||
+        t.tagline.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 6)
+    : [];
 
-  const handleSelectTool = (tool: any) => {
+  const handleSelectTool = (tool: typeof MOCK_TOOLS[0]) => {
     setSelectedTool(tool);
     setQuery(tool.name);
     setStep('verify');

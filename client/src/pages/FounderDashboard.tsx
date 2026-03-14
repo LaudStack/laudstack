@@ -14,9 +14,8 @@ import {
   Package, PlusCircle, Crown, Rocket
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '@/_core/hooks/useAuth';
-import { getLoginUrl } from '@/const';
-import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/contexts/AuthContext';
+import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -30,7 +29,8 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'settings',   label: 'Settings',     icon: <Settings className="w-4 h-4" /> },
 ];
 
-
+// Mock founder tools — first 3 tools from mock data
+const FOUNDER_TOOLS = MOCK_TOOLS.slice(0, 3);
 
 function StatCard({ label, value, change, icon, positive }: { label: string; value: string | number; change?: string; icon: React.ReactNode; positive?: boolean }) {
   return (
@@ -51,81 +51,103 @@ function StatCard({ label, value, change, icon, positive }: { label: string; val
 }
 
 function OverviewTab() {
-  const { data: myStacks, isLoading } = trpc.founder.myStacks.useQuery();
-  const stacks = myStacks ?? [];
-  const totalReviews = stacks.reduce((s: number, t: any) => s + (t.reviewCount || 0), 0);
-  const avgRating = stacks.length > 0 ? stacks.reduce((s: number, t: any) => s + parseFloat(t.averageRating || '0'), 0) / stacks.length : 0;
-  const totalLauds = stacks.reduce((s: number, t: any) => s + (t.laudCount || 0), 0);
-  const totalViews = stacks.reduce((s: number, t: any) => s + (t.viewCount || 0), 0);
-
-  if (isLoading) return <div className="text-center py-12 text-slate-400">Loading...</div>;
+  const totalReviews = FOUNDER_TOOLS.reduce((s, t) => s + t.review_count, 0);
+  const avgRating = FOUNDER_TOOLS.reduce((s, t) => s + t.average_rating, 0) / FOUNDER_TOOLS.length;
+  const totalUpvotes = FOUNDER_TOOLS.reduce((s, t) => s + t.upvote_count, 0);
+  const totalViews = FOUNDER_TOOLS.reduce((s, t) => s + t.rank_score * 10, 0);
 
   return (
     <div className="space-y-6">
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Views" value={totalViews.toLocaleString()} icon={<Eye className="w-4 h-4 text-sky-500" />} />
-        <StatCard label="Total Reviews" value={totalReviews} icon={<MessageSquare className="w-4 h-4 text-amber-500" />} />
-        <StatCard label="Avg Rating" value={avgRating.toFixed(1)} icon={<Star className="w-4 h-4 text-amber-400" />} />
-        <StatCard label="Total Lauds" value={totalLauds.toLocaleString()} icon={<TrendingUp className="w-4 h-4 text-green-500" />} />
+        <StatCard label="Total Profile Views" value={Math.round(totalViews).toLocaleString()} change="+12%" positive icon={<Eye className="w-4 h-4 text-sky-500" />} />
+        <StatCard label="Total Reviews" value={totalReviews} change="+8%" positive icon={<MessageSquare className="w-4 h-4 text-amber-500" />} />
+        <StatCard label="Avg Rating" value={avgRating.toFixed(1)} change="+0.2" positive icon={<Star className="w-4 h-4 text-amber-400" />} />
+        <StatCard label="Total Upvotes" value={totalUpvotes.toLocaleString()} change="+23%" positive icon={<TrendingUp className="w-4 h-4 text-green-500" />} />
       </div>
 
+      {/* Tools summary */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-slate-900 font-bold flex items-center gap-2">
             <Package className="w-4 h-4 text-amber-400" />
-            Your Stacks ({stacks.length})
+            Your Tools
           </h3>
           <Link href="/launchpad">
             <button className="flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-700 font-medium">
               <PlusCircle className="w-3.5 h-3.5" />
-              Add Stack
+              Add Tool
             </button>
           </Link>
         </div>
-        {stacks.length === 0 ? (
-          <div className="text-center py-8">
-            <Package className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500 text-sm">No stacks yet. Submit your first tool on LaunchPad!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {stacks.map((stack: any) => (
-              <div key={stack.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                <img src={stack.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(stack.name)}&background=f1f5f9&color=64748b&size=40`} alt={stack.name} className="w-10 h-10 rounded-lg object-cover bg-white border border-slate-200" />
-                <div className="flex-1 min-w-0">
+        <div className="space-y-3">
+          {FOUNDER_TOOLS.map(tool => (
+            <div key={tool.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+              <img src={tool.logo_url} alt={tool.name} className="w-10 h-10 rounded-lg object-cover bg-white border border-slate-200"
+                onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=40`; }} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-900 font-semibold text-sm truncate">{tool.name}</span>
+                  <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+                </div>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <span className="flex items-center gap-1 text-xs text-slate-500"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{tool.average_rating.toFixed(1)}</span>
+                  <span className="flex items-center gap-1 text-xs text-slate-500"><MessageSquare className="w-3 h-3" />{tool.review_count} reviews</span>
+                  <span className="flex items-center gap-1 text-xs text-slate-500"><TrendingUp className="w-3 h-3" />{tool.upvote_count} upvotes</span>
+                </div>
+              </div>
+              <Link href={`/tools/${tool.slug}`}>
+                <button className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent reviews */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-slate-900 font-bold flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-amber-400" />
+            Recent Reviews
+          </h3>
+          <button onClick={() => toast.info('View all reviews coming soon')} className="text-sm text-amber-600 hover:text-amber-700 font-medium">View all →</button>
+        </div>
+        <div className="space-y-4">
+          {MOCK_REVIEWS.slice(0, 3).map(review => {
+            const tool = MOCK_TOOLS.find(t => t.id === review.tool_id);
+            return (
+              <div key={review.id} className="border-b border-slate-100 last:border-0 pb-4 last:pb-0">
+                <div className="flex items-start justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-900 font-semibold text-sm truncate">{stack.name}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${stack.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {stack.status === 'published' ? 'Live' : stack.status}
-                    </span>
+                    <span className="text-slate-900 font-semibold text-sm">{review.user?.name}</span>
+                    <span className="text-slate-500 text-xs">on {tool?.name}</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    <span className="flex items-center gap-1 text-xs text-slate-500"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{parseFloat(stack.averageRating || '0').toFixed(1)}</span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500"><MessageSquare className="w-3 h-3" />{stack.reviewCount} reviews</span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500"><TrendingUp className="w-3 h-3" />{stack.laudCount} lauds</span>
+                  <div className="flex items-center gap-0.5">
+                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-800'}`} />)}
                   </div>
                 </div>
-                <Link href={`/tools/${stack.slug}`}>
-                  <button className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
-                </Link>
+                <p className="text-slate-600 text-sm">{review.body.slice(0, 120)}...</p>
+                <div className="flex items-center gap-3 mt-2">
+                  <button onClick={() => toast.success('Reply feature coming soon')} className="text-xs text-amber-600 hover:text-amber-700 font-medium">Reply as Founder</button>
+                  <span className="text-slate-500 text-xs">{review.created_at}</span>
+                </div>
               </div>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
 
 function ToolsTab() {
-  const { data: myStacks } = trpc.founder.myStacks.useQuery();
-  const stacks = myStacks ?? [];
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-slate-900 font-bold">{stacks.length} Listings</h3>
+        <h3 className="text-slate-900 font-bold">{FOUNDER_TOOLS.length} Active Listings</h3>
         <Link href="/launchpad">
           <button className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2 rounded-xl transition-colors text-sm">
             <PlusCircle className="w-4 h-4" />
@@ -133,33 +155,31 @@ function ToolsTab() {
           </button>
         </Link>
       </div>
-      {stacks.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-          <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500">No stacks yet. Launch your first tool!</p>
-        </div>
-      ) : stacks.map((stack: any) => (
-        <div key={stack.id} className="bg-white border border-slate-200 rounded-2xl p-6">
+      {FOUNDER_TOOLS.map(tool => (
+        <div key={tool.id} className="bg-white border border-slate-200 rounded-2xl p-6">
           <div className="flex items-start gap-4">
-            <img src={stack.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(stack.name)}&background=f1f5f9&color=64748b&size=56`} alt={stack.name} className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200" />
+            <img src={tool.logo_url} alt={tool.name} className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200"
+              onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=f1f5f9&color=64748b&size=56`; }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-slate-900 font-bold">{stack.name}</h4>
-                    <span className={`text-xs border px-2 py-0.5 rounded-full ${stack.status === 'published' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}`}>
-                      {stack.status === 'published' ? 'Live' : stack.status}
-                    </span>
-                    {stack.isFeatured && (
+                    <h4 className="text-slate-900 font-bold">{tool.name}</h4>
+                    <span className="text-xs bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">Live</span>
+                    {tool.badges.includes('featured') && (
                       <span className="text-xs bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
                         <Crown className="w-2.5 h-2.5" />Featured
                       </span>
                     )}
                   </div>
-                  <p className="text-slate-500 text-sm">{stack.tagline}</p>
+                  <p className="text-slate-500 text-sm">{tool.tagline}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link href={`/tools/${stack.slug}`}>
+                  <button onClick={() => toast.info('Edit listing coming soon')} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors">
+                    <Edit3 className="w-3.5 h-3.5" />
+                    Edit
+                  </button>
+                  <Link href={`/tools/${tool.slug}`}>
                     <button className="flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors">
                       <ExternalLink className="w-3.5 h-3.5" />
                       View
@@ -169,10 +189,10 @@ function ToolsTab() {
               </div>
               <div className="grid grid-cols-4 gap-3 mt-4">
                 {[
-                  { label: 'Rating', value: parseFloat(stack.averageRating || '0').toFixed(1), icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> },
-                  { label: 'Reviews', value: stack.reviewCount, icon: <MessageSquare className="w-3.5 h-3.5 text-slate-500" /> },
-                  { label: 'Lauds', value: stack.laudCount, icon: <TrendingUp className="w-3.5 h-3.5 text-green-500" /> },
-                  { label: 'Views', value: stack.viewCount, icon: <Eye className="w-3.5 h-3.5 text-sky-500" /> },
+                  { label: 'Rating', value: tool.average_rating.toFixed(1), icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> },
+                  { label: 'Reviews', value: tool.review_count, icon: <MessageSquare className="w-3.5 h-3.5 text-slate-500" /> },
+                  { label: 'Upvotes', value: tool.upvote_count, icon: <TrendingUp className="w-3.5 h-3.5 text-green-500" /> },
+                  { label: 'Rank', value: `#${MOCK_TOOLS.findIndex(t => t.id === tool.id) + 1}`, icon: <BarChart3 className="w-3.5 h-3.5 text-sky-500" /> },
                 ].map(stat => (
                   <div key={stat.label} className="bg-slate-50 rounded-lg p-2.5 text-center">
                     <div className="flex justify-center mb-1">{stat.icon}</div>
@@ -190,25 +210,76 @@ function ToolsTab() {
 }
 
 function ReviewsTab() {
-  const { data: myStacks } = trpc.founder.myStacks.useQuery();
-  const stackIds = (myStacks ?? []).map((s: any) => s.id);
-  // For now show a placeholder — reviews will be fetched per-stack
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-slate-900 font-bold">Reviews on Your Stacks</h3>
+        <h3 className="text-slate-900 font-bold">{MOCK_REVIEWS.length} Reviews Across All Tools</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full">
+            {MOCK_REVIEWS.filter(r => !r.is_verified_purchase).length} need response
+          </span>
+        </div>
       </div>
-      {stackIds.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-          <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500">No stacks yet — reviews will appear here once you launch a tool.</p>
-        </div>
-      ) : (
-        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-          <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500">No reviews yet. Share your stacks to get community feedback!</p>
-        </div>
-      )}
+      {MOCK_REVIEWS.slice(0, 5).map(review => {
+        const tool = MOCK_TOOLS.find(t => t.id === review.tool_id);
+        return (
+          <div key={review.id} className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-xs font-bold text-slate-600">
+                  {review.user?.name?.split(' ').map(n => n[0]).join('').slice(0,2)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-900 font-semibold text-sm">{review.user?.name}</span>
+                    {review.is_verified_purchase && <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full">Verified</span>}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-0.5">
+                      {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-800'}`} />)}
+                    </div>
+                    <span className="text-slate-500 text-xs">on {tool?.name}</span>
+                    <span className="text-slate-500 text-xs">· {review.created_at}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h4 className="text-slate-900 font-semibold text-sm mb-1">{review.title}</h4>
+            <p className="text-slate-600 text-sm leading-relaxed mb-3">{review.body}</p>
+            {replyingTo === review.id ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3">
+                <p className="text-amber-700 text-xs font-semibold mb-2">Reply as Founder</p>
+                <textarea
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  placeholder="Write a professional, helpful response..."
+                  rows={3}
+                  className="w-full bg-white border border-amber-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-400 resize-none"
+                />
+                <div className="flex items-center gap-2 mt-2">
+                  <button onClick={() => { toast.success('Reply submitted'); setReplyingTo(null); setReplyText(''); }}
+                    className="text-sm bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-1.5 rounded-lg transition-colors">
+                    Submit Reply
+                  </button>
+                  <button onClick={() => { setReplyingTo(null); setReplyText(''); }}
+                    className="text-sm text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setReplyingTo(review.id)}
+                className="flex items-center gap-1.5 text-xs text-amber-600 hover:text-amber-700 font-medium mt-1">
+                <MessageSquare className="w-3.5 h-3.5" />
+                Reply as Founder
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -241,7 +312,7 @@ function AnalyticsTab() {
 
   const ratingDist = [5,4,3,2,1].map(stars => ({
     stars: `${stars}★`,
-    count: 0,
+    count: MOCK_REVIEWS.filter(r => r.rating === stars).length,
     fill: stars >= 4 ? '#F59E0B' : stars === 3 ? '#94A3B8' : '#EF4444',
   }));
 

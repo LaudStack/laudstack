@@ -17,10 +17,14 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
+import { MOCK_REVIEWS, MOCK_TOOLS } from '@/lib/mockData';
 import type { Review } from '@/lib/types';
 
-// Reviews will be loaded from real DB - for now empty until stacks are seeded
-const enrichedReviews: any[] = [];
+// Enrich reviews with tool data
+const enrichedReviews = MOCK_REVIEWS.map(r => ({
+  ...r,
+  tool: MOCK_TOOLS.find(t => t.id === r.tool_id),
+}));
 
 const SORT_OPTIONS = [
   { value: 'recent',   label: 'Most Recent' },
@@ -58,7 +62,7 @@ function ReviewCard({ review }: { review: typeof enrichedReviews[0] }) {
   const [voted, setVoted] = useState(false);
 
   const initials = review.user?.name
-    ? review.user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    ? review.user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : '??';
 
   const avatarColors = [
@@ -169,7 +173,7 @@ function ReviewCard({ review }: { review: typeof enrichedReviews[0] }) {
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
         <span className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
         <button
-          onClick={() => { if (!voted) { setHelpful((h: number) => h + 1); setVoted(true); } }}
+          onClick={() => { if (!voted) { setHelpful(h => h + 1); setVoted(true); } }}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
             voted
               ? 'bg-amber-50 text-amber-700 border border-amber-200'

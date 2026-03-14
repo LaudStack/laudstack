@@ -47,8 +47,6 @@ import Events from './pages/Events';
 import Sitemap from './pages/Sitemap';
 import Careers from './pages/Careers';
 import Categories from './pages/Categories';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminStackDetail from './pages/AdminStackDetail';
 import ScrollToTop from './components/ScrollToTop';
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -95,8 +93,6 @@ function Router() {
         <Route path="/sitemap" component={Sitemap} />
         <Route path="/careers" component={Careers} />
         <Route path="/categories" component={Categories} />
-        <Route path="/admin/stacks/:id" component={AdminStackDetail} />
-        <Route path="/admin" component={AdminDashboard} />
         <Route path="/privacy" component={Legal} />
         <Route path="/terms" component={Legal} />
         <Route path="/cookies" component={Legal} />

@@ -8,8 +8,7 @@ import {
   ChevronRight, Zap, Clock, Calendar, BarChart3, Medal, Crown, Award,
   Rocket, Timer, CheckCircle2, Eye
 } from 'lucide-react';
-import { trpc } from '@/lib/trpc';
-import { stacksToTools } from '@/lib/stackAdapter';
+import { MOCK_TOOLS } from '@/lib/mockData';
 import type { Tool } from '@/lib/types';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -429,15 +428,12 @@ function LeaderboardRow({ entry }: { entry: RankedTool }) {
 export default function Launches() {
   const [period, setPeriod] = useState<Period>('week');
 
-  const { data: stackData } = trpc.stacks.list.useQuery({ status: 'published', sort: 'trending', limit: 100 });
-  const allTools = stacksToTools((stackData?.items ?? []) as any[]);
-
   const rankedTools = useMemo((): RankedTool[] => {
     const multiplier = PERIOD_MULTIPLIERS[period];
     const changes = RANK_CHANGES[period];
 
     // Momentum-based sort: combines rank_score with weekly_rank_change boost
-    const sorted = [...allTools].sort((a, b) => getMomentumScore(b, multiplier) - getMomentumScore(a, multiplier));
+    const sorted = [...MOCK_TOOLS].sort((a, b) => getMomentumScore(b, multiplier) - getMomentumScore(a, multiplier));
 
     return sorted.map((tool, i) => ({
       rank: i + 1,
