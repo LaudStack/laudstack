@@ -557,7 +557,7 @@ export async function getToolScreenshots(toolId: number) {
 // ─── Platform Stats ──────────────────────────────────────────────────────────
 export async function getPlatformStats() {
   const [toolCount, reviewCount, userCount, avgRatingResult] = await Promise.all([
-    db.select({ count: count() }).from(tools).where(eq(tools.status, "active")),
+    db.select({ count: count() }).from(tools).where(eq(tools.status, "approved")),
     db.select({ count: count() }).from(reviews),
     db.select({ count: count() }).from(users),
     db.select({ avg: avg(reviews.rating) }).from(reviews),
