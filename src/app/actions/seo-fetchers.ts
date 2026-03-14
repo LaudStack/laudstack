@@ -70,3 +70,11 @@ export async function fetchDiscoveryTools(
     total: data.total,
   };
 }
+
+/** Fetch recently launched tools for showcase strips (client-callable) */
+export async function fetchRecentlyLaunched(
+  limit: number = 6
+): Promise<Tool[]> {
+  const data = await getDiscoverySEOData("new", { page: 1, limit });
+  return data.tools.map((t) => dbToolToFrontend(t as unknown as DbTool));
+}

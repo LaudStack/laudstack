@@ -593,4 +593,14 @@
 ## LaunchPad — Trust Bar & Legibility (March 14, 2026)
 - [x] Replace stats strip with "Trusted by" logo bar (Notion, Linear, Vercel, Stripe, Figma, Supabase)
 - [x] Improve text legibility: body text → text-[15px]/text-[16px], color → slate-600, added leading-relaxed
-- [ ] Push to GitHub
+- [x] Push to GitHub
+
+## LaunchPad Enhancements (March 14, 2026)
+- [x] Replace text brand logos with real inline SVG logos (Notion, Linear, Vercel, Stripe, Figma, Supabase)
+- [x] Add micro-interactions (hover scale/shadow/translate, scroll fade-in via IntersectionObserver + framer-motion)
+- [x] Add Recently Launched showcase strip with real DB data (6 tools, fetched via server action)
+- [x] Improve comparison table for mobile (stacked card layout with checklist per tier)
+- [x] Wire Launch/Claim CTAs to auth-gated routes (/launch, /claim with login redirect)
+- [x] Add FAQ structured data JSON-LD for SEO rich results (FAQPage schema)
+- [x] Add headline A/B test analytics tracking (sessionStorage variant, sendBeacon events)
+- [x] Build, test, and push to GitHub
