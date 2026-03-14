@@ -1083,44 +1083,6 @@ export async function getAdminModerationLog(toolId: number) {
     .limit(50);
 }
 
-// ─── Admin Delete Review ────────────────────────────────────────────────────
-
-export async function adminDeleteReview(reviewId: number, reason?: string) {
-  const admin = await requireAdmin();
-  
-  // Get the review to find the tool
-  const review = await db.query.reviews.findFirst({
-    where: eq(reviews.id, reviewId),
-    columns: { toolId: true },
-  });
-  
-  if (!review) return { success: false, error: "Review not found" };
-
-  await db.delete(reviews).where(eq(reviews.id, reviewId));
-
-  // Recalculate tool stats
-  const stats = await db.select({
-    avgRating: sql<number>`COALESCE(AVG(${reviews.rating}), 0)`,
-    totalReviews: count(),
-  }).from(reviews).where(eq(reviews.toolId, review.toolId));
-
-  await db.update(tools).set({
-    averageRating: Number(stats[0].avgRating),
-    reviewCount: stats[0].totalReviews,
-    updatedAt: new Date(),
-  }).where(eq(tools.id, review.toolId));
-
-  // Log the action
-  await db.insert(moderationLogs).values({
-    toolId: review.toolId,
-    adminId: admin.id,
-    action: "review_deleted",
-    notes: reason || "Admin deleted review",
-  });
-
-  return { success: true };
-}
-
 // ─── Review Promotion Request ─────────────────────────────────────────────────
 
 export async function reviewPromotionRequest(

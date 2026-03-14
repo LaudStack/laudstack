@@ -18,7 +18,7 @@ import {
 import {
   getAdminToolDetail, adminUpdateTool, adminSuspendTool,
   adminUnsuspendTool, adminToggleSpotlight, adminToggleVisibility,
-  adminAddScreenshot, adminDeleteScreenshot, adminDeleteReview,
+  adminAddScreenshot, adminDeleteScreenshot, deleteReview,
   getAdminModerationLog,
 } from "@/app/actions/admin";
 import { toast } from "sonner";
@@ -413,7 +413,7 @@ export default function AdminToolDetail() {
 
   const handleDeleteReview = async (reviewId: number) => {
     if (!confirm("Delete this review? This action cannot be undone.")) return;
-    const result = await adminDeleteReview(reviewId);
+    const result = await deleteReview(reviewId);
     if (result.success) {
       toast.success("Review deleted");
       loadTool();
