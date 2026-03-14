@@ -22,7 +22,7 @@ const COMPARE_PAGES = [
   '/top-rated',
   '/community-picks',
   '/community-voting',
-  '/new-launches',
+  '/launches',
   '/categories',
   '/editors-picks',
 ];

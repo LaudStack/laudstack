@@ -32,7 +32,7 @@ const NAV_ITEMS = [
     label: 'Launches',
     megaMenu: [
       { icon: Rocket,   label: 'LaunchPad',         desc: 'Launch your product',              href: '/launchpad' },
-      { icon: Zap,      label: "Today's Launches",   desc: 'Launched today',                   href: '/new-launches' },
+      { icon: Zap,      label: "Today's Launches",   desc: 'Launched today',                   href: '/launches' },
       { icon: Calendar, label: 'Upcoming Launches',  desc: 'Coming soon',                      href: '/upcoming-launches' },
       { icon: Clock,    label: 'Recently Launched',  desc: 'Fresh on the platform',            href: '/recently-added' },
       { icon: Archive,  label: 'Launch Archive',     desc: 'Browse all past launches',         href: '/launch-archive' },

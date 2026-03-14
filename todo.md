@@ -653,5 +653,32 @@
 - [x] Ensure /new-launches page is fully wired with real data (uses useToolsData hook → /api/homepage)
 - [x] Ensure all interactive components on /new-launches are activated (Laud buttons call toggleUpvote, loading skeleton, lauded state tracking)
 - [x] Fix Footer link from /launches to /new-launches
+- [x] Build verification (zero errors)
+- [x] Push to GitHub (commit adf4558)
+
+## Consolidate /launches and /new-launches (March 14, 2026)
+- [ ] Copy polished /new-launches page content to /launches
+- [ ] Delete /new-launches directory
+- [ ] Update all URL references from /new-launches to /launches across codebase
+- [ ] Update Footer, Navbar, and sitemap references
 - [ ] Build verification
+- [ ] Push to GitHub
+
+## Consolidate to /launches + Unify Card Design (March 14, 2026)
+- [ ] Copy polished /new-launches page code to /launches (replace old leaderboard)
+- [ ] Update all internal URL references from /new-launches to /launches
+- [ ] Delete /new-launches directory
+- [ ] Apply same polished card design to All Stacks (/tools) page
+- [ ] Update Navbar, Footer, Sitemap, CompareBar references
+- [ ] Build verification
+- [ ] Push to GitHub
+
+## Restore /launches + Polish All Stacks Cards (March 14, 2026)
+- [x] Restore original /launches leaderboard page from git history (commit 9e5f1d2)
+- [x] Fix Navbar: Today's Launches now links to /launches (was /new-launches)
+- [x] Fix Footer: Today's Launches now links to /launches (was /new-launches)
+- [x] Deleted /new-launches page (consolidated into /launches)
+- [x] Updated sitemap, sitemap.xml, CompareBar references from /new-launches to /launches
+- [x] Polish All Stacks (/tools) page cards to match /new-launches card design (grid + list views with laud buttons)
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub

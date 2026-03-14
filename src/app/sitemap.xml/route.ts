@@ -35,7 +35,7 @@ export async function GET() {
     { path: "/most-popular-saas-tools", priority: "0.8", freq: "daily" },
     { path: "/trending", priority: "0.7", freq: "daily" },
     { path: "/top-rated", priority: "0.7", freq: "daily" },
-    { path: "/new-launches", priority: "0.7", freq: "daily" },
+    { path: "/launches", priority: "0.7", freq: "daily" },
     { path: "/deals", priority: "0.7", freq: "weekly" },
     { path: "/launchpad", priority: "0.6", freq: "monthly" },
     { path: "/about", priority: "0.5", freq: "monthly" },
