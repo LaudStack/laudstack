@@ -681,4 +681,15 @@
 - [x] Updated sitemap, sitemap.xml, CompareBar references from /new-launches to /launches
 - [x] Polish All Stacks (/tools) page cards to match /new-launches card design (grid + list views with laud buttons)
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit 1a3c167)
+
+## Polish & Activate /launches Page (March 14, 2026)
+- [x] Remove Stats section completely from /launches page
+- [x] Fix page flashing when visiting the page (added loading skeleton)
+- [x] Enhance Upcoming Launches cards with real stack details and logos from /api/launches/upcoming
+- [x] Reduce countdown timer size — compact inline font-mono design
+- [x] Wire all interactive components (laud buttons with real toggleUpvote, Notify Me with email + API, period tabs)
+- [x] Ensure leaderboard uses real data and laud functionality (laudedIds, handleLaud, invalidateToolsCache)
+- [x] Polish overall page design (light theme bg-white, consistent amber accent, no gradients)
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub
