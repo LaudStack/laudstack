@@ -368,4 +368,13 @@
 - [x] Implement anti-fraud: rate limiting, IP tracking, duplicate prevention, spam detection
 - [x] Auto-update average_rating and review_count on tools table (recalcToolStats)
 - [x] Test all review flows end-to-end (TypeScript check + Next.js build passed)
-- [ ] Push to GitHub
+- [x] Push to GitHub (commit f532252)
+
+## Review Engine Hardening (March 14, 2026)
+- [ ] Audit all backend review actions for bugs, mock data, FIXMEs
+- [ ] Audit all frontend review components for bugs, placeholders, unwired UI
+- [ ] Fix all discovered backend issues
+- [ ] Fix all discovered frontend issues
+- [ ] Verify TypeScript + Next.js build pass with zero errors
+- [ ] Verify live site review flows via browser
+- [ ] Push hardened code to GitHub

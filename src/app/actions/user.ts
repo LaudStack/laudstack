@@ -186,9 +186,32 @@ export async function submitReview(data: {
 
 export async function getUserReviews() {
   const user = await requireAuth();
-  return db.select().from(reviews)
+  const rows = await db
+    .select({
+      id: reviews.id,
+      toolId: reviews.toolId,
+      rating: reviews.rating,
+      title: reviews.title,
+      body: reviews.body,
+      pros: reviews.pros,
+      cons: reviews.cons,
+      isVerified: reviews.isVerified,
+      helpfulCount: reviews.helpfulCount,
+      status: reviews.status,
+      founderReply: reviews.founderReply,
+      founderReplyAt: reviews.founderReplyAt,
+      createdAt: reviews.createdAt,
+      updatedAt: reviews.updatedAt,
+      toolName: tools.name,
+      toolSlug: tools.slug,
+      toolLogo: tools.logoUrl,
+      toolCategory: tools.category,
+    })
+    .from(reviews)
+    .leftJoin(tools, eq(reviews.toolId, tools.id))
     .where(eq(reviews.userId, user.id))
     .orderBy(sql`${reviews.createdAt} DESC`);
+  return rows;
 }
 
 // ─── Profile ──────────────────────────────────────────────────────────────────

@@ -676,3 +676,92 @@ export async function getPlatformStats() {
     verifiedPct,
   };
 }
+
+
+// ─── Get All Published Reviews (for /reviews page) ──────────────────────────
+export async function getAllPublishedReviews(opts?: { limit?: number; offset?: number }) {
+  const limit = opts?.limit ?? 200;
+  const offset = opts?.offset ?? 0;
+
+  const rows = await db
+    .select({
+      id: reviews.id,
+      toolId: reviews.toolId,
+      userId: reviews.userId,
+      rating: reviews.rating,
+      title: reviews.title,
+      body: reviews.body,
+      pros: reviews.pros,
+      cons: reviews.cons,
+      isVerified: reviews.isVerified,
+      helpfulCount: reviews.helpfulCount,
+      founderReply: reviews.founderReply,
+      founderReplyAt: reviews.founderReplyAt,
+      createdAt: reviews.createdAt,
+      userName: users.name,
+      userFirstName: users.firstName,
+      userLastName: users.lastName,
+      userAvatar: users.avatarUrl,
+      toolName: tools.name,
+      toolSlug: tools.slug,
+      toolLogo: tools.logoUrl,
+      toolCategory: tools.category,
+    })
+    .from(reviews)
+    .leftJoin(users, eq(reviews.userId, users.id))
+    .leftJoin(tools, eq(reviews.toolId, tools.id))
+    .where(eq(reviews.status, "published"))
+    .orderBy(desc(reviews.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const totalResult = await db
+    .select({ count: count() })
+    .from(reviews)
+    .where(eq(reviews.status, "published"));
+
+  return {
+    reviews: rows.map(r => ({
+      id: String(r.id),
+      tool_id: String(r.toolId),
+      user_id: String(r.userId ?? 0),
+      rating: r.rating,
+      title: r.title ?? "",
+      body: r.body ?? "",
+      pros: r.pros ?? undefined,
+      cons: r.cons ?? undefined,
+      is_verified_purchase: r.isVerified ?? false,
+      helpful_count: r.helpfulCount ?? 0,
+      created_at: new Date(r.createdAt).toISOString(),
+      founder_reply: r.founderReply ? {
+        body: r.founderReply,
+        created_at: r.founderReplyAt ? new Date(r.founderReplyAt).toISOString() : new Date().toISOString(),
+      } : undefined,
+      user: {
+        id: String(r.userId ?? 0),
+        name: (r.userFirstName ? [r.userFirstName, r.userLastName].filter(Boolean).join(" ") : null) ?? r.userName ?? "Anonymous",
+        avatar_url: r.userAvatar ?? undefined,
+      },
+      tool: {
+        name: r.toolName ?? "Unknown",
+        slug: r.toolSlug ?? "",
+        logo_url: r.toolLogo ?? "",
+        category: r.toolCategory ?? "",
+      },
+    })),
+    total: totalResult[0]?.count ?? 0,
+  };
+}
+
+// ─── Mark Review Helpful (persisted) ────────────────────────────────────────
+export async function markReviewHelpful(reviewId: number) {
+  try {
+    await db
+      .update(reviews)
+      .set({ helpfulCount: sql`${reviews.helpfulCount} + 1` })
+      .where(eq(reviews.id, reviewId));
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to mark review as helpful" };
+  }
+}

@@ -22,7 +22,7 @@ import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
-import { toggleUpvote, editReview, deleteReview, getToolDetail } from '@/app/actions/public';
+import { toggleUpvote, editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
@@ -389,10 +389,14 @@ export default function ToolDetail() {
     }
   };
 
-  const handleHelpful = (reviewId: string) => {
+  const handleHelpful = async (reviewId: string) => {
     if (helpfulMap[reviewId]) return;
     setHelpfulMap(m => ({ ...m, [reviewId]: true }));
-    toast.success('Marked as helpful');
+    const result = await markReviewHelpful(parseInt(reviewId, 10));
+    if (!result.success) {
+      setHelpfulMap(m => ({ ...m, [reviewId]: false }));
+      toast.error('Failed to mark as helpful');
+    }
   };
 
   const startEditReview = (review: Review) => {

@@ -25,6 +25,7 @@ import { useDbUser } from '@/hooks/useDbUser';
 import { useSavedTools } from '@/hooks/useSavedTools';
 import { useToolsData } from '@/hooks/useToolsData';
 import { getUserReviews, updateProfile, getActiveDeals } from '@/app/actions/user';
+import { editReview, deleteReview } from '@/app/actions/public';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -369,15 +370,95 @@ function ProfileTab({
 
 // ─── Reviews Tab ──────────────────────────────────────────────────────────────
 function ReviewsTab() {
-  const { tools: allTools } = useToolsData();
   const [userReviews, setUserReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [editRating, setEditRating] = useState(5);
+  const [editPros, setEditPros] = useState('');
+  const [editCons, setEditCons] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  useEffect(() => {
+  const loadReviews = useCallback(() => {
+    setLoading(true);
     getUserReviews()
       .then(r => { setUserReviews(r); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => { loadReviews(); }, [loadReviews]);
+
+  const startEdit = (review: any) => {
+    setEditingId(review.id);
+    setEditTitle(review.title ?? '');
+    setEditBody(review.body ?? '');
+    setEditRating(review.rating);
+    setEditPros(review.pros ?? '');
+    setEditCons(review.cons ?? '');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) return;
+    if (editBody.trim().length < 30) {
+      toast.error('Review must be at least 30 characters');
+      return;
+    }
+    setSaving(true);
+    try {
+      const result = await editReview(editingId, {
+        rating: editRating,
+        title: editTitle.trim(),
+        body: editBody.trim(),
+        pros: editPros.trim() || undefined,
+        cons: editCons.trim() || undefined,
+      });
+      if (result.success) {
+        toast.success('Review updated');
+        setEditingId(null);
+        loadReviews();
+      } else {
+        toast.error(result.error || 'Failed to update review');
+      }
+    } catch {
+      toast.error('Failed to update review');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (reviewId: number) => {
+    setDeletingId(reviewId);
+    try {
+      const result = await deleteReview(reviewId);
+      if (result.success) {
+        toast.success('Review deleted');
+        loadReviews();
+      } else {
+        toast.error(result.error || 'Failed to delete review');
+      }
+    } catch {
+      toast.error('Failed to delete review');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const statusBadge = (status: string) => {
+    switch (status) {
+      case 'published':
+        return <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5"><CheckCircle className="w-2.5 h-2.5" />Published</span>;
+      case 'pending':
+        return <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5"><Clock className="w-2.5 h-2.5" />Pending</span>;
+      case 'hidden':
+        return <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5"><EyeOff className="w-2.5 h-2.5" />Hidden</span>;
+      case 'removed':
+        return <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 bg-red-50 border border-red-200 rounded-full px-2 py-0.5"><X className="w-2.5 h-2.5" />Removed</span>;
+      default:
+        return null;
+    }
+  };
 
   if (loading) {
     return (
@@ -416,49 +497,160 @@ function ReviewsTab() {
         </div>
       ) : (
         userReviews.map((review: any) => {
-          const tool = allTools.find((t: any) => t.id === review.toolId);
+          const isEditing = editingId === review.id;
+          const isDeleting = deletingId === review.id;
           return (
             <div key={review.id} className="bg-white border border-slate-200 rounded-2xl p-5 hover:border-slate-300 transition-all">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex-shrink-0">
-                    {tool?.logo_url ? (
-                      <img src={tool.logo_url} alt={tool?.name || 'Tool'} className="w-full h-full object-contain" />
+                    {review.toolLogo ? (
+                      <img src={review.toolLogo} alt={review.toolName || 'Tool'} className="w-full h-full object-contain" />
                     ) : (
                       <span className="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">
-                        {(tool?.name || 'T')[0]}
+                        {(review.toolName || 'T')[0]}
                       </span>
                     )}
                   </div>
                   <div>
-                    <Link href={`/tools/${tool?.slug || ''}`} className="text-slate-900 font-bold text-sm hover:text-amber-600 transition-colors">
-                      {tool?.name || 'Unknown Tool'}
+                    <Link href={`/tools/${review.toolSlug || ''}`} className="text-slate-900 font-bold text-sm hover:text-amber-600 transition-colors">
+                      {review.toolName || 'Unknown Tool'}
                     </Link>
                     <div className="flex items-center gap-2 mt-0.5">
                       <StarRow rating={review.rating} />
                       <span className="text-xs text-slate-400">{review.rating}/5</span>
+                      {review.status && statusBadge(review.status)}
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-slate-400 font-medium">{new Date(review.createdAt).toLocaleDateString()}</span>
-              </div>
-              {review.title && <h4 className="text-slate-900 font-semibold text-sm mb-1">{review.title}</h4>}
-              {review.body && <p className="text-slate-600 text-sm leading-relaxed line-clamp-3">{review.body}</p>}
-              {(review.pros || review.cons) && (
-                <div className="flex gap-4 mt-2">
-                  {review.pros && (
-                    <div className="flex items-start gap-1 text-xs text-green-600">
-                      <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                      <span className="line-clamp-1">{review.pros}</span>
-                    </div>
-                  )}
-                  {review.cons && (
-                    <div className="flex items-start gap-1 text-xs text-red-500">
-                      <X className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                      <span className="line-clamp-1">{review.cons}</span>
-                    </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-400 font-medium">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  {!isEditing && (
+                    <>
+                      <button
+                        onClick={() => startEdit(review)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all"
+                        title="Edit review"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(review.id)}
+                        disabled={isDeleting}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all disabled:opacity-50"
+                        title="Delete review"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </>
                   )}
                 </div>
+              </div>
+
+              {isEditing ? (
+                <div className="space-y-3 mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  {/* Star rating editor */}
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 mb-1 block">Rating</label>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <button key={i} onClick={() => setEditRating(i)} className="focus:outline-none">
+                          <Star className={`w-5 h-5 ${i <= editRating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 mb-1 block">Title</label>
+                    <input
+                      value={editTitle}
+                      onChange={e => setEditTitle(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
+                      placeholder="Review title"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 mb-1 block">Review <span className="text-slate-400">(min 30 chars)</span></label>
+                    <textarea
+                      value={editBody}
+                      onChange={e => setEditBody(e.target.value)}
+                      rows={4}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 resize-none"
+                      placeholder="Your review..."
+                    />
+                    <span className="text-[10px] text-slate-400">{editBody.length}/30 min</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 mb-1 block">Pros</label>
+                      <input
+                        value={editPros}
+                        onChange={e => setEditPros(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
+                        placeholder="What you liked"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 mb-1 block">Cons</label>
+                      <input
+                        value={editCons}
+                        onChange={e => setEditCons(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400/30"
+                        placeholder="What could improve"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-2">
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={saving}
+                      className="flex items-center gap-1.5 text-xs font-semibold bg-amber-400 hover:bg-amber-300 text-slate-900 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {saving ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="text-xs font-semibold text-slate-500 hover:text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-100 transition-all"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {review.title && <h4 className="text-slate-900 font-semibold text-sm mb-1">{review.title}</h4>}
+                  {review.body && <p className="text-slate-600 text-sm leading-relaxed line-clamp-3">{review.body}</p>}
+                  {(review.pros || review.cons) && (
+                    <div className="flex gap-4 mt-2">
+                      {review.pros && (
+                        <div className="flex items-start gap-1 text-xs text-green-600">
+                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-1">{review.pros}</span>
+                        </div>
+                      )}
+                      {review.cons && (
+                        <div className="flex items-start gap-1 text-xs text-red-500">
+                          <X className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-1">{review.cons}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Founder reply */}
+                  {review.founderReply && (
+                    <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Shield className="h-3 w-3 text-amber-600" />
+                        <span className="text-[10px] font-bold text-amber-800">Founder Reply</span>
+                        {review.founderReplyAt && (
+                          <span className="text-[10px] text-amber-600 ml-auto">{new Date(review.founderReplyAt).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-amber-900 leading-relaxed">{review.founderReply}</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           );

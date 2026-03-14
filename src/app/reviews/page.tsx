@@ -3,14 +3,14 @@
 /*
  * LaudStack Reviews Page — /reviews
  * Design: Clean white, enterprise-grade
- * Lists all community reviews across all tools
+ * Lists ALL published community reviews across all tools
+ * Fetches from getAllPublishedReviews server action (not limited to 5)
  * Filter by: rating, category, verified only
  * Sort by: most recent, most helpful, highest rated, lowest rated
- * Includes polished skeleton loading animation while data fetches
  */
 
-import { useState, useMemo } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Star, ThumbsUp, Shield, ChevronDown,
   MessageSquare, Search, SlidersHorizontal, ArrowRight,
@@ -19,10 +19,8 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { useToolsData } from '@/hooks/useToolsData';
-import type { Review } from '@/lib/types';
-
-// enrichedReviews is computed inside the component
+import { getAllPublishedReviews, markReviewHelpful } from '@/app/actions/public';
+import { toast } from 'sonner';
 
 const SORT_OPTIONS = [
   { value: 'recent',   label: 'Most Recent' },
@@ -47,7 +45,7 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
       {[1, 2, 3, 4, 5].map(i => (
         <Star
           key={i}
-          className={`${px} ${i <= rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-800'}`}
+          className={`${px} ${i <= rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-200'}`}
         />
       ))}
     </div>
@@ -66,7 +64,6 @@ function ReviewCardSkeleton({ delay = 0 }: { delay?: number }) {
       className="bg-white rounded-2xl border border-slate-200 p-6"
       style={{ animationDelay: `${delay}ms` }}
     >
-      {/* Header row */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
           <SkeletonPulse className="w-10 h-10 rounded-full" />
@@ -77,8 +74,6 @@ function ReviewCardSkeleton({ delay = 0 }: { delay?: number }) {
         </div>
         <SkeletonPulse className="h-8 w-28 rounded-xl" />
       </div>
-
-      {/* Rating + title */}
       <div className="flex items-center gap-3 mb-3">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map(i => (
@@ -87,21 +82,15 @@ function ReviewCardSkeleton({ delay = 0 }: { delay?: number }) {
         </div>
         <SkeletonPulse className="h-4 w-48 rounded-md" />
       </div>
-
-      {/* Body lines */}
       <div className="space-y-2 mb-4">
         <SkeletonPulse className="h-3 w-full rounded-md" />
         <SkeletonPulse className="h-3 w-full rounded-md" />
         <SkeletonPulse className="h-3 w-3/4 rounded-md" />
       </div>
-
-      {/* Pros / Cons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <SkeletonPulse className="h-16 rounded-xl" />
         <SkeletonPulse className="h-16 rounded-xl" />
       </div>
-
-      {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
         <SkeletonPulse className="h-3 w-24 rounded-md" />
         <SkeletonPulse className="h-7 w-24 rounded-lg" />
@@ -132,65 +121,11 @@ function HeroSkeleton() {
   );
 }
 
-function ReviewsLoadingSkeleton() {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar />
-
-      <PageHero
-        eyebrow="Community Reviews"
-        title="Real reviews from real users"
-        subtitle="Every review on LaudStack is from a verified user. No fake ratings, no paid placements — just honest opinions from the community."
-        accent="amber"
-        layout="split"
-        size="md"
-      >
-        <HeroSkeleton />
-      </PageHero>
-
-      {/* Main content */}
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 py-10">
-
-        {/* Controls bar skeleton */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <SkeletonPulse className="flex-1 h-10 rounded-xl" />
-            <SkeletonPulse className="h-10 w-36 rounded-xl" />
-            <SkeletonPulse className="h-10 w-24 rounded-xl" />
-          </div>
-        </div>
-
-        {/* Result count skeleton */}
-        <div className="flex items-center justify-between mb-5">
-          <SkeletonPulse className="h-4 w-48 rounded-md" />
-        </div>
-
-        {/* Animated loading indicator */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="relative flex items-center justify-center">
-            <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin" />
-          </div>
-          <span className="text-sm font-semibold text-slate-500 animate-pulse">Loading reviews...</span>
-        </div>
-
-        {/* Review card skeletons */}
-        <div className="space-y-4">
-          {[0, 1, 2, 3, 4, 5].map(i => (
-            <ReviewCardSkeleton key={i} delay={i * 80} />
-          ))}
-        </div>
-      </div>
-
-      <Footer />
-    </div>
-  );
-}
-
 // ─── Review Card ─────────────────────────────────────────────────────────────
 
 function ReviewCard({ review }: { review: any }) {
   const router = useRouter();
-  const [helpful, setHelpful] = useState(review.helpful_count);
+  const [helpful, setHelpful] = useState(review.helpful_count ?? 0);
   const [voted, setVoted] = useState(false);
 
   const initials = review.user?.name
@@ -205,17 +140,25 @@ function ReviewCard({ review }: { review: any }) {
     'bg-rose-100 text-rose-700',
     'bg-cyan-100 text-cyan-700',
   ];
-  const colorIdx = (review.user?.id?.charCodeAt(1) ?? 0) % avatarColors.length;
+  const colorIdx = (review.user?.id?.charCodeAt?.(1) ?? 0) % avatarColors.length;
+
+  const handleHelpful = async () => {
+    if (voted) return;
+    setVoted(true);
+    setHelpful((h: number) => h + 1);
+    const result = await markReviewHelpful(parseInt(review.id, 10));
+    if (!result.success) {
+      setVoted(false);
+      setHelpful((h: number) => h - 1);
+      toast.error('Failed to mark as helpful');
+    }
+  };
 
   return (
-    <div
-      
-      className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md hover:border-slate-300 transition-all"
-    >
+    <div className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md hover:border-slate-300 transition-all">
       {/* Header row */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
-          {/* Avatar */}
           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${avatarColors[colorIdx]}`}>
             {initials}
           </div>
@@ -229,35 +172,23 @@ function ReviewCard({ review }: { review: any }) {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {review.user?.role && (
-                <span className="text-xs text-slate-500 font-medium">{review.user.role}</span>
-              )}
-              {review.user?.company && (
-                <>
-                  <span className="text-slate-600 text-xs">·</span>
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                    <Building2 className="h-3 w-3" />
-                    {review.user.company}
-                  </span>
-                </>
-              )}
-            </div>
           </div>
         </div>
 
         {/* Tool chip */}
         {review.tool && (
           <button
-            onClick={() => router.push(`/tools/${review.tool!.slug}`)}
+            onClick={() => router.push(`/tools/${review.tool.slug}`)}
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all shrink-0"
           >
-            <img
-              src={review.tool.logo_url}
-              alt={review.tool.name}
-              className="w-5 h-5 rounded object-contain"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
+            {review.tool.logo_url && (
+              <img
+                src={review.tool.logo_url}
+                alt={review.tool.name}
+                className="w-5 h-5 rounded object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+            )}
             <span className="text-xs font-semibold text-slate-700">{review.tool.name}</span>
             <ArrowRight className="h-3 w-3 text-slate-500" />
           </button>
@@ -267,11 +198,11 @@ function ReviewCard({ review }: { review: any }) {
       {/* Rating + title */}
       <div className="flex items-center gap-3 mb-2">
         <StarRow rating={review.rating} size="md" />
-        <span className="text-sm font-bold text-slate-900">{review.title}</span>
+        {review.title && <span className="text-sm font-bold text-slate-900">{review.title}</span>}
       </div>
 
       {/* Body */}
-      <p className="text-sm text-slate-600 leading-relaxed mb-4">{review.body}</p>
+      {review.body && <p className="text-sm text-slate-600 leading-relaxed mb-4">{review.body}</p>}
 
       {/* Pros / Cons */}
       {(review.pros || review.cons) && (
@@ -291,23 +222,15 @@ function ReviewCard({ review }: { review: any }) {
         </div>
       )}
 
-      {/* Use case */}
-      {review.use_case && (
-        <div className="mb-4 text-xs text-slate-500">
-          <span className="font-semibold text-slate-700">Use case: </span>
-          {review.use_case}
-        </div>
-      )}
-
       {/* Footer row */}
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
         <span className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
         <button
-          onClick={() => { if (!voted) { setHelpful((h: number) => h + 1); setVoted(true); } }}
+          onClick={handleHelpful}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
             voted
-              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 border border-transparent'
+              ? 'bg-amber-50 text-amber-700 border border-amber-200 cursor-default'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 border border-transparent cursor-pointer'
           }`}
         >
           <ThumbsUp className="h-3.5 w-3.5" />
@@ -333,7 +256,9 @@ function ReviewCard({ review }: { review: any }) {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function ReviewsPage() {
-  const { tools: allTools, reviews: allReviews, loading: toolsLoading } = useToolsData();
+  const [allReviews, setAllReviews] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const [sortBy, setSortBy]             = useState('recent');
   const [ratingFilter, setRatingFilter] = useState('all');
@@ -341,27 +266,70 @@ export default function ReviewsPage() {
   const [searchQuery, setSearchQuery]   = useState('');
   const [showFilters, setShowFilters]   = useState(false);
 
+  // Fetch ALL published reviews from server action
+  useEffect(() => {
+    setLoading(true);
+    getAllPublishedReviews({ limit: 500 })
+      .then(data => {
+        setAllReviews(data.reviews);
+        setTotalCount(data.total);
+      })
+      .catch(() => {
+        setAllReviews([]);
+        setTotalCount(0);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   // Show loading skeleton while data is being fetched
-  if (toolsLoading) {
-    return <ReviewsLoadingSkeleton />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Navbar />
+        <PageHero
+          eyebrow="Community Reviews"
+          title="Real reviews from real users"
+          subtitle="Every review on LaudStack is from a verified user. No fake ratings, no paid placements — just honest opinions from the community."
+          accent="amber"
+          layout="split"
+          size="md"
+        >
+          <HeroSkeleton />
+        </PageHero>
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 py-10">
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <SkeletonPulse className="flex-1 h-10 rounded-xl" />
+              <SkeletonPulse className="h-10 w-36 rounded-xl" />
+              <SkeletonPulse className="h-10 w-24 rounded-xl" />
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin" />
+            <span className="text-sm font-semibold text-slate-500 animate-pulse">Loading reviews...</span>
+          </div>
+          <div className="space-y-4">
+            {[0, 1, 2, 3, 4, 5].map(i => (
+              <ReviewCardSkeleton key={i} delay={i * 80} />
+            ))}
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
-  const enrichedReviews = allReviews.map(r => ({
-    ...r,
-    tool: allTools.find(t => t.id === r.tool_id),
-  }));
-
   const filtered = (() => {
-    let list = [...enrichedReviews];
+    let list = [...allReviews];
 
     // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       list = list.filter(r =>
-        r.title.toLowerCase().includes(q) ||
-        r.body.toLowerCase().includes(q) ||
-        r.tool?.name.toLowerCase().includes(q) ||
-        r.user?.name?.toLowerCase().includes(q)
+        (r.title ?? '').toLowerCase().includes(q) ||
+        (r.body ?? '').toLowerCase().includes(q) ||
+        (r.tool?.name ?? '').toLowerCase().includes(q) ||
+        (r.user?.name ?? '').toLowerCase().includes(q)
       );
     }
 
@@ -377,7 +345,7 @@ export default function ReviewsPage() {
 
     // Sort
     switch (sortBy) {
-      case 'helpful':  list.sort((a, b) => b.helpful_count - a.helpful_count); break;
+      case 'helpful':  list.sort((a, b) => (b.helpful_count ?? 0) - (a.helpful_count ?? 0)); break;
       case 'highest':  list.sort((a, b) => b.rating - a.rating); break;
       case 'lowest':   list.sort((a, b) => a.rating - b.rating); break;
       case 'recent':
@@ -388,10 +356,9 @@ export default function ReviewsPage() {
   })();
 
   // Stats
-  const totalReviews   = enrichedReviews.length;
-  const avgRating      = totalReviews > 0 ? (enrichedReviews.reduce((s, r) => s + r.rating, 0) / totalReviews).toFixed(1) : '0.0';
-  const verifiedCount  = enrichedReviews.filter(r => r.is_verified_purchase).length;
-  const fiveStarCount  = enrichedReviews.filter(r => r.rating === 5).length;
+  const totalReviews   = allReviews.length;
+  const avgRating      = totalReviews > 0 ? (allReviews.reduce((s, r) => s + r.rating, 0) / totalReviews).toFixed(1) : '0.0';
+  const verifiedCount  = allReviews.filter(r => r.is_verified_purchase).length;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -408,7 +375,7 @@ export default function ReviewsPage() {
         {/* Rating distribution snapshot */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '160px', flexShrink: 0 }}>
           {[5, 4, 3, 2, 1].map(star => {
-            const count = enrichedReviews.filter(r => r.rating === star).length;
+            const count = allReviews.filter(r => r.rating === star).length;
             const pct = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
             return (
               <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -425,7 +392,7 @@ export default function ReviewsPage() {
             <span style={{ fontSize: '20px', fontWeight: 900, color: '#D97706' }}>{avgRating}</span>
             <div>
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#111827' }}>avg rating</div>
-              <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{totalReviews.toLocaleString()} reviews · {totalReviews > 0 ? Math.round((verifiedCount / totalReviews) * 100) : 0}% verified</div>
+              <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{totalReviews.toLocaleString()} reviews{totalReviews > 0 ? ` · ${Math.round((verifiedCount / totalReviews) * 100)}% verified` : ''}</div>
             </div>
           </div>
         </div>
@@ -485,7 +452,6 @@ export default function ReviewsPage() {
           {/* Expanded filters */}
           {showFilters && (
             <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-4 items-center">
-              {/* Rating filter */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Rating</span>
                 <div className="flex gap-1.5">
@@ -505,7 +471,6 @@ export default function ReviewsPage() {
                 </div>
               </div>
 
-              {/* Verified only */}
               <label className="flex items-center gap-2 cursor-pointer">
                 <div
                   onClick={() => setVerifiedOnly(v => !v)}
@@ -516,7 +481,6 @@ export default function ReviewsPage() {
                 <span className="text-xs font-semibold text-slate-700">Verified only</span>
               </label>
 
-              {/* Clear */}
               {(ratingFilter !== 'all' || verifiedOnly) && (
                 <button
                   onClick={() => { setRatingFilter('all'); setVerifiedOnly(false); }}
@@ -533,7 +497,7 @@ export default function ReviewsPage() {
         <div className="flex items-center justify-between mb-5">
           <p className="text-sm text-slate-600 font-medium">
             Showing <span className="font-bold text-slate-900">{filtered.length}</span> of{' '}
-            <span className="font-bold text-slate-900">{totalReviews}</span> reviews
+            <span className="font-bold text-slate-900">{totalCount}</span> reviews
           </p>
           {searchQuery && (
             <button
@@ -554,19 +518,23 @@ export default function ReviewsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center">
-            <MessageSquare className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+            <MessageSquare className="h-12 w-12 text-slate-300 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-slate-900 mb-2">No reviews found</h3>
             <p className="text-sm text-slate-500 mb-6">
               {searchQuery
                 ? `No reviews match "${searchQuery}". Try a different search term.`
-                : 'No reviews match the selected filters.'}
+                : totalCount === 0
+                  ? 'No reviews have been submitted yet. Be the first to share your experience!'
+                  : 'No reviews match the selected filters.'}
             </p>
-            <button
-              onClick={() => { setSearchQuery(''); setRatingFilter('all'); setVerifiedOnly(false); }}
-              className="text-sm font-semibold text-amber-600 hover:text-amber-700 underline"
-            >
-              Clear all filters
-            </button>
+            {(searchQuery || ratingFilter !== 'all' || verifiedOnly) && (
+              <button
+                onClick={() => { setSearchQuery(''); setRatingFilter('all'); setVerifiedOnly(false); }}
+                className="text-sm font-semibold text-amber-600 hover:text-amber-700 underline"
+              >
+                Clear all filters
+              </button>
+            )}
           </div>
         )}
       </div>
