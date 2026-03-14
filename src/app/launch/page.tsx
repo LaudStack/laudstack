@@ -192,10 +192,12 @@ function StepToolInfo({ form, setForm }: { form: FormData; setForm: (f: FormData
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className={labelBase}>Launch Date</label>
+          <label className={labelBase}>Scheduled Launch Date</label>
           <input type="date" value={form.launchDate} onChange={e => f("launchDate", e.target.value)}
             min={new Date().toISOString().split("T")[0]} className={inputBase} />
-          <div className="text-xs text-slate-400 mt-1">Leave blank to list immediately after review</div>
+          <div className="text-xs text-slate-400 mt-1">
+            Set a future date to appear on the <strong>Upcoming Launches</strong> page with a countdown timer. Leave blank to list immediately after admin review.
+          </div>
         </div>
       </div>
       {form.logo && (

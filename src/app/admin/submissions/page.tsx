@@ -185,6 +185,22 @@ function SubmissionCard({
               )}
             </div>
           )}
+          {submission.launchDate && (
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">Scheduled Launch Date</p>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-sm text-slate-700 font-medium">
+                  {new Date(submission.launchDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                </span>
+                {new Date(submission.launchDate) > new Date() && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                    Upcoming
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
           {submission.verifyMethod && (
             <div>
               <p className="text-xs font-semibold text-slate-500 mb-1">Verification Method</p>

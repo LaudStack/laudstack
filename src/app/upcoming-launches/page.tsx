@@ -93,6 +93,7 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
   const router = useRouter();
   const [countdown, setCountdown] = useState(getCountdown(tool.launchDate));
   const [notified, setNotified] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => setCountdown(getCountdown(tool.launchDate)), 1000);
@@ -106,11 +107,51 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
     if (tool.slug) router.push(`/tools/${tool.slug}`);
   };
 
-  const handleNotify = (e: React.MouseEvent) => {
+  const handleNotify = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setNotified(!notified);
-    onNotify(tool.id);
-    toast.success(notified ? "Notification removed" : "You'll be notified when this launches");
+    if (submitting) return;
+
+    // If already notified, unsubscribe
+    if (notified) {
+      setNotified(false);
+      onNotify(tool.id);
+      toast.success("Notification removed");
+      return;
+    }
+
+    // Prompt for email
+    const email = window.prompt("Enter your email to get notified when this launches:");
+    if (!email || !email.includes("@")) {
+      if (email !== null) toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Extract numeric toolId from the id string (e.g., "tool-11" -> 11)
+      const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
+      const payload: Record<string, unknown> = { email };
+      if (tool.source === "tool") payload.toolId = numericId;
+      else payload.submissionId = numericId;
+
+      const res = await fetch("/api/launches/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNotified(true);
+        onNotify(tool.id);
+        toast.success(data.message || "You'll be notified when this launches!");
+      } else {
+        toast.error(data.error || "Failed to subscribe.");
+      }
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -310,7 +351,7 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
           }}
         >
           {notified ? <BellOff style={{ width: "11px", height: "11px" }} /> : <Bell style={{ width: "11px", height: "11px" }} />}
-          {notified ? "Notified" : "Notify Me"}
+          {submitting ? "..." : notified ? "Notified" : "Notify Me"}
         </button>
       </div>
     </div>

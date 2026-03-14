@@ -464,3 +464,28 @@ export const platformSettings = pgTable("platform_settings", {
 
 export type PlatformSetting = typeof platformSettings.$inferSelect;
 export type InsertPlatformSetting = typeof platformSettings.$inferInsert;
+
+// ─── Launch Notifications ───────────────────────────────────────────────────
+// Stores email subscriptions for upcoming tool launches ("Notify Me" feature)
+
+export const launchNotifications = pgTable("launch_notifications", {
+  id: serial("id").primaryKey(),
+  /** Email address to notify */
+  email: varchar("email", { length: 320 }).notNull(),
+  /** The tool this notification is for */
+  toolId: integer("tool_id").references(() => tools.id, { onDelete: "cascade" }),
+  /** Optional: submission ID if the tool hasn't been created yet */
+  submissionId: integer("submission_id").references(() => toolSubmissions.id, { onDelete: "cascade" }),
+  /** Optional: logged-in user who subscribed */
+  userId: integer("user_id").references(() => users.id),
+  /** Whether the notification email has been sent */
+  notified: boolean("notified").default(false).notNull(),
+  /** When the notification email was sent */
+  notifiedAt: timestamp("notified_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("launch_notif_email_tool_idx").on(table.email, table.toolId),
+]);
+
+export type LaunchNotification = typeof launchNotifications.$inferSelect;
+export type InsertLaunchNotification = typeof launchNotifications.$inferInsert;

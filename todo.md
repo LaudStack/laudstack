@@ -624,4 +624,26 @@
 - [x] Wire all interactive components (Notify Me, countdown, links)
 - [x] Add admin UI: Scheduled Launch Date field in admin tool detail page
 - [x] Seed 5 upcoming tools (Cursor, Perplexity AI, Linear, Vercel, Notion)
+- [x] Push to GitHub
+
+## Notify Me Email System (March 14, 2026)
+- [x] Create launch_notifications table in Supabase (email, toolId, notifiedAt, etc.)
+- [x] Create /api/launches/notify POST endpoint to collect emails
+- [x] Wire "Notify Me" buttons on upcoming-launches page to POST endpoint
+- [x] Create Resend email template for launch-day notification (sendLaunchNotificationEmail)
+- [x] Create /api/cron/send-launch-notifications endpoint to send emails on launch day
+- [ ] Push to GitHub
+
+## Auto-Transition: Upcoming → Launched (March 14, 2026)
+- [x] Create /api/cron/transition-launches endpoint that checks scheduled_launch_at
+- [x] When scheduled_launch_at passes, clear it and update launchedAt to now
+- [x] Configure Vercel cron jobs in vercel.json (transition at 6am UTC, notifications at 7am UTC)
+- [ ] Push to GitHub
+
+## Founder Scheduled Launch Date (March 14, 2026)
+- [x] Add scheduledLaunchAt field to LaunchPad submission form (renamed label, added description)
+- [x] toolSubmissions already has launch_date column — no schema change needed
+- [x] submitTool server action already saves launchDate to launch_date column
+- [x] Show scheduled date in admin submission review (with Upcoming badge for future dates)
+- [x] When admin approves, carry scheduled date to the tool record (auto-creates tool with scheduledLaunchAt)
 - [ ] Push to GitHub

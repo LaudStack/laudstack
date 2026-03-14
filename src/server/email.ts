@@ -689,3 +689,76 @@ export async function sendPromotionOutcomeEmail(
     return false;
   }
 }
+
+
+// ─── Launch Day Notification Email ──────────────────────────────────────────
+
+export async function sendLaunchNotificationEmail(
+  email: string,
+  toolName: string,
+  toolSlug: string | null,
+  toolTagline: string,
+  toolLogo: string | null
+): Promise<boolean> {
+  const toolUrl = toolSlug ? `${APP_URL}/tools/${toolSlug}` : APP_URL;
+  const logoHtml = toolLogo
+    ? `<img src="${toolLogo}" alt="${toolName}" width="48" height="48" style="display:block;border-radius:12px;border:1px solid #E2E8F0;" />`
+    : `<div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#0F172A;">${toolName.charAt(0)}</div>`;
+
+  const body = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:100px;padding:5px 14px;margin-bottom:20px;">
+            <span style="font-size:16px;">🚀</span>
+            <span style="font-size:11px;font-weight:700;color:#D97706;letter-spacing:0.08em;text-transform:uppercase;">Now Live</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          ${logoHtml}
+        </td>
+      </tr>
+    </table>
+
+    <h1 style="font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:26px;font-weight:800;color:#0F172A;text-align:center;margin:0 0 12px;letter-spacing:-0.02em;">
+      ${toolName} Has Launched!
+    </h1>
+    <p style="font-size:15px;color:#475569;text-align:center;margin:0 0 28px;line-height:1.6;">
+      ${toolTagline}
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          <a href="${toolUrl}" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:#0F172A;font-weight:800;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;letter-spacing:0.01em;">Check It Out &rarr;</a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="font-size:12px;color:#94A3B8;text-align:center;margin:0;">
+      You received this because you subscribed to launch notifications for ${toolName} on <a href="${APP_URL}" style="color:#F59E0B;text-decoration:none;font-weight:600;">LaudStack</a>.
+    </p>
+  `;
+
+  try {
+    const { error } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `🚀 ${toolName} just launched on LaudStack!`,
+      html: emailShell(body),
+    });
+    if (error) {
+      console.error("[Resend] Failed to send launch notification:", error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[Resend] Exception sending launch notification:", err);
+    return false;
+  }
+}

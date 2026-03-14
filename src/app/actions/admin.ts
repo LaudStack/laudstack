@@ -257,16 +257,54 @@ export async function reviewSubmission(
     updatedAt: new Date(),
   }).where(eq(toolSubmissions.id, submissionId));
 
-  // If approved, update the submitter's founderStatus to verified
+  // If approved, create the tool and update founder status
   if (action === "approved") {
-    const [submission] = await db.select({ userId: toolSubmissions.userId })
+    const [submission] = await db.select()
       .from(toolSubmissions).where(eq(toolSubmissions.id, submissionId));
     if (submission) {
+      // Update founder status to verified
       await db.update(users).set({
         founderStatus: "verified",
         founderVerifiedAt: new Date(),
         updatedAt: new Date(),
       }).where(eq(users.id, submission.userId));
+
+      // Check if a tool already exists for this submission (by name + website)
+      const [existingTool] = await db.select({ id: tools.id })
+        .from(tools)
+        .where(eq(tools.name, submission.name))
+        .limit(1);
+
+      if (!existingTool) {
+        // Create the tool from the submission
+        const slug = submission.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+        const now = new Date();
+        const hasScheduledLaunch = submission.launchDate && new Date(submission.launchDate) > now;
+
+        await db.insert(tools).values({
+          slug,
+          name: submission.name,
+          tagline: submission.tagline,
+          description: submission.description,
+          logoUrl: submission.logoUrl ?? null,
+          websiteUrl: submission.website,
+          category: submission.category ?? "Other",
+          pricingModel: (submission.pricingModel as any) ?? "Freemium",
+          tags: submission.tags ? JSON.parse(submission.tags) : [],
+          submittedBy: submission.userId,
+          status: "approved",
+          isVisible: true,
+          // If founder set a future launch date, put it on the upcoming page
+          scheduledLaunchAt: hasScheduledLaunch ? new Date(submission.launchDate!) : null,
+          launchedAt: hasScheduledLaunch ? now : now, // Will be updated by cron when it transitions
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
     }
   }
   return { success: true };
