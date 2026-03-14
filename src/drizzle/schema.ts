@@ -314,6 +314,9 @@ export const toolClaims = pgTable("tool_claims", {
     .references(() => users.id),
   status: varchar("status", { length: 32 }).default("pending").notNull(),
   verificationToken: varchar("verification_token", { length: 128 }),
+  notes: text("notes"),
+  verifyMethod: varchar("verify_method", { length: 32 }),
+  proofUrl: text("proof_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

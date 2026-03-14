@@ -45,6 +45,7 @@ const NAV_SECTIONS = [
     items: [
       { href: "/admin/users", icon: Users, label: "Users" },
       { href: "/admin/founders", icon: UserCheck, label: "Founders", badge: "founders" },
+      { href: "/admin/claims", icon: Shield, label: "Claims", badge: "claims" },
     ],
   },
   {

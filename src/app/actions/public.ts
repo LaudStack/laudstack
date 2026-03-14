@@ -552,3 +552,26 @@ export async function getToolScreenshots(toolId: number) {
     .where(eq(toolScreenshots.toolId, toolId))
     .orderBy(toolScreenshots.sortOrder);
 }
+
+
+// ─── Platform Stats ──────────────────────────────────────────────────────────
+export async function getPlatformStats() {
+  const [toolCount, reviewCount, userCount, avgRatingResult] = await Promise.all([
+    db.select({ count: count() }).from(tools).where(eq(tools.status, "active")),
+    db.select({ count: count() }).from(reviews),
+    db.select({ count: count() }).from(users),
+    db.select({ avg: avg(reviews.rating) }).from(reviews),
+  ]);
+  const totalTools = toolCount[0]?.count ?? 0;
+  const totalReviews = reviewCount[0]?.count ?? 0;
+  const totalUsers = userCount[0]?.count ?? 0;
+  const averageRating = parseFloat(String(avgRatingResult[0]?.avg ?? 0)).toFixed(1);
+  const verifiedPct = totalReviews > 0 ? "100%" : "—";
+  return {
+    totalTools,
+    totalReviews,
+    totalUsers,
+    averageRating,
+    verifiedPct,
+  };
+}

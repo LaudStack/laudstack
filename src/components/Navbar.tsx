@@ -186,7 +186,7 @@ export default function Navbar() {
     toast.success('Signed out successfully.');
   };
 
-  const go = () => toast.info('Feature coming soon!');
+  // no-op for mega-menu parents (they open on hover)
 
   const navText    = 'text-white/80 hover:text-white';
   const navHoverBg = 'hover:bg-white/10';
@@ -234,7 +234,7 @@ export default function Navbar() {
                   onMouseLeave={() => setActiveMega(null)}
                 >
                   <button
-                    onClick={() => (item as any).href ? router.push((item as any).href) : go()}
+                    onClick={() => (item as any).href ? router.push((item as any).href) : (item.megaMenu ? setActiveMega(activeMega === item.label ? null : item.label) : null)}
                     className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-all ${navText} ${navHoverBg}`}
                   >
                     {item.label}

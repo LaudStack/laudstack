@@ -1,7 +1,7 @@
 "use server";
 
 import { db, getUserBySupabaseId } from "@/server/db";
-import { tools, reviews, users, deals, toolClaims } from "@/drizzle/schema";
+import { tools, reviews, users, deals, toolClaims, moderationLogs } from "@/drizzle/schema";
 import { eq, and, desc, sql, count, sum, avg, inArray } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
@@ -486,7 +486,8 @@ export async function claimExistingTool(toolId: number, data: {
       toolId,
       userId: dbUser.id,
       status: "pending",
-      verificationToken: data.proofUrl ?? null, // store proof URL in verification token field
+      proofUrl: data.proofUrl ?? null,
+      notes: data.message ?? null,
     });
 
     return { success: true };
@@ -525,5 +526,92 @@ export async function getFounderClaims() {
     return { success: true, claims };
   } catch (e: unknown) {
     return { success: false, claims: [], error: (e as Error).message };
+  }
+}
+
+// ─── Request Tool Verification ───────────────────────────────────────────────
+export async function requestToolVerification(toolId: number, data: {
+  proofUrl?: string;
+  message?: string;
+}) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return { success: false, error: "Not authenticated" };
+    const dbUser = await getUserBySupabaseId(user.id);
+    if (!dbUser) return { success: false, error: "User not found" };
+
+    // Check tool ownership
+    const tool = await db.query.tools.findFirst({
+      where: eq(tools.id, toolId),
+    });
+    if (!tool) return { success: false, error: "Tool not found" };
+    if (tool.claimedBy !== dbUser.id && tool.submittedBy !== dbUser.id) {
+      return { success: false, error: "You don't own this tool" };
+    }
+    if (tool.isVerified) {
+      return { success: false, error: "This tool is already verified" };
+    }
+
+    // Create a claim-like record for verification request
+    const existing = await db.query.toolClaims.findFirst({
+      where: and(
+        eq(toolClaims.toolId, toolId),
+        eq(toolClaims.userId, dbUser.id),
+        eq(toolClaims.status, "pending"),
+      ),
+    });
+    if (existing) {
+      return { success: false, error: "You already have a pending verification request" };
+    }
+
+    await db.insert(toolClaims).values({
+      toolId,
+      userId: dbUser.id,
+      status: "pending",
+      proofUrl: data.proofUrl ?? null,
+      notes: data.message ?? null,
+      verifyMethod: "verification_request",
+    });
+
+    return { success: true };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+// ─── Request Promotion (contact admin for featured/sponsored/newsletter) ─────
+export async function requestPromotion(data: {
+  toolId: number;
+  promotionType: "featured" | "sponsored" | "newsletter";
+  message: string;
+}) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return { success: false, error: "Not authenticated" };
+    const dbUser = await getUserBySupabaseId(user.id);
+    if (!dbUser) return { success: false, error: "User not found" };
+
+    // Verify tool ownership
+    const tool = await db.query.tools.findFirst({
+      where: eq(tools.id, data.toolId),
+    });
+    if (!tool) return { success: false, error: "Tool not found" };
+    if (tool.claimedBy !== dbUser.id && tool.submittedBy !== dbUser.id) {
+      return { success: false, error: "You don't own this tool" };
+    }
+
+    // Log as a moderation log entry for admin to review
+    await db.insert(moderationLogs).values({
+      toolId: data.toolId,
+      adminId: dbUser.id,
+      action: `promotion_request_${data.promotionType}`,
+      notes: `Founder ${dbUser.name || dbUser.email} requested ${data.promotionType} promotion: ${data.message}`,
+    });
+
+    return { success: true };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error).message };
   }
 }

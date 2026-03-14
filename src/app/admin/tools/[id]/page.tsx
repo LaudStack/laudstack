@@ -13,7 +13,7 @@ import {
   Image as ImageIcon, Star, Eye, EyeOff, Sparkles, Shield,
   AlertTriangle, CheckCircle, XCircle, Link2, Globe,
   BarChart3, MousePointer, TrendingUp, Clock, Edit3,
-  ChevronDown, RefreshCw, Ban, MoreHorizontal, Copy,
+  ChevronDown, RefreshCw, Ban, MoreHorizontal, Copy, Crown, User,
 } from "lucide-react";
 import {
   getAdminToolDetail, adminUpdateTool, adminSuspendTool,
@@ -253,7 +253,12 @@ export default function AdminToolDetail() {
     isSpotlighted: false,
     isVisible: true,
     isTrending: false,
+    isVerified: false,
+    isPro: false,
   });
+
+  // Founder info
+  const [founderInfo, setFounderInfo] = useState<{ id: number; name: string | null; email: string | null; avatarUrl: string | null; founderStatus: string; founderBio: string | null; founderWebsite: string | null } | null>(null);
 
   // Suspend dialog
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
@@ -271,6 +276,7 @@ export default function AdminToolDetail() {
       setTool(data.tool as unknown as ToolData);
       setScreenshots(data.screenshots as unknown as Screenshot[]);
       setToolReviews(data.reviews as unknown as Review[]);
+      setFounderInfo(data.founderInfo as any);
       setForm({
         name: data.tool.name || "",
         tagline: data.tool.tagline || "",
@@ -288,6 +294,8 @@ export default function AdminToolDetail() {
         isSpotlighted: (data.tool as any).isSpotlighted ?? false,
         isVisible: (data.tool as any).isVisible ?? true,
         isTrending: (data.tool as any).isTrending ?? false,
+        isVerified: (data.tool as any).isVerified ?? false,
+        isPro: (data.tool as any).isPro ?? false,
       });
 
       // Load moderation logs
@@ -322,6 +330,8 @@ export default function AdminToolDetail() {
         isSpotlighted: form.isSpotlighted,
         isVisible: form.isVisible,
         isTrending: form.isTrending,
+        isVerified: form.isVerified,
+        isPro: form.isPro,
       });
       if (result.success) {
         toast.success("Tool updated successfully");
@@ -607,6 +617,49 @@ export default function AdminToolDetail() {
             </div>
           </div>
 
+          {/* Founder / Owner Info */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <User className="w-4 h-4 text-blue-500" />
+              Founder / Owner
+            </h3>
+            {founderInfo ? (
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {founderInfo.avatarUrl ? (
+                    <img src={founderInfo.avatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5 text-slate-400" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-900">{founderInfo.name || 'Unknown'}</span>
+                    {founderInfo.founderStatus === 'verified' && (
+                      <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">Verified</span>
+                    )}
+                    {founderInfo.founderStatus === 'pending' && (
+                      <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">Pending</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">{founderInfo.email || 'No email'}</p>
+                  {founderInfo.founderBio && <p className="text-xs text-slate-600 mt-1">{founderInfo.founderBio}</p>}
+                  {founderInfo.founderWebsite && (
+                    <a href={founderInfo.founderWebsite} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-1 inline-flex items-center gap-1">
+                      <Globe className="w-3 h-3" /> {founderInfo.founderWebsite}
+                    </a>
+                  )}
+                  <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-400">
+                    {tool?.claimedBy && <span>Claimed {tool.claimedAt ? new Date(tool.claimedAt).toLocaleDateString() : ''}</span>}
+                    {tool?.submittedBy && !tool?.claimedBy && <span>Submitted by user #{tool.submittedBy}</span>}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-4">No founder has claimed this tool</p>
+            )}
+          </div>
+
           {/* Status & Flags */}
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h3 className="text-sm font-bold text-slate-900 mb-4">Status & Flags</h3>
@@ -625,6 +678,8 @@ export default function AdminToolDetail() {
               </div>
               <div className="flex flex-col gap-3 pt-5">
                 {[
+                  { key: "isVerified", label: "Verified", icon: Shield, color: "text-blue-600" },
+                  { key: "isPro", label: "Pro", icon: Crown, color: "text-amber-600" },
                   { key: "isFeatured", label: "Featured", icon: Sparkles, color: "text-amber-500" },
                   { key: "isSpotlighted", label: "Spotlighted", icon: Star, color: "text-purple-500" },
                   { key: "isVisible", label: "Visible", icon: Eye, color: "text-green-500" },

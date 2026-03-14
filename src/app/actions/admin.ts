@@ -325,12 +325,33 @@ export async function getAdminClaims(opts: { status?: string; page?: number } = 
   const conditions = [];
   if (status && status !== "all") conditions.push(eq(toolClaims.status, status));
 
+  const whereClause = conditions.length ? and(...conditions) : undefined;
+
   const [rows, total] = await Promise.all([
-    db.select().from(toolClaims)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(toolClaims.createdAt)).limit(limit).offset(offset),
-    db.select({ count: count() }).from(toolClaims)
-      .where(conditions.length ? and(...conditions) : undefined),
+    db.select({
+      id: toolClaims.id,
+      toolId: toolClaims.toolId,
+      userId: toolClaims.userId,
+      status: toolClaims.status,
+      notes: toolClaims.notes,
+      proofUrl: toolClaims.proofUrl,
+      verifyMethod: toolClaims.verifyMethod,
+      createdAt: toolClaims.createdAt,
+      updatedAt: toolClaims.updatedAt,
+      toolName: tools.name,
+      toolSlug: tools.slug,
+      toolLogoUrl: tools.logoUrl,
+      userName: users.name,
+      userEmail: users.email,
+    })
+      .from(toolClaims)
+      .leftJoin(tools, eq(toolClaims.toolId, tools.id))
+      .leftJoin(users, eq(toolClaims.userId, users.id))
+      .where(whereClause)
+      .orderBy(desc(toolClaims.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db.select({ count: count() }).from(toolClaims).where(whereClause),
   ]);
   return { claims: rows, total: total[0].count, page, limit };
 }
@@ -604,7 +625,18 @@ export async function getAdminToolDetail(toolId: number) {
     .orderBy(desc(reviews.createdAt))
     .limit(100);
 
-  return { tool, screenshots, reviews: toolReviews };
+  // Get founder/submitter info
+  let founderInfo = null;
+  const ownerId = tool.claimedBy || tool.submittedBy;
+  if (ownerId) {
+    const owner = await db.query.users.findFirst({
+      where: eq(users.id, ownerId),
+      columns: { id: true, name: true, email: true, avatarUrl: true, founderStatus: true, founderBio: true, founderWebsite: true },
+    });
+    if (owner) founderInfo = owner;
+  }
+
+  return { tool, screenshots, reviews: toolReviews, founderInfo };
 }
 
 // ─── Admin Update Tool (full edit) ──────────────────────────────────────────
@@ -625,6 +657,9 @@ export async function adminUpdateTool(toolId: number, data: {
   isSpotlighted?: boolean;
   isVisible?: boolean;
   isTrending?: boolean;
+  isVerified?: boolean;
+  isPro?: boolean;
+  tags?: string[];
   status?: string;
 }) {
   const admin = await requireAdmin();
@@ -646,6 +681,9 @@ export async function adminUpdateTool(toolId: number, data: {
   if (data.isSpotlighted !== undefined) updateData.isSpotlighted = data.isSpotlighted;
   if (data.isVisible !== undefined) updateData.isVisible = data.isVisible;
   if (data.isTrending !== undefined) updateData.isTrending = data.isTrending;
+  if (data.isVerified !== undefined) updateData.isVerified = data.isVerified;
+  if (data.isPro !== undefined) updateData.isPro = data.isPro;
+  if (data.tags !== undefined) updateData.tags = data.tags;
   if (data.status !== undefined) updateData.status = data.status;
 
   await db.update(tools).set(updateData).where(eq(tools.id, toolId));

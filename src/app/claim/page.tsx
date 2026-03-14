@@ -20,6 +20,7 @@ import PageHero from '@/components/PageHero';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useToolsData } from '@/hooks/useToolsData';
 import { useAuth } from '@/hooks/useAuth';
+import { claimExistingTool } from '@/app/actions/founder';
 import { requestFounderUpgrade } from '@/app/actions/public';
 import type { Tool } from '@/lib/types';
 
@@ -80,16 +81,25 @@ export default function ClaimTool() {
     if (!founderName || !founderEmail || !founderRole) { toast.error('Please fill in all required fields.'); return; }
     setSubmitting(true);
     try {
-      const result = await requestFounderUpgrade({
+      // 1. Create the actual tool claim record so admin can review it
+      const toolId = selectedTool ? parseInt(selectedTool.id, 10) : 0;
+      if (!toolId) { toast.error('No tool selected'); setSubmitting(false); return; }
+      const claimResult = await claimExistingTool(toolId, {
+        proofUrl: website || selectedTool?.website_url || '',
+        message: `${founderRole} — ${founderName} (${founderEmail})${founderBio ? '\n' + founderBio : ''}`,
+      });
+      if (!claimResult.success) {
+        toast.error(claimResult.error || 'Failed to submit claim');
+        setSubmitting(false);
+        return;
+      }
+      // 2. Also request founder upgrade so user gets founder status
+      await requestFounderUpgrade({
         founderBio: founderBio || `${founderRole} at ${selectedTool?.name || 'a product'}`,
         founderWebsite: website || selectedTool?.website_url || '',
       });
-      if (result.success) {
-        setStep('submitted');
-        toast.success('Claim received! We\'ll review it within 2 business days.');
-      } else {
-        toast.error(result.error || 'Failed to send claim');
-      }
+      setStep('submitted');
+      toast.success('Claim received! We\'ll review it within 2 business days.');
     } catch {
       toast.error('Something went wrong. Please try again.');
     } finally {

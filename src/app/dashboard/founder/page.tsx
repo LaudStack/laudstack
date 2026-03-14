@@ -38,6 +38,8 @@ import {
   updateFounderTool,
   claimExistingTool,
   getFounderClaims,
+  requestPromotion,
+  requestToolVerification,
 } from '@/app/actions/founder';
 import { searchToolsAction } from '@/app/actions/public';
 
@@ -527,7 +529,7 @@ function ToolsTab() {
             <h3 className="text-white font-bold mb-1">Upgrade to Pro Listing</h3>
             <p className="text-slate-400 text-sm mb-4">Get priority review, featured placement, verified badge, advanced analytics, and dedicated support for your stacks.</p>
             <button
-              onClick={() => toast.info('Pro listings coming soon — join the waitlist!')}
+              onClick={() => setActiveTab('promote')}
               className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
             >
               <Rocket className="w-4 h-4" /> Upgrade to Pro
@@ -1223,23 +1225,80 @@ function AnalyticsTab() {
 
 // ─── Promote Tab ──────────────────────────────────────────────────────────────
 function PromoteTab() {
-  const [tools, setTools] = useState<any[]>([]);
+  const [founderTools, setFounderTools] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTool, setSelectedTool] = useState<number | null>(null);
+  const [promoMessage, setPromoMessage] = useState('');
+  const [submitting, setSubmitting] = useState<string | null>(null);
+  const [requestedTypes, setRequestedTypes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     getFounderTools().then(res => {
-      if (res.success) setTools(res.tools);
+      if (res.success) {
+        setFounderTools(res.tools);
+        if (res.tools.length > 0) setSelectedTool(res.tools[0].id);
+      }
       setLoading(false);
     });
   }, []);
 
+  const handleRequestPromotion = async (type: 'featured' | 'sponsored' | 'newsletter') => {
+    if (!selectedTool) { toast.error('Please select a tool first'); return; }
+    setSubmitting(type);
+    try {
+      const result = await requestPromotion({ toolId: selectedTool, promotionType: type, message: promoMessage || `Requesting ${type} promotion` });
+      if (result.success) {
+        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} promotion request submitted! Our team will review it within 24-48 hours.`);
+        setRequestedTypes(prev => new Set([...prev, type]));
+        setPromoMessage('');
+      } else {
+        toast.error(result.error || 'Failed to submit request');
+      }
+    } catch { toast.error('Something went wrong'); }
+    finally { setSubmitting(null); }
+  };
+
   if (loading) return <LoadingState message="Loading..." />;
+
+  if (founderTools.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <Megaphone className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+        <p className="text-sm font-semibold text-slate-500">No tools to promote yet</p>
+        <p className="text-xs text-slate-400 mt-1">Submit or claim a tool first, then come back to promote it.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-slate-900 font-bold text-base">Promote Your Stacks</h3>
-        <p className="text-slate-500 text-sm mt-0.5">Boost visibility and reach more buyers</p>
+        <p className="text-slate-500 text-sm mt-0.5">Request promotion to boost visibility and reach more users</p>
+      </div>
+
+      {/* Tool selector */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5">
+        <label className="text-xs font-semibold text-slate-600 mb-2 block">Select a tool to promote</label>
+        <select
+          value={selectedTool ?? ''}
+          onChange={(e) => setSelectedTool(Number(e.target.value))}
+          className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 bg-white"
+        >
+          {founderTools.map((t: any) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+        <div className="mt-3">
+          <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Message to our team (optional)</label>
+          <textarea
+            value={promoMessage}
+            onChange={(e) => setPromoMessage(e.target.value)}
+            placeholder="Tell us why your tool deserves promotion, any specific goals or timing..."
+            rows={3}
+            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 resize-none"
+          />
+        </div>
       </div>
 
       {/* Feature tool */}
@@ -1272,10 +1331,12 @@ function PromoteTab() {
               ))}
             </div>
             <button
-              onClick={() => toast.info('Featured listings coming soon — join the waitlist!')}
-              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
+              onClick={() => handleRequestPromotion('featured')}
+              disabled={submitting === 'featured' || requestedTypes.has('featured')}
+              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50"
             >
-              <Sparkles className="w-4 h-4" /> Feature My Tool
+              {submitting === 'featured' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {requestedTypes.has('featured') ? 'Request Submitted' : 'Request Featured Listing'}
             </button>
           </div>
         </div>
@@ -1293,10 +1354,12 @@ function PromoteTab() {
               Appear in the "Sponsored" section on relevant category pages and search results. Pay per click — only pay when users engage.
             </p>
             <button
-              onClick={() => toast.info('Sponsored placements coming soon!')}
-              className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
+              onClick={() => handleRequestPromotion('sponsored')}
+              disabled={submitting === 'sponsored' || requestedTypes.has('sponsored')}
+              className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50"
             >
-              <Target className="w-4 h-4" /> Learn More
+              {submitting === 'sponsored' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Target className="w-4 h-4" />}
+              {requestedTypes.has('sponsored') ? 'Request Submitted' : 'Request Sponsored Placement'}
             </button>
           </div>
         </div>
@@ -1314,10 +1377,12 @@ function PromoteTab() {
               Get your tool featured in our weekly newsletter sent to 12,000+ professionals. Includes tool spotlight, key features, and direct CTA link.
             </p>
             <button
-              onClick={() => toast.info('Newsletter features coming soon!')}
-              className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
+              onClick={() => handleRequestPromotion('newsletter')}
+              disabled={submitting === 'newsletter' || requestedTypes.has('newsletter')}
+              className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50"
             >
-              <Mail className="w-4 h-4" /> Request Feature
+              {submitting === 'newsletter' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              {requestedTypes.has('newsletter') ? 'Request Submitted' : 'Request Newsletter Feature'}
             </button>
           </div>
         </div>

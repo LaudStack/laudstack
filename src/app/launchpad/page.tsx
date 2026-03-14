@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
  *   7. Final CTA      — Launch / Claim
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Rocket, Shield, BarChart3, MessageSquare, Crown, Zap,
@@ -29,14 +29,15 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
+import { getPlatformStats } from "@/app/actions/public";
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────────────────────────────────
 
-const STATS = [
-  { value: "12,400+", label: "Professionals on LaudStack" },
-  { value: "95+",     label: "Verified stacks listed" },
-  { value: "4.9★",    label: "Average product rating" },
-  { value: "98%",     label: "Verified reviews" },
+const DEFAULT_STATS = [
+  { value: "—", label: "Professionals on LaudStack" },
+  { value: "—", label: "Verified stacks listed" },
+  { value: "—", label: "Average product rating" },
+  { value: "—", label: "Verified reviews" },
 ];
 
 const HOW_IT_WORKS = [
@@ -93,7 +94,7 @@ const BENEFITS = [
     color: "#DC2626",
     bg: "#FFF1F2",
     title: "Targeted Exposure",
-    desc: "Reach 12,000+ professionals actively searching for products in your exact category. Zero cold outreach needed.",
+    desc: "Reach thousands of professionals actively searching for products in your exact category. Zero cold outreach needed.",
   },
   {
     icon: Megaphone,
@@ -322,6 +323,18 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function LaunchPad() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const [STATS, setStats] = useState(DEFAULT_STATS);
+
+  useEffect(() => {
+    getPlatformStats().then(s => {
+      setStats([
+        { value: `${(s.totalUsers).toLocaleString()}+`, label: 'Professionals on LaudStack' },
+        { value: `${s.totalTools}+`, label: 'Verified stacks listed' },
+        { value: `${s.averageRating}\u2605`, label: 'Average product rating' },
+        { value: s.verifiedPct, label: 'Verified reviews' },
+      ]);
+    }).catch(() => {});
+  }, []);
 
   const handleLaunch = () =>
     router.push(isAuthenticated ? "/launch" : "/auth/login?next=/launch");
@@ -352,7 +365,7 @@ export default function LaunchPad() {
               </h1>
 
               <p className="text-lg text-slate-500 leading-relaxed mb-10 max-w-[480px]">
-                List your AI or SaaS tool on LaudStack and reach 12,000+ professionals actively searching for solutions. Verified founders get a dashboard, analytics, and direct access to their audience.
+                List your AI or SaaS tool on LaudStack and reach professionals actively searching for solutions. Verified founders get a dashboard, analytics, and direct access to their audience.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -612,7 +625,7 @@ export default function LaunchPad() {
                 Ready to launch?
               </h2>
               <p className="text-slate-400 text-lg max-w-lg mx-auto mb-10">
-                Join 95+ tools already listed on LaudStack. Free to start. Verified in 24 hours. Real audience from day one.
+                Join the growing community of tools listed on LaudStack. Free to start. Verified in 24 hours. Real audience from day one.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
