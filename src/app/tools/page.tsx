@@ -356,14 +356,28 @@ function ToolGridCard({
         </button>
       </div>
 
-      {/* Screenshot */}
-      <Link href={`/tools/${tool.slug}`} className="block">
-        <div className="relative w-full border-t border-b border-slate-100" style={{ paddingTop: '56%' }}>
+      {/* Screenshot — centered with rounded corners (matches homepage Rising cards) */}
+      <Link href={`/tools/${tool.slug}`} className="block px-3 sm:px-4">
+        <div
+          className="relative w-full overflow-hidden rounded-xl"
+          style={{ aspectRatio: '16 / 9', background: '#F1F5F9' }}
+        >
           <img
             src={screenshotSrc}
             alt={`${tool.name} screenshot`}
-            className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500"
-            onError={e => { (e.target as HTMLImageElement).src = FALLBACK_SHOTS[index % FALLBACK_SHOTS.length]; }}
+            className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+            onError={e => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = 'none';
+              const parent = img.parentElement;
+              if (parent && !parent.querySelector('.placeholder-fallback')) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder-fallback absolute inset-0 flex items-center justify-center';
+                placeholder.style.background = '#F1F5F9';
+                placeholder.innerHTML = `<div style="text-align:center"><div style="width:36px;height:36px;margin:0 auto 6px;border-radius:8px;background:#E2E8F0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div><span style="font-size:11px;color:#94A3B8;font-weight:500">Preview unavailable</span></div>`;
+                parent.appendChild(placeholder);
+              }
+            }}
           />
 
           {/* New badge */}
@@ -1033,7 +1047,9 @@ export default function AllTools() {
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-slate-100 animate-pulse flex-shrink-0" />
                     </div>
-                    <div className="h-44 bg-slate-100 animate-pulse border-t border-b border-slate-100" />
+                    <div className="px-3 sm:px-4">
+                      <div className="h-40 bg-slate-100 animate-pulse rounded-xl" style={{ aspectRatio: '16 / 9' }} />
+                    </div>
                     <div className="px-4 pt-3 pb-3">
                       <div className="h-3 w-full bg-slate-100 rounded mb-2 animate-pulse" />
                       <div className="h-3 w-3/4 bg-slate-100 rounded animate-pulse" />
