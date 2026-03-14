@@ -520,3 +520,9 @@
 ### Final Verification
 - [x] TypeScript + Next.js build passes
 - [x] Push to GitHub
+
+## Footer Redesign — Product Hunt Style (March 14, 2026)
+- [x] Remove tagline paragraph under the footer logo
+- [x] Keep top section: logo + social + newsletter + current 4 menu columns
+- [x] Add new bottom section: 5 additional menu columns in a grid (separated by border)
+- [ ] Build, test, and push to GitHub

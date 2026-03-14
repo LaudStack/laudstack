@@ -1,8 +1,10 @@
 "use client";
 
 /*
- * LaudStack Footer — Mobile-optimized with grid layout
- * Dark theme (#0F172A) — responsive grid for menu items
+ * LaudStack Footer — Product Hunt–style two-tier layout
+ * Tier 1: Logo + social + newsletter + 4 menu columns (existing)
+ * Tier 2: 5 additional menu columns in a grid (new)
+ * Bottom bar: copyright + legal links + social icons
  */
 
 import { useState } from "react";
@@ -14,13 +16,15 @@ import {
   Zap, CheckCircle2, Rss,
 } from "lucide-react";
 
-const FOOTER_SECTIONS = [
+/* ─── Top Section: 4 menu columns ─────────────────────────────────────────── */
+
+const TOP_SECTIONS = [
   {
     heading: "Discover",
     links: [
       { label: "All Stacks", href: "/tools" },
       { label: "Browse Categories", href: "/categories" },
-      { label: "Trending Stacks", href: "/trending" },
+      { label: "Rising Stacks", href: "/trending" },
       { label: "Top Rated", href: "/top-rated" },
       { label: "Most Lauded", href: "/most-lauded" },
       { label: "SaaS Deals", href: "/deals" },
@@ -30,7 +34,7 @@ const FOOTER_SECTIONS = [
     heading: "For Founders",
     links: [
       { label: "LaunchPad", href: "/launchpad" },
-      { label: "Claim Your Product", href: "/claim" },
+      { label: "Claim Your Stack", href: "/claim" },
       { label: "Founder Dashboard", href: "/dashboard/founder" },
       { label: "Pricing", href: "/pricing" },
       { label: "Launch Guide", href: "/blog" },
@@ -43,18 +47,7 @@ const FOOTER_SECTIONS = [
       { label: "Help Centre / FAQ", href: "/faq" },
       { label: "Trust Framework", href: "/trust" },
       { label: "Changelog", href: "/changelog" },
-      { label: "Founder Resources", href: "/blog" },
       { label: "Templates", href: "/templates" },
-    ],
-  },
-  {
-    heading: "Comparisons",
-    links: [
-      { label: "Popular Comparisons", href: "/comparisons" },
-      { label: "Alternatives", href: "/alternatives" },
-      { label: "Trending AI Tools", href: "/trending-ai-tools" },
-      { label: "Top Rated AI Tools", href: "/top-rated-ai-tools" },
-      { label: "Best Tools Collections", href: "/best" },
     ],
   },
   {
@@ -69,6 +62,68 @@ const FOOTER_SECTIONS = [
   },
 ];
 
+/* ─── Bottom Section: 5 new menu columns ──────────────────────────────────── */
+
+const BOTTOM_SECTIONS = [
+  {
+    heading: "Top Categories",
+    links: [
+      { label: "AI Productivity", href: "/c/ai-productivity-tools" },
+      { label: "AI Writing", href: "/c/ai-writing-tools" },
+      { label: "AI Code", href: "/c/ai-code-tools" },
+      { label: "AI Image", href: "/c/ai-image-tools" },
+      { label: "Marketing", href: "/c/marketing-tools" },
+      { label: "Developer Tools", href: "/c/developer-tools-tools" },
+      { label: "See All Categories", href: "/categories" },
+    ],
+  },
+  {
+    heading: "Best Tools",
+    links: [
+      { label: "Best AI for Marketing", href: "/best/ai-tools-for-marketing" },
+      { label: "Best AI for Writing", href: "/best/ai-tools-for-writing" },
+      { label: "Best AI for Coding", href: "/best/ai-tools-for-coding" },
+      { label: "Best AI for Design", href: "/best/ai-tools-for-design" },
+      { label: "Best for Startups", href: "/best/saas-tools-for-startups" },
+      { label: "Best CRM Tools", href: "/best/crm-tools" },
+      { label: "See All Collections", href: "/best" },
+    ],
+  },
+  {
+    heading: "Comparisons",
+    links: [
+      { label: "Popular Comparisons", href: "/comparisons" },
+      { label: "Alternatives Finder", href: "/alternatives" },
+      { label: "Trending AI Tools", href: "/trending-ai-tools" },
+      { label: "Top Rated AI Tools", href: "/top-rated-ai-tools" },
+      { label: "New AI Tools", href: "/new-ai-tools" },
+      { label: "Most Popular SaaS", href: "/most-popular-saas-tools" },
+    ],
+  },
+  {
+    heading: "Launches",
+    links: [
+      { label: "Today's Launches", href: "/launches" },
+      { label: "Upcoming Launches", href: "/upcoming-launches" },
+      { label: "Recently Launched", href: "/recently-launched" },
+      { label: "Launch Archive", href: "/launch-archive" },
+      { label: "Spotlight Picks", href: "/editors-picks" },
+      { label: "Recently Added", href: "/recently-added" },
+    ],
+  },
+  {
+    heading: "More",
+    links: [
+      { label: "Reviews", href: "/reviews" },
+      { label: "Newsletter", href: "/newsletter" },
+      { label: "Sitemap", href: "/sitemap" },
+      { label: "RSS Feed", href: "/rss" },
+      { label: "Press", href: "/press" },
+      { label: "Events", href: "/events" },
+    ],
+  },
+];
+
 const SOCIAL_LINKS = [
   { icon: Twitter, label: "Twitter / X", href: "https://twitter.com" },
   { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
@@ -76,6 +131,32 @@ const SOCIAL_LINKS = [
   { icon: Rss, label: "RSS Feed", href: "/rss" },
   { icon: Mail, label: "Email", href: "/contact" },
 ];
+
+/* ─── Reusable link column renderer ───────────────────────────────────────── */
+
+function LinkColumn({ heading, links }: { heading: string; links: { label: string; href: string }[] }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <h4 className="text-[11px] font-bold text-slate-200 uppercase tracking-widest">
+        {heading}
+      </h4>
+      <ul className="list-none m-0 p-0 flex flex-col gap-2">
+        {links.map(({ label, href }) => (
+          <li key={label}>
+            <Link
+              href={href}
+              className="text-[13px] text-slate-500 no-underline font-medium hover:text-slate-300 transition-colors"
+            >
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ─── Footer Component ────────────────────────────────────────────────────── */
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -109,9 +190,11 @@ export default function Footer() {
   return (
     <footer style={{ background: "#0F172A", color: "#94A3B8", borderTop: "1px solid #1E293B" }}>
 
-      {/* Main content */}
+      {/* ═══════════════════════════════════════════════════════
+          TIER 1 — Logo + Social + Newsletter + 4 Menu Columns
+      ═══════════════════════════════════════════════════════ */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-7 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-10 lg:gap-8">
 
           {/* Brand + Newsletter column */}
           <div className="lg:col-span-2 flex flex-col gap-5">
@@ -130,10 +213,6 @@ export default function Footer() {
                 }}
               />
             </Link>
-
-            <p className="text-[13px] text-slate-500 leading-relaxed max-w-[280px] font-medium">
-              The professional platform for discovering, reviewing, and launching SaaS &amp; AI stacks. Built for teams that care about quality.
-            </p>
 
             {/* Social links */}
             <div className="flex gap-2">
@@ -192,32 +271,31 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Link columns — 2-col grid on mobile, 5-col on desktop */}
-          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-6">
-            {FOOTER_SECTIONS.map((section) => (
-              <div key={section.heading} className="flex flex-col gap-3">
-                <h4 className="text-[11px] font-bold text-slate-200 uppercase tracking-widest">
-                  {section.heading}
-                </h4>
-                <ul className="list-none m-0 p-0 flex flex-col gap-2">
-                  {section.links.map(({ label, href }) => (
-                    <li key={label}>
-                      <Link
-                        href={href}
-                        className="text-[13px] text-slate-500 no-underline font-medium hover:text-slate-300 transition-colors"
-                      >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          {/* 4 Link columns */}
+          <div className="lg:col-span-4 grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-6">
+            {TOP_SECTIONS.map((section) => (
+              <LinkColumn key={section.heading} heading={section.heading} links={section.links} />
             ))}
           </div>
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* ═══════════════════════════════════════════════════════
+          TIER 2 — 5 Additional Menu Columns (new grid section)
+      ═══════════════════════════════════════════════════════ */}
+      <div className="border-t border-slate-800">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-6">
+            {BOTTOM_SECTIONS.map((section) => (
+              <LinkColumn key={section.heading} heading={section.heading} links={section.links} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          BOTTOM BAR — Copyright + Legal + Social
+      ═══════════════════════════════════════════════════════ */}
       <div className="border-t border-slate-800">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
