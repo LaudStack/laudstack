@@ -1,7 +1,7 @@
 "use client";
 
 /*
- * LaudStack Navbar — Vivid Blue Header (#3960EF)
+ * LaudStack Navbar — Deep Blue Header (#2D4FD6)
  * Matches Futurepedia-style bold blue with white text
  * Professional mobile hamburger with super-menu dropdowns
  * LaunchPad CTA hidden when logged in
@@ -203,7 +203,7 @@ export default function Navbar() {
             : ''
         }`}
         style={{
-          background: scrolled ? 'rgba(57, 96, 239, 0.97)' : '#3960EF',
+          background: scrolled ? 'rgba(45, 79, 214, 0.97)' : '#2D4FD6',
           borderBottom: scrolled ? '1px solid rgba(255,255,255,0.1)' : 'none',
         }}
       >
@@ -404,7 +404,7 @@ export default function Navbar() {
                 <Button
                   onClick={() => router.push('/launchpad')}
                   className="gap-2 font-semibold border-0 px-5 h-10 rounded-xl shadow-lg shadow-black/15 hover:shadow-black/25 hover:scale-[1.02] transition-all"
-                  style={{ background: '#FFFFFF', color: '#3960EF' }}
+                  style={{ background: '#FFFFFF', color: '#2D4FD6' }}
                 >
                   <Rocket className="h-4 w-4" />
                   LaunchPad
