@@ -18,6 +18,7 @@ import { invalidateToolsCache } from "@/hooks/useToolsData";
 interface Props {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   toolName: string;
   toolLogo?: string;
   toolId: number;
@@ -34,6 +35,7 @@ const RATING_LABELS: Record<number, string> = {
 export default function WriteReviewModal({
   open,
   onClose,
+  onSuccess,
   toolName,
   toolLogo,
   toolId,
@@ -113,6 +115,7 @@ export default function WriteReviewModal({
       if (result.success) {
         setSubmitted(true);
         invalidateToolsCache();
+        onSuccess?.();
       } else {
         toast.error(result.error || "Failed to submit review");
       }

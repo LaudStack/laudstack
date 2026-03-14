@@ -7,7 +7,7 @@ import {
   users, tools, reviews, toolSubmissions, toolClaims,
   newsletterSubscribers, deals, toolScreenshots, moderationLogs,
 } from "@/drizzle/schema";
-import { eq, desc, ilike, or, sql, and, count } from "drizzle-orm";
+import { eq, desc, ilike, or, sql, and, count, avg } from "drizzle-orm";
 import {
   sendClaimApprovedEmail,
   sendClaimRejectedEmail,
@@ -272,30 +272,224 @@ export async function reviewSubmission(
   return { success: true };
 }
 
-// ─── Reviews Management ───────────────────────────────────────────────────────
+/// ─── Reviews Management (Full Moderation) ─────────────────────────────────
 
-export async function getAdminReviews(opts: { search?: string; page?: number } = {}) {
+/** Recalculate tool stats from published reviews */
+async function recalcToolStats(toolId: number) {
+  const stats = await db.select({
+    avgRating: avg(reviews.rating),
+    totalReviews: count(),
+  }).from(reviews).where(and(eq(reviews.toolId, toolId), eq(reviews.status, "published")));
+  await db.update(tools).set({
+    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
+    reviewCount: stats[0].totalReviews,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, toolId));
+}
+
+export async function getAdminReviews(opts: {
+  search?: string;
+  page?: number;
+  filter?: 'all' | 'published' | 'hidden' | 'removed' | 'pending' | 'flagged';
+} = {}) {
   await requireAdmin();
-  const { search, page = 1 } = opts;
+  const { search, page = 1, filter = 'all' } = opts;
   const limit = 20;
   const offset = (page - 1) * limit;
 
-  const conditions = [];
-  if (search) conditions.push(ilike(reviews.body, `%${search}%`));
+  const conditions: any[] = [];
+  if (search) {
+    conditions.push(or(
+      ilike(reviews.body, `%${search}%`),
+      ilike(reviews.title, `%${search}%`)
+    ));
+  }
+  if (filter === 'flagged') {
+    conditions.push(eq(reviews.isFlagged, true));
+  } else if (filter !== 'all') {
+    conditions.push(eq(reviews.status, filter));
+  }
 
   const [rows, total] = await Promise.all([
-    db.select().from(reviews)
+    db.select({
+      id: reviews.id,
+      toolId: reviews.toolId,
+      userId: reviews.userId,
+      rating: reviews.rating,
+      title: reviews.title,
+      body: reviews.body,
+      pros: reviews.pros,
+      cons: reviews.cons,
+      isVerified: reviews.isVerified,
+      helpfulCount: reviews.helpfulCount,
+      founderReply: reviews.founderReply,
+      founderReplyAt: reviews.founderReplyAt,
+      status: reviews.status,
+      ipAddress: reviews.ipAddress,
+      userAgent: reviews.userAgent,
+      isFlagged: reviews.isFlagged,
+      flagReason: reviews.flagReason,
+      flaggedBy: reviews.flaggedBy,
+      flaggedAt: reviews.flaggedAt,
+      moderationNote: reviews.moderationNote,
+      moderatedBy: reviews.moderatedBy,
+      moderatedAt: reviews.moderatedAt,
+      createdAt: reviews.createdAt,
+      updatedAt: reviews.updatedAt,
+      userName: users.name,
+      userFirstName: users.firstName,
+      userLastName: users.lastName,
+      userEmail: users.email,
+      userAvatar: users.avatarUrl,
+      toolName: tools.name,
+      toolSlug: tools.slug,
+      toolLogo: tools.logoUrl,
+    })
+      .from(reviews)
+      .leftJoin(users, eq(reviews.userId, users.id))
+      .leftJoin(tools, eq(reviews.toolId, tools.id))
       .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(reviews.createdAt)).limit(limit).offset(offset),
+      .orderBy(desc(reviews.createdAt))
+      .limit(limit)
+      .offset(offset),
     db.select({ count: count() }).from(reviews)
       .where(conditions.length ? and(...conditions) : undefined),
   ]);
-  return { reviews: rows, total: total[0].count, page, limit };
+
+  // Get counts for each filter tab
+  const [allCount, publishedCount, hiddenCount, removedCount, pendingCount, flaggedCount] = await Promise.all([
+    db.select({ count: count() }).from(reviews),
+    db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
+    db.select({ count: count() }).from(reviews).where(eq(reviews.status, "hidden")),
+    db.select({ count: count() }).from(reviews).where(eq(reviews.status, "removed")),
+    db.select({ count: count() }).from(reviews).where(eq(reviews.status, "pending")),
+    db.select({ count: count() }).from(reviews).where(eq(reviews.isFlagged, true)),
+  ]);
+
+  const enrichedRows = rows.map(r => ({
+    ...r,
+    userName: (r.userFirstName ? [r.userFirstName, r.userLastName].filter(Boolean).join(' ') : null) ?? r.userName ?? 'Anonymous',
+  }));
+
+  return {
+    reviews: enrichedRows,
+    total: total[0].count,
+    page,
+    limit,
+    counts: {
+      all: allCount[0].count,
+      published: publishedCount[0].count,
+      hidden: hiddenCount[0].count,
+      removed: removedCount[0].count,
+      pending: pendingCount[0].count,
+      flagged: flaggedCount[0].count,
+    },
+  };
 }
 
+/** Approve a review (set status to published) */
+export async function approveReview(reviewId: number) {
+  const admin = await requireAdmin();
+  const review = await db.query.reviews.findFirst({ where: eq(reviews.id, reviewId) });
+  if (!review) return { success: false, error: "Review not found" };
+
+  await db.update(reviews).set({
+    status: "published",
+    isFlagged: false,
+    flagReason: null,
+    moderationNote: null,
+    moderatedBy: admin.id,
+    moderatedAt: new Date(),
+    updatedAt: new Date(),
+  }).where(eq(reviews.id, reviewId));
+
+  await recalcToolStats(review.toolId);
+  return { success: true };
+}
+
+/** Hide a review (not visible to public, but not deleted) */
+export async function hideReview(reviewId: number, note?: string) {
+  const admin = await requireAdmin();
+  const review = await db.query.reviews.findFirst({ where: eq(reviews.id, reviewId) });
+  if (!review) return { success: false, error: "Review not found" };
+
+  await db.update(reviews).set({
+    status: "hidden",
+    moderationNote: note?.trim() || null,
+    moderatedBy: admin.id,
+    moderatedAt: new Date(),
+    updatedAt: new Date(),
+  }).where(eq(reviews.id, reviewId));
+
+  await recalcToolStats(review.toolId);
+  return { success: true };
+}
+
+/** Remove a review (soft-delete, marked as removed) */
+export async function removeReview(reviewId: number, note?: string) {
+  const admin = await requireAdmin();
+  const review = await db.query.reviews.findFirst({ where: eq(reviews.id, reviewId) });
+  if (!review) return { success: false, error: "Review not found" };
+
+  await db.update(reviews).set({
+    status: "removed",
+    moderationNote: note?.trim() || "Removed by admin",
+    moderatedBy: admin.id,
+    moderatedAt: new Date(),
+    updatedAt: new Date(),
+  }).where(eq(reviews.id, reviewId));
+
+  // Log moderation action
+  await db.insert(moderationLogs).values({
+    toolId: review.toolId,
+    adminId: admin.id,
+    action: "review_removed",
+    previousStatus: review.status,
+    newStatus: "removed",
+    notes: note?.trim() || `Review #${reviewId} removed`,
+  });
+
+  await recalcToolStats(review.toolId);
+  return { success: true };
+}
+
+/** Permanently delete a review */
 export async function deleteReview(reviewId: number) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  const review = await db.query.reviews.findFirst({ where: eq(reviews.id, reviewId) });
+  if (!review) return { success: false, error: "Review not found" };
+
   await db.delete(reviews).where(eq(reviews.id, reviewId));
+
+  // Log moderation action
+  await db.insert(moderationLogs).values({
+    toolId: review.toolId,
+    adminId: admin.id,
+    action: "review_deleted",
+    previousStatus: review.status,
+    newStatus: "deleted",
+    notes: `Review #${reviewId} permanently deleted`,
+  });
+
+  await recalcToolStats(review.toolId);
+  return { success: true };
+}
+
+/** Reject a founder's flag (unflag the review) */
+export async function rejectFlag(reviewId: number, note?: string) {
+  const admin = await requireAdmin();
+  const review = await db.query.reviews.findFirst({ where: eq(reviews.id, reviewId) });
+  if (!review) return { success: false, error: "Review not found" };
+
+  await db.update(reviews).set({
+    isFlagged: false,
+    flagReason: null,
+    moderationNote: note?.trim() || "Flag rejected by admin",
+    moderatedBy: admin.id,
+    moderatedAt: new Date(),
+    updatedAt: new Date(),
+  }).where(eq(reviews.id, reviewId));
+
   return { success: true };
 }
 

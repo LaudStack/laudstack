@@ -231,12 +231,39 @@ export const reviews = pgTable("reviews", {
   helpfulCount: integer("helpful_count").default(0).notNull(),
   founderReply: text("founder_reply"),
   founderReplyAt: timestamp("founder_reply_at"),
+  // Moderation fields
+  status: text("status").default("published").notNull(), // published, hidden, removed, pending
+  // Anti-fraud fields
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  // Flag fields (founder can flag for moderation)
+  isFlagged: boolean("is_flagged").default(false).notNull(),
+  flagReason: text("flag_reason"),
+  flaggedBy: integer("flagged_by").references(() => users.id),
+  flaggedAt: timestamp("flagged_at"),
+  // Admin moderation
+  moderationNote: text("moderation_note"),
+  moderatedBy: integer("moderated_by").references(() => users.id),
+  moderatedAt: timestamp("moderated_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = typeof reviews.$inferInsert;
+
+// ─── Review Rate Limits ─────────────────────────────────────────────────────
+
+export const reviewRateLimits = pgTable("review_rate_limits", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id),
+  ipAddress: text("ip_address"),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+});
+
+export type ReviewRateLimit = typeof reviewRateLimits.$inferSelect;
 
 // ─── Upvotes ──────────────────────────────────────────────────────────────────
 

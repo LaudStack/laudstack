@@ -70,6 +70,10 @@ export async function getFounderReviews() {
         helpfulCount: reviews.helpfulCount,
         founderReply: reviews.founderReply,
         founderReplyAt: reviews.founderReplyAt,
+        status: reviews.status,
+        isFlagged: reviews.isFlagged,
+        flagReason: reviews.flagReason,
+        flaggedAt: reviews.flaggedAt,
         createdAt: reviews.createdAt,
         userName: users.name,
         userFirstName: users.firstName,
@@ -160,7 +164,42 @@ export async function deleteReviewReply(reviewId: number) {
   }
 }
 
-// ─── Get Founder's Deals ──────────────────────────────────────────────────────
+/// ─── Flag Review for Moderation ───────────────────────────────────────────
+
+export async function flagReview(reviewId: number, reason: string) {
+  try {
+    const user = await requireFounder();
+
+    if (!reason?.trim()) return { success: false, error: "Please provide a reason for flagging" };
+
+    const review = await db.query.reviews.findFirst({
+      where: eq(reviews.id, reviewId),
+    });
+    if (!review) return { success: false, error: "Review not found" };
+
+    // Verify the review belongs to one of the founder's tools
+    const tool = await db.query.tools.findFirst({
+      where: and(eq(tools.id, review.toolId), eq(tools.submittedBy, user.id)),
+    });
+    if (!tool) return { success: false, error: "You can only flag reviews on your own stacks" };
+
+    if (review.isFlagged) return { success: false, error: "This review has already been flagged" };
+
+    await db.update(reviews).set({
+      isFlagged: true,
+      flagReason: reason.trim(),
+      flaggedBy: user.id,
+      flaggedAt: new Date(),
+      updatedAt: new Date(),
+    }).where(eq(reviews.id, reviewId));
+
+    return { success: true };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+// ─── Get Founder's Deals ────────────────────────────────────────────────────
 
 export async function getFounderDeals() {
   try {

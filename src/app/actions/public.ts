@@ -1,10 +1,11 @@
 "use server";
 
 import { db } from "@/server/db";
-import { tools, reviews, users, upvotes, savedTools, deals } from "@/drizzle/schema";
-import { eq, desc, asc, and, or, ilike, sql, count, avg, ne } from "drizzle-orm";
+import { tools, reviews, users, upvotes, savedTools, deals, reviewRateLimits } from "@/drizzle/schema";
+import { eq, desc, asc, and, or, ilike, sql, count, avg, ne, gte } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import { getUserBySupabaseId } from "@/server/db";
+import { headers } from "next/headers";
 
 // ─── Homepage Data ───────────────────────────────────────────────────────────
 
@@ -94,10 +95,11 @@ export async function getToolDetail(slug: string) {
 
   if (!tool) return null;
 
-  // Get reviews with user info
+  // Get reviews with user info — only published reviews visible to public
   const toolReviews = await db
     .select({
       id: reviews.id,
+      userId: reviews.userId,
       rating: reviews.rating,
       title: reviews.title,
       body: reviews.body,
@@ -105,6 +107,8 @@ export async function getToolDetail(slug: string) {
       cons: reviews.cons,
       isVerified: reviews.isVerified,
       helpfulCount: reviews.helpfulCount,
+      founderReply: reviews.founderReply,
+      founderReplyAt: reviews.founderReplyAt,
       createdAt: reviews.createdAt,
       userName: users.name,
       userFirstName: users.firstName,
@@ -113,9 +117,9 @@ export async function getToolDetail(slug: string) {
     })
     .from(reviews)
     .leftJoin(users, eq(reviews.userId, users.id))
-    .where(eq(reviews.toolId, tool.id))
+    .where(and(eq(reviews.toolId, tool.id), eq(reviews.status, "published")))
     .orderBy(desc(reviews.createdAt))
-    .limit(50);
+    .limit(100);
 
   // Compute display names from firstName/lastName
   const enrichedReviews = toolReviews.map(r => ({
@@ -133,14 +137,14 @@ export async function getToolDetail(slug: string) {
     .orderBy(desc(tools.rankScore))
     .limit(4);
 
-  // Rating distribution
+  // Rating distribution — only count published reviews
   const ratingDist = await db
     .select({
       rating: reviews.rating,
       count: count(),
     })
     .from(reviews)
-    .where(eq(reviews.toolId, tool.id))
+    .where(and(eq(reviews.toolId, tool.id), eq(reviews.status, "published")))
     .groupBy(reviews.rating);
 
   const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
@@ -338,7 +342,88 @@ export async function getUserSavedToolIds() {
   return rows.map(r => r.toolId);
 }
 
-// ─── Submit Review ───────────────────────────────────────────────────────────
+// ─── Anti-Fraud Helpers ──────────────────────────────────────────────────────
+
+const SPAM_PATTERNS = [
+  /buy now/i, /click here/i, /free money/i, /\$\$\$/,
+  /bit\.ly/i, /tinyurl/i, /https?:\/\/[^\s]+\.[^\s]+/g,
+  /(.{3,})\1{3,}/i, // repeated phrases 4+ times
+];
+
+function detectSpam(text: string): boolean {
+  const combined = text.toLowerCase();
+  // Check spam patterns
+  for (const pattern of SPAM_PATTERNS) {
+    if (pattern.test(combined)) return true;
+  }
+  // Check if text is mostly caps (spam indicator)
+  const alphaChars = combined.replace(/[^a-z]/gi, '');
+  if (alphaChars.length > 20) {
+    const upperCount = (text.match(/[A-Z]/g) || []).length;
+    if (upperCount / alphaChars.length > 0.7) return true;
+  }
+  return false;
+}
+
+async function getClientIp(): Promise<string> {
+  try {
+    const hdrs = await headers();
+    return hdrs.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || hdrs.get('x-real-ip')
+      || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+async function getClientUserAgent(): Promise<string> {
+  try {
+    const hdrs = await headers();
+    return hdrs.get('user-agent') || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+async function checkRateLimit(userId: number, ip: string): Promise<boolean> {
+  // Max 5 reviews per user per 24 hours
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const recentByUser = await db.select({ count: count() })
+    .from(reviewRateLimits)
+    .where(and(
+      eq(reviewRateLimits.userId, userId),
+      gte(reviewRateLimits.submittedAt, oneDayAgo)
+    ));
+  if ((recentByUser[0]?.count ?? 0) >= 5) return false;
+
+  // Max 10 reviews per IP per 24 hours
+  if (ip !== 'unknown') {
+    const recentByIp = await db.select({ count: count() })
+      .from(reviewRateLimits)
+      .where(and(
+        eq(reviewRateLimits.ipAddress, ip),
+        gte(reviewRateLimits.submittedAt, oneDayAgo)
+      ));
+    if ((recentByIp[0]?.count ?? 0) >= 10) return false;
+  }
+  return true;
+}
+
+/** Recalculate tool average_rating and review_count from published reviews only */
+async function recalcToolStats(toolId: number) {
+  const stats = await db.select({
+    avgRating: avg(reviews.rating),
+    totalReviews: count(),
+  }).from(reviews).where(and(eq(reviews.toolId, toolId), eq(reviews.status, "published")));
+
+  await db.update(tools).set({
+    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
+    reviewCount: stats[0].totalReviews,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, toolId));
+}
+
+// ─── Submit Review (with anti-fraud) ─────────────────────────────────────────
 
 export async function submitReview(data: {
   toolId: number;
@@ -351,35 +436,56 @@ export async function submitReview(data: {
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Please sign in to submit a review" };
 
-  // Check if user already reviewed this product
+  // 1. Duplicate protection: one review per user per stack
   const existing = await db.query.reviews.findFirst({
     where: and(eq(reviews.toolId, data.toolId), eq(reviews.userId, user.id)),
   });
-  if (existing) return { success: false, error: "You have already reviewed this product" };
+  if (existing) return { success: false, error: "You have already reviewed this stack. You can edit your existing review instead." };
 
+  // 2. Validate input
+  if (data.rating < 1 || data.rating > 5) return { success: false, error: "Rating must be between 1 and 5" };
+  if (!data.title?.trim()) return { success: false, error: "Review title is required" };
+  if (!data.body?.trim() || data.body.trim().length < 30) return { success: false, error: "Review body must be at least 30 characters" };
+
+  // 3. Get client info for anti-fraud
+  const ip = await getClientIp();
+  const userAgent = await getClientUserAgent();
+
+  // 4. Rate limiting
+  const withinLimit = await checkRateLimit(user.id, ip);
+  if (!withinLimit) return { success: false, error: "You've submitted too many reviews recently. Please try again later." };
+
+  // 5. Spam detection
+  const fullText = `${data.title} ${data.body} ${data.pros || ''} ${data.cons || ''}`;
+  const isSpam = detectSpam(fullText);
+
+  // Insert review — spam reviews go to pending for moderation
   await db.insert(reviews).values({
     toolId: data.toolId,
     userId: user.id,
     rating: data.rating,
-    title: data.title,
-    body: data.body,
-    pros: data.pros ?? null,
-    cons: data.cons ?? null,
+    title: data.title.trim(),
+    body: data.body.trim(),
+    pros: data.pros?.trim() || null,
+    cons: data.cons?.trim() || null,
     isVerified: user.emailVerified ?? false,
+    status: isSpam ? "pending" : "published",
+    ipAddress: ip,
+    userAgent: userAgent,
   });
 
-  // Update tool average rating and review count
-  const stats = await db.select({
-    avgRating: avg(reviews.rating),
-    totalReviews: count(),
-  }).from(reviews).where(eq(reviews.toolId, data.toolId));
+  // Record rate limit entry
+  await db.insert(reviewRateLimits).values({
+    userId: user.id,
+    ipAddress: ip,
+  });
 
-  await db.update(tools).set({
-    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
-    reviewCount: stats[0].totalReviews,
-    updatedAt: new Date(),
-  }).where(eq(tools.id, data.toolId));
+  // Recalculate tool stats (only published reviews count)
+  await recalcToolStats(data.toolId);
 
+  if (isSpam) {
+    return { success: true, message: "Your review has been submitted and is pending moderation." };
+  }
   return { success: true };
 }
 
@@ -485,33 +591,37 @@ export async function editReview(reviewId: number, data: {
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Please sign in to edit your review" };
 
+  // Validate input
+  if (data.rating < 1 || data.rating > 5) return { success: false, error: "Rating must be between 1 and 5" };
+  if (!data.title?.trim()) return { success: false, error: "Review title is required" };
+  if (!data.body?.trim() || data.body.trim().length < 30) return { success: false, error: "Review body must be at least 30 characters" };
+
   // Verify ownership
   const existing = await db.query.reviews.findFirst({
     where: and(eq(reviews.id, reviewId), eq(reviews.userId, user.id)),
   });
   if (!existing) return { success: false, error: "Review not found or you don't own it" };
 
+  // Spam check on edited content
+  const fullText = `${data.title} ${data.body} ${data.pros || ''} ${data.cons || ''}`;
+  const isSpam = detectSpam(fullText);
+
   await db.update(reviews).set({
     rating: data.rating,
-    title: data.title,
-    body: data.body,
-    pros: data.pros ?? null,
-    cons: data.cons ?? null,
+    title: data.title.trim(),
+    body: data.body.trim(),
+    pros: data.pros?.trim() || null,
+    cons: data.cons?.trim() || null,
+    status: isSpam ? "pending" : existing.status, // flag spam edits for moderation
     updatedAt: new Date(),
   }).where(eq(reviews.id, reviewId));
 
-  // Recalculate tool stats
-  const stats = await db.select({
-    avgRating: avg(reviews.rating),
-    totalReviews: count(),
-  }).from(reviews).where(eq(reviews.toolId, existing.toolId));
+  // Recalculate tool stats (published only)
+  await recalcToolStats(existing.toolId);
 
-  await db.update(tools).set({
-    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
-    reviewCount: stats[0].totalReviews,
-    updatedAt: new Date(),
-  }).where(eq(tools.id, existing.toolId));
-
+  if (isSpam) {
+    return { success: true, message: "Your review has been updated and is pending moderation." };
+  }
   return { success: true };
 }
 
@@ -529,17 +639,8 @@ export async function deleteReview(reviewId: number) {
 
   await db.delete(reviews).where(eq(reviews.id, reviewId));
 
-  // Recalculate tool stats
-  const stats = await db.select({
-    avgRating: avg(reviews.rating),
-    totalReviews: count(),
-  }).from(reviews).where(eq(reviews.toolId, existing.toolId));
-
-  await db.update(tools).set({
-    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
-    reviewCount: stats[0].totalReviews,
-    updatedAt: new Date(),
-  }).where(eq(tools.id, existing.toolId));
+  // Recalculate tool stats (published only)
+  await recalcToolStats(existing.toolId);
 
   return { success: true };
 }
@@ -558,9 +659,9 @@ export async function getToolScreenshots(toolId: number) {
 export async function getPlatformStats() {
   const [toolCount, reviewCount, userCount, avgRatingResult] = await Promise.all([
     db.select({ count: count() }).from(tools).where(eq(tools.status, "approved")),
-    db.select({ count: count() }).from(reviews),
+    db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
     db.select({ count: count() }).from(users),
-    db.select({ avg: avg(reviews.rating) }).from(reviews),
+    db.select({ avg: avg(reviews.rating) }).from(reviews).where(eq(reviews.status, "published")),
   ]);
   const totalTools = toolCount[0]?.count ?? 0;
   const totalReviews = reviewCount[0]?.count ?? 0;

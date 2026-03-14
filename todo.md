@@ -339,3 +339,33 @@
 - [x] Create moderation_logs, outbound_clicks, tool_screenshots, tool_views tables
 - [x] Add all foreign key constraints
 - [x] Verify 44 stacks display correctly on live site (www.laudstack.com)
+
+## Full System Audit (March 14, 2026)
+- [ ] Phase 1: Database & Data Audit
+- [ ] Phase 2: Admin System Audit
+- [ ] Phase 3: Founder Flow Audit
+- [ ] Phase 4: User Interaction Audit
+- [ ] Phase 5: Public Stack Page Audit
+- [ ] Phase 6: Ranking & Algorithm Audit
+- [ ] Phase 7: UI/UX Component Audit
+- [ ] Phase 8: Backend Logic Audit
+- [ ] Phase 9: Error & Bug Scan
+- [ ] Phase 10: Produce verification report
+
+## Review Engine — Complete Rebuild (March 14, 2026)
+- [x] Purge all mock reviews from Supabase database
+- [x] Reset all review_count and average_rating to 0 on tools table
+- [x] Update reviews table schema (add ip_address, moderation_status, flag fields)
+- [x] Build server actions: submitReview with anti-fraud (rate limit, IP, duplicate check)
+- [x] Build server actions: editReview, deleteReview (user ownership)
+- [x] Build server actions: flagReview (founder), replyToReview (founder)
+- [x] Build server actions: admin moderation (approve, hide, remove, reject flag)
+- [x] Build per-tool review API endpoint (uses getToolDetail server action)
+- [x] Update tool detail page to fetch and display reviews per-tool
+- [x] Build review submission UI (star rating, text, validation) — already existed, wired to backend
+- [x] Build founder review management UI (view, reply, flag)
+- [x] Build admin review moderation panel (flagged reviews, moderation actions)
+- [x] Implement anti-fraud: rate limiting, IP tracking, duplicate prevention, spam detection
+- [x] Auto-update average_rating and review_count on tools table (recalcToolStats)
+- [x] Test all review flows end-to-end (TypeScript check + Next.js build passed)
+- [ ] Push to GitHub

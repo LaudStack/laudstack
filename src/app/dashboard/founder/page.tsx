@@ -40,6 +40,7 @@ import {
   getFounderClaims,
   requestPromotion,
   requestToolVerification,
+  flagReview,
 } from '@/app/actions/founder';
 import { searchToolsAction } from '@/app/actions/public';
 
@@ -698,7 +699,7 @@ function ReviewsTab() {
   const [loading, setLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [filter, setFilter] = useState<'all' | 'pending' | 'replied'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'replied' | 'flagged'>('all');
   const [submitting, setSubmitting] = useState(false);
 
   const loadReviews = useCallback(async () => {
@@ -736,11 +737,30 @@ function ReviewsTab() {
     }
   };
 
+  const [flaggingId, setFlaggingId] = useState<number | null>(null);
+  const [flagReason, setFlagReason] = useState('');
+
+  const handleFlagReview = async (reviewId: number) => {
+    if (!flagReason.trim()) { toast.error('Please provide a reason for flagging'); return; }
+    const res = await flagReview(reviewId, flagReason.trim());
+    if (res.success) {
+      toast.success('Review flagged for moderation');
+      setFlaggingId(null);
+      setFlagReason('');
+      loadReviews();
+    } else {
+      toast.error(res.error || 'Failed to flag review');
+    }
+  };
+
   const filteredReviews = reviews.filter((r: any) => {
     if (filter === 'pending') return !r.founderReply;
     if (filter === 'replied') return !!r.founderReply;
+    if (filter === 'flagged') return r.isFlagged;
     return true;
   });
+
+  const flaggedCount = reviews.filter((r: any) => r.isFlagged).length;
 
   if (loading) return <LoadingState message="Loading reviews..." />;
 
@@ -757,7 +777,7 @@ function ReviewsTab() {
         </div>
         {reviews.length > 0 && (
           <div className="flex bg-slate-100 rounded-xl p-1 gap-1">
-            {(['all', 'pending', 'replied'] as const).map(f => (
+            {(['all', 'pending', 'replied', 'flagged'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -769,6 +789,11 @@ function ReviewsTab() {
                 {f === 'pending' && pendingCount > 0 && (
                   <span className="ml-1.5 bg-amber-400 text-slate-900 text-xs font-black px-1.5 py-0.5 rounded-full">
                     {pendingCount}
+                  </span>
+                )}
+                {f === 'flagged' && flaggedCount > 0 && (
+                  <span className="ml-1.5 bg-red-400 text-white text-xs font-black px-1.5 py-0.5 rounded-full">
+                    {flaggedCount}
                   </span>
                 )}
               </button>
@@ -843,13 +868,29 @@ function ReviewsTab() {
                     {review.helpfulCount || 0} helpful
                   </div>
                   {!isReplying && (
-                    <button
-                      onClick={() => { setReplyingTo(review.id); setReplyText(review.founderReply || ''); }}
-                      className="ml-auto flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl transition-all"
-                    >
-                      <Reply className="w-3.5 h-3.5" />
-                      {review.founderReply ? 'Edit Reply' : 'Reply'}
-                    </button>
+                    <div className="ml-auto flex items-center gap-2">
+                      {!review.isFlagged && (
+                        <button
+                          onClick={() => { setFlaggingId(review.id); setFlagReason(''); }}
+                          className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-xl transition-all"
+                        >
+                          <Flag className="w-3.5 h-3.5" />
+                          Flag
+                        </button>
+                      )}
+                      {review.isFlagged && (
+                        <span className="flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl">
+                          <Flag className="w-3.5 h-3.5" /> Flagged
+                        </span>
+                      )}
+                      <button
+                        onClick={() => { setReplyingTo(review.id); setReplyText(review.founderReply || ''); }}
+                        className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl transition-all"
+                      >
+                        <Reply className="w-3.5 h-3.5" />
+                        {review.founderReply ? 'Edit Reply' : 'Reply'}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -874,6 +915,37 @@ function ReviewsTab() {
                       Replied {new Date(review.founderReplyAt).toLocaleDateString()}
                     </p>
                   )}
+                </div>
+              )}
+
+              {/* Flag form */}
+              {flaggingId === review.id && (
+                <div className="mx-5 mb-5 bg-red-50 border border-red-200 rounded-xl p-4">
+                  <p className="text-xs font-bold text-red-700 mb-2 flex items-center gap-1.5">
+                    <Flag className="w-3 h-3" /> Flag this review for moderation
+                  </p>
+                  <textarea
+                    value={flagReason}
+                    onChange={e => setFlagReason(e.target.value)}
+                    placeholder="Describe why this review should be flagged (spam, fake, abusive, etc.)..."
+                    rows={3}
+                    className="w-full border border-red-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all resize-none bg-white"
+                  />
+                  <div className="flex items-center justify-end mt-3 gap-2">
+                    <button
+                      onClick={() => { setFlaggingId(null); setFlagReason(''); }}
+                      className="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-xl transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleFlagReview(review.id)}
+                      disabled={!flagReason.trim()}
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-red-500 hover:bg-red-600 disabled:opacity-60 rounded-xl transition-all"
+                    >
+                      <Flag className="w-3.5 h-3.5" /> Submit Flag
+                    </button>
+                  </div>
                 </div>
               )}
 

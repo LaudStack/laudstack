@@ -22,7 +22,7 @@ import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
-import { toggleUpvote, editReview, deleteReview } from '@/app/actions/public';
+import { toggleUpvote, editReview, deleteReview, getToolDetail } from '@/app/actions/public';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
@@ -76,9 +76,50 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
   );
 }
 
-// ─── Get real reviews for a tool (no fake generation) ────────────────────────
-function getToolReviews(toolId: string, allReviews: Review[]): Review[] {
-  return allReviews.filter(r => r.tool_id === toolId);
+// Review type from server (different from the frontend Review type)
+interface ServerReview {
+  id: number;
+  userId: number | null;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  pros: string | null;
+  cons: string | null;
+  isVerified: boolean | null;
+  helpfulCount: number;
+  founderReply: string | null;
+  founderReplyAt: Date | null;
+  createdAt: Date;
+  userName: string;
+  userFirstName: string | null;
+  userLastName: string | null;
+  userAvatar: string | null;
+}
+
+/** Convert server review to frontend Review type */
+function toFrontendReview(r: ServerReview, toolId: string): Review {
+  return {
+    id: String(r.id),
+    tool_id: toolId,
+    user_id: String(r.userId ?? 0),
+    rating: r.rating,
+    title: r.title ?? '',
+    body: r.body ?? '',
+    pros: r.pros ?? undefined,
+    cons: r.cons ?? undefined,
+    is_verified_purchase: r.isVerified ?? false,
+    helpful_count: r.helpfulCount ?? 0,
+    created_at: new Date(r.createdAt).toISOString(),
+    user: {
+      id: String(r.userId ?? 0),
+      name: r.userName ?? 'Anonymous',
+      avatar_url: r.userAvatar ?? undefined,
+    },
+    founder_reply: r.founderReply ? {
+      body: r.founderReply,
+      created_at: r.founderReplyAt ? new Date(r.founderReplyAt).toISOString() : new Date().toISOString(),
+    } : undefined,
+  };
 }
 
 // ─── Share helpers ─────────────────────────────────────────────────────────
@@ -196,6 +237,47 @@ export default function ToolDetail() {
   const [editCons, setEditCons] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
   const [deletingReview, setDeletingReview] = useState<string | null>(null);
+  const [toolReviews, setToolReviews] = useState<Review[]>([]);
+  const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [realReviewCount, setRealReviewCount] = useState(0);
+  const [realAvgRating, setRealAvgRating] = useState(0);
+
+  // Fetch per-tool reviews from server action
+  useEffect(() => {
+    if (!slug) return;
+    setReviewsLoading(true);
+    getToolDetail(slug).then(data => {
+      if (data) {
+        const converted = (data.reviews ?? []).map((r: any) => toFrontendReview(r, String(data.tool.id)));
+        setToolReviews(converted);
+        setRatingDistribution(data.ratingDistribution ?? { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+        setRealReviewCount(converted.length);
+        const avgR = converted.length > 0
+          ? converted.reduce((sum: number, r: Review) => sum + r.rating, 0) / converted.length
+          : 0;
+        setRealAvgRating(avgR);
+      }
+    }).catch(() => {}).finally(() => setReviewsLoading(false));
+  }, [slug]);
+
+  // Refresh reviews after mutations
+  const refreshReviews = () => {
+    if (!slug) return;
+    getToolDetail(slug).then(data => {
+      if (data) {
+        const converted = (data.reviews ?? []).map((r: any) => toFrontendReview(r, String(data.tool.id)));
+        setToolReviews(converted);
+        setRatingDistribution(data.ratingDistribution ?? { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+        setRealReviewCount(converted.length);
+        const avgR = converted.length > 0
+          ? converted.reduce((sum: number, r: Review) => sum + r.rating, 0) / converted.length
+          : 0;
+        setRealAvgRating(avgR);
+      }
+    }).catch(() => {});
+    invalidateToolsCache();
+  };
 
   // Track recently viewed + record view
   useEffect(() => {
@@ -265,7 +347,7 @@ export default function ToolDetail() {
     );
   }
 
-  const reviews = getToolReviews(tool.id, allReviews);
+  const reviews = toolReviews;
   // Use DB-stored features/pricing if available, otherwise fall back to generated defaults
   const fallbackExtras = getToolExtras(tool.slug, tool.name, tool.pricing_model, tool.screenshot_url, tool.website_url);
   const toolFeatures = (tool.features && tool.features.length > 0) ? tool.features : fallbackExtras.features;
@@ -286,7 +368,7 @@ export default function ToolDetail() {
 
   const totalReviews = reviews.length;
   const ratingBreakdown = [5, 4, 3, 2, 1].map(star => {
-    const count = reviews.filter(r => r.rating === star).length;
+    const count = ratingDistribution[star] ?? 0;
     return { star, count };
   });
 
@@ -333,9 +415,9 @@ export default function ToolDetail() {
         cons: editCons || undefined,
       });
       if (result.success) {
-        toast.success('Review updated!');
+        toast.success(result.message || 'Review updated!');
         setEditingReview(null);
-        invalidateToolsCache();
+        refreshReviews();
       } else {
         toast.error(result.error || 'Failed to update review');
       }
@@ -353,7 +435,7 @@ export default function ToolDetail() {
       const result = await deleteReview(parseInt(reviewId, 10));
       if (result.success) {
         toast.success('Review deleted');
-        invalidateToolsCache();
+        refreshReviews();
       } else {
         toast.error(result.error || 'Failed to delete review');
       }
@@ -714,10 +796,10 @@ export default function ToolDetail() {
               <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 items-center sm:items-center mb-7 sm:mb-8 p-5 sm:p-6 bg-slate-50 rounded-xl border border-slate-100">
                 <div className="text-center shrink-0">
                   <div className="text-4xl sm:text-5xl font-black text-gray-900 leading-none" style={{ letterSpacing: '-0.04em' }}>
-                    {tool.average_rating.toFixed(1)}
+                    {totalReviews > 0 ? realAvgRating.toFixed(1) : '0.0'}
                   </div>
-                  <div className="mt-1.5"><StarRating rating={tool.average_rating} size={16} /></div>
-                  <div className="text-[13px] text-slate-500 mt-1.5 font-medium">{tool.review_count.toLocaleString()} reviews</div>
+                  <div className="mt-1.5"><StarRating rating={realAvgRating} size={16} /></div>
+                  <div className="text-[13px] text-slate-500 mt-1.5 font-medium">{totalReviews.toLocaleString()} {totalReviews === 1 ? 'review' : 'reviews'}</div>
                 </div>
                 <div className="flex-1 w-full flex flex-col gap-2">
                   {ratingBreakdown.map(({ star, count }) => (
@@ -1166,7 +1248,7 @@ export default function ToolDetail() {
       )}
 
       <Footer />
-      <WriteReviewModal open={reviewOpen} onClose={() => setReviewOpen(false)} toolName={tool.name} toolLogo={tool.logo_url} toolId={parseInt(tool.id, 10)} />
+      <WriteReviewModal open={reviewOpen} onClose={() => setReviewOpen(false)} onSuccess={refreshReviews} toolName={tool.name} toolLogo={tool.logo_url} toolId={parseInt(tool.id, 10)} />
       <AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action={authAction} />
     </div>
   );

@@ -12,7 +12,7 @@ export async function GET() {
       totalUserCount,
     ] = await Promise.all([
       db.select().from(tools).where(eq(tools.status, "approved")).orderBy(desc(tools.rankScore)),
-      db.select({ count: count() }).from(reviews),
+      db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
       db.select({ count: count() }).from(users),
     ]);
 
@@ -47,6 +47,7 @@ export async function GET() {
       })
       .from(reviews)
       .leftJoin(users, eq(reviews.userId, users.id))
+      .where(eq(reviews.status, "published"))
       .orderBy(desc(reviews.createdAt))
       .limit(5);
 
