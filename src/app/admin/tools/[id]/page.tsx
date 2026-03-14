@@ -649,10 +649,7 @@ export default function AdminToolDetail() {
                       <Globe className="w-3 h-3" /> {founderInfo.founderWebsite}
                     </a>
                   )}
-                  <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-400">
-                    {tool?.claimedBy && <span>Claimed {tool.claimedAt ? new Date(tool.claimedAt).toLocaleDateString() : ''}</span>}
-                    {tool?.submittedBy && !tool?.claimedBy && <span>Submitted by user #{tool.submittedBy}</span>}
-                  </div>
+
                 </div>
               </div>
             ) : (
