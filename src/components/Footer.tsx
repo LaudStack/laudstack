@@ -24,7 +24,7 @@ const TOP_SECTIONS = [
     links: [
       { label: "All Stacks", href: "/tools" },
       { label: "Browse Categories", href: "/categories" },
-      { label: "Rising Stacks", href: "/trending" },
+      { label: "Trending Stacks", href: "/trending" },
       { label: "Top Rated", href: "/top-rated" },
       { label: "Most Lauded", href: "/most-lauded" },
       { label: "SaaS Deals", href: "/deals" },

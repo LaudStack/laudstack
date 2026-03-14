@@ -559,3 +559,12 @@
 - [x] Update footer links — consolidated to one "Recently Launched" in Launches section, replaced duplicate with "Community Voting"
 - [x] Verified no remaining references to /recently-launched in codebase
 - [x] Push to GitHub
+
+## Remove Rising Stacks (March 14, 2026)
+- [x] Delete /rising page directory
+- [x] Remove Rising Stacks from navbar Leaderboard dropdown (replaced with Changelog)
+- [x] Rename "Rising Stacks" to "Trending Stacks" in footer Discover section
+- [x] Update sitemap page reference from Rising Stacks to Trending Stacks
+- [x] Verified no remaining /rising route references in codebase
+- [x] No duplicate menu items across all dropdowns
+- [x] Push to GitHub

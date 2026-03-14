@@ -51,11 +51,11 @@ const NAV_ITEMS = [
   {
     label: 'Leaderboard',
     megaMenu: [
-      { icon: TrendingUp, label: 'Trending Stacks',    desc: "What's hot right now",              href: '/trending' },
+      { icon: TrendingUp, label: 'Trending Stacks',    desc: "What's hot & rising right now",     href: '/trending' },
       { icon: Star,       label: 'Top Rated',          desc: 'Highest community scores',          href: '/top-rated' },
       { icon: Heart,      label: 'Most Lauded',        desc: 'Most loved by the community',       href: '/most-lauded' },
-      { icon: Flame,      label: 'Rising Stacks',      desc: 'Gaining momentum fast',             href: '/rising' },
-      { icon: Award,       label: 'Community Voting',   desc: 'Vote for the best stacks',          href: '/community-voting' },
+      { icon: Award,      label: 'Community Voting',   desc: 'Vote for the best stacks',          href: '/community-voting' },
+      { icon: BookOpen,   label: 'Changelog',          desc: 'Platform updates & news',           href: '/changelog' },
     ],
   },
   { label: 'SaaS Deals', href: '/deals' },

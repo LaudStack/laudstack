@@ -30,7 +30,7 @@ const SECTIONS: SitemapSection[] = [
     icon: <Search className="w-5 h-5 text-amber-500" />,
     links: [
       { label: 'Browse All Products', href: '/tools', desc: 'Full catalog of 95+ verified SaaS & AI stacks' },
-      { label: 'Rising Stacks', href: '/trending', desc: 'Fastest-rising tools ranked by community momentum' },
+      { label: 'Trending Stacks', href: '/trending', desc: 'Trending and rising stacks ranked by community momentum' },
       { label: 'Top Rated', href: '/top-rated', desc: 'Highest-rated tools by verified community reviews' },
       { label: 'New Launches', href: '/new-launches', desc: 'Recently launched tools from founders' },
       { label: 'SaaS Deals', href: '/deals', desc: 'Exclusive discounts and lifetime deals' },
