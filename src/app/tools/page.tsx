@@ -135,37 +135,34 @@ function FilterSection({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+    <div className="bg-white rounded-xl border border-slate-200/80 overflow-hidden shadow-sm">
       <button
         onClick={onToggle}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer',
-          transition: 'background 0.15s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.background = '#F9FAFB'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        className="w-full flex items-center justify-between px-4 py-3 bg-transparent border-none cursor-pointer transition-colors hover:bg-slate-50/80 group"
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Icon style={{ width: 14, height: 14, color: '#6B7280' }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937', letterSpacing: '-0.01em' }}>{title}</span>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+            <Icon className="w-3.5 h-3.5 text-slate-500" />
+          </div>
+          <span className="text-[13px] font-bold text-slate-800 tracking-tight">{title}</span>
           {count !== undefined && count > 0 && (
-            <span style={{
-              fontSize: 10, fontWeight: 700, color: '#B45309', background: '#FEF3C7',
-              padding: '1px 6px', borderRadius: 10, minWidth: 18, textAlign: 'center',
-            }}>
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 border border-amber-200/60 px-1.5 py-px rounded-full min-w-[18px] text-center">
               {count}
             </span>
           )}
         </div>
-        {expanded
-          ? <ChevronUp style={{ width: 14, height: 14, color: '#9CA3AF' }} />
-          : <ChevronDown style={{ width: 14, height: 14, color: '#9CA3AF' }} />
-        }
+        <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors group-hover:bg-slate-100">
+          {expanded
+            ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+            : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          }
+        </div>
       </button>
       {expanded && (
-        <div style={{ padding: '0 12px 12px', maxHeight: 280, overflowY: 'auto' }}>
-          {children}
+        <div className="px-3 pb-3 max-h-[280px] overflow-y-auto border-t border-slate-100/80">
+          <div className="pt-2 flex flex-col gap-0.5">
+            {children}
+          </div>
         </div>
       )}
     </div>
@@ -181,35 +178,36 @@ function FilterCheckbox({
 }) {
   return (
     <label
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 8px', borderRadius: 8, cursor: 'pointer',
-        background: checked ? '#FFFBEB' : 'transparent',
-        transition: 'background 0.12s',
-      }}
-      onMouseEnter={e => { if (!checked) e.currentTarget.style.background = '#F9FAFB'; }}
-      onMouseLeave={e => { if (!checked) e.currentTarget.style.background = 'transparent'; }}
+      className={`flex items-center justify-between px-2.5 py-[7px] rounded-lg cursor-pointer transition-colors ${
+        checked ? 'bg-amber-50/80' : 'hover:bg-slate-50'
+      }`}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={onChange}
-          style={{ accentColor: '#F59E0B', width: 14, height: 14, cursor: 'pointer' }}
-        />
+      <div className="flex items-center gap-2.5">
+        <div className="relative flex-shrink-0">
+          <input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" />
+          <div className={`w-4 h-4 rounded-[5px] border-[1.5px] transition-all flex items-center justify-center ${
+            checked
+              ? 'bg-amber-500 border-amber-500 shadow-sm shadow-amber-500/20'
+              : 'bg-white border-slate-300 peer-hover:border-slate-400'
+          }`}>
+            {checked && (
+              <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </div>
+        </div>
         {dot && (
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: dot, flexShrink: 0 }} />
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dot }} />
         )}
-        <span style={{
-          fontSize: 12, fontWeight: checked ? 700 : 500,
-          color: checked ? '#92400E' : '#4B5563',
-          transition: 'color 0.12s',
-        }}>
+        <span className={`text-[12.5px] leading-tight transition-colors ${
+          checked ? 'font-bold text-amber-900' : 'font-medium text-slate-600'
+        }`}>
           {label}
         </span>
       </div>
       {count !== undefined && (
-        <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+        <span className="text-[11px] text-slate-400 font-medium tabular-nums ml-2">
           {count}
         </span>
       )}
@@ -224,55 +222,55 @@ function FilterRadio({
 }) {
   return (
     <label
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 8px', borderRadius: 8, cursor: 'pointer',
-        background: checked ? '#FFFBEB' : 'transparent',
-        transition: 'background 0.12s',
-      }}
-      onMouseEnter={e => { if (!checked) e.currentTarget.style.background = '#F9FAFB'; }}
-      onMouseLeave={e => { if (!checked) e.currentTarget.style.background = 'transparent'; }}
+      className={`flex items-center justify-between px-2.5 py-[7px] rounded-lg cursor-pointer transition-colors ${
+        checked ? 'bg-amber-50/80' : 'hover:bg-slate-50'
+      }`}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <input
-          type="radio"
-          checked={checked}
-          onChange={onChange}
-          style={{ accentColor: '#F59E0B', width: 14, height: 14, cursor: 'pointer' }}
-        />
-        <span style={{
-          fontSize: 12, fontWeight: checked ? 700 : 500,
-          color: checked ? '#92400E' : '#4B5563',
-        }}>
+      <div className="flex items-center gap-2.5">
+        <div className="relative flex-shrink-0">
+          <input type="radio" checked={checked} onChange={onChange} className="sr-only peer" />
+          <div className={`w-4 h-4 rounded-full border-[1.5px] transition-all flex items-center justify-center ${
+            checked
+              ? 'border-amber-500 shadow-sm shadow-amber-500/20'
+              : 'bg-white border-slate-300 peer-hover:border-slate-400'
+          }`}>
+            {checked && (
+              <div className="w-2 h-2 rounded-full bg-amber-500" />
+            )}
+          </div>
+        </div>
+        <span className={`text-[12.5px] leading-tight transition-colors ${
+          checked ? 'font-bold text-amber-900' : 'font-medium text-slate-600'
+        }`}>
           {label}
         </span>
       </div>
       {count !== undefined && (
-        <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500 }}>{count}</span>
+        <span className="text-[11px] text-slate-400 font-medium tabular-nums ml-2">{count}</span>
       )}
     </label>
   );
 }
 
-/* ── Active filter chip ─────────────────────────────────────────────────────── */
+/* ── Active filter chip ─────────────────────────────────────────────── */
+
+const CHIP_STYLES: Record<string, { bg: string; border: string; text: string }> = {
+  '#D97706': { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+  '#2563EB': { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' },
+  '#7C3AED': { bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700' },
+  '#059669': { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' },
+};
 
 function FilterChip({ label, color, onRemove }: { label: string; color: string; onRemove: () => void }) {
+  const style = CHIP_STYLES[color] || { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-700' };
   return (
-    <span
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: 4,
-        padding: '3px 10px 3px 12px', borderRadius: 20,
-        fontSize: 11, fontWeight: 600, color,
-        background: `${color}12`, border: `1px solid ${color}30`,
-        whiteSpace: 'nowrap',
-      }}
-    >
+    <span className={`inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap border ${style.bg} ${style.border} ${style.text}`}>
       {label}
       <button
         onClick={onRemove}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', color, display: 'flex', padding: 0 }}
+        className={`flex items-center justify-center w-4 h-4 rounded-full transition-colors hover:bg-black/5 ${style.text}`}
       >
-        <X style={{ width: 12, height: 12 }} />
+        <X className="w-3 h-3" />
       </button>
     </span>
   );
@@ -820,27 +818,25 @@ export default function AllTools() {
       {/* ═══════════════════════════════════════════════════════════════════════
           MAIN CONTENT: SIDEBAR + GRID
       ═══════════════════════════════════════════════════════════════════════ */}
-      <div style={{ maxWidth: 1300, margin: '0 auto', width: '100%', padding: '28px 24px 64px' }}>
-        <div style={{ display: 'flex', gap: 28 }}>
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 pt-7 pb-16">
+        <div className="flex gap-7">
 
           {/* ── SIDEBAR ─────────────────────────────────────────────────────── */}
           {sidebarOpen && (
-            <aside style={{ width: 256, flexShrink: 0 }} className="hidden lg:block">
-              <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <aside className="w-[264px] flex-shrink-0 hidden lg:block">
+              <div className="sticky top-[88px] flex flex-col gap-3">
 
                 {/* Sidebar header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Filter style={{ width: 13, height: 13, color: '#6B7280' }} />
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <div className="flex items-center justify-between px-1 mb-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center">
+                      <Filter className="w-3.5 h-3.5 text-slate-500" />
+                    </div>
+                    <span className="text-[13px] font-extrabold text-slate-800 tracking-tight">
                       Filters
                     </span>
                     {activeFilterCount > 0 && (
-                      <span style={{
-                        fontSize: 10, fontWeight: 700, color: '#fff', background: '#F59E0B',
-                        width: 18, height: 18, borderRadius: '50%', display: 'flex',
-                        alignItems: 'center', justifyContent: 'center',
-                      }}>
+                      <span className="text-[10px] font-bold text-white bg-amber-500 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm shadow-amber-500/20">
                         {activeFilterCount}
                       </span>
                     )}
@@ -848,7 +844,7 @@ export default function AllTools() {
                   {hasFilters && (
                     <button
                       onClick={clearAll}
-                      style={{ fontSize: 11, fontWeight: 700, color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      className="text-[11px] font-bold text-red-500 hover:text-red-600 bg-transparent border-none cursor-pointer px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
                     >
                       Clear all
                     </button>
@@ -941,36 +937,24 @@ export default function AllTools() {
           )}
 
           {/* ── MAIN GRID AREA ──────────────────────────────────────────────── */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
 
             {/* Toolbar */}
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 20, gap: 12, flexWrap: 'wrap',
-            }}>
+            <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
               {/* Left: toggle + count + active chips */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <button
                   onClick={() => setSidebarOpen(v => !v)}
-                  className="hidden lg:flex"
-                  style={{
-                    alignItems: 'center', gap: 5,
-                    padding: '7px 12px', borderRadius: 8,
-                    background: '#FFFFFF', border: '1px solid #E5E7EB',
-                    fontSize: 12, fontWeight: 600, color: '#4B5563',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#D1D5DB'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                  className="hidden lg:flex items-center gap-1.5 px-3 py-[7px] rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 cursor-pointer transition-all hover:border-slate-300 hover:shadow-sm"
                 >
-                  <SlidersHorizontal style={{ width: 13, height: 13 }} />
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
                   {sidebarOpen ? 'Hide Filters' : 'Show Filters'}
                 </button>
 
-                <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
-                  <strong style={{ color: '#111827', fontWeight: 800 }}>{filtered.length}</strong>
+                <span className="text-[13px] text-slate-500 font-medium">
+                  <strong className="text-slate-900 font-extrabold">{filtered.length}</strong>
                   {' '}stack{filtered.length !== 1 ? 's' : ''}
-                  {hasFilters && <span style={{ color: '#F59E0B', fontWeight: 600, marginLeft: 4 }}>(filtered)</span>}
+                  {hasFilters && <span className="text-amber-500 font-semibold ml-1">(filtered)</span>}
                 </span>
 
                 {/* Active filter chips */}
@@ -989,25 +973,19 @@ export default function AllTools() {
               </div>
 
               {/* Right: sort + view toggle */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <ArrowUpDown style={{ position: 'absolute', left: 10, width: 12, height: 12, color: '#9CA3AF', pointerEvents: 'none' }} />
+              <div className="flex items-center gap-2">
+                <div className="relative flex items-center">
+                  <ArrowUpDown className="absolute left-2.5 w-3 h-3 text-slate-400 pointer-events-none" />
                   <select
                     value={sortBy}
                     onChange={e => setSortBy(e.target.value)}
-                    style={{
-                      appearance: 'none',
-                      background: '#FFFFFF', border: '1px solid #E5E7EB',
-                      borderRadius: 8, padding: '7px 32px 7px 28px',
-                      fontSize: 12, fontWeight: 600, color: '#374151',
-                      cursor: 'pointer', outline: 'none',
-                    }}
+                    className="appearance-none bg-white border border-slate-200 rounded-lg pl-7 pr-8 py-[7px] text-xs font-semibold text-slate-700 cursor-pointer outline-none hover:border-slate-300 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 transition-all"
                   >
                     {SORT_OPTIONS.map(s => (
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </select>
-                  <ChevronDown style={{ position: 'absolute', right: 10, width: 12, height: 12, color: '#9CA3AF', pointerEvents: 'none' }} />
+                  <ChevronDown className="absolute right-2.5 w-3 h-3 text-slate-400 pointer-events-none" />
                 </div>
 
                 {/* View toggle */}
