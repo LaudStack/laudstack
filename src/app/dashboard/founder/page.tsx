@@ -17,7 +17,7 @@ import {
   Trash2, Copy, RefreshCw, Save, Info, Award, TrendingDown,
   ChevronDown, ChevronUp, Flag, Layers, Target, Megaphone,
   Calendar, Link2, Image, FileText, ArrowRight, BarChart2,
-  Activity, MousePointer, Heart, Share2, Mail, Lock, User, Loader2
+  Activity, MousePointer, Heart, Share2, Mail, Lock, User, Loader2, XCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -413,6 +413,8 @@ function ToolsTab({ setActiveTab }: { setActiveTab: (tab: Tab) => void }) {
                             tagline: tool.tagline,
                             description: tool.description,
                             websiteUrl: tool.websiteUrl,
+                            features: tool.features ?? [],
+                            pricingTiers: tool.pricingTiers ?? [],
                           });
                         }
                       }}
@@ -463,6 +465,155 @@ function ToolsTab({ setActiveTab }: { setActiveTab: (tab: Tab) => void }) {
                       className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
                     />
                   </div>
+
+                  {/* Features Editor */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">Key Features</label>
+                      <button
+                        type="button"
+                        onClick={() => setEditData((prev: any) => ({ ...prev, features: [...(prev.features || []), { icon: '\u26a1', title: '', description: '' }] }))}
+                        className="text-[11px] font-semibold text-amber-700 hover:text-amber-800"
+                      >
+                        + Add Feature
+                      </button>
+                    </div>
+                    {(editData.features || []).map((feat: any, i: number) => (
+                      <div key={i} className="flex items-start gap-2 mb-2 bg-white border border-slate-200 rounded-lg p-2">
+                        <input
+                          value={feat.icon}
+                          onChange={e => {
+                            const updated = [...(editData.features || [])];
+                            updated[i] = { ...updated[i], icon: e.target.value };
+                            setEditData((prev: any) => ({ ...prev, features: updated }));
+                          }}
+                          className="w-10 text-center border border-slate-200 rounded px-1 py-1 text-sm"
+                          placeholder="\u26a1"
+                        />
+                        <input
+                          value={feat.title}
+                          onChange={e => {
+                            const updated = [...(editData.features || [])];
+                            updated[i] = { ...updated[i], title: e.target.value };
+                            setEditData((prev: any) => ({ ...prev, features: updated }));
+                          }}
+                          className="flex-1 border border-slate-200 rounded px-2 py-1 text-sm"
+                          placeholder="Feature title"
+                        />
+                        <input
+                          value={feat.description}
+                          onChange={e => {
+                            const updated = [...(editData.features || [])];
+                            updated[i] = { ...updated[i], description: e.target.value };
+                            setEditData((prev: any) => ({ ...prev, features: updated }));
+                          }}
+                          className="flex-1 border border-slate-200 rounded px-2 py-1 text-sm"
+                          placeholder="Description"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (editData.features || []).filter((_: any, j: number) => j !== i);
+                            setEditData((prev: any) => ({ ...prev, features: updated }));
+                          }}
+                          className="text-red-400 hover:text-red-600 p-1"
+                        >
+                          <XCircle className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {(editData.features || []).length === 0 && (
+                      <p className="text-xs text-slate-400 py-2">No features defined yet. Add features to showcase your tool.</p>
+                    )}
+                  </div>
+
+                  {/* Pricing Tiers Editor */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">Pricing Tiers</label>
+                      <button
+                        type="button"
+                        onClick={() => setEditData((prev: any) => ({ ...prev, pricingTiers: [...(prev.pricingTiers || []), { name: '', price: '', description: '', features: [], cta: 'Get Started' }] }))}
+                        className="text-[11px] font-semibold text-amber-700 hover:text-amber-800"
+                      >
+                        + Add Tier
+                      </button>
+                    </div>
+                    {(editData.pricingTiers || []).map((tier: any, i: number) => (
+                      <div key={i} className="mb-2 bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <input
+                            value={tier.name}
+                            onChange={e => {
+                              const updated = [...(editData.pricingTiers || [])];
+                              updated[i] = { ...updated[i], name: e.target.value };
+                              setEditData((prev: any) => ({ ...prev, pricingTiers: updated }));
+                            }}
+                            className="flex-1 border border-slate-200 rounded px-2 py-1 text-sm"
+                            placeholder="Tier name (e.g. Pro)"
+                          />
+                          <input
+                            value={tier.price}
+                            onChange={e => {
+                              const updated = [...(editData.pricingTiers || [])];
+                              updated[i] = { ...updated[i], price: e.target.value };
+                              setEditData((prev: any) => ({ ...prev, pricingTiers: updated }));
+                            }}
+                            className="w-28 border border-slate-200 rounded px-2 py-1 text-sm"
+                            placeholder="$29/mo"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (editData.pricingTiers || []).filter((_: any, j: number) => j !== i);
+                              setEditData((prev: any) => ({ ...prev, pricingTiers: updated }));
+                            }}
+                            className="text-red-400 hover:text-red-600 p-1"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <input
+                          value={tier.description}
+                          onChange={e => {
+                            const updated = [...(editData.pricingTiers || [])];
+                            updated[i] = { ...updated[i], description: e.target.value };
+                            setEditData((prev: any) => ({ ...prev, pricingTiers: updated }));
+                          }}
+                          className="w-full border border-slate-200 rounded px-2 py-1 text-sm"
+                          placeholder="Tier description"
+                        />
+                        <textarea
+                          value={(tier.features || []).join('\n')}
+                          onChange={e => {
+                            const updated = [...(editData.pricingTiers || [])];
+                            updated[i] = { ...updated[i], features: e.target.value.split('\n').filter((f: string) => f.trim()) };
+                            setEditData((prev: any) => ({ ...prev, pricingTiers: updated }));
+                          }}
+                          rows={3}
+                          className="w-full border border-slate-200 rounded px-2 py-1 text-sm resize-none font-mono"
+                          placeholder="Feature 1\nFeature 2\nFeature 3"
+                        />
+                        <label className="flex items-center gap-2 text-xs text-slate-600">
+                          <input
+                            type="checkbox"
+                            checked={tier.highlighted ?? false}
+                            onChange={e => {
+                              const updated = [...(editData.pricingTiers || [])];
+                              updated[i] = { ...updated[i], highlighted: e.target.checked };
+                              setEditData((prev: any) => ({ ...prev, pricingTiers: updated }));
+                            }}
+                            className="rounded border-slate-300"
+                          />
+                          Highlight as recommended
+                        </label>
+                      </div>
+                    ))}
+                    {(editData.pricingTiers || []).length === 0 && (
+                      <p className="text-xs text-slate-400 py-2">No pricing tiers defined yet. Add tiers to display pricing on your tool page.</p>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-2 pt-1">
                     <button
                       onClick={() => handleSaveEdit(tool.id)}

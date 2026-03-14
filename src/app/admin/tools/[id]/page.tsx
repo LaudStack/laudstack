@@ -13,7 +13,7 @@ import {
   Image as ImageIcon, Star, Eye, EyeOff, Sparkles, Shield,
   AlertTriangle, CheckCircle, XCircle, Link2, Globe,
   BarChart3, MousePointer, TrendingUp, Clock, Edit3,
-  ChevronDown, RefreshCw, Ban, MoreHorizontal, Copy, Crown, User,
+  ChevronDown, RefreshCw, Ban, MoreHorizontal, Copy, Crown, User, Layers, Plus,
 } from "lucide-react";
 import {
   getAdminToolDetail, adminUpdateTool, adminSuspendTool,
@@ -233,7 +233,7 @@ export default function AdminToolDetail() {
   const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
   const [toolReviews, setToolReviews] = useState<Review[]>([]);
   const [modLogs, setModLogs] = useState<ModLog[]>([]);
-  const [activeTab, setActiveTab] = useState<"details" | "media" | "reviews" | "moderation" | "analytics">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "media" | "features" | "reviews" | "moderation" | "analytics">("details");
 
   // Form state
   const [form, setForm] = useState({
@@ -256,6 +256,10 @@ export default function AdminToolDetail() {
     isVerified: false,
     isPro: false,
   });
+
+  // Features & Pricing state
+  const [editFeatures, setEditFeatures] = useState<{ icon: string; title: string; description: string }[]>([]);
+  const [editPricingTiers, setEditPricingTiers] = useState<{ name: string; price: string; period?: string; description: string; features: string[]; cta: string; highlighted?: boolean; badge?: string }[]>([]);
 
   // Founder info
   const [founderInfo, setFounderInfo] = useState<{ id: number; name: string | null; email: string | null; avatarUrl: string | null; founderStatus: string; founderBio: string | null; founderWebsite: string | null } | null>(null);
@@ -298,6 +302,10 @@ export default function AdminToolDetail() {
         isPro: (data.tool as any).isPro ?? false,
       });
 
+      // Load features & pricing from DB
+      setEditFeatures((data.tool as any).features ?? []);
+      setEditPricingTiers((data.tool as any).pricingTiers ?? []);
+
       // Load moderation logs
       const logs = await getAdminModerationLog(toolId);
       setModLogs(logs as unknown as ModLog[]);
@@ -332,6 +340,8 @@ export default function AdminToolDetail() {
         isTrending: form.isTrending,
         isVerified: form.isVerified,
         isPro: form.isPro,
+        features: editFeatures.length > 0 ? editFeatures : undefined,
+        pricingTiers: editPricingTiers.length > 0 ? editPricingTiers : undefined,
       });
       if (result.success) {
         toast.success("Tool updated successfully");
@@ -423,6 +433,7 @@ export default function AdminToolDetail() {
   const TABS = [
     { id: "details" as const, label: "Details", icon: Edit3 },
     { id: "media" as const, label: "Media", icon: ImageIcon },
+    { id: "features" as const, label: "Features & Pricing", icon: Layers },
     { id: "reviews" as const, label: `Reviews (${toolReviews.length})`, icon: Star },
     { id: "moderation" as const, label: "Moderation", icon: Shield },
     { id: "analytics" as const, label: "Analytics", icon: BarChart3 },
@@ -776,6 +787,238 @@ export default function AdminToolDetail() {
               type="screenshot"
               toolSlug={tool.slug}
             />
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════
+          TAB: Features & Pricing
+      ═══════════════════════════════════════════════════════════ */}
+      {activeTab === "features" && (
+        <div className="space-y-6">
+          {/* Features Editor */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-900">Key Features</h3>
+              <button
+                onClick={() => setEditFeatures([...editFeatures, { icon: '⚡', title: '', description: '' }])}
+                className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Feature
+              </button>
+            </div>
+            {editFeatures.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-6">No features defined. Click "Add Feature" to start, or features will be auto-generated from defaults.</p>
+            ) : (
+              <div className="space-y-3">
+                {editFeatures.map((feat, i) => (
+                  <div key={i} className="border border-slate-200 rounded-lg p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[11px] font-semibold text-slate-500 uppercase">Icon</label>
+                        <input
+                          value={feat.icon}
+                          onChange={e => {
+                            const updated = [...editFeatures];
+                            updated[i] = { ...updated[i], icon: e.target.value };
+                            setEditFeatures(updated);
+                          }}
+                          className="w-14 text-center text-xl border border-slate-200 rounded-md p-1.5"
+                          placeholder="⚡"
+                        />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-500 uppercase">Title</label>
+                          <input
+                            value={feat.title}
+                            onChange={e => {
+                              const updated = [...editFeatures];
+                              updated[i] = { ...updated[i], title: e.target.value };
+                              setEditFeatures(updated);
+                            }}
+                            className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm"
+                            placeholder="Feature title"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-500 uppercase">Description</label>
+                          <textarea
+                            value={feat.description}
+                            onChange={e => {
+                              const updated = [...editFeatures];
+                              updated[i] = { ...updated[i], description: e.target.value };
+                              setEditFeatures(updated);
+                            }}
+                            rows={2}
+                            className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm resize-none"
+                            placeholder="Feature description"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setEditFeatures(editFeatures.filter((_, j) => j !== i))}
+                        className="text-red-400 hover:text-red-600 mt-5"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Pricing Tiers Editor */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-900">Pricing Tiers</h3>
+              <button
+                onClick={() => setEditPricingTiers([...editPricingTiers, { name: '', price: '', description: '', features: [], cta: 'Get Started' }])}
+                className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Tier
+              </button>
+            </div>
+            {editPricingTiers.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-6">No pricing tiers defined. Click "Add Tier" to start, or pricing will be auto-generated from defaults.</p>
+            ) : (
+              <div className="space-y-4">
+                {editPricingTiers.map((tier, i) => (
+                  <div key={i} className={`border rounded-lg p-4 space-y-3 ${tier.highlighted ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="grid grid-cols-2 gap-3 flex-1">
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-500 uppercase">Tier Name</label>
+                          <input
+                            value={tier.name}
+                            onChange={e => {
+                              const updated = [...editPricingTiers];
+                              updated[i] = { ...updated[i], name: e.target.value };
+                              setEditPricingTiers(updated);
+                            }}
+                            className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm"
+                            placeholder="e.g. Pro"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-500 uppercase">Price</label>
+                          <input
+                            value={tier.price}
+                            onChange={e => {
+                              const updated = [...editPricingTiers];
+                              updated[i] = { ...updated[i], price: e.target.value };
+                              setEditPricingTiers(updated);
+                            }}
+                            className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm"
+                            placeholder="e.g. $29/mo"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-500 uppercase">Period</label>
+                          <input
+                            value={tier.period ?? ''}
+                            onChange={e => {
+                              const updated = [...editPricingTiers];
+                              updated[i] = { ...updated[i], period: e.target.value || undefined };
+                              setEditPricingTiers(updated);
+                            }}
+                            className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm"
+                            placeholder="e.g. per month"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-500 uppercase">CTA Button</label>
+                          <input
+                            value={tier.cta}
+                            onChange={e => {
+                              const updated = [...editPricingTiers];
+                              updated[i] = { ...updated[i], cta: e.target.value };
+                              setEditPricingTiers(updated);
+                            }}
+                            className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm"
+                            placeholder="e.g. Start Free Trial"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setEditPricingTiers(editPricingTiers.filter((_, j) => j !== i))}
+                        className="text-red-400 hover:text-red-600 mt-5"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-500 uppercase">Description</label>
+                      <input
+                        value={tier.description}
+                        onChange={e => {
+                          const updated = [...editPricingTiers];
+                          updated[i] = { ...updated[i], description: e.target.value };
+                          setEditPricingTiers(updated);
+                        }}
+                        className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm"
+                        placeholder="Tier description"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-500 uppercase">Features (one per line)</label>
+                      <textarea
+                        value={tier.features.join('\n')}
+                        onChange={e => {
+                          const updated = [...editPricingTiers];
+                          updated[i] = { ...updated[i], features: e.target.value.split('\n').filter(f => f.trim()) };
+                          setEditPricingTiers(updated);
+                        }}
+                        rows={4}
+                        className="w-full border border-slate-200 rounded-md px-3 py-1.5 text-sm resize-none font-mono"
+                        placeholder="Feature 1\nFeature 2\nFeature 3"
+                      />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={tier.highlighted ?? false}
+                          onChange={e => {
+                            const updated = [...editPricingTiers];
+                            updated[i] = { ...updated[i], highlighted: e.target.checked };
+                            setEditPricingTiers(updated);
+                          }}
+                          className="rounded border-slate-300"
+                        />
+                        <span className="text-slate-600">Highlighted (recommended)</span>
+                      </label>
+                      {tier.highlighted && (
+                        <div>
+                          <input
+                            value={tier.badge ?? ''}
+                            onChange={e => {
+                              const updated = [...editPricingTiers];
+                              updated[i] = { ...updated[i], badge: e.target.value || undefined };
+                              setEditPricingTiers(updated);
+                            }}
+                            className="border border-slate-200 rounded-md px-3 py-1 text-sm"
+                            placeholder="Badge text (e.g. Most Popular)"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white text-sm font-bold rounded-lg hover:bg-amber-600 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save Features & Pricing
+            </button>
           </div>
         </div>
       )}

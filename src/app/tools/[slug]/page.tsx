@@ -266,7 +266,11 @@ export default function ToolDetail() {
   }
 
   const reviews = getToolReviews(tool.id, allReviews);
-  const extras = getToolExtras(tool.slug, tool.name, tool.pricing_model, tool.screenshot_url, tool.website_url);
+  // Use DB-stored features/pricing if available, otherwise fall back to generated defaults
+  const fallbackExtras = getToolExtras(tool.slug, tool.name, tool.pricing_model, tool.screenshot_url, tool.website_url);
+  const toolFeatures = (tool.features && tool.features.length > 0) ? tool.features : fallbackExtras.features;
+  const toolPricingTiers = (tool.pricing_tiers && tool.pricing_tiers.length > 0) ? tool.pricing_tiers : fallbackExtras.pricing_tiers;
+  const toolScreenshots = fallbackExtras.screenshots; // screenshots still come from screenshot_url / microlink
 
   const alternatives = allTools
     .filter(t => t.category === tool.category && t.id !== tool.id)
@@ -612,9 +616,9 @@ export default function ToolDetail() {
               <div className="px-5 sm:px-7 py-4 sm:py-5 border-b border-slate-100">
                 <h2 className="text-base sm:text-lg font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>Media</h2>
               </div>
-              {extras.screenshots.length > 0 ? (
+              {toolScreenshots.length > 0 ? (
                 <div className="relative bg-slate-100 aspect-video overflow-hidden">
-                  <img src={extras.screenshots[0]?.url} alt={extras.screenshots[0]?.caption}
+                  <img src={toolScreenshots[0]?.url} alt={toolScreenshots[0]?.caption}
                     className="w-full h-full object-cover object-top"
                     onError={e => { const img = e.currentTarget; img.style.display = 'none'; const parent = img.parentElement; if (parent) { parent.style.display = 'flex'; parent.style.alignItems = 'center'; parent.style.justifyContent = 'center'; parent.innerHTML = '<p style="color:#94A3B8;font-size:14px;font-weight:500">Media unavailable</p>'; } }} />
                 </div>
@@ -629,7 +633,7 @@ export default function ToolDetail() {
             <section id="section-features" className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
               <h2 className="text-base sm:text-lg font-extrabold text-gray-900 mb-4 sm:mb-6" style={{ letterSpacing: '-0.02em' }}>Key Features</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {extras.features.map((feat, i) => (
+                {toolFeatures.map((feat, i) => (
                   <div key={i} className="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 transition-all hover:border-amber-200 hover:shadow-sm">
                     <div className="text-2xl mb-2.5">{feat.icon}</div>
                     <h3 className="text-sm font-extrabold text-gray-900 mb-1">{feat.title}</h3>
@@ -648,7 +652,7 @@ export default function ToolDetail() {
                 </a>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {extras.pricing_tiers.map((tier, i) => (
+                {toolPricingTiers.map((tier, i) => (
                   <div key={i} className="rounded-2xl p-5 sm:p-6 relative flex flex-col gap-3.5"
                     style={{
                       border: tier.highlighted ? '2px solid #F59E0B' : '1px solid #E2E8F0',

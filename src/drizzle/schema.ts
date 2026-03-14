@@ -136,6 +136,10 @@ export const tools = pgTable("tools", {
   shortDescription: text("short_description"),
   /** Full pricing details text */
   pricingDetails: text("pricing_details"),
+  /** Structured features list — editable by admins and founders */
+  features: jsonb("features").$type<{ icon: string; title: string; description: string }[]>().default([]),
+  /** Structured pricing tiers — editable by admins and founders */
+  pricingTiers: jsonb("pricing_tiers").$type<{ name: string; price: string; period?: string; description: string; features: string[]; cta: string; highlighted?: boolean; badge?: string }[]>().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

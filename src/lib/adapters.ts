@@ -30,6 +30,8 @@ export function dbToolToFrontend(t: DbTool): FrontendTool {
     launched_at: t.launchedAt.toISOString(),
     created_at: t.createdAt.toISOString(),
     updated_at: t.updatedAt.toISOString(),
+    features: (t.features ?? []) as FrontendTool["features"],
+    pricing_tiers: (t.pricingTiers ?? []) as FrontendTool["pricing_tiers"],
   };
 }
 

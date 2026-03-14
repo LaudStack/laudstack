@@ -66,6 +66,10 @@ export interface Tool {
   created_at: string;
   updated_at: string;
   founder?: Founder;
+  /** Structured features list — stored in DB, editable by admins/founders */
+  features?: ToolFeature[];
+  /** Structured pricing tiers — stored in DB, editable by admins/founders */
+  pricing_tiers?: PricingTier[];
 }
 
 export interface Founder {

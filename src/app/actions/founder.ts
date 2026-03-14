@@ -2,7 +2,7 @@
 
 import { db, getUserBySupabaseId } from "@/server/db";
 import { tools, reviews, users, deals, toolClaims, moderationLogs } from "@/drizzle/schema";
-import { eq, and, desc, sql, count, sum, avg, inArray } from "drizzle-orm";
+import { eq, and, or, desc, sql, count, sum, avg, inArray } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
@@ -417,13 +417,16 @@ export async function updateFounderTool(
     category?: string;
     pricingModel?: string;
     tags?: string[];
+    features?: { icon: string; title: string; description: string }[];
+    pricingTiers?: { name: string; price: string; period?: string; description: string; features: string[]; cta: string; highlighted?: boolean; badge?: string }[];
   }
 ) {
   try {
     const user = await requireFounder();
 
+    // Allow founders to edit tools they submitted OR claimed
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "Tool not found or not owned by you" };
 
@@ -434,6 +437,8 @@ export async function updateFounderTool(
     if (data.category !== undefined) updateData.category = data.category;
     if (data.pricingModel !== undefined) updateData.pricingModel = data.pricingModel;
     if (data.tags !== undefined) updateData.tags = data.tags;
+    if (data.features !== undefined) updateData.features = data.features;
+    if (data.pricingTiers !== undefined) updateData.pricingTiers = data.pricingTiers;
 
     await db.update(tools).set(updateData).where(eq(tools.id, toolId));
 

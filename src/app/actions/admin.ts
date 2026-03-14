@@ -8,6 +8,12 @@ import {
   newsletterSubscribers, deals, toolScreenshots, moderationLogs,
 } from "@/drizzle/schema";
 import { eq, desc, ilike, or, sql, and, count } from "drizzle-orm";
+import {
+  sendClaimApprovedEmail,
+  sendClaimRejectedEmail,
+  sendVerificationOutcomeEmail,
+  sendPromotionOutcomeEmail,
+} from "@/server/email";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
 
@@ -370,6 +376,16 @@ export async function reviewClaim(claimId: number, action: "approved" | "rejecte
     updatedAt: new Date(),
   }).where(eq(toolClaims.id, claimId));
 
+  // Look up the user and tool for email notification
+  const claimUser = await db.query.users.findFirst({
+    where: eq(users.id, claim.userId),
+    columns: { id: true, email: true, founderStatus: true },
+  });
+  const claimTool = claim.toolId ? await db.query.tools.findFirst({
+    where: eq(tools.id, claim.toolId),
+    columns: { id: true, name: true, slug: true },
+  }) : null;
+
   // If approved, update the tool to set claimedBy and submittedBy
   if (action === "approved" && claim.toolId && claim.userId) {
     await db.update(tools).set({
@@ -380,15 +396,21 @@ export async function reviewClaim(claimId: number, action: "approved" | "rejecte
     }).where(eq(tools.id, claim.toolId));
 
     // Also upgrade user to founder if not already
-    const claimUser = await db.query.users.findFirst({
-      where: eq(users.id, claim.userId),
-      columns: { founderStatus: true },
-    });
     if (claimUser && claimUser.founderStatus !== "verified") {
       await db.update(users).set({
         founderStatus: "verified",
         updatedAt: new Date(),
       }).where(eq(users.id, claim.userId));
+    }
+
+    // Send approval email
+    if (claimUser?.email && claimTool) {
+      sendClaimApprovedEmail(claimUser.email, claimTool.name, claimTool.slug).catch(() => {});
+    }
+  } else if (action === "rejected") {
+    // Send rejection email
+    if (claimUser?.email && claimTool) {
+      sendClaimRejectedEmail(claimUser.email, claimTool.name).catch(() => {});
     }
   }
 
@@ -661,6 +683,8 @@ export async function adminUpdateTool(toolId: number, data: {
   isPro?: boolean;
   tags?: string[];
   status?: string;
+  features?: { icon: string; title: string; description: string }[];
+  pricingTiers?: { name: string; price: string; period?: string; description: string; features: string[]; cta: string; highlighted?: boolean; badge?: string }[];
 }) {
   const admin = await requireAdmin();
   
@@ -685,6 +709,20 @@ export async function adminUpdateTool(toolId: number, data: {
   if (data.isPro !== undefined) updateData.isPro = data.isPro;
   if (data.tags !== undefined) updateData.tags = data.tags;
   if (data.status !== undefined) updateData.status = data.status;
+  if (data.features !== undefined) updateData.features = data.features;
+  if (data.pricingTiers !== undefined) updateData.pricingTiers = data.pricingTiers;
+
+  // Check if isVerified is being changed — we need the old value for email notification
+  let wasVerified: boolean | null = null;
+  if (data.isVerified !== undefined) {
+    const existingTool = await db.query.tools.findFirst({
+      where: eq(tools.id, toolId),
+      columns: { isVerified: true, name: true, slug: true, claimedBy: true, submittedBy: true },
+    });
+    if (existingTool) {
+      wasVerified = existingTool.isVerified;
+    }
+  }
 
   await db.update(tools).set(updateData).where(eq(tools.id, toolId));
 
@@ -695,6 +733,32 @@ export async function adminUpdateTool(toolId: number, data: {
       adminId: admin.id,
       action: `status_changed_to_${data.status}`,
       notes: `Admin updated tool status to ${data.status}`,
+    });
+  }
+
+  // Send verification email if isVerified changed
+  if (data.isVerified !== undefined && data.isVerified !== wasVerified) {
+    const tool = await db.query.tools.findFirst({
+      where: eq(tools.id, toolId),
+      columns: { name: true, slug: true, claimedBy: true, submittedBy: true },
+    });
+    if (tool) {
+      const ownerId = tool.claimedBy || tool.submittedBy;
+      if (ownerId) {
+        const owner = await db.query.users.findFirst({
+          where: eq(users.id, ownerId),
+          columns: { email: true },
+        });
+        if (owner?.email) {
+          sendVerificationOutcomeEmail(owner.email, tool.name, tool.slug, data.isVerified).catch(() => {});
+        }
+      }
+    }
+    await db.insert(moderationLogs).values({
+      toolId,
+      adminId: admin.id,
+      action: data.isVerified ? "verified" : "unverified",
+      notes: `Admin ${data.isVerified ? "verified" : "removed verification from"} tool`,
     });
   }
 
@@ -859,6 +923,71 @@ export async function adminDeleteReview(reviewId: number, reason?: string) {
     action: "review_deleted",
     notes: reason || "Admin deleted review",
   });
+
+  return { success: true };
+}
+
+// ─── Review Promotion Request ─────────────────────────────────────────────────
+
+export async function reviewPromotionRequest(
+  logId: number,
+  action: "approved" | "rejected",
+  notes?: string
+) {
+  const admin = await requireAdmin();
+
+  // Get the moderation log entry
+  const logEntry = await db.query.moderationLogs.findFirst({
+    where: eq(moderationLogs.id, logId),
+  });
+  if (!logEntry) return { success: false, error: "Request not found" };
+
+  // Parse the promotion type from the action field (e.g., "promotion_request_featured")
+  const promotionType = logEntry.action.replace("promotion_request_", "");
+
+  // Get the tool info
+  const tool = logEntry.toolId ? await db.query.tools.findFirst({
+    where: eq(tools.id, logEntry.toolId),
+    columns: { id: true, name: true, slug: true, claimedBy: true, submittedBy: true, isFeatured: true },
+  }) : null;
+
+  // If approved and it's a featured request, actually feature the tool
+  if (action === "approved" && tool) {
+    if (promotionType === "featured") {
+      await db.update(tools).set({ isFeatured: true, updatedAt: new Date() }).where(eq(tools.id, tool.id));
+    } else if (promotionType === "sponsored") {
+      await db.update(tools).set({ isSpotlighted: true, updatedAt: new Date() }).where(eq(tools.id, tool.id));
+    }
+  }
+
+  // Log the admin decision
+  await db.insert(moderationLogs).values({
+    toolId: logEntry.toolId,
+    adminId: admin.id,
+    action: `promotion_${action}_${promotionType}`,
+    notes: notes || `Admin ${action} ${promotionType} promotion request`,
+  });
+
+  // Send email notification to the founder
+  if (tool) {
+    const ownerId = tool.claimedBy || tool.submittedBy;
+    if (ownerId) {
+      const owner = await db.query.users.findFirst({
+        where: eq(users.id, ownerId),
+        columns: { email: true },
+      });
+      if (owner?.email) {
+        sendPromotionOutcomeEmail(
+          owner.email,
+          tool.name,
+          tool.slug,
+          promotionType,
+          action === "approved",
+          notes
+        ).catch(() => {});
+      }
+    }
+  }
 
   return { success: true };
 }

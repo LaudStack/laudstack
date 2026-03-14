@@ -447,3 +447,245 @@ export async function sendToolSubmissionEmail(
     return false;
   }
 }
+
+// ─── Claim approval email ─────────────────────────────────────────────────────
+export async function sendClaimApprovedEmail(
+  email: string,
+  toolName: string,
+  toolSlug: string
+): Promise<boolean> {
+  const body = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td align="center">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,#D1FAE5,#ECFDF5);border:2px solid #6EE7B7;border-radius:20px;display:inline-block;text-align:center;line-height:72px;">
+            <span style="font-size:32px;">&#x2705;</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <h2 style="font-size:22px;font-weight:900;color:#0F172A;margin:0 0 12px;text-align:center;letter-spacing:-0.025em;">
+      Your claim has been approved!
+    </h2>
+    <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 16px;text-align:center;">
+      Congratulations! Your ownership claim for <strong style="color:#0F172A;">${toolName}</strong> has been verified and approved by the LaudStack team.
+    </p>
+    <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;text-align:center;">
+      You now have full founder access to manage your tool&rsquo;s listing, respond to reviews, update details, and track analytics.
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC;border-radius:14px;border:1px solid #E2E8F0;margin-bottom:28px;">
+      <tr>
+        <td style="padding:24px;">
+          <p style="font-size:12px;font-weight:800;color:#0F172A;margin:0 0 14px;text-transform:uppercase;letter-spacing:0.08em;">What you can do now</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <tr><td style="padding:5px 0;"><span style="font-size:14px;color:#475569;line-height:1.6;">&#x270F;&#xFE0F; Edit your tool&rsquo;s description, screenshots, and pricing</span></td></tr>
+            <tr><td style="padding:5px 0;"><span style="font-size:14px;color:#475569;line-height:1.6;">&#x1F4AC; Reply to user reviews and engage your community</span></td></tr>
+            <tr><td style="padding:5px 0;"><span style="font-size:14px;color:#475569;line-height:1.6;">&#x1F4CA; Track views, clicks, saves, and Lauds from your dashboard</span></td></tr>
+            <tr><td style="padding:5px 0;"><span style="font-size:14px;color:#475569;line-height:1.6;">&#x1F680; Request featured placement or promotion</span></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          <a href="${APP_URL}/dashboard/founder" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:#0F172A;font-weight:800;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;letter-spacing:0.01em;">
+            Go to Founder Dashboard &rarr;
+          </a>
+        </td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#94A3B8;text-align:center;margin:0;">
+      Questions? Reply to this email or visit <a href="${APP_URL}/contact" style="color:#F59E0B;text-decoration:none;font-weight:600;">laudstack.com/contact</a>
+    </p>
+  `;
+  try {
+    const { error } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Claim approved \u2014 You now manage "${toolName}" on LaudStack`,
+      html: emailShell(body),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Claim rejection email ────────────────────────────────────────────────────
+export async function sendClaimRejectedEmail(
+  email: string,
+  toolName: string,
+  reason?: string
+): Promise<boolean> {
+  const reasonBlock = reason ? `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border-radius:14px;border:1px solid #FED7AA;margin-bottom:24px;">
+      <tr>
+        <td style="padding:24px;">
+          <p style="font-size:12px;font-weight:800;color:#9A3412;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.08em;">Reason</p>
+          <p style="font-size:14px;color:#475569;margin:0;line-height:1.7;">${reason}</p>
+        </td>
+      </tr>
+    </table>` : "";
+  const body = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td align="center">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,#FEE2E2,#FFF1F2);border:2px solid #FECACA;border-radius:20px;display:inline-block;text-align:center;line-height:72px;">
+            <span style="font-size:32px;">&#x1F4CB;</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <h2 style="font-size:22px;font-weight:900;color:#0F172A;margin:0 0 12px;text-align:center;letter-spacing:-0.025em;">
+      Claim update for ${toolName}
+    </h2>
+    <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 16px;text-align:center;">
+      After reviewing your ownership claim for <strong style="color:#0F172A;">${toolName}</strong>, we were unable to verify it at this time.
+    </p>
+    ${reasonBlock}
+    <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;text-align:center;">
+      You can submit a new claim with additional proof of ownership.
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          <a href="${APP_URL}/claim" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:#0F172A;font-weight:800;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;letter-spacing:0.01em;">
+            Submit New Claim &rarr;
+          </a>
+        </td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#94A3B8;text-align:center;margin:0;">
+      Questions? Reply to this email or visit <a href="${APP_URL}/contact" style="color:#F59E0B;text-decoration:none;font-weight:600;">laudstack.com/contact</a>
+    </p>
+  `;
+  try {
+    const { error } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Claim update for "${toolName}" on LaudStack`,
+      html: emailShell(body),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Verification request outcome email ───────────────────────────────────────
+export async function sendVerificationOutcomeEmail(
+  email: string,
+  toolName: string,
+  toolSlug: string,
+  approved: boolean
+): Promise<boolean> {
+  const icon = approved ? "&#x2705;" : "&#x1F50D;";
+  const bgGrad = approved ? "#D1FAE5,#ECFDF5" : "#FEF3C7,#FFFBEB";
+  const borderColor = approved ? "#6EE7B7" : "#FDE68A";
+  const headline = approved
+    ? `${toolName} is now verified!`
+    : `Verification update for ${toolName}`;
+  const message = approved
+    ? `Great news! <strong style="color:#0F172A;">${toolName}</strong> has been reviewed and awarded the <strong style="color:#059669;">Verified</strong> badge on LaudStack.`
+    : `After reviewing your verification request for <strong style="color:#0F172A;">${toolName}</strong>, we need additional information before we can award the Verified badge.`;
+  const body = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td align="center">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,${bgGrad});border:2px solid ${borderColor};border-radius:20px;display:inline-block;text-align:center;line-height:72px;">
+            <span style="font-size:32px;">${icon}</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <h2 style="font-size:22px;font-weight:900;color:#0F172A;margin:0 0 12px;text-align:center;letter-spacing:-0.025em;">${headline}</h2>
+    <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;text-align:center;">${message}</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          <a href="${APP_URL}/tools/${toolSlug}" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:#0F172A;font-weight:800;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;letter-spacing:0.01em;">View Your Tool &rarr;</a>
+        </td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#94A3B8;text-align:center;margin:0;">Questions? Reply to this email or visit <a href="${APP_URL}/contact" style="color:#F59E0B;text-decoration:none;font-weight:600;">laudstack.com/contact</a></p>
+  `;
+  try {
+    const { error } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: approved ? `${toolName} is now verified on LaudStack` : `Verification update for "${toolName}" on LaudStack`,
+      html: emailShell(body),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Promotion request outcome email ──────────────────────────────────────────
+export async function sendPromotionOutcomeEmail(
+  email: string,
+  toolName: string,
+  toolSlug: string,
+  promotionType: string,
+  approved: boolean,
+  notes?: string
+): Promise<boolean> {
+  const typeLabel =
+    promotionType === "featured" ? "Featured Placement" :
+    promotionType === "sponsored" ? "Sponsored Listing" :
+    promotionType === "newsletter" ? "Newsletter Feature" :
+    promotionType;
+  const icon = approved ? "&#x1F31F;" : "&#x1F4DD;";
+  const bgGrad = approved ? "#FEF3C7,#FFFBEB" : "#F1F5F9,#F8FAFC";
+  const borderColor = approved ? "#FDE68A" : "#E2E8F0";
+  const headline = approved
+    ? `${toolName} \u2014 Promotion approved!`
+    : `Promotion update for ${toolName}`;
+  const message = approved
+    ? `Your <strong style="color:#D97706;">${typeLabel}</strong> request for <strong style="color:#0F172A;">${toolName}</strong> has been approved. Your tool will receive enhanced visibility on LaudStack.`
+    : `We&rsquo;ve reviewed your <strong style="color:#475569;">${typeLabel}</strong> request for <strong style="color:#0F172A;">${toolName}</strong>. Unfortunately, we&rsquo;re unable to approve it at this time.`;
+  const notesBlock = notes ? `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC;border-radius:14px;border:1px solid #E2E8F0;margin-bottom:24px;">
+      <tr>
+        <td style="padding:24px;">
+          <p style="font-size:12px;font-weight:800;color:#0F172A;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.08em;">Notes from our team</p>
+          <p style="font-size:14px;color:#475569;margin:0;line-height:1.7;">${notes}</p>
+        </td>
+      </tr>
+    </table>` : "";
+  const body = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td align="center">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,${bgGrad});border:2px solid ${borderColor};border-radius:20px;display:inline-block;text-align:center;line-height:72px;">
+            <span style="font-size:32px;">${icon}</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <h2 style="font-size:22px;font-weight:900;color:#0F172A;margin:0 0 12px;text-align:center;letter-spacing:-0.025em;">${headline}</h2>
+    <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 16px;text-align:center;">${message}</p>
+    ${notesBlock}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+      <tr>
+        <td align="center">
+          <a href="${APP_URL}/dashboard/founder" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:#0F172A;font-weight:800;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;letter-spacing:0.01em;">${approved ? "View Dashboard" : "Try Again"} &rarr;</a>
+        </td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#94A3B8;text-align:center;margin:0;">Questions? Reply to this email or visit <a href="${APP_URL}/contact" style="color:#F59E0B;text-decoration:none;font-weight:600;">laudstack.com/contact</a></p>
+  `;
+  try {
+    const { error } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: approved ? `Promotion approved for "${toolName}" on LaudStack` : `Promotion update for "${toolName}" on LaudStack`,
+      html: emailShell(body),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
