@@ -371,10 +371,10 @@
 - [x] Push to GitHub (commit f532252)
 
 ## Review Engine Hardening (March 14, 2026)
-- [ ] Audit all backend review actions for bugs, mock data, FIXMEs
-- [ ] Audit all frontend review components for bugs, placeholders, unwired UI
-- [ ] Fix all discovered backend issues
-- [ ] Fix all discovered frontend issues
-- [ ] Verify TypeScript + Next.js build pass with zero errors
-- [ ] Verify live site review flows via browser
-- [ ] Push hardened code to GitHub
+- [x] Audit all backend review actions for bugs, mock data, FIXMEs
+- [x] Audit all frontend review components for bugs, placeholders, unwired UI
+- [x] Fix all discovered backend issues
+- [x] Fix all discovered frontend issues (rewrote /reviews page, added edit/delete to user dashboard, wired Helpful button to DB, removed duplicate adminDeleteReview)
+- [x] Verify TypeScript + Next.js build pass with zero errors
+- [x] Verify live site review flows via browser
+- [x] Push hardened code to GitHub (commits f5c044a + 27fa92e)
