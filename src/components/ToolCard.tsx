@@ -51,11 +51,11 @@ const BADGE_CONFIG: Record<
   { label: string; bg: string; color: string; border: string }
 > = {
   top_rated: { label: "Top Rated", bg: "#FEF3C7", color: "#92400E", border: "#FDE68A" },
-  featured: { label: "Featured", bg: "#DBEAFE", color: "#1E40AF", border: "#93C5FD" },
+  featured: { label: "Spotlight", bg: "#DBEAFE", color: "#1E40AF", border: "#93C5FD" },
   verified: { label: "Verified", bg: "#DCFCE7", color: "#166534", border: "#86EFAC" },
   new_launch: { label: "New", bg: "#E0F2FE", color: "#075985", border: "#7DD3FC" },
   editors_pick: { label: "Editor's Pick", bg: "#F3E8FF", color: "#6B21A8", border: "#C4B5FD" },
-  trending: { label: "Trending", bg: "#FFEDD5", color: "#9A3412", border: "#FDBA74" },
+  trending: { label: "Rising", bg: "#FFEDD5", color: "#9A3412", border: "#FDBA74" },
   pro_founder: { label: "Pro", bg: "#1C1917", color: "#F59E0B", border: "#44403C" },
   community_pick: { label: "Community Pick", bg: "#FFE4E6", color: "#9F1239", border: "#FDA4AF" },
   best_value: { label: "Best Value", bg: "#DCFCE7", color: "#166534", border: "#86EFAC" },

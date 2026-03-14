@@ -43,15 +43,15 @@ const NAV_ITEMS = [
     megaMenu: [
       { icon: Layers,     label: 'All Stacks',        desc: 'Browse the full catalog',           href: '/tools' },
       { icon: FolderOpen, label: 'Browse Categories',  desc: 'Explore by category',               href: '/categories' },
-      { icon: BarChart3,  label: 'Comparisons',        desc: 'Product vs product side-by-side',   href: '/comparisons' },
-      { icon: Layers,     label: 'Alternatives',       desc: 'Find alternatives to any product',  href: '/alternatives' },
+      { icon: BarChart3,  label: 'Comparisons',        desc: 'Stack vs stack side-by-side',   href: '/comparisons' },
+      { icon: Layers,     label: 'Alternatives',       desc: 'Find alternatives to any stack',  href: '/alternatives' },
       { icon: Sparkles,   label: 'Spotlight Picks',    desc: 'Editor-curated top stacks',         href: '/editors-picks' },
     ],
   },
   {
     label: 'Leaderboard',
     megaMenu: [
-      { icon: TrendingUp, label: 'Trending Stacks',    desc: "What's hot & rising right now",     href: '/trending' },
+      { icon: TrendingUp, label: 'Rising Stacks',    desc: "What's hot & rising right now",     href: '/trending' },
       { icon: Star,       label: 'Top Rated',          desc: 'Highest community scores',          href: '/top-rated' },
       { icon: Heart,      label: 'Most Lauded',        desc: 'Most loved by the community',       href: '/most-lauded' },
       { icon: Award,      label: 'Community Voting',   desc: 'Vote for the best stacks',          href: '/community-voting' },
@@ -316,7 +316,7 @@ export default function Navbar() {
                           {[
                             { icon: User, label: 'My Dashboard', href: '/dashboard' },
                             { icon: PenSquare, label: 'My Reviews', href: '/dashboard?tab=reviews' },
-                            { icon: Bookmark, label: `Saved Products${savedIds.length > 0 ? ` (${savedIds.length})` : ''}`, href: '/dashboard?tab=saved' },
+                            { icon: Bookmark, label: `Saved Stacks${savedIds.length > 0 ? ` (${savedIds.length})` : ''}`, href: '/dashboard?tab=saved' },
                             { icon: Settings, label: 'Settings', href: '/dashboard?tab=settings' },
                           ].map(item => (
                             <button
@@ -524,7 +524,7 @@ export default function Navbar() {
                 {[
                   { icon: User, label: 'My Dashboard', href: '/dashboard' },
                   { icon: PenSquare, label: 'My Reviews', href: '/dashboard?tab=reviews' },
-                  { icon: Bookmark, label: `Saved Products${savedIds.length > 0 ? ` (${savedIds.length})` : ''}`, href: '/dashboard?tab=saved' },
+                  { icon: Bookmark, label: `Saved Stacks${savedIds.length > 0 ? ` (${savedIds.length})` : ''}`, href: '/dashboard?tab=saved' },
                   { icon: Bell, label: 'Notifications', href: '/dashboard?tab=notifications' },
                   { icon: Settings, label: 'Settings', href: '/dashboard?tab=settings' },
                 ].map(item => (

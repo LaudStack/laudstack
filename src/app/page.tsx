@@ -1,24 +1,23 @@
 "use client";
 
 /*
- * LaudStack Homepage — Redesigned
+ * LaudStack Homepage
  *
  * Sections:
- *  1. HERO             — Value prop + search + social proof
+ *  1. HERO             — Value prop + search + social proof (dynamic stats)
  *  2. RECENTLY VIEWED  — Personalized (auth only)
- *  3. BROWSE + SIDEBAR — Full catalog + leaderboard
- *  4. TRENDING         — Editorial picks with screenshots
- *  5. FRESH LAUNCHES   — PH-style numbered list
- *  6. EVERYTHING IN ONE PLACE — Discover · Review · Launch
+ *  3. RISING THIS WEEK — Editorial picks with screenshots
+ *  4. BROWSE + SIDEBAR — Full catalog + leaderboard
+ *  5. FRESH LAUNCHES   — Newest stacks
+ *  6. EVERYTHING IN ONE PLACE — Launch · Discover · Review
  */
 
 import { useState } from 'react';
 import {
-  Search, Rocket, Star, BarChart3, Shield, ArrowRight,
-  TrendingUp, Users, ChevronUp, Trophy,
-  CheckCircle2, Award, MessageSquare, Flame,
-  Sparkles, Eye, Filter, Globe,
-  Clock, ExternalLink, ArrowUpRight
+  Search, Rocket, Star, BarChart3, ArrowRight,
+  TrendingUp, ChevronUp, Trophy,
+  CheckCircle2, Sparkles, Filter,
+  Clock, ArrowUpRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -31,26 +30,27 @@ import { CATEGORY_META } from '@/lib/categories';
 import { useToolsData } from '@/hooks/useToolsData';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { trpc } from '@/lib/trpc/client';
 
 // ─── Static data ───────────────────────────────────────────────────────────
 const POPULAR_SEARCHES = ['Product Launches', 'AI Writing', 'SaaS Deals', 'Code Templates', 'Design Tools', 'Analytics'];
 
-const FIVE_PILLARS = [
+const CORE_PILLARS = [
   {
     icon: Rocket,
     accent: '#DC2626', accentBg: '#FFF1F2', accentBorder: '#FECDD3',
     label: 'Launch',
-    headline: 'Launch your product to thousands',
-    body: 'Launch via LaunchPad, get community votes, and build momentum with real user feedback from day one.',
+    headline: 'Launch your stack to thousands',
+    body: 'Launch via LaunchPad, get community Lauds, and build momentum with real user feedback from day one.',
     cta: 'Go to LaunchPad',
   },
   {
     icon: Search,
     accent: '#2563EB', accentBg: '#EFF6FF', accentBorder: '#BFDBFE',
     label: 'Discover',
-    headline: 'Find the right product, fast',
+    headline: 'Find the right stack, fast',
     body: 'Browse SaaS and AI stacks across 20 categories. Filter by pricing, rating, and use case. No noise — just what matters.',
-    cta: 'Browse Products',
+    cta: 'Browse Stacks',
   },
   {
     icon: Star,
@@ -65,10 +65,7 @@ const FIVE_PILLARS = [
 // ─── Reusable section header ───────────────────────────────────────────────
 function SectionHeader({
   headline, subtext, cta, ctaColor, onCta,
-  // Keep these in the interface for backward compat but don't render pill
-  label: _label, labelIcon: _LabelIcon, labelColor: _labelColor, labelBg: _labelBg, labelBorder: _labelBorder,
 }: {
-  label?: string; labelIcon?: React.ElementType; labelColor?: string; labelBg?: string; labelBorder?: string;
   headline: string; subtext: string; cta?: string; ctaColor?: string; onCta?: () => void;
 }) {
   return (
@@ -92,9 +89,16 @@ function SectionHeader({
   );
 }
 
+// ─── Helper: format count for display ──────────────────────────────────────
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k+`;
+  if (n > 0) return `${n}`;
+  return '0';
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────
 export default function Home() {
-  const { tools: allTools, reviews: allReviews, leaderboard: apiLeaderboard, loading: toolsLoading } = useToolsData();
+  const { tools: allTools, reviews: allReviews, leaderboard: apiLeaderboard, totalReviews, totalUsers, loading: toolsLoading } = useToolsData();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -102,9 +106,9 @@ export default function Home() {
   const [browseSort, setBrowseSort] = useState<'top_rated' | 'trending' | 'newest' | 'most_reviewed' | 'most_lauded' | 'featured_first'>('top_rated');
   const [browseVisible, setBrowseVisible] = useState(20);
   const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
 
   const router = useRouter();
-
 
   const { isAuthenticated } = useAuth();
   const { slugs: recentSlugs } = useRecentlyViewed();
@@ -117,6 +121,30 @@ export default function Home() {
     const q = searchQuery.trim();
     if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
     else router.push('/search');
+  };
+
+  // Newsletter subscribe via tRPC
+  const subscribeMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess(data) {
+      if (data.alreadySubscribed) {
+        toast.info("You're already subscribed — thanks for being part of the community!");
+      } else {
+        toast.success("You're subscribed! Check your inbox for a welcome email.");
+      }
+      setNewsletterEmail('');
+    },
+    onError(err) {
+      toast.error(err.message || 'Something went wrong. Please try again.');
+    },
+  });
+
+  const handleNewsletterSubscribe = () => {
+    const trimmed = newsletterEmail.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    subscribeMutation.mutate({ email: trimmed, source: 'homepage_sidebar' });
   };
 
   const filteredBase = selectedCategory === 'All'
@@ -136,9 +164,6 @@ export default function Home() {
     return copy;
   })();
   const visibleTools = allToolsSorted.slice(0, browseVisible);
-
-  // Featured: editorial picks (is_featured = true)
-  const featuredTools = allTools.filter(t => t.is_featured).slice(0, 4);
 
   // Trending: top 6 tools with the biggest weekly_rank_change
   const trendingTools = [...(selectedCategory === 'All' ? allTools : filteredBase)]
@@ -173,7 +198,6 @@ export default function Home() {
       <Navbar />
       <div className="h-16 sm:h-[72px] shrink-0" />
 
-
       {/* ══════════════════════════════════════════════════════
           1. HERO
       ══════════════════════════════════════════════════════ */}
@@ -190,7 +214,6 @@ export default function Home() {
         <div className="absolute pointer-events-none" style={{ top: '35%', left: '50%', transform: 'translate(-50%, -50%)', width: 800, height: 600, background: 'radial-gradient(ellipse at center, rgba(245,158,11,0.07) 0%, transparent 65%)' }} />
 
         <div className="w-full max-w-[760px] flex flex-col items-center text-center relative z-10">
-
 
           <h1
             className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[54px]"
@@ -235,25 +258,27 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Social proof */}
+          {/* Social proof — dynamic from API */}
           <div className="mt-6 sm:mt-10 flex items-center gap-3 sm:gap-5 flex-wrap justify-center">
-            <div className="flex items-center gap-2">
-              <div className="flex">
-                {[11,12,13,14,15].map(i => (
-                  <img key={i} src={`https://i.pravatar.cc/32?img=${i}`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-white" style={{ marginLeft: i === 11 ? 0 : '-8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }} />
-                ))}
-              </div>
-              <span className="text-xs sm:text-[13px] text-gray-600 font-medium"><strong className="text-gray-900 font-bold">Thousands</strong> of users</span>
-            </div>
-            <div className="hidden sm:block w-px h-5 bg-gray-200" />
-            <div className="flex items-center gap-1">
-              {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />)}
-              <span className="text-xs sm:text-[13px] text-gray-600 ml-1 font-medium"><strong className="text-gray-900 font-bold">4.9</strong> avg</span>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
+              <span className="text-xs sm:text-[13px] text-gray-600 font-medium">
+                <strong className="text-gray-900 font-bold">{formatCount(allTools.length)}</strong> stacks listed
+              </span>
             </div>
             <div className="hidden sm:block w-px h-5 bg-gray-200" />
             <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
-              <span className="text-xs sm:text-[13px] text-gray-600 font-medium"><strong className="text-gray-900 font-bold">500+</strong> stacks launched</span>
+              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />
+              <span className="text-xs sm:text-[13px] text-gray-600 font-medium">
+                <strong className="text-gray-900 font-bold">{formatCount(totalReviews)}</strong> verified reviews
+              </span>
+            </div>
+            <div className="hidden sm:block w-px h-5 bg-gray-200" />
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" />
+              <span className="text-xs sm:text-[13px] text-gray-600 font-medium">
+                <strong className="text-gray-900 font-bold">{formatCount(totalUsers)}</strong> community members
+              </span>
             </div>
           </div>
         </div>
@@ -281,7 +306,7 @@ export default function Home() {
                     Pick Up Where You Left Off
                   </h2>
                   <p className="text-gray-500 text-xs font-medium mt-0.5">
-                    {recentTools.length} tool{recentTools.length !== 1 ? 's' : ''} you recently explored
+                    {recentTools.length} stack{recentTools.length !== 1 ? 's' : ''} you recently explored
                   </p>
                 </div>
               </div>
@@ -311,7 +336,7 @@ export default function Home() {
                       <h3 className="text-gray-900 font-bold text-sm group-hover:text-amber-600 transition-colors truncate">{tool.name}</h3>
                       <span className="text-xs text-gray-400 font-medium">{tool.category}</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-gray-300 group-hover:text-amber-500 transition-colors shrink-0" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-amber-500 transition-colors shrink-0" />
                   </div>
                   <p className="text-xs text-gray-500 leading-relaxed mb-3 flex-1" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tool.tagline}</p>
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
@@ -333,17 +358,15 @@ export default function Home() {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          4. TRENDING THIS WEEK — Editorial picks with screenshots
+          2. RISING THIS WEEK
       ══════════════════════════════════════════════════════ */}
       {trendingTools.length > 0 && (
         <section className="py-10 sm:py-14 lg:py-16 bg-white border-b border-gray-100">
           <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-10">
-            {/* Bold container — deeper amber/burnt orange shade */}
             <div
               className="rounded-3xl px-5 sm:px-7 lg:px-9 pt-6 sm:pt-8 pb-6 sm:pb-8"
               style={{ background: '#F0F7F4' }}
             >
-              {/* Header row inside the container */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
                   <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -358,11 +381,10 @@ export default function Home() {
                   className="shrink-0 flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all hover:opacity-90"
                   style={{ background: '#F59E0B', color: '#FFFFFF' }}
                 >
-                  View All Trending <ArrowRight className="w-4 h-4" />
+                  View All Rising <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Cards row — horizontal scroll */}
               <div
                 className="flex gap-4 sm:gap-5 overflow-x-auto pb-2 snap-x snap-mandatory"
                 style={{
@@ -382,18 +404,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* Rising This Week — hidden until we have enough user activity */}
       {/* ══════════════════════════════════════════════════════
           3. BROWSE BY CATEGORY + SIDEBAR
       ══════════════════════════════════════════════════════ */}
       <section className="py-12 sm:py-16 lg:py-20 border-b border-gray-200" style={{ background: '#F8FAFC' }}>
         <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10">
           <SectionHeader
-            label="Explore by Category"
-            labelIcon={Filter}
-            labelColor="#F59E0B"
-            labelBg="#F1F5F9"
-            labelBorder="#E2E8F0"
             headline="Explore SaaS & AI stacks by category"
             subtext=""
             cta="All Categories"
@@ -401,7 +417,7 @@ export default function Home() {
             onCta={() => router.push('/tools')}
           />
 
-          {/* ── Category + Filter Container (full width, static) ── */}
+          {/* Category + Filter Container */}
           <div
             className="border border-gray-200 rounded-xl mb-8"
             style={{
@@ -475,10 +491,8 @@ export default function Home() {
                   );
                 })}
               </div>
-
               <div className="hidden sm:block w-px h-6 bg-gray-300/50 shrink-0" />
-
-              {/* Featured toggle */}
+              {/* Spotlight toggle */}
               <button
                 onClick={() => { setFeaturedOnly(f => !f); setBrowseVisible(20); }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold transition-all shrink-0"
@@ -488,11 +502,9 @@ export default function Home() {
                   color: featuredOnly ? '#B45309' : '#9CA3AF',
                 }}
               >
-                <Sparkles className="w-3 h-3" /> Featured
+                <Sparkles className="w-3 h-3" /> Spotlight
               </button>
-
               <div className="hidden sm:block w-px h-6 bg-gray-300/50 shrink-0" />
-
               {/* Sort */}
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sort</span>
@@ -503,11 +515,11 @@ export default function Home() {
                   style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236B7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', paddingRight: 24 }}
                 >
                   <option value="top_rated">Top Rated</option>
-                  <option value="trending">Trending</option>
+                  <option value="trending">Rising</option>
                   <option value="newest">Newest</option>
                   <option value="most_reviewed">Most Reviewed</option>
                   <option value="most_lauded">Most Lauded</option>
-                  <option value="featured_first">Featured First</option>
+                  <option value="featured_first">Spotlight First</option>
                 </select>
               </div>
 
@@ -524,7 +536,7 @@ export default function Home() {
                     )}
                     {featuredOnly && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        Featured
+                        Spotlight
                         <button onClick={() => { setFeaturedOnly(false); setBrowseVisible(20); }} className="ml-0.5 text-amber-400 hover:text-amber-600 bg-transparent border-none cursor-pointer text-xs leading-none p-0">×</button>
                       </span>
                     )}
@@ -535,14 +547,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ── Two-column layout ── */}
+          {/* Two-column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
             {/* Tools list (2/3) */}
             <div className="lg:col-span-2">
-
-              {/* Tool cards list */}
               {toolsLoading ? (
-                /* Skeleton loading placeholders */
                 <div className="flex flex-col gap-3">
                   {[1,2,3,4].map(i => (
                     <div key={i} className="flex items-center gap-5 p-5 rounded-2xl border border-gray-200 bg-white animate-pulse">
@@ -558,16 +567,15 @@ export default function Home() {
                   ))}
                 </div>
               ) : visibleTools.length === 0 ? (
-                /* Empty state */
                 <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
                   <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
                     <Search className="w-7 h-7 text-gray-300" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">No products found</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">No stacks found</h3>
                   <p className="text-sm text-gray-500 max-w-sm mb-5 leading-relaxed">
                     {selectedCategory !== 'All' || selectedPricing !== 'All' || featuredOnly
                       ? 'Try adjusting your filters or browsing a different category.'
-                      : 'No products have been listed yet. Check back soon!'}
+                      : 'No stacks have been listed yet. Check back soon!'}
                   </p>
                   {(selectedCategory !== 'All' || selectedPricing !== 'All' || featuredOnly) && (
                     <button
@@ -589,7 +597,6 @@ export default function Home() {
               {/* Show more button */}
               {!toolsLoading && visibleTools.length > 0 && browseVisible < allToolsSorted.length && (
                 <div className="mt-8 flex flex-col items-center gap-3">
-                  {/* Progress bar */}
                   <div className="w-full max-w-xs">
                     <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                       <div
@@ -606,15 +613,13 @@ export default function Home() {
                   </button>
                 </div>
               )}
-
-
             </div>
 
-            {/* ── Sidebar (1/3) ── */}
+            {/* Sidebar (1/3) */}
             <div className="lg:col-span-1">
               <div className="sticky top-[140px] flex flex-col gap-5">
 
-                {/* Contextual Leaderboard — changes title based on selected category */}
+                {/* Contextual Leaderboard */}
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                   <div className="px-4 py-3.5 border-b border-gray-100 flex items-center justify-between bg-gray-50/80">
                     <div className="flex items-center gap-2.5">
@@ -651,7 +656,7 @@ export default function Home() {
                             }));
                       return contextualLeaderboard.length === 0 ? (
                         <div className="py-8 px-4 text-center">
-                          <p className="text-xs text-gray-400">No products ranked in this category yet</p>
+                          <p className="text-xs text-gray-400">No stacks ranked in this category yet</p>
                         </div>
                       ) : contextualLeaderboard.map((entry, idx) => {
                         const rank = idx + 1;
@@ -701,18 +706,18 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Compare Products CTA */}
+                {/* Compare Stacks CTA */}
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden p-5">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-[10px] bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
                       <BarChart3 className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-extrabold text-gray-900" style={{ fontFamily: "'Inter', sans-serif" }}>Compare Products</h3>
+                      <h3 className="text-sm font-extrabold text-gray-900" style={{ fontFamily: "'Inter', sans-serif" }}>Compare Stacks</h3>
                       <p className="text-[11px] text-gray-500 mt-0.5">Side-by-side comparison</p>
                     </div>
                   </div>
-                  <p className="text-[13px] text-gray-500 leading-relaxed mb-4">Can&apos;t decide? Compare up to 3 products side by side — features, pricing, and ratings.</p>
+                  <p className="text-[13px] text-gray-500 leading-relaxed mb-4">Can&apos;t decide? Compare up to 3 stacks side by side — features, pricing, and ratings.</p>
                   <button
                     onClick={() => router.push('/compare')}
                     className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-[13px] font-bold text-blue-700 bg-blue-50 border border-blue-200 cursor-pointer transition-all hover:bg-blue-100 hover:border-blue-300"
@@ -721,7 +726,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Weekly Picks Newsletter */}
+                {/* Weekly Picks Newsletter — wired to tRPC */}
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden p-5">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-[10px] bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0">
@@ -729,22 +734,27 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="text-sm font-extrabold text-gray-900" style={{ fontFamily: "'Inter', sans-serif" }}>Get Weekly Picks</h3>
-                      <p className="text-[11px] text-gray-500 mt-0.5">Curated products, every week</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Curated stacks, every week</p>
                     </div>
                   </div>
                   <p className="text-[13px] text-gray-500 leading-relaxed mb-4">The best new SaaS and AI stacks, handpicked by our editors. Delivered every Thursday.</p>
                   <div className="flex gap-2">
                     <input
                       type="email"
+                      value={newsletterEmail}
+                      onChange={e => setNewsletterEmail(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleNewsletterSubscribe()}
                       placeholder="your@email.com"
                       className="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-200 transition-all bg-gray-50"
+                      disabled={subscribeMutation.isPending}
                     />
                     <button
-                      onClick={() => toast.success('Thanks! You\'ll get our weekly picks.')}
-                      className="px-4 py-2.5 rounded-xl text-sm font-bold text-white border-none cursor-pointer transition-all hover:opacity-90 shrink-0"
+                      onClick={handleNewsletterSubscribe}
+                      disabled={subscribeMutation.isPending}
+                      className="px-4 py-2.5 rounded-xl text-sm font-bold text-white border-none cursor-pointer transition-all hover:opacity-90 shrink-0 disabled:opacity-60"
                       style={{ background: '#7C3AED' }}
                     >
-                      Subscribe
+                      {subscribeMutation.isPending ? '...' : 'Subscribe'}
                     </button>
                   </div>
                 </div>
@@ -760,7 +770,7 @@ export default function Home() {
                       <h3 className="text-sm font-extrabold text-gray-900 mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>Are you a founder?</h3>
                     </div>
                   </div>
-                  <p className="text-[13px] text-amber-900 leading-relaxed mb-4">Launch your product and get discovered by thousands of buyers. Free to list.</p>
+                  <p className="text-[13px] text-amber-900 leading-relaxed mb-4">Launch your stack and get discovered by thousands of buyers. Free to list.</p>
                   <button
                     onClick={go}
                     className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-[13px] font-bold text-white border-none cursor-pointer transition-all hover:opacity-90"
@@ -775,20 +785,12 @@ export default function Home() {
         </div>
       </section>
 
-
-
-
       {/* ══════════════════════════════════════════════════════
-          5. FRESH LAUNCHES — PH-style numbered list
+          4. FRESH LAUNCHES
       ══════════════════════════════════════════════════════ */}
       <section className="py-12 sm:py-16 lg:py-20 bg-white border-b border-gray-100">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
           <SectionHeader
-            label="Fresh Launches"
-            labelIcon={Sparkles}
-            labelColor="#2563EB"
-            labelBg="#EFF6FF"
-            labelBorder="#BFDBFE"
             headline="Newly launched Stacks"
             subtext="The latest SaaS and AI stacks submitted by founders."
             cta="View All Launches"
@@ -812,11 +814,10 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          6. EVERYTHING IN ONE PLACE — Launch · Discover · Review
+          5. EVERYTHING IN ONE PLACE — Launch · Discover · Review
       ══════════════════════════════════════════════════════ */}
       <section className="py-12 sm:py-16 lg:py-20 border-b border-gray-200" style={{ background: '#F8FAFC' }}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
-          {/* Sleek container */}
           <div
             className="relative overflow-hidden rounded-3xl"
             style={{
@@ -853,10 +854,10 @@ export default function Home() {
             {/* Divider */}
             <div className="mx-6 sm:mx-10 lg:mx-14 h-px bg-slate-100" />
 
-            {/* Cards grid inside container */}
-              <div className="px-6 sm:px-10 lg:px-14 py-8 sm:py-10">
+            {/* Cards grid */}
+            <div className="px-6 sm:px-10 lg:px-14 py-8 sm:py-10">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                {FIVE_PILLARS.map(({ icon: Icon, accent, accentBg, accentBorder, label, headline, body, cta }) => (
+                {CORE_PILLARS.map(({ icon: Icon, accent, accentBg, accentBorder, label, headline, body, cta }) => (
                   <div
                     key={label}
                     onClick={() => {

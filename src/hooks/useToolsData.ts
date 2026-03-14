@@ -19,6 +19,8 @@ interface HomepageData {
   tools: Tool[];
   reviews: Review[];
   leaderboard: FlatLeaderboardEntry[];
+  totalReviews: number;
+  totalUsers: number;
 }
 
 let cachedData: HomepageData | null = null;
@@ -67,11 +69,13 @@ function fetchData(): Promise<HomepageData> {
         tools: data.tools ?? [],
         reviews: data.reviews ?? [],
         leaderboard: normalizeLeaderboard(data.leaderboard ?? []),
+        totalReviews: data.totalReviews ?? 0,
+        totalUsers: data.totalUsers ?? 0,
       };
       cachedData = normalized;
       return normalized;
     })
-    .catch(() => ({ tools: [], reviews: [], leaderboard: [] }));
+    .catch(() => ({ tools: [], reviews: [], leaderboard: [], totalReviews: 0, totalUsers: 0 }));
   return fetchPromise;
 }
 
@@ -79,6 +83,8 @@ export function useToolsData() {
   const [tools, setTools] = useState<Tool[]>(cachedData?.tools ?? []);
   const [reviews, setReviews] = useState<Review[]>(cachedData?.reviews ?? []);
   const [leaderboard, setLeaderboard] = useState<FlatLeaderboardEntry[]>(cachedData?.leaderboard ?? []);
+  const [totalReviews, setTotalReviews] = useState<number>(cachedData?.totalReviews ?? 0);
+  const [totalUsers, setTotalUsers] = useState<number>(cachedData?.totalUsers ?? 0);
   const [loading, setLoading] = useState(!cachedData);
 
   useEffect(() => {
@@ -86,11 +92,13 @@ export function useToolsData() {
       setTools(data.tools);
       setReviews(data.reviews);
       setLeaderboard(data.leaderboard);
+      setTotalReviews(data.totalReviews);
+      setTotalUsers(data.totalUsers);
       setLoading(false);
     });
   }, []);
 
-  return { tools, reviews, leaderboard, loading };
+  return { tools, reviews, leaderboard, totalReviews, totalUsers, loading };
 }
 
 // Invalidate cache (call after mutations like upvote)
