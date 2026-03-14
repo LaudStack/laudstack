@@ -341,15 +341,15 @@ export default function Home() {
             {/* Bold container — deeper amber/burnt orange shade */}
             <div
               className="rounded-3xl px-5 sm:px-7 lg:px-9 pt-6 sm:pt-8 pb-6 sm:pb-8"
-              style={{ background: '#E3EDE8' }}
+              style={{ background: '#F0F7F4' }}
             >
               {/* Header row inside the container */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                  <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>
                     Rising This Week
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-700 font-medium">
+                  <p className="text-sm sm:text-base text-gray-500 font-medium">
                     The most lauded and discussed stacks right now.
                   </p>
                 </div>

@@ -1,8 +1,8 @@
 "use client";
 
 /*
- * LaudStack Navbar — Medium Navy Blue (#1E3A5F)
- * Rich navy that's not too dark — pairs with dark navy footer
+ * LaudStack Navbar — Dark Navy (#0F1629)
+ * Original dark navy header with white text
  * Professional mobile hamburger with super-menu dropdowns
  * LaunchPad CTA hidden when logged in
  * Polished avatar with subtle container
@@ -186,7 +186,7 @@ export default function Navbar() {
     toast.success('Signed out successfully.');
   };
 
-  // Medium navy blue header — white text
+  // Dark navy header — white text
   const navText    = 'text-white/85 hover:text-white';
   const navHoverBg = 'hover:bg-white/10';
 
@@ -203,7 +203,7 @@ export default function Navbar() {
             : ''
         }`}
         style={{
-          background: scrolled ? 'rgba(30, 58, 95, 0.97)' : '#1E3A5F',
+          background: scrolled ? 'rgba(15, 22, 41, 0.97)' : '#0F1629',
           borderBottom: '1px solid rgba(255,255,255,0.08)',
         }}
       >
