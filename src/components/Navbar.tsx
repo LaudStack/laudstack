@@ -17,7 +17,8 @@ import {
   Zap, BarChart3, Star, Trophy, BookOpen,
   TrendingUp, Users, Shield, Layers, ArrowRight,
   User, Settings, FileText, LogOut, PenSquare, Bookmark,
-  Tag, Package, DollarSign, Crown, Bell, ChevronRight, Archive
+  Tag, Package, DollarSign, Crown, Bell, ChevronRight, Archive,
+  Clock, Calendar, Flame, Heart, Award, FolderOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useToolsData } from '@/hooks/useToolsData';
@@ -30,59 +31,35 @@ const NAV_ITEMS = [
   {
     label: 'Launches',
     megaMenu: [
-      { icon: Rocket,     label: 'LaunchPad',       desc: 'Launch your product',   href: '/launchpad' },
-      { icon: Zap,        label: 'New Launches',     desc: 'Just launched this week',        href: '/new-launches' },
-      { icon: TrendingUp, label: 'Rising',           desc: "What's hot right now",           href: '/trending' },
-      { icon: Trophy,     label: 'Community Picks',  desc: 'Voted by the community',         href: '/community-picks' },
-      { icon: Shield,     label: "Editor's Picks",   desc: 'Curated by our team',            href: '/editors-picks' },
-      { icon: Users,      label: 'Community Voting', desc: 'Laud & discuss stacks',      href: '/community-voting' },
-      { icon: Archive,    label: 'Launch Archive',   desc: 'Browse all past launches',       href: '/launch-archive' },
+      { icon: Rocket,   label: 'LaunchPad',         desc: 'Launch your product',              href: '/launchpad' },
+      { icon: Zap,      label: "Today's Launches",   desc: 'Launched today',                   href: '/new-launches' },
+      { icon: Calendar, label: 'Upcoming Launches',  desc: 'Coming soon',                      href: '/upcoming-launches' },
+      { icon: Clock,    label: 'Recently Launched',  desc: 'Fresh on the platform',            href: '/recently-launched' },
+      { icon: Archive,  label: 'Launch Archive',     desc: 'Browse all past launches',         href: '/launch-archive' },
     ],
   },
   {
     label: 'Discover',
     megaMenu: [
-      { icon: Layers,     label: 'All Stacks',     desc: 'Browse the full catalog',        href: '/tools' },
-      { icon: Star,       label: 'Top Rated',        desc: 'Highest community scores',       href: '/top-rated' },
-      { icon: BarChart3,  label: 'Comparisons',      desc: 'Product vs product side-by-side', href: '/comparisons' },
-      { icon: Layers,     label: 'Alternatives',     desc: 'Find alternatives to any product', href: '/alternatives' },
-      { icon: Bookmark,   label: 'Saved Products',   desc: 'Your personal collection',       href: '/saved' },
+      { icon: Layers,     label: 'All Stacks',        desc: 'Browse the full catalog',           href: '/tools' },
+      { icon: FolderOpen, label: 'Browse Categories',  desc: 'Explore by category',               href: '/categories' },
+      { icon: BarChart3,  label: 'Comparisons',        desc: 'Product vs product side-by-side',   href: '/comparisons' },
+      { icon: Layers,     label: 'Alternatives',       desc: 'Find alternatives to any product',  href: '/alternatives' },
+      { icon: Zap,        label: 'Recently Added',     desc: 'Newest stacks on the platform',     href: '/recently-added' },
     ],
   },
   {
-    label: 'Categories',
-    href: '/categories',
-    categoryMenu: true,
+    label: 'Leaderboard',
     megaMenu: [
-      { icon: '⚡', label: 'AI Productivity',    desc: 'Automation & productivity',   href: '/tools?category=AI+Productivity' },
-      { icon: '✍️', label: 'AI Writing',          desc: 'Content & copywriting',       href: '/tools?category=AI+Writing' },
-      { icon: '🎨', label: 'AI Image',            desc: 'Image generation & editing',  href: '/tools?category=AI+Image' },
-      { icon: '🎬', label: 'AI Video',            desc: 'Video creation & editing',    href: '/tools?category=AI+Video' },
-      { icon: '💻', label: 'AI Code',             desc: 'Coding assistants & IDEs',    href: '/tools?category=AI+Code' },
-      { icon: '📊', label: 'AI Analytics',        desc: 'Data & research tools',       href: '/tools?category=AI+Analytics' },
-      { icon: '📣', label: 'Marketing',           desc: 'SEO, ads & growth',           href: '/tools?category=Marketing' },
-      { icon: '📋', label: 'Project Management',  desc: 'Tasks & team workflows',      href: '/tools?category=Project+Management' },
-      { icon: '🤝', label: 'CRM',                 desc: 'Customer relationships',      href: '/tools?category=CRM' },
-      { icon: '💰', label: 'Sales',               desc: 'Outreach & pipeline',         href: '/tools?category=Sales' },
-      { icon: '🖌️', label: 'Design',              desc: 'UI, graphics & branding',     href: '/tools?category=Design' },
-      { icon: '🔧', label: 'Developer Tools',     desc: 'APIs, infra & DevOps',        href: '/tools?category=Developer+Tools' },
+      { icon: TrendingUp, label: 'Trending Stacks',    desc: "What's hot right now",              href: '/trending' },
+      { icon: Star,       label: 'Top Rated',          desc: 'Highest community scores',          href: '/top-rated' },
+      { icon: Heart,      label: 'Most Lauded',        desc: 'Most loved by the community',       href: '/most-lauded' },
+      { icon: Flame,      label: 'Rising Stacks',      desc: 'Gaining momentum fast',             href: '/rising' },
+      { icon: Clock,      label: 'Recently Launched',  desc: 'Fresh launches this week',          href: '/recently-launched' },
     ],
   },
-  { label: 'Deals', href: '/deals' },
+  { label: 'SaaS Deals', href: '/deals' },
   { label: 'Templates', href: '/templates' },
-  {
-    label: 'Resources',
-    megaMenu: [
-      { icon: BookOpen,  label: 'Blog',              desc: 'Insights, guides & product news',      href: '/blog' },
-      { icon: BookOpen,  label: 'Reviews',           desc: 'Community reviews & ratings',          href: '/reviews' },
-      { icon: Rocket,    label: 'Claim Your Product', desc: 'Verify ownership & get Pro badge',    href: '/claim' },
-      { icon: Shield,    label: 'Trust Framework',   desc: 'How we verify reviews',                href: '/trust' },
-      { icon: FileText,  label: 'Changelog',         desc: "What's new on LaudStack",             href: '/changelog' },
-      { icon: Users,     label: 'About LaudStack',   desc: 'Our mission and team',                href: '/about' },
-      { icon: FileText,  label: 'Contact Us',        desc: 'Get in touch with our team',           href: '/contact' },
-      { icon: BookOpen,  label: 'Help Centre / FAQ', desc: 'Answers to common questions',          href: '/faq' },
-    ],
-  },
 ];
 
 const POPULAR_SEARCHES = [
@@ -251,26 +228,10 @@ export default function Navbar() {
                   {item.megaMenu && activeMega === item.label && (
                     <div
                       className="absolute top-full left-0 pt-2 z-50"
-                      style={{ minWidth: (item as any).categoryMenu ? '560px' : '320px' }}
+                      style={{ minWidth: '320px' }}
                     >
                       <div className="bg-white rounded-2xl shadow-2xl shadow-slate-900/15 border border-slate-100 overflow-hidden p-2">
-                        {(item as any).categoryMenu ? (
-                          <div className="grid grid-cols-2 gap-0.5">
-                            {item.megaMenu.map(sub => (
-                              <button
-                                key={sub.label}
-                                onClick={() => { router.push(sub.href); setActiveMega(null); }}
-                                className="flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-slate-50 transition-colors text-left group"
-                              >
-                                <span className="text-base shrink-0 w-6 text-center">{sub.icon as string}</span>
-                                <div className="min-w-0">
-                                  <div className="text-sm font-semibold text-slate-900 group-hover:text-amber-600 transition-colors">{sub.label}</div>
-                                  <div className="text-xs text-slate-500">{sub.desc}</div>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
+                        {
                           <div className="space-y-0.5">
                             {item.megaMenu.map(sub => {
                               const SubIcon = sub.icon as React.ElementType;
@@ -291,7 +252,7 @@ export default function Navbar() {
                               );
                             })}
                           </div>
-                        )}
+                        }
                       </div>
                     </div>
                   )}
@@ -524,23 +485,7 @@ export default function Navbar() {
                     {/* Expandable sub-menu */}
                     {hasSubmenu && isExpanded && (
                       <div className="ml-2 mr-2 mb-2 rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        {(item as any).categoryMenu ? (
-                          <div className="grid grid-cols-2 gap-px p-2">
-                            {item.megaMenu!.map(sub => (
-                              <button
-                                key={sub.label}
-                                onClick={() => { router.push(sub.href); setMobileOpen(false); }}
-                                className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-left hover:bg-white/8 transition-colors"
-                              >
-                                <span className="text-sm shrink-0">{sub.icon as string}</span>
-                                <div className="min-w-0">
-                                  <div className="text-[13px] font-semibold text-white/85 leading-tight">{sub.label}</div>
-                                  <div className="text-[11px] text-white/40 leading-tight mt-0.5">{sub.desc}</div>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
+                        {
                           <div className="p-2 space-y-0.5">
                             {item.megaMenu!.map(sub => {
                               const SubIcon = sub.icon as React.ElementType;
@@ -562,7 +507,7 @@ export default function Navbar() {
                               );
                             })}
                           </div>
-                        )}
+                        }
                       </div>
                     )}
                   </div>

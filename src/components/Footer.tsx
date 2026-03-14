@@ -19,21 +19,11 @@ const FOOTER_SECTIONS = [
     heading: "Discover",
     links: [
       { label: "All Stacks", href: "/tools" },
-      { label: "Trending This Week", href: "/trending" },
+      { label: "Browse Categories", href: "/categories" },
+      { label: "Trending Stacks", href: "/trending" },
       { label: "Top Rated", href: "/top-rated" },
-      { label: "Fresh Launches", href: "/new-launches" },
-      { label: "Community Picks", href: "/community-picks" },
+      { label: "Most Lauded", href: "/most-lauded" },
       { label: "SaaS Deals", href: "/deals" },
-    ],
-  },
-  {
-    heading: "Community",
-    links: [
-      { label: "Leaderboard", href: "/trending" },
-      { label: "Write a Review", href: "/tools" },
-      { label: "Top Reviewers", href: "/community-picks" },
-      { label: "Saved Products", href: "/saved" },
-      { label: "Newsletter", href: "/newsletter" },
     ],
   },
   {
@@ -43,7 +33,7 @@ const FOOTER_SECTIONS = [
       { label: "Claim Your Product", href: "/claim" },
       { label: "Founder Dashboard", href: "/dashboard/founder" },
       { label: "Pricing", href: "/pricing" },
-      { label: "Success Stories", href: "/blog" },
+      { label: "Launch Guide", href: "/blog" },
     ],
   },
   {
@@ -53,7 +43,18 @@ const FOOTER_SECTIONS = [
       { label: "Help Centre / FAQ", href: "/faq" },
       { label: "Trust Framework", href: "/trust" },
       { label: "Changelog", href: "/changelog" },
+      { label: "Founder Resources", href: "/blog" },
       { label: "Templates", href: "/templates" },
+    ],
+  },
+  {
+    heading: "Comparisons",
+    links: [
+      { label: "AI Tools Comparisons", href: "/comparisons?category=AI" },
+      { label: "SaaS Software Comparisons", href: "/comparisons?category=SaaS" },
+      { label: "Popular Comparisons", href: "/comparisons" },
+      { label: "Latest Comparisons", href: "/comparisons?sort=newest" },
+      { label: "Alternatives", href: "/alternatives" },
     ],
   },
   {

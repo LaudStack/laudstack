@@ -421,3 +421,55 @@
 - [x] Inspect Futurepedia.io navbar background color (#3960EF vivid blue, white text)
 - [x] Update LaudStack Navbar to match (bg, logo, text, icons, search pill, avatar, mobile)
 - [x] Verify build and push to GitHub
+
+## Navigation Architecture Finalization (March 14, 2026)
+
+### Header Restructure
+- [x] Header items: Launches, Discover, Leaderboard, SaaS Deals, Templates
+- [x] Launches → dropdown only (no landing page)
+- [x] Discover → dropdown only (no landing page)
+- [x] Leaderboard → dropdown only (no landing page)
+- [x] SaaS Deals → direct page (no dropdown)
+- [x] Templates → direct page (no dropdown)
+- [x] Remove Resources from header
+
+### Launches Dropdown Pages
+- [x] LaunchPad (existing, audited)
+- [x] Today's Launches (existing /new-launches, audited)
+- [x] Upcoming Launches (NEW — built)
+- [x] Recently Launched (NEW — built)
+- [x] Launch Archive (existing, audited)
+
+### Discover Dropdown Pages
+- [x] All Stacks (existing /tools, audited)
+- [x] Browse Categories (existing /categories, audited)
+- [x] Comparisons (existing, audited)
+- [x] Alternatives (existing, audited)
+- [x] Recently Added (NEW — built)
+
+### Leaderboard Dropdown Pages
+- [x] Trending Stacks (existing /trending, audited)
+- [x] Top Rated (existing /top-rated, audited)
+- [x] Most Lauded (NEW — built)
+- [x] Rising Stacks (NEW — built)
+- [x] Recently Launched (shared with Launches, audited)
+
+### New Top-Level Pages
+- [x] SaaS Deals page (existing /deals, audited)
+- [x] Templates page (existing /templates, audited)
+
+### Footer Restructure
+- [x] Move Resources section from header to footer
+- [x] Add Comparisons section to footer
+- [x] All footer links verified
+
+### Platform Consistency
+- [x] All pages use real backend data (useToolsData → /api/homepage → Supabase)
+- [x] No mock data, placeholder UI, FIXMEs, TODOs
+- [x] Stack cards, Laud system, reviews, rankings all wired
+- [x] All navigation links correct (16/16 routes verified)
+- [x] No outdated/conflicting pages
+
+### Final Verification
+- [x] TypeScript + Next.js build passes (zero errors)
+- [x] Push to GitHub
