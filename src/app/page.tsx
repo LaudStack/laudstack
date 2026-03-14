@@ -193,8 +193,8 @@ export default function Home() {
 
 
           <h1
-            className="text-[24px] sm:text-[30px] md:text-[36px] lg:text-[44px]"
-            style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#171717', margin: 0 }}
+            className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[54px]"
+            style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900, lineHeight: 1.12, letterSpacing: '-0.03em', color: '#171717', margin: 0 }}
           >
             Launch, Discover &amp; Review{' '}<span style={{ color: '#F59E0B' }}>SaaS &amp; AI Tools.</span>
           </h1>
@@ -235,41 +235,25 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Trusted by logos */}
-          <div className="mt-8 sm:mt-10 w-full max-w-[680px]">
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.15em] mb-4 text-center">Trusted by teams at</p>
-            <div className="flex items-center justify-center gap-6 sm:gap-10 flex-wrap opacity-40">
-              {/* Stripe */}
-              <svg className="h-6 sm:h-7" viewBox="0 0 60 25" fill="#475569">
-                <path d="M5 10.2c0-.7.6-1 1.5-1 1.4 0 3.1.4 4.5 1.2V6.3C9.5 5.7 8 5.3 6.5 5.3 2.6 5.3 0 7.3 0 10.5c0 5 6.8 4.2 6.8 6.3 0 .8-.7 1.1-1.7 1.1-1.5 0-3.4-.6-4.9-1.5v4.2c1.7.7 3.3 1 4.9 1 4 0 6.7-2 6.7-5.1C11.8 11 5 11.9 5 10.2z"/>
-                <path d="M16.2 2.3l-4.8 1V7h4.8V2.3zM11.4 8.8h4.8v11.5h-4.8V8.8z"/>
-                <path d="M22.3 7.5l-.3-1.2h-4.2v14h4.8v-9.5c1.1-1.5 3-1.2 3.6-1V5.6c-.6-.2-2.8-.6-3.9 1.9z"/>
-                <path d="M27.2 5.6h4.8v14.7h-4.8V5.6z"/>
-                <path d="M38.5 5.3c-1.7 0-2.8.8-3.4 1.4l-.2-1.1h-4.2v18.8l4.8-1V19c.6.5 1.6 1.1 3 1.1 3 0 5.8-2.5 5.8-7.8-.1-5-2.9-7.3-5.8-7z"/>
-                <path d="M49.6 5.3c-4.7 0-7.1 3.5-7.1 7.8 0 5.2 3.2 7.7 7.7 7.7 2.2 0 3.9-.5 5.2-1.2v-3.6c-1.3.6-2.7 1-4.5 1-1.8 0-3.4-.6-3.6-2.8h9c0-.2.1-1.3.1-1.8-.1-4.6-2.2-7.1-6.8-7.1z"/>
-              </svg>
-              {/* Notion */}
-              <svg className="h-5 sm:h-6" viewBox="0 0 100 25" fill="#475569">
-                <path d="M2.8 1.5C4.3 2.7 4.8 2.6 7.6 2.4l28.4-1.7c.6 0 .1-.6-.1-.7L32.5.2c-.9-.7-2.1-1.4-4.4-1.2L1.2 1c-1 .1-1.2.5-.8.9l2.4-.4zM4.4 7v29c0 1.6.8 2.1 2.5 2l31.2-1.8c1.7-.1 1.9-1.1 1.9-2.3V6.2c0-1.2-.5-1.8-1.5-1.7L5.8 6.3c-1.1.1-1.4.6-1.4 1.7v-1zM35 8.3c.2.8 0 1.7-.8 1.8l-1.5.3v21.4c-1.3.7-2.5 1.1-3.5 1.1-1.6 0-2-.5-3.2-2L16.4 15.8v14.6l3.1.7s0 1.7-2.4 1.7l-6.5.4c-.2-.4 0-1 .5-1.1l1.7-.5V11.4l-2.3-.2c-.2-.8.3-2 1.5-2.1l7-.5 10 15.3V11l-2.6-.3c-.2-1 .5-1.7 1.4-1.8L35 8.3z"/>
-                <text x="48" y="20" fontSize="16" fontWeight="700" fontFamily="Inter,sans-serif">Notion</text>
-              </svg>
-              {/* Vercel */}
-              <svg className="h-5 sm:h-6" viewBox="0 0 76 20" fill="#475569">
-                <path d="M11.5 0L23 20H0L11.5 0z"/>
-                <text x="28" y="16" fontSize="14" fontWeight="700" fontFamily="Inter,sans-serif">Vercel</text>
-              </svg>
-              {/* Shopify */}
-              <svg className="h-6 sm:h-7" viewBox="0 0 110 25" fill="#475569">
-                <text x="0" y="19" fontSize="18" fontWeight="700" fontFamily="Inter,sans-serif">Shopify</text>
-              </svg>
-              {/* Linear */}
-              <svg className="h-5 sm:h-6" viewBox="0 0 80 20" fill="#475569">
-                <text x="0" y="16" fontSize="15" fontWeight="700" fontFamily="Inter,sans-serif">Linear</text>
-              </svg>
-              {/* Figma */}
-              <svg className="h-5 sm:h-6" viewBox="0 0 65 20" fill="#475569">
-                <text x="0" y="16" fontSize="15" fontWeight="700" fontFamily="Inter,sans-serif">Figma</text>
-              </svg>
+          {/* Social proof */}
+          <div className="mt-6 sm:mt-10 flex items-center gap-3 sm:gap-5 flex-wrap justify-center">
+            <div className="flex items-center gap-2">
+              <div className="flex">
+                {[11,12,13,14,15].map(i => (
+                  <img key={i} src={`https://i.pravatar.cc/32?img=${i}`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-white" style={{ marginLeft: i === 11 ? 0 : '-8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }} />
+                ))}
+              </div>
+              <span className="text-xs sm:text-[13px] text-gray-600 font-medium"><strong className="text-gray-900 font-bold">Thousands</strong> of users</span>
+            </div>
+            <div className="hidden sm:block w-px h-5 bg-gray-200" />
+            <div className="flex items-center gap-1">
+              {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />)}
+              <span className="text-xs sm:text-[13px] text-gray-600 ml-1 font-medium"><strong className="text-gray-900 font-bold">4.9</strong> avg</span>
+            </div>
+            <div className="hidden sm:block w-px h-5 bg-gray-200" />
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
+              <span className="text-xs sm:text-[13px] text-gray-600 font-medium"><strong className="text-gray-900 font-bold">500+</strong> stacks launched</span>
             </div>
           </div>
         </div>
