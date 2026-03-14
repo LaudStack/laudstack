@@ -692,4 +692,16 @@
 - [x] Ensure leaderboard uses real data and laud functionality (laudedIds, handleLaud, invalidateToolsCache)
 - [x] Polish overall page design (light theme bg-white, consistent amber accent, no gradients)
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit fb40dce)
+
+## Countdown Pill Redesign (March 14, 2026)
+- [ ] Redesign countdown timer on /launches upcoming cards to be a prominent centered pill
+- [ ] Ensure countdown is well legible and inside the middle of the card
+- [ ] Build verification
+- [ ] Push to GitHub
+
+## Countdown Pill + Notify Me Button Polish (March 14, 2026)
+- [x] /launches: Move countdown from tiny top bar to prominent centered pill inside card body (dark pill, amber accents, font-mono)
+- [x] /upcoming-launches: Make Notify Me button more visible and colored (amber bg, white text, shadow, hover)
+- [ ] Build verification
 - [ ] Push to GitHub

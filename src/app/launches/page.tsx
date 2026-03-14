@@ -157,37 +157,19 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
     <div className={`relative bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
       isLive ? 'border-green-400/50 ring-1 ring-green-400/20' : 'border-slate-200'
     }`}>
-      {/* Top bar — status */}
-      <div className={`px-4 py-1.5 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider ${
-        isLive ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-500'
-      }`}>
-        <div className="flex items-center gap-1.5">
-          {isLive ? (
-            <><span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live Now</>
-          ) : (
-            <><Timer className="w-3 h-3" /> Upcoming</>
-          )}
-        </div>
-        {!isLive && (
-          <span className="text-[10px] font-mono tabular-nums text-slate-600">
-            {countdown.d > 0 && `${countdown.d}d `}{String(countdown.h).padStart(2, '0')}:{String(countdown.m).padStart(2, '0')}:{String(countdown.s).padStart(2, '0')}
-          </span>
-        )}
-      </div>
-
       <div className="p-4">
         {/* Tool info row */}
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-11 h-11 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center flex-shrink-0">
             <img
               src={item.logo}
               alt={item.name}
-              className="w-9 h-9 object-contain"
+              className="w-10 h-10 object-contain"
               onError={e => {
                 const t = e.currentTarget;
                 t.style.display = 'none';
                 const p = t.parentElement;
-                if (p) p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${item.name.charAt(0)}</span>`;
+                if (p) p.innerHTML = `<span style="font-size:18px;font-weight:800;color:#64748B">${item.name.charAt(0)}</span>`;
               }}
             />
           </div>
@@ -212,17 +194,45 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
           )}
         </div>
 
+        {/* Countdown pill — prominent centered */}
+        {!isLive ? (
+          <div className="flex justify-center mb-3">
+            <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full shadow-sm">
+              <Timer className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs font-bold tracking-wide">
+                {countdown.d > 0 && <span className="text-amber-400">{countdown.d}<span className="text-slate-400 text-[10px] ml-0.5">d</span></span>}
+                {countdown.d > 0 && <span className="text-slate-500 mx-1">:</span>}
+                <span className="font-mono tabular-nums">{String(countdown.h).padStart(2, '0')}</span>
+                <span className="text-slate-400 text-[10px] ml-0.5">h</span>
+                <span className="text-slate-500 mx-1">:</span>
+                <span className="font-mono tabular-nums">{String(countdown.m).padStart(2, '0')}</span>
+                <span className="text-slate-400 text-[10px] ml-0.5">m</span>
+                <span className="text-slate-500 mx-1">:</span>
+                <span className="font-mono tabular-nums">{String(countdown.s).padStart(2, '0')}</span>
+                <span className="text-slate-400 text-[10px] ml-0.5">s</span>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center mb-3">
+            <div className="inline-flex items-center gap-1.5 bg-green-500 text-white px-4 py-2 rounded-full shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span className="text-xs font-bold tracking-wide">Live Now</span>
+            </div>
+          </div>
+        )}
+
         {/* Action row */}
         <div className="flex items-center gap-2">
           {isLive && item.slug ? (
             <Link href={`/tools/${item.slug}`} className="flex-1">
-              <button className="w-full flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors">
+              <button className="w-full flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">
                 View Stack <ArrowUpRight className="w-3 h-3" />
               </button>
             </Link>
           ) : notified ? (
-            <div className="flex-1 flex items-center justify-center gap-1.5 bg-amber-50 text-amber-600 text-xs font-bold px-3 py-2 rounded-lg border border-amber-200">
-              <CheckCircle2 className="w-3 h-3" /> Subscribed
+            <div className="flex-1 flex items-center justify-center gap-1.5 bg-amber-50 text-amber-600 text-xs font-bold px-3 py-2.5 rounded-lg border border-amber-200">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Subscribed
             </div>
           ) : showEmailInput ? (
             <div className="flex-1 flex gap-1.5">
@@ -232,23 +242,23 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
                 onChange={e => setNotifyEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleNotify()}
                 placeholder="your@email.com"
-                className="flex-1 text-xs px-2.5 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-amber-400 min-w-0"
+                className="flex-1 text-xs px-2.5 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-amber-400 min-w-0"
                 autoFocus
               />
               <button
                 onClick={handleNotify}
                 disabled={notifying}
-                className="flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex-shrink-0"
+                className="flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex-shrink-0"
               >
-                {notifying ? <Loader2 className="w-3 h-3 animate-spin" /> : <Bell className="w-3 h-3" />}
+                {notifying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
               </button>
             </div>
           ) : (
             <button
               onClick={handleNotify}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold px-3 py-2.5 rounded-lg transition-colors shadow-sm"
             >
-              <Bell className="w-3 h-3" /> Notify Me
+              <Bell className="w-3.5 h-3.5" /> Notify Me
             </button>
           )}
         </div>

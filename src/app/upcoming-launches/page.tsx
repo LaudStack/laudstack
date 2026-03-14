@@ -338,19 +338,32 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "4px",
-            padding: "4px 10px",
-            borderRadius: "6px",
-            border: notified ? "1px solid #FDE68A" : "1px solid #E8ECF0",
-            background: notified ? "#FFFBEB" : "#F9FAFB",
-            fontSize: "11px",
-            fontWeight: 600,
-            color: notified ? "#B45309" : "#6B7280",
+            gap: "5px",
+            padding: "6px 14px",
+            borderRadius: "8px",
+            border: notified ? "1.5px solid #FDE68A" : "1.5px solid #F59E0B",
+            background: notified ? "#FFFBEB" : "#F59E0B",
+            fontSize: "12px",
+            fontWeight: 700,
+            color: notified ? "#B45309" : "#FFFFFF",
             cursor: "pointer",
             transition: "all 0.15s ease",
+            boxShadow: notified ? "none" : "0 1px 3px rgba(245,158,11,0.3)",
+          }}
+          onMouseEnter={(e) => {
+            if (!notified) {
+              e.currentTarget.style.background = "#D97706";
+              e.currentTarget.style.borderColor = "#D97706";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!notified) {
+              e.currentTarget.style.background = "#F59E0B";
+              e.currentTarget.style.borderColor = "#F59E0B";
+            }
           }}
         >
-          {notified ? <BellOff style={{ width: "11px", height: "11px" }} /> : <Bell style={{ width: "11px", height: "11px" }} />}
+          {notified ? <BellOff style={{ width: "13px", height: "13px" }} /> : <Bell style={{ width: "13px", height: "13px" }} />}
           {submitting ? "..." : notified ? "Notified" : "Notify Me"}
         </button>
       </div>
