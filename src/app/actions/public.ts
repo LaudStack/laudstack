@@ -75,6 +75,8 @@ export async function getToolsListing(opts: {
     case "trending": orderBy = desc(tools.weeklyRankChange); break;
     case "most_reviewed": orderBy = desc(tools.reviewCount); break;
     case "top_rated": orderBy = desc(tools.averageRating); break;
+    case "upvote_count": orderBy = desc(tools.upvoteCount); break;
+    case "most_lauded": orderBy = desc(tools.upvoteCount); break;
     default: orderBy = desc(tools.rankScore);
   }
 
@@ -261,22 +263,10 @@ async function getCurrentUser() {
 }
 
 export async function toggleUpvote(toolId: number) {
-  const user = await getCurrentUser();
-  if (!user) return { success: false, error: "Please sign in to upvote" };
-
-  const existing = await db.query.upvotes.findFirst({
-    where: and(eq(upvotes.toolId, toolId), eq(upvotes.userId, user.id)),
-  });
-
-  if (existing) {
-    await db.delete(upvotes).where(eq(upvotes.id, existing.id));
-    await db.update(tools).set({ upvoteCount: sql`${tools.upvoteCount} - 1` }).where(eq(tools.id, toolId));
-    return { success: true, upvoted: false };
-  } else {
-    await db.insert(upvotes).values({ toolId, userId: user.id });
-    await db.update(tools).set({ upvoteCount: sql`${tools.upvoteCount} + 1` }).where(eq(tools.id, toolId));
-    return { success: true, upvoted: true };
-  }
+  // Delegate to the comprehensive laud engine
+  const { toggleLaud } = await import("@/app/actions/laud");
+  const result = await toggleLaud(toolId);
+  return { success: result.success, upvoted: result.lauded, error: result.error };
 }
 
 export async function toggleSaveTool(toolId: number) {
@@ -321,14 +311,9 @@ export async function getUserSavedTools() {
 }
 
 export async function getUserUpvotedToolIds() {
-  const user = await getCurrentUser();
-  if (!user) return [];
-
-  const rows = await db.select({ toolId: upvotes.toolId })
-    .from(upvotes)
-    .where(eq(upvotes.userId, user.id));
-
-  return rows.map(r => r.toolId);
+  // Delegate to the comprehensive laud engine
+  const { getUserLaudedToolIds } = await import("@/app/actions/laud");
+  return getUserLaudedToolIds();
 }
 
 export async function getUserSavedToolIds() {

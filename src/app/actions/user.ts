@@ -83,35 +83,17 @@ export async function updateFounderProfile(data: {
   }
 }
 
-// ─── Upvote ───────────────────────────────────────────────────────────────────
+// ─── Upvote (delegates to laud engine) ──────────────────────────────────────
 
 export async function toggleUpvote(toolId: number) {
-  const user = await requireAuth();
-  
-  const existing = await db.select().from(upvotes)
-    .where(and(eq(upvotes.toolId, toolId), eq(upvotes.userId, user.id)))
-    .limit(1);
-  
-  if (existing.length > 0) {
-    await db.delete(upvotes).where(eq(upvotes.id, existing[0].id));
-    await db.update(tools).set({
-      upvoteCount: sql`GREATEST(${tools.upvoteCount} - 1, 0)`,
-    }).where(eq(tools.id, toolId));
-    return { upvoted: false };
-  } else {
-    await db.insert(upvotes).values({ toolId, userId: user.id });
-    await db.update(tools).set({
-      upvoteCount: sql`${tools.upvoteCount} + 1`,
-    }).where(eq(tools.id, toolId));
-    return { upvoted: true };
-  }
+  const { toggleLaud } = await import("@/app/actions/laud");
+  const result = await toggleLaud(toolId);
+  return { upvoted: result.lauded ?? false };
 }
 
 export async function getUserUpvotes() {
-  const user = await requireAuth();
-  const rows = await db.select({ toolId: upvotes.toolId }).from(upvotes)
-    .where(eq(upvotes.userId, user.id));
-  return rows.map(r => r.toolId);
+  const { getUserLaudedToolIds } = await import("@/app/actions/laud");
+  return getUserLaudedToolIds();
 }
 
 // ─── Save Tool ────────────────────────────────────────────────────────────────

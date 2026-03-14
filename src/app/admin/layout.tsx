@@ -14,7 +14,7 @@ import {
   Star, Settings, Bell, Search, ChevronDown, LogOut,
   Menu, X, Zap, TrendingUp, Shield, Package, Tag,
   ChevronRight, AlertCircle, CheckCircle, Clock, Sparkles,
-  BarChart3, ExternalLink, Mail, BookOpen,
+  BarChart3, ExternalLink, Mail, BookOpen, Heart,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDbUser } from "@/hooks/useDbUser";
@@ -38,6 +38,7 @@ const NAV_SECTIONS = [
       { href: "/admin/submissions", icon: FileText, label: "Submissions", badge: "submissions" },
       { href: "/admin/reviews", icon: Star, label: "Reviews" },
       { href: "/admin/deals", icon: Tag, label: "Deals" },
+      { href: "/admin/lauds", icon: Heart, label: "Lauds" },
     ],
   },
   {

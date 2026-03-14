@@ -31,7 +31,7 @@ const SORT_OPTIONS = [
   { value: 'rank_score', label: 'Top Ranked' },
   { value: 'average_rating', label: 'Highest Rated' },
   { value: 'review_count', label: 'Most Reviewed' },
-  { value: 'upvote_count', label: 'Most Upvoted' },
+  { value: 'upvote_count', label: 'Most Lauded' },
   { value: 'newest', label: 'Newest First' },
   { value: 'name', label: 'A–Z' },
 ];

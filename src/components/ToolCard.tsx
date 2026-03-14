@@ -28,7 +28,8 @@ import {
 import { toast } from "sonner";
 import type { Tool } from "@/lib/types";
 import { useAuth } from "@/hooks/useAuth";
-import { toggleUpvote, toggleSaveTool } from "@/app/actions/public";
+import { toggleSaveTool } from "@/app/actions/public";
+import { toggleLaud } from "@/app/actions/laud";
 import AuthGateModal from "@/components/AuthGateModal";
 
 // ─── Badge config ─────────────────────────────────────────────────────────────
@@ -244,7 +245,7 @@ interface ToolCardProps {
   hideCategory?: boolean; // hide category pill when user already selected a category
 }
 
-// ─── Shared upvote/save hooks ────────────────────────────────────────────────
+// ─── Shared laud/save hooks ─────────────────────────────────────────────────
 
 function useUpvote(tool: Tool, initialUpvoted: boolean) {
   const { isAuthenticated } = useAuth();
@@ -264,14 +265,16 @@ function useUpvote(tool: Tool, initialUpvoted: boolean) {
     const wasUpvoted = upvoted;
     setUpvoted(!wasUpvoted);
     setUpvoteCount((c) => (wasUpvoted ? c - 1 : c + 1));
-    if (!wasUpvoted) toast.success(`Upvoted ${tool.name}!`);
+    if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
 
     startTransition(async () => {
-      const result = await toggleUpvote(toolId);
+      const result = await toggleLaud(toolId);
       if (!result.success) {
         setUpvoted(wasUpvoted);
         setUpvoteCount((c) => (wasUpvoted ? c + 1 : c - 1));
         toast.error(result.error || "Failed to laud");
+      } else if (result.newCount !== undefined) {
+        setUpvoteCount(result.newCount);
       }
     });
   };

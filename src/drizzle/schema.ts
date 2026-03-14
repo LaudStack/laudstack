@@ -9,6 +9,7 @@ import {
   varchar,
   real,
   jsonb,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -275,6 +276,21 @@ export const upvotes = pgTable("upvotes", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [uniqueIndex("upvotes_tool_user_unique").on(table.toolId, table.userId)]);
+
+export type Upvote = typeof upvotes.$inferSelect;
+export type InsertUpvote = typeof upvotes.$inferInsert;
+
+// ─── Laud Rate Limits ────────────────────────────────────────────────────────
+
+export const laudRateLimits = pgTable("laud_rate_limits", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  actionType: varchar("action_type", { length: 20 }).notNull().default("laud"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

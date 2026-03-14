@@ -22,7 +22,8 @@ import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
-import { toggleUpvote, editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
+import { editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
+import { toggleLaud } from '@/app/actions/laud';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
@@ -379,12 +380,15 @@ export default function ToolDetail() {
     setUpvoted(!wasUpvoted);
     setUpvoteCount(c => wasUpvoted ? c - 1 : c + 1);
     if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
-    const result = await toggleUpvote(toolId);
+    const result = await toggleLaud(toolId);
     if (!result.success) {
       setUpvoted(wasUpvoted);
       setUpvoteCount(c => wasUpvoted ? c + 1 : c - 1);
       toast.error(result.error || 'Failed to laud');
     } else {
+      if (result.newCount !== undefined) {
+        setUpvoteCount(result.newCount - tool.upvote_count);
+      }
       invalidateToolsCache();
     }
   };

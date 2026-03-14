@@ -43,15 +43,17 @@ import {
   flagReview,
 } from '@/app/actions/founder';
 import { searchToolsAction } from '@/app/actions/public';
+import { getFounderLauds } from '@/app/actions/laud';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type Tab = 'overview' | 'tools' | 'reviews' | 'deals' | 'analytics' | 'promote' | 'claims' | 'settings';
+type Tab = 'overview' | 'tools' | 'reviews' | 'deals' | 'lauds' | 'analytics' | 'promote' | 'claims' | 'settings';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'overview',  label: 'Overview',    icon: <BarChart3 className="w-4 h-4" /> },
   { id: 'tools',     label: 'My Products',    icon: <Package className="w-4 h-4" /> },
   { id: 'reviews',   label: 'Reviews',     icon: <MessageSquare className="w-4 h-4" /> },
   { id: 'deals',     label: 'Deals',       icon: <Tag className="w-4 h-4" /> },
+  { id: 'lauds',     label: 'Lauds',       icon: <Heart className="w-4 h-4" /> },
   { id: 'analytics', label: 'Analytics',   icon: <TrendingUp className="w-4 h-4" /> },
   { id: 'promote',   label: 'Promote',     icon: <Megaphone className="w-4 h-4" /> },
   { id: 'claims',    label: 'Claim Tool',  icon: <Flag className="w-4 h-4" /> },
@@ -1659,6 +1661,104 @@ function PromoteTab() {
   );
 }
 
+// ─── Lauds Tab ──────────────────────────────────────────────────────────────
+function LaudsTab() {
+  const [laudData, setLaudData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getFounderLauds().then(data => {
+      setLaudData(data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  if (loading) return <LoadingState message="Loading laud activity..." />;
+
+  if (!laudData?.success || laudData.totalLauds === 0) {
+    return (
+      <EmptyState
+        icon={Heart}
+        title="No lauds yet"
+        description="Once users start lauding your tools, you'll see detailed activity and analytics here."
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard icon={<Heart className="w-4 h-4" />} label="Total Lauds" value={laudData.totalLauds} accent="purple" />
+        <StatCard icon={<Package className="w-4 h-4" />} label="Tools Lauded" value={laudData.tools.filter((t: any) => t.laudCount > 0).length} accent="blue" />
+        <StatCard icon={<Users className="w-4 h-4" />} label="Recent Activity" value={laudData.recentLauds.length} accent="green" />
+      </div>
+
+      {/* Per-tool laud breakdown */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <h3 className="text-slate-900 font-bold text-base mb-4">Lauds by Product</h3>
+        <div className="space-y-3">
+          {laudData.tools.sort((a: any, b: any) => b.laudCount - a.laudCount).map((tool: any) => (
+            <div key={tool.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl">
+              <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white overflow-hidden flex-shrink-0">
+                {tool.logoUrl ? (
+                  <img src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1"
+                    onError={e => { const el = e.currentTarget; el.style.display = 'none'; const p = el.parentElement; if (p) p.innerHTML = `<span class="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">${tool.name[0]}</span>`; }} />
+                ) : (
+                  <span className="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">{tool.name[0]}</span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <Link href={`/tools/${tool.slug}`} className="text-sm font-bold text-slate-900 hover:text-amber-600 truncate block no-underline">
+                  {tool.name}
+                </Link>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Heart className="w-4 h-4 text-purple-500" fill="#A855F7" />
+                <span className="text-lg font-black text-slate-900">{tool.laudCount}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent laud activity feed */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <h3 className="text-slate-900 font-bold text-base mb-4">Recent Laud Activity</h3>
+        {laudData.recentLauds.length === 0 ? (
+          <p className="text-sm text-slate-500 text-center py-6">No recent lauds.</p>
+        ) : (
+          <div className="space-y-2">
+            {laudData.recentLauds.slice(0, 30).map((laud: any) => (
+              <div key={laud.id} className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-slate-50 transition-colors">
+                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  {laud.userAvatar ? (
+                    <img src={laud.userAvatar} alt="" className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-purple-600">{(laud.userName || 'A')[0].toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-700">
+                    <span className="font-bold text-slate-900">{laud.userName}</span>
+                    {' lauded '}
+                    <Link href={`/tools/${laud.toolSlug}`} className="font-bold text-amber-600 hover:text-amber-700 no-underline">
+                      {laud.toolName}
+                    </Link>
+                  </p>
+                </div>
+                <span className="text-xs text-slate-400 flex-shrink-0">
+                  {new Date(laud.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Claim Tool Tab ──────────────────────────────────────────────────────────
 function ClaimToolTab() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -2224,6 +2324,7 @@ export default function FounderDashboard() {
             {activeTab === 'tools'     && <ToolsTab setActiveTab={setActiveTab} />}
             {activeTab === 'reviews'   && <ReviewsTab />}
             {activeTab === 'deals'     && <DealsTab />}
+            {activeTab === 'lauds'     && <LaudsTab />}
             {activeTab === 'analytics' && <AnalyticsTab />}
             {activeTab === 'promote'   && <PromoteTab />}
             {activeTab === 'claims'    && <ClaimToolTab />}

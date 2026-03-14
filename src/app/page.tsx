@@ -99,7 +99,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPricing, setSelectedPricing] = useState<string>('All');
-  const [browseSort, setBrowseSort] = useState<'top_rated' | 'trending' | 'newest' | 'most_reviewed' | 'featured_first'>('top_rated');
+  const [browseSort, setBrowseSort] = useState<'top_rated' | 'trending' | 'newest' | 'most_reviewed' | 'most_lauded' | 'featured_first'>('top_rated');
   const [browseVisible, setBrowseVisible] = useState(20);
   const [featuredOnly, setFeaturedOnly] = useState(false);
 
@@ -131,6 +131,7 @@ export default function Home() {
     if (browseSort === 'trending')      copy.sort((a, b) => (b.weekly_rank_change ?? 0) - (a.weekly_rank_change ?? 0));
     if (browseSort === 'newest')        copy.sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime());
     if (browseSort === 'most_reviewed') copy.sort((a, b) => b.review_count - a.review_count);
+    if (browseSort === 'most_lauded')    copy.sort((a, b) => (b.upvote_count ?? 0) - (a.upvote_count ?? 0));
     if (browseSort === 'featured_first') copy.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
     return copy;
   })();
@@ -505,6 +506,7 @@ export default function Home() {
                   <option value="trending">Trending</option>
                   <option value="newest">Newest</option>
                   <option value="most_reviewed">Most Reviewed</option>
+                  <option value="most_lauded">Most Lauded</option>
                   <option value="featured_first">Featured First</option>
                 </select>
               </div>
