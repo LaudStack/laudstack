@@ -34,7 +34,7 @@ export default function BestToolsIndexClient({
         subtitle="Browse curated collections of the best tools for every use case, ranked by community reviews and Laud votes."
         accent="amber"
         layout="default"
-        size="md"
+        size="sm"
       />
 
       <div

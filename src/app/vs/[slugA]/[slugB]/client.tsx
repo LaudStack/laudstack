@@ -334,7 +334,7 @@ export default function ComparisonClient({ toolA, toolB }: Props) {
         subtitle={`Compare ${toolA.name} and ${toolB.name} side by side. See ratings, pricing, features, and community reviews to find the best tool for your needs.`}
         accent="amber"
         layout="default"
-        size="md"
+        size="sm"
       />
 
       {/* Comparison Table */}

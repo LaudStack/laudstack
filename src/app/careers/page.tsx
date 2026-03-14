@@ -204,7 +204,7 @@ export default function Careers() {
           subtitle="We're a small, fully remote team on a mission to make software discovery honest, transparent, and community-driven. If that sounds like your kind of work, we'd love to meet you."
           accent="amber"
           layout="centered"
-          size="lg"
+          size="md"
         />
 
         {/* Stats bar */}

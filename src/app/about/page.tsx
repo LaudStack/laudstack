@@ -60,7 +60,7 @@ export default function About() {
         subtitle="LaudStack started as a shared Notion doc between two founders who were tired of wasting hours evaluating products that looked great on landing pages but fell apart in practice."
         accent="amber"
         layout="centered"
-        size="lg"
+        size="md"
       />
 
       {/* Stats */}

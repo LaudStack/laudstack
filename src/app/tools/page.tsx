@@ -415,7 +415,7 @@ export default function AllTools() {
       <section style={{
         background: '#FFFFFF',
         borderBottom: '1px solid #E5E7EB',
-        paddingTop: 100,
+        paddingTop: 84,
         paddingBottom: 0,
       }}>
         <div style={{ maxWidth: 1300, margin: '0 auto', padding: '0 24px' }}>
@@ -443,7 +443,7 @@ export default function AllTools() {
               </div>
               <h1 style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
-                fontSize: 'clamp(28px, 3.5vw, 38px)',
+                fontSize: 'clamp(24px, 3vw, 30px)',
                 fontWeight: 900,
                 color: '#111827',
                 letterSpacing: '-0.025em',

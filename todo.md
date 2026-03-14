@@ -533,6 +533,14 @@
 - [x] Push to GitHub
 
 ## Footer Alignment & Menu Rebalance (March 14, 2026)
-- [ ] Fix alignment issues in footer layout (consistent spacing, column alignment)
-- [ ] Rebalance bottom section menu items — represent SaaS + AI launching platform, not just AI directory
-- [ ] Push to GitHub
+- [x] Fix alignment issues in footer layout (consistent spacing, column alignment)
+- [x] Rebalance bottom section menu items — represent SaaS + AI launching platform, not just AI directory
+- [x] Push to GitHub
+
+## Hero Section Polish (March 14, 2026)
+- [x] Redesign shared PageHero component: reduce padding/height, cleaner alignment, less clutter
+- [x] Audit and fix individual page hero usages with custom children
+- [x] Update SEOPageShell hero section
+- [x] Update standalone hero sections (launchpad, tools detail, tools catalog)
+- [x] Downgraded all size="lg" heroes to "md", SEO pages to "sm"
+- [x] Build, test, and push to GitHub

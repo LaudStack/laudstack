@@ -114,7 +114,7 @@ export default function Newsletter() {
           subtitle="Join 12,000+ professionals who start their week with the LaudStack digest — rising stacks, editor picks, fresh launches, and community insights in one email."
           accent="amber"
           layout="centered"
-          size="lg"
+          size="md"
         />
 
         {/* Sign-up form — hero CTA */}

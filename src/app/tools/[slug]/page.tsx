@@ -520,13 +520,13 @@ export default function ToolDetail() {
           </div>
 
           {/* ── Hero Row ─────────────────────────────────────────────────── */}
-          <div className="py-6 sm:py-8">
+          <div className="py-5 sm:py-6">
 
             {/* Top row: Logo + Name + Tagline + Actions */}
             <div className="flex flex-col sm:flex-row gap-5 sm:gap-6">
 
               {/* Logo */}
-              <div className="w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] rounded-2xl border-[1.5px] border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center"
+              <div className="w-[64px] h-[64px] sm:w-[80px] sm:h-[80px] rounded-2xl border-[1.5px] border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center"
                 style={{ boxShadow: '0 2px 16px rgba(15,23,42,0.06)' }}>
                 <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain p-2"
                   onError={e => { const t = e.currentTarget; t.style.display = 'none'; const p = t.parentElement; if (p) { p.innerHTML = `<span style="font-size:32px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
@@ -538,7 +538,7 @@ export default function ToolDetail() {
                 {/* Left: Name + Tagline */}
                 <div className="flex-1 min-w-0">
                   {/* Name */}
-                  <h1 className="text-2xl sm:text-[28px] lg:text-[36px] font-black text-slate-900 mb-2 sm:mb-2.5 leading-[1.15]" style={{ letterSpacing: '-0.03em' }}>
+                  <h1 className="text-2xl sm:text-[26px] lg:text-[30px] font-black text-slate-900 mb-1.5 sm:mb-2 leading-[1.15]" style={{ letterSpacing: '-0.02em' }}>
                     {tool.name}
                   </h1>
 

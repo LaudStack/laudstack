@@ -580,7 +580,7 @@ export default function SEOPageShell({
         subtitle={subtitle}
         accent={accent}
         layout="default"
-        size="md"
+        size="sm"
       />
 
       {/* Intro text for SEO */}

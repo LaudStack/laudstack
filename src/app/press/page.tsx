@@ -70,7 +70,7 @@ export default function Press() {
           subtitle="Everything you need to cover LaudStack — brand assets, company facts, media coverage, and press contact. All in one place."
           accent="amber"
           layout="centered"
-          size="lg"
+          size="md"
         />
 
         {/* Stats bar */}

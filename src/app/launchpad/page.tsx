@@ -349,7 +349,7 @@ export default function LaunchPad() {
           1. HERO
       ══════════════════════════════════════════════════════ */}
       <section className="pt-[72px]">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10 py-20 lg:py-28">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left — copy */}
             <div>

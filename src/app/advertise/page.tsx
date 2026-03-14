@@ -138,7 +138,7 @@ export default function Advertise() {
           subtitle="LaudStack is where decision-makers come to discover, compare, and choose SaaS & AI stacks. Put your product in front of buyers who are ready to act."
           accent="amber"
           layout="centered"
-          size="lg"
+          size="md"
         />
 
         {/* Audience stats bar */}

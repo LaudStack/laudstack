@@ -231,7 +231,7 @@ export default function Trending() {
         subtitle="Tools ranked by weekly position gain — the fastest-climbing SaaS and AI stacks in the community right now."
         accent="amber"
         layout="split"
-        size="lg"
+        size="md"
         stats={[
           { value: String(totalRising), label: 'Rising Tools' },
           { value: `+${topGain}`,       label: 'Top Gain' },

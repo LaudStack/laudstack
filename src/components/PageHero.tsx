@@ -1,24 +1,25 @@
 "use client";
 
 /**
- * PageHero.tsx — LaudStack Reusable Page Hero
+ * PageHero.tsx — LaudStack Reusable Page Hero (Polished)
  *
- * Design philosophy:
- *  - White background — clearly separated from the dark navy navbar
- *  - Thin amber (or accent-colored) left-edge bar as the brand anchor
- *  - Clean editorial typography — no gradients, no heavy backgrounds
- *  - Flexible: each page can vary height, layout, and bottom content
+ * Design:
+ *  - Compact height — no excessive padding, content-driven sizing
+ *  - Clean white background with subtle bottom border
+ *  - Thin accent left-edge bar as brand anchor
+ *  - Tight editorial typography — no gradients, no heavy backgrounds
+ *  - Consistent vertical rhythm across all layout variants
  *
  * Props:
  *  - eyebrow:     small uppercase label (shown in accent color)
  *  - title:       main headline (supports JSX for inline highlights)
  *  - subtitle:    supporting text
  *  - stats:       optional array of { value, label } — horizontal stat row
- *  - children:    optional JSX rendered below title/subtitle (replaces stats)
+ *  - children:    optional JSX rendered below title/subtitle
  *  - actions:     optional JSX slot (right side on default/split, below title on centered)
  *  - badge:       optional pill (e.g. "Live", "Beta")
- *  - accent:      'amber' | 'blue' | 'green' | 'rose'  (default: 'amber')
- *  - size:        'sm' | 'md' | 'lg'  (default: 'md')
+ *  - accent:      'amber' | 'blue' | 'green' | 'rose'
+ *  - size:        'sm' | 'md' | 'lg'
  *  - layout:      'default' | 'centered' | 'split'
  */
 
@@ -64,23 +65,24 @@ const ACCENT: Record<AccentKey, {
   rose:  { bar: '#F43F5E', eyebrow: '#BE123C', badgeBg: '#FFF1F2', badgeBorder: '#FECDD3', badgeText: '#9F1239', statValue: '#E11D48', divider: '#E5E7EB' },
 };
 
+/* Reduced padding for compact heroes */
 const SIZE: Record<SizeKey, { pt: string; pb: string; titleSize: string; subtitleSize: string }> = {
-  sm: { pt: '28px', pb: '24px', titleSize: '22px', subtitleSize: '13px' },
-  md: { pt: '40px', pb: '32px', titleSize: '30px', subtitleSize: '14px' },
-  lg: { pt: '52px', pb: '44px', titleSize: '38px', subtitleSize: '15px' },
+  sm: { pt: '20px', pb: '18px', titleSize: '20px', subtitleSize: '13px' },
+  md: { pt: '28px', pb: '24px', titleSize: '26px', subtitleSize: '14px' },
+  lg: { pt: '36px', pb: '30px', titleSize: '32px', subtitleSize: '15px' },
 };
 
-function EyebrowBadge({ eyebrow, badge, a }: { eyebrow?: string; badge?: string; a: typeof ACCENT['amber']; centered?: boolean }) {
+function EyebrowBadge({ eyebrow, badge, a }: { eyebrow?: string; badge?: string; a: typeof ACCENT['amber'] }) {
   if (!eyebrow && !badge) return null;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
       {eyebrow && (
-        <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: a.eyebrow }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: a.eyebrow }}>
           {eyebrow}
         </span>
       )}
       {badge && (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '2px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: a.badgeBg, border: `1px solid ${a.badgeBorder}`, color: a.badgeText }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, background: a.badgeBg, border: `1px solid ${a.badgeBorder}`, color: a.badgeText }}>
           <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: a.bar, display: 'inline-block' }} />
           {badge}
         </span>
@@ -91,13 +93,13 @@ function EyebrowBadge({ eyebrow, badge, a }: { eyebrow?: string; badge?: string;
 
 function StatRow({ stats, a, centered }: { stats: StatItem[]; a: typeof ACCENT['amber']; centered?: boolean }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: centered ? 'center' : 'flex-start', gap: '0', marginTop: '24px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: centered ? 'center' : 'flex-start', gap: '0', marginTop: '16px', flexWrap: 'wrap' }}>
       {stats.map((stat, i) => (
         <React.Fragment key={stat.label}>
-          {i > 0 && <div style={{ width: '1px', height: '28px', background: a.divider, margin: '0 20px', flexShrink: 0 }} />}
+          {i > 0 && <div style={{ width: '1px', height: '24px', background: a.divider, margin: '0 16px', flexShrink: 0 }} />}
           <div style={{ textAlign: centered ? 'center' : 'left' }}>
-            <div style={{ fontSize: '20px', fontWeight: 900, color: a.statValue, letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</div>
-            <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: a.statValue, letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</div>
+            <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 600, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
           </div>
         </React.Fragment>
       ))}
@@ -112,12 +114,12 @@ function BackLinkRow({ backLink, a }: { backLink: BackLink; a: typeof ACCENT['am
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '5px',
+        gap: '4px',
         fontSize: '12px',
         fontWeight: 600,
         color: '#6B7280',
         textDecoration: 'none',
-        marginBottom: '10px',
+        marginBottom: '8px',
         transition: 'color 0.15s',
       }}
       onMouseEnter={e => (e.currentTarget.style.color = a.eyebrow)}
@@ -161,7 +163,7 @@ export default function PageHero({
       {/* Left accent bar */}
       <div
         aria-hidden
-        style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: a.bar }}
+        style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '3px', background: a.bar }}
       />
 
       <div
@@ -174,76 +176,72 @@ export default function PageHero({
           <>
             {backLink && <BackLinkRow backLink={backLink} a={a} />}
             <EyebrowBadge eyebrow={eyebrow} badge={badge} a={a} />
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 0', minWidth: '0' }}>
-                <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 900, color: '#111827', margin: 0, letterSpacing: '-0.025em', lineHeight: 1.2 }}>
+                <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.25 }}>
                   {title}
                 </h1>
                 {subtitle && (
-                  <p style={{ fontSize: s.subtitleSize, color: '#6B7280', margin: '8px 0 0', lineHeight: 1.6, maxWidth: '560px', fontWeight: 400 }}>
+                  <p style={{ fontSize: s.subtitleSize, color: '#6B7280', margin: '6px 0 0', lineHeight: 1.55, maxWidth: '540px', fontWeight: 400 }}>
                     {subtitle}
                   </p>
                 )}
               </div>
               {actions && <div style={{ flexShrink: 0 }}>{actions}</div>}
             </div>
-            {/* Stats (optional) */}
             {stats && stats.length > 0 && <StatRow stats={stats} a={a} />}
-            {/* Custom slot (replaces or supplements stats) */}
-            {children && <div style={{ marginTop: '20px' }}>{children}</div>}
+            {children && <div style={{ marginTop: '14px' }}>{children}</div>}
           </>
         )}
 
         {/* ── CENTERED layout ── */}
         {layout === 'centered' && (
-          <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
-            {backLink && <div style={{ marginBottom: '8px' }}><BackLinkRow backLink={backLink} a={a} /></div>}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto' }}>
+            {backLink && <div style={{ marginBottom: '6px' }}><BackLinkRow backLink={backLink} a={a} /></div>}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
               {eyebrow && (
-                <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: a.eyebrow }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: a.eyebrow }}>
                   {eyebrow}
                 </span>
               )}
               {badge && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '2px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: a.badgeBg, border: `1px solid ${a.badgeBorder}`, color: a.badgeText }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, background: a.badgeBg, border: `1px solid ${a.badgeBorder}`, color: a.badgeText }}>
                   <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: a.bar, display: 'inline-block' }} />
                   {badge}
                 </span>
               )}
             </div>
-            <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 900, color: '#111827', margin: 0, letterSpacing: '-0.025em', lineHeight: 1.2 }}>
+            <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.25 }}>
               {title}
             </h1>
             {subtitle && (
-              <p style={{ fontSize: s.subtitleSize, color: '#6B7280', margin: '10px 0 0', lineHeight: 1.65, fontWeight: 400 }}>
+              <p style={{ fontSize: s.subtitleSize, color: '#6B7280', margin: '8px 0 0', lineHeight: 1.55, fontWeight: 400 }}>
                 {subtitle}
               </p>
             )}
-            {actions && <div style={{ marginTop: '20px' }}>{actions}</div>}
+            {actions && <div style={{ marginTop: '14px' }}>{actions}</div>}
             {stats && stats.length > 0 && <StatRow stats={stats} a={a} centered />}
-            {children && <div style={{ marginTop: '20px' }}>{children}</div>}
+            {children && <div style={{ marginTop: '14px' }}>{children}</div>}
           </div>
         )}
 
         {/* ── SPLIT layout ── */}
         {layout === 'split' && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
-            {/* Left: text */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 0', minWidth: '0' }}>
               {backLink && <BackLinkRow backLink={backLink} a={a} />}
               <EyebrowBadge eyebrow={eyebrow} badge={badge} a={a} />
-              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 900, color: '#111827', margin: 0, letterSpacing: '-0.025em', lineHeight: 1.2 }}>
+              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: s.titleSize, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.25 }}>
                 {title}
               </h1>
               {subtitle && (
-                <p style={{ fontSize: s.subtitleSize, color: '#6B7280', margin: '8px 0 0', lineHeight: 1.6, maxWidth: '480px', fontWeight: 400 }}>
+                <p style={{ fontSize: s.subtitleSize, color: '#6B7280', margin: '6px 0 0', lineHeight: 1.55, maxWidth: '460px', fontWeight: 400 }}>
                   {subtitle}
                 </p>
               )}
-              {actions && <div style={{ marginTop: '20px' }}>{actions}</div>}
+              {actions && <div style={{ marginTop: '14px' }}>{actions}</div>}
             </div>
 
-            {/* Right: stats grid (optional) or children */}
             {stats && stats.length > 0 && (
               <div style={{
                 display: 'grid',
@@ -251,14 +249,14 @@ export default function PageHero({
                 gap: '1px',
                 background: '#E5E7EB',
                 border: '1px solid #E5E7EB',
-                borderRadius: '14px',
+                borderRadius: '12px',
                 overflow: 'hidden',
                 flexShrink: 0,
               }}>
                 {stats.map(stat => (
-                  <div key={stat.label} style={{ background: '#FAFAFA', padding: '14px 16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '24px', fontWeight: 900, color: a.statValue, letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
+                  <div key={stat.label} style={{ background: '#FAFAFA', padding: '12px 14px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 800, color: a.statValue, letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</div>
+                    <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 600, marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>

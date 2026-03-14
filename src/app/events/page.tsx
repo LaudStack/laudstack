@@ -141,7 +141,7 @@ export default function Events() {
           subtitle="Free webinars, founder workshops, and community events — hosted by the LaudStack team and community. Join live or watch the recordings."
           accent="amber"
           layout="centered"
-          size="lg"
+          size="md"
         />
 
         <div className="max-w-5xl mx-auto px-6 py-16 space-y-16">
