@@ -383,15 +383,15 @@
 - [x] Audit existing upvote/Laud system (schema, actions, UI, mock data)
 - [x] Purge all mock Laud/upvote data from Supabase
 - [x] Reset all upvote_count to 0 on tools table
-- [ ] Update upvotes table schema (add IP tracking, user_agent, timestamps)
-- [ ] Add laud_rate_limits table for anti-spam
-- [ ] Build backend: toggleLaud with anti-fraud (rate limit, IP, duplicate check, cooldown)
-- [ ] Build backend: getUserLaudedToolIds for checking user's Lauds
-- [ ] Build backend: admin Laud moderation (view activity, detect suspicious, remove fraudulent)
-- [ ] Build frontend: Laud button on ToolCard and tool detail page (toggle, auth gate, instant UI)
-- [ ] Build founder Laud visibility (dashboard stats, history, daily activity)
-- [ ] Build admin Laud moderation panel (activity view, suspicious detection, removal)
-- [ ] Integrate Lauds into ranking algorithm (Most Lauded, Trending, Recently Lauded)
-- [ ] Verify TypeScript + Next.js build pass with zero errors
-- [ ] Test live site Laud flows via browser
-- [ ] Push to GitHub
+- [x] Update upvotes table schema (add IP tracking, user_agent, timestamps)
+- [x] Add laud_rate_limits table for anti-spam
+- [x] Build backend: toggleLaud with anti-fraud (rate limit, IP, duplicate check, cooldown)
+- [x] Build backend: getUserLaudedToolIds for checking user's Lauds
+- [x] Build backend: admin Laud moderation (view activity, detect suspicious, remove fraudulent)
+- [x] Build frontend: Laud button on ToolCard and tool detail page (toggle, auth gate, instant UI)
+- [x] Build founder Laud visibility (dashboard stats, history, daily activity)
+- [x] Build admin Laud moderation panel (activity view, suspicious detection, removal)
+- [x] Integrate Lauds into ranking algorithm (Most Lauded, Trending, Recently Lauded)
+- [x] Verify TypeScript + Next.js build pass with zero errors
+- [x] Test live site Laud flows via browser
+- [x] Push to GitHub (commit 391a5c1)
