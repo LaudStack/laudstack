@@ -255,6 +255,7 @@ export default function AdminToolDetail() {
     isTrending: false,
     isVerified: false,
     isPro: false,
+    scheduledLaunchAt: "",
   });
 
   // Features & Pricing state
@@ -300,6 +301,9 @@ export default function AdminToolDetail() {
         isTrending: (data.tool as any).isTrending ?? false,
         isVerified: (data.tool as any).isVerified ?? false,
         isPro: (data.tool as any).isPro ?? false,
+        scheduledLaunchAt: (data.tool as any).scheduledLaunchAt
+          ? new Date((data.tool as any).scheduledLaunchAt).toISOString().slice(0, 16)
+          : "",
       });
 
       // Load features & pricing from DB
@@ -342,6 +346,7 @@ export default function AdminToolDetail() {
         isPro: form.isPro,
         features: editFeatures.length > 0 ? editFeatures : undefined,
         pricingTiers: editPricingTiers.length > 0 ? editPricingTiers : undefined,
+        scheduledLaunchAt: form.scheduledLaunchAt || null,
       });
       if (result.success) {
         toast.success("Tool updated successfully");
@@ -666,6 +671,39 @@ export default function AdminToolDetail() {
             ) : (
               <p className="text-xs text-slate-400 text-center py-4">No founder has claimed this tool</p>
             )}
+          </div>
+
+          {/* Scheduled Launch Date */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-blue-500" />
+              Scheduled Launch Date
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Launch Date & Time</label>
+                <input
+                  type="datetime-local"
+                  value={form.scheduledLaunchAt}
+                  onChange={(e) => setForm({ ...form, scheduledLaunchAt: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Set a future date to show this tool on the Upcoming Launches page. Clear to remove from upcoming.
+                </p>
+              </div>
+              <div className="flex items-end">
+                {form.scheduledLaunchAt && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, scheduledLaunchAt: "" })}
+                    className="px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                  >
+                    Clear Scheduled Date
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Status & Flags */}

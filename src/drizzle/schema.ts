@@ -133,6 +133,8 @@ export const tools = pgTable("tools", {
   /** Founder who claimed this tool */
   claimedBy: integer("claimed_by").references(() => users.id),
   claimedAt: timestamp("claimed_at"),
+  /** Admin-set scheduled launch date — when set to a future date, the tool appears on the Upcoming Launches page */
+  scheduledLaunchAt: timestamp("scheduled_launch_at"),
   /** Short description for cards (max 200 chars) */
   shortDescription: text("short_description"),
   /** Full pricing details text */

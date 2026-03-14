@@ -612,4 +612,16 @@
 - [x] Wire all modals, features, and interactive components (Notify Me, period tabs, leaderboard rows, upcoming cards)
 - [x] Created /api/launches/upcoming API route for real DB data (tools + submissions with future dates)
 - [x] Ensure page is fully functional and activated
+- [x] Push to GitHub
+
+## Upcoming Launches Page Polish (March 14, 2026)
+- [x] Audit current page structure and data fetching
+- [x] Add scheduled_launch_at field to tools schema so admins can mark listings as upcoming
+- [x] Run migration to push schema changes to Supabase (applied via psql)
+- [x] Update /api/launches/upcoming route to use scheduled_launch_at field
+- [x] Rebuild Upcoming Launches page with polished cards, real data, no flash
+- [x] Ensure page is never empty (fallback to recently launched stacks)
+- [x] Wire all interactive components (Notify Me, countdown, links)
+- [x] Add admin UI: Scheduled Launch Date field in admin tool detail page
+- [x] Seed 5 upcoming tools (Cursor, Perplexity AI, Linear, Vercel, Notion)
 - [ ] Push to GitHub

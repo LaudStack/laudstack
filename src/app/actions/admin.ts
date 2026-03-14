@@ -879,6 +879,7 @@ export async function adminUpdateTool(toolId: number, data: {
   status?: string;
   features?: { icon: string; title: string; description: string }[];
   pricingTiers?: { name: string; price: string; period?: string; description: string; features: string[]; cta: string; highlighted?: boolean; badge?: string }[];
+  scheduledLaunchAt?: string | null;
 }) {
   const admin = await requireAdmin();
   
@@ -905,6 +906,7 @@ export async function adminUpdateTool(toolId: number, data: {
   if (data.status !== undefined) updateData.status = data.status;
   if (data.features !== undefined) updateData.features = data.features;
   if (data.pricingTiers !== undefined) updateData.pricingTiers = data.pricingTiers;
+  if (data.scheduledLaunchAt !== undefined) updateData.scheduledLaunchAt = data.scheduledLaunchAt ? new Date(data.scheduledLaunchAt) : null;
 
   // Check if isVerified is being changed — we need the old value for email notification
   let wasVerified: boolean | null = null;
