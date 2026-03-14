@@ -632,13 +632,13 @@
 - [x] Wire "Notify Me" buttons on upcoming-launches page to POST endpoint
 - [x] Create Resend email template for launch-day notification (sendLaunchNotificationEmail)
 - [x] Create /api/cron/send-launch-notifications endpoint to send emails on launch day
-- [ ] Push to GitHub
+- [x] Push to GitHub
 
 ## Auto-Transition: Upcoming → Launched (March 14, 2026)
 - [x] Create /api/cron/transition-launches endpoint that checks scheduled_launch_at
 - [x] When scheduled_launch_at passes, clear it and update launchedAt to now
 - [x] Configure Vercel cron jobs in vercel.json (transition at 6am UTC, notifications at 7am UTC)
-- [ ] Push to GitHub
+- [x] Push to GitHub
 
 ## Founder Scheduled Launch Date (March 14, 2026)
 - [x] Add scheduledLaunchAt field to LaunchPad submission form (renamed label, added description)
@@ -646,4 +646,12 @@
 - [x] submitTool server action already saves launchDate to launch_date column
 - [x] Show scheduled date in admin submission review (with Upcoming badge for future dates)
 - [x] When admin approves, carry scheduled date to the tool record (auto-creates tool with scheduledLaunchAt)
+- [x] Push to GitHub
+
+## Launches Page Flash Fix + New Launches Activation (March 14, 2026)
+- [x] Fix /launches page flash issue (URL sync was writing to /launches instead of /new-launches)
+- [x] Ensure /new-launches page is fully wired with real data (uses useToolsData hook → /api/homepage)
+- [x] Ensure all interactive components on /new-launches are activated (Laud buttons call toggleUpvote, loading skeleton, lauded state tracking)
+- [x] Fix Footer link from /launches to /new-launches
+- [ ] Build verification
 - [ ] Push to GitHub
