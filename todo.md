@@ -568,3 +568,10 @@
 - [x] Verified no remaining /rising route references in codebase
 - [x] No duplicate menu items across all dropdowns
 - [x] Push to GitHub
+
+## Changelog & Trust Framework Nav Updates (March 14, 2026)
+- [x] Changelog already present in footer Resources section
+- [x] Replace Changelog with Trust Framework in navbar Leaderboard dropdown
+- [x] Trust Framework already present in footer Resources section
+- [x] Fixed navbar Trust Framework href to match actual route (/trust)
+- [x] Push to GitHub
