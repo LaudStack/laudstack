@@ -76,45 +76,9 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
   );
 }
 
-// ─── Generate reviews for tools without real reviews ───────────────────────
-function getToolReviews(toolId: string, allReviews: Review[], allTools: Tool[]): Review[] {
-  const base = allReviews.filter(r => r.tool_id === toolId);
-  if (base.length > 0) return base;
-  const tool = allTools.find(t => t.id === toolId);
-  if (!tool) return [];
-  return [
-    {
-      id: `${toolId}-r1`, tool_id: toolId, user_id: 'u10', rating: 5,
-      title: `${tool.name} has become essential to my workflow`,
-      body: `I've been using ${tool.name} for about 6 months and it's genuinely transformed how I work. The quality is consistently high and the team ships updates regularly. Highly recommend to anyone in this space.`,
-      pros: 'Reliable, well-designed, great support',
-      cons: 'Pricing could be more flexible for small teams',
-      use_case: 'Daily professional use',
-      is_verified_purchase: true, helpful_count: 34,
-      created_at: '2026-02-20',
-      user: { id: 'u10', name: 'Alex Morgan', role: 'Product Manager', company: 'TechCorp' },
-    },
-    {
-      id: `${toolId}-r2`, tool_id: toolId, user_id: 'u11', rating: 4,
-      title: 'Solid product, minor rough edges',
-      body: `${tool.name} delivers on its core promise. The main features work well and the onboarding is smooth. A few edge cases could be handled better but overall it's a strong product.`,
-      pros: 'Core features are excellent, fast and reliable',
-      cons: 'Some advanced features feel incomplete',
-      is_verified_purchase: true, helpful_count: 21,
-      created_at: '2026-02-10',
-      user: { id: 'u11', name: 'Jordan Lee', role: 'Senior Engineer', company: 'BuildFast' },
-    },
-    {
-      id: `${toolId}-r3`, tool_id: toolId, user_id: 'u12', rating: 5,
-      title: 'Best in class for this category',
-      body: `We evaluated 5 alternatives before choosing ${tool.name}. It came out ahead on every metric that mattered to us — quality, reliability, and support responsiveness.`,
-      pros: 'Best-in-class quality, excellent documentation',
-      cons: 'Learning curve for advanced features',
-      is_verified_purchase: true, helpful_count: 18,
-      created_at: '2026-01-28',
-      user: { id: 'u12', name: 'Sam Patel', role: 'CTO', company: 'Launchly' },
-    },
-  ];
+// ─── Get real reviews for a tool (no fake generation) ────────────────────────
+function getToolReviews(toolId: string, allReviews: Review[]): Review[] {
+  return allReviews.filter(r => r.tool_id === toolId);
 }
 
 // ─── Share helpers ─────────────────────────────────────────────────────────
@@ -301,7 +265,7 @@ export default function ToolDetail() {
     );
   }
 
-  const reviews = getToolReviews(tool.id, allReviews, allTools);
+  const reviews = getToolReviews(tool.id, allReviews);
   const extras = getToolExtras(tool.slug, tool.name, tool.pricing_model, tool.screenshot_url, tool.website_url);
 
   const alternatives = allTools
@@ -316,13 +280,10 @@ export default function ToolDetail() {
     .sort((a, b) => b.tagOverlap - a.tagOverlap || b.average_rating - a.average_rating)
     .slice(0, 4);
 
-  const totalReviews = Math.max(reviews.length, tool.review_count);
+  const totalReviews = reviews.length;
   const ratingBreakdown = [5, 4, 3, 2, 1].map(star => {
-    const base = star === Math.round(tool.average_rating) ? 0.45
-      : star === Math.round(tool.average_rating) - 1 ? 0.30
-      : star === Math.round(tool.average_rating) + 1 ? 0.15
-      : 0.05;
-    return { star, count: Math.round(totalReviews * base) };
+    const count = reviews.filter(r => r.rating === star).length;
+    return { star, count };
   });
 
   const handleUpvote = async () => {
@@ -769,6 +730,19 @@ export default function ToolDetail() {
               </div>
 
               <div className="flex flex-col">
+                {reviews.length === 0 && (
+                  <div className="px-5 sm:px-7 py-12 text-center">
+                    <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">No reviews yet</h3>
+                    <p className="text-xs text-slate-500 mb-4">Be the first to share your experience with this tool.</p>
+                    <button onClick={handleWriteReview}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-400 text-gray-900 font-bold text-xs border-none cursor-pointer transition-all hover:shadow-md"
+                      style={{ boxShadow: '0 2px 8px rgba(245,158,11,0.2)' }}>
+                      <MessageSquare className="w-3 h-3" />
+                      {isAuthenticated ? 'Write the First Review' : 'Sign In to Review'}
+                    </button>
+                  </div>
+                )}
                 {reviews.map((review, i) => (
                   <div key={review.id} className="px-5 sm:px-7 py-5 sm:py-6" style={{ borderBottom: i < reviews.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
                     {/* Reviewer header — stacks on very small screens */}

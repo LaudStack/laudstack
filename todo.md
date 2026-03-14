@@ -321,3 +321,11 @@
 - [ ] Update hero subheader to new copy about Stacks, Laud, and builders
 - [ ] Adjust hero subheader width for exactly 2 lines (first line longer)
 - [ ] Update Everything in One Place section subheader to new copy
+
+## P0 Critical Fixes
+- [x] Deals page: Replace 12 hardcoded mock deals with real DB data via getActiveDeals()
+- [x] useSavedTools: Replace localStorage-only hook with DB-backed server actions (toggleSaveTool/getUserSavedToolIds)
+- [x] Tool detail: Remove getToolReviews() fake review generation (3 fabricated reviews for tools with no real reviews)
+- [x] Tool detail: Fix rating breakdown to compute from actual review data instead of synthetic formula
+- [x] Tool detail: Add empty state for tools with no reviews ("No reviews yet" + CTA)
+- [x] Push P0 fixes to GitHub and verify Vercel deployment

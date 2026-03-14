@@ -226,12 +226,17 @@ export async function getActiveDeals() {
       couponCode: deals.couponCode,
       dealUrl: deals.dealUrl,
       claimCount: deals.claimCount,
+      maxClaims: deals.maxClaims,
       expiresAt: deals.expiresAt,
+      startsAt: deals.startsAt,
       toolId: deals.toolId,
       toolName: tools.name,
       toolSlug: tools.slug,
       toolLogo: tools.logoUrl,
       toolCategory: tools.category,
+      toolTagline: tools.tagline,
+      toolRating: tools.averageRating,
+      toolReviewCount: tools.reviewCount,
     })
     .from(deals)
     .leftJoin(tools, eq(deals.toolId, tools.id))
