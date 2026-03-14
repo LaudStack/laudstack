@@ -1,11 +1,12 @@
 "use client";
 
 /*
- * LaudStack Navbar — Premium Enterprise Design
- * Dark header (#0F1629) — white text
+ * LaudStack Navbar — Light Blue Header
+ * Very light blue (#EDF2FA) — dark text for professional look
+ * Blends with hero gradient, Rising This Week, and navy footer
  * Professional mobile hamburger with super-menu dropdowns
  * LaunchPad CTA hidden when logged in
- * Polished avatar with light container
+ * Polished avatar with subtle container
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -186,10 +187,9 @@ export default function Navbar() {
     toast.success('Signed out successfully.');
   };
 
-  // no-op for mega-menu parents (they open on hover)
-
-  const navText    = 'text-white/80 hover:text-white';
-  const navHoverBg = 'hover:bg-white/10';
+  // Light header color classes — dark text on light blue bg
+  const navText    = 'text-slate-600 hover:text-slate-900';
+  const navHoverBg = 'hover:bg-slate-900/5';
 
   const displayName = (dbUser?.firstName ? [dbUser.firstName, dbUser.lastName].filter(Boolean).join(' ') : null) || dbUser?.name || user?.user_metadata?.full_name || user?.email || 'User';
   const avatarUrl = dbUser?.avatarUrl;
@@ -198,16 +198,23 @@ export default function Navbar() {
     <>
       {/* HEADER */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 border-b border-white/10"
-        style={{ background: '#0F1629' }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
+          scrolled
+            ? 'shadow-sm backdrop-blur-md'
+            : ''
+        }`}
+        style={{
+          background: scrolled ? 'rgba(237, 242, 250, 0.95)' : '#EDF2FA',
+          borderBottom: '1px solid #D8E1EE',
+        }}
       >
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center h-[64px] sm:h-[72px] gap-3 sm:gap-6">
 
-            {/* Logo — larger on mobile */}
+            {/* Logo — dark text version for light bg */}
             <Link href="/" className="flex items-center shrink-0 h-9 sm:h-10">
               <img
-                src="/logo-dark-transparent.png"
+                src="/logo-light-transparent.png"
                 alt="LaudStack"
                 className="h-9 sm:h-10 w-auto"
               />
@@ -216,12 +223,12 @@ export default function Navbar() {
             {/* Desktop search pill */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-white/60 hover:text-white bg-white/8 hover:bg-white/12 border-white/15"
+              className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all border text-slate-400 hover:text-slate-600 bg-white/60 hover:bg-white/80 border-slate-200"
               style={{ minWidth: '220px' }}
             >
               <Search className="h-4 w-4 shrink-0" />
               <span className="flex-1 text-left">Search products...</span>
-              <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-white/15 text-white/50">&#8984;K</kbd>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-slate-100 text-slate-400">&#8984;K</kbd>
             </button>
 
             {/* Desktop Nav */}
@@ -241,7 +248,7 @@ export default function Navbar() {
                     {item.megaMenu && <ChevronDown className="h-3.5 w-3.5 opacity-50" />}
                   </button>
 
-                  {/* Desktop Mega Menu */}
+                  {/* Desktop Mega Menu — unchanged white dropdown */}
                   {item.megaMenu && activeMega === item.label && (
                     <div
                       className="absolute top-full left-0 pt-2 z-50"
@@ -296,29 +303,29 @@ export default function Navbar() {
             {/* Desktop right side */}
             <div className="hidden lg:flex items-center gap-3 shrink-0">
               {authLoading ? (
-                <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
+                <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse" />
               ) : isAuthenticated && user ? (
                 <>
                   {/* Notifications */}
                   <button
                     onClick={() => router.push('/dashboard?tab=notifications')}
-                    className="relative p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                    className="relative p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-900/5 transition-all"
                   >
                     <Bell className="h-[18px] w-[18px]" />
                   </button>
 
-                  {/* Avatar with light container */}
+                  {/* Avatar with subtle container */}
                   <div ref={avatarRef} className="relative">
                     <button
                       onClick={() => setAvatarOpen(!avatarOpen)}
-                      className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl transition-all hover:bg-white/10"
-                      style={{ border: '1.5px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)' }}
+                      className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl transition-all hover:bg-slate-900/5"
+                      style={{ border: '1.5px solid #CBD5E1', background: 'rgba(255,255,255,0.6)' }}
                     >
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
                           alt={displayName}
-                          className="w-8 h-8 rounded-full object-cover border-2 border-white/20"
+                          className="w-8 h-8 rounded-full object-cover border-2 border-slate-200"
                           onError={e => { e.currentTarget.style.display = 'none'; }}
                         />
                       ) : (
@@ -329,11 +336,11 @@ export default function Navbar() {
                           {getInitials(displayName)}
                         </div>
                       )}
-                      <span className="text-sm font-semibold text-white/90 max-w-[100px] truncate hidden xl:block">{displayName.split(' ')[0]}</span>
-                      <ChevronDown className="h-3.5 w-3.5 text-white/50" />
+                      <span className="text-sm font-semibold text-slate-700 max-w-[100px] truncate hidden xl:block">{displayName.split(' ')[0]}</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                     </button>
 
-                    {/* Avatar dropdown */}
+                    {/* Avatar dropdown — unchanged white */}
                     {avatarOpen && (
                       <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl shadow-slate-900/15 border border-slate-100 overflow-hidden z-50">
                         <div className="px-4 py-3 border-b border-slate-100">
@@ -387,7 +394,7 @@ export default function Navbar() {
               ) : (
                 <button
                   onClick={() => router.push('/auth/login')}
-                  className="text-sm font-semibold px-4 py-2 rounded-xl transition-all text-white/80 hover:text-white hover:bg-white/10"
+                  className="text-sm font-semibold px-4 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-900/5"
                 >
                   Sign In
                 </button>
@@ -409,11 +416,11 @@ export default function Navbar() {
             {/* Mobile right side — Logo | spacer | search/login | hamburger */}
             <div className="lg:hidden ml-auto flex items-center gap-2">
               {authLoading ? (
-                <div className="w-5 h-5 rounded bg-white/10 animate-pulse" />
+                <div className="w-5 h-5 rounded bg-slate-200 animate-pulse" />
               ) : isAuthenticated ? (
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className="p-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                  className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-900/5 transition-all"
                 >
                   <Search className="h-5 w-5" />
                 </button>
@@ -421,13 +428,13 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => setSearchOpen(true)}
-                    className="p-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                    className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-900/5 transition-all"
                   >
                     <Search className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => router.push('/auth/login')}
-                    className="text-sm font-bold px-3.5 py-2 rounded-xl transition-all text-amber-400 hover:text-amber-300 hover:bg-white/10"
+                    className="text-sm font-bold px-3.5 py-2 rounded-xl transition-all text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                   >
                     Login
                   </button>
@@ -436,7 +443,7 @@ export default function Navbar() {
               {/* Hamburger — large and visible */}
               <button
                 onClick={() => { setMobileOpen(!mobileOpen); setMobileExpanded(null); }}
-                className="p-2 rounded-xl transition-colors text-white hover:bg-white/10"
+                className="p-2 rounded-xl transition-colors text-slate-700 hover:bg-slate-900/5"
               >
                 {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
@@ -445,11 +452,11 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* MOBILE MENU — Full-screen overlay with super-menu */}
+      {/* MOBILE MENU — Full-screen overlay, keep dark for contrast and immersion */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-40 overflow-y-auto"
-          style={{ background: '#0F1629', paddingTop: '64px' }}
+          style={{ background: '#0F172A', paddingTop: '64px' }}
         >
           <div className="px-4 py-4">
             {/* User info card (if authenticated) */}
@@ -633,7 +640,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* SEARCH MODAL */}
+      {/* SEARCH MODAL — unchanged */}
       {searchOpen && (
         <div
           className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-3 sm:px-4"

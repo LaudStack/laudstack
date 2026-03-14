@@ -411,3 +411,8 @@
 - [x] Fix all discovered issues (6 bugs fixed: tool detail upvoted init, laudCount math, community-picks wired to laud engine, console.errors removed, admin suspicious name display, AuthGateModal laud action)
 - [x] Verify TypeScript + Next.js build pass with zero errors
 - [x] Push hardened code to GitHub
+
+## Header Color Update (March 14, 2026)
+- [x] Update Navbar background from #0F1629 to #EDF2FA (very light blue) with dark text
+- [x] Swap logo to dark-text variant (logo-light-transparent.png), update all UI elements for light bg
+- [x] Verify build and push to GitHub
