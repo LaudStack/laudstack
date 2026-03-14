@@ -1,0 +1,1066 @@
+"use client";
+
+/**
+ * ToolDetail.tsx — LaudStack Product Detail Page (v3 — Mobile-First Responsive)
+ *
+ * All layout uses Tailwind responsive classes for proper mobile/tablet/desktop behavior.
+ * No fixed pixel widths that break on small screens.
+ */
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import {
+  Star, ExternalLink, ChevronUp, ShieldCheck, ArrowLeft,
+  ThumbsUp, MessageSquare, ChevronRight, Sparkles,
+  Globe, Tag, Calendar, Award, CheckCircle2, AlertCircle,
+  Building2, GitCompareArrows, Bookmark, ArrowRight,
+  TrendingUp, Users, Layers, BarChart3,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import Navbar from '@/components/Navbar';
+import WriteReviewModal from '@/components/WriteReviewModal';
+import AuthGateModal from '@/components/AuthGateModal';
+import { useAuth } from '@/hooks/useAuth';
+import { toggleUpvote } from '@/app/actions/public';
+import { invalidateToolsCache } from '@/hooks/useToolsData';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { useCompare } from '@/contexts/CompareContext';
+import { useSavedTools } from '@/hooks/useSavedTools';
+import Footer from '@/components/Footer';
+import { useToolsData } from '@/hooks/useToolsData';
+import type { Tool, Review } from '@/lib/types';
+import { getToolExtras } from '@/lib/toolExtras';
+
+// ─── Badge config ──────────────────────────────────────────────────────────
+const BADGE_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
+  top_rated:      { label: 'Top Rated',      bg: '#FEF3C7', color: '#B45309', border: '#FDE68A' },
+  featured:       { label: 'Spotlight',       bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0' },
+  editors_pick:   { label: "Editor's Pick",  bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
+  trending:       { label: 'Rising',       bg: '#FFF7ED', color: '#C2410C', border: '#FED7AA' },
+  new_launch:     { label: 'New Launch',     bg: '#F5F3FF', color: '#6D28D9', border: '#DDD6FE' },
+  community_pick: { label: 'Community Pick', bg: '#ECFDF5', color: '#065F46', border: '#A7F3D0' },
+  best_value:     { label: 'Best Value',     bg: '#FFF1F2', color: '#BE123C', border: '#FECDD3' },
+  laudstack_pick: { label: 'LaudStack Pick', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+  verified:       { label: 'Verified',       bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0' },
+  pro_founder:    { label: 'Pro Founder',    bg: '#FDF4FF', color: '#7E22CE', border: '#E9D5FF' },
+};
+
+// ─── Star Rating ───────────────────────────────────────────────────────────
+function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map(i => (
+        <Star key={i} style={{
+          width: size, height: size,
+          fill: i <= Math.round(rating) ? '#FBBF24' : '#E2E8F0',
+          color: i <= Math.round(rating) ? '#FBBF24' : '#E2E8F0',
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// ─── Rating Bar ────────────────────────────────────────────────────────────
+function RatingBar({ label, count, total }: { label: string; count: number; total: number }) {
+  const pct = total > 0 ? (count / total) * 100 : 0;
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="text-[13px] text-slate-500 font-semibold w-10 text-right shrink-0">{label}</span>
+      <div className="flex-1 h-2 rounded bg-slate-100 overflow-hidden">
+        <div className="h-full rounded transition-all duration-500" style={{ width: `${pct}%`, background: pct > 60 ? '#F59E0B' : pct > 30 ? '#FCD34D' : '#FDE68A' }} />
+      </div>
+      <span className="text-xs text-slate-400 font-semibold w-7 shrink-0">{count}</span>
+    </div>
+  );
+}
+
+// ─── Generate reviews for tools without real reviews ───────────────────────
+function getToolReviews(toolId: string, allReviews: Review[], allTools: Tool[]): Review[] {
+  const base = allReviews.filter(r => r.tool_id === toolId);
+  if (base.length > 0) return base;
+  const tool = allTools.find(t => t.id === toolId);
+  if (!tool) return [];
+  return [
+    {
+      id: `${toolId}-r1`, tool_id: toolId, user_id: 'u10', rating: 5,
+      title: `${tool.name} has become essential to my workflow`,
+      body: `I've been using ${tool.name} for about 6 months and it's genuinely transformed how I work. The quality is consistently high and the team ships updates regularly. Highly recommend to anyone in this space.`,
+      pros: 'Reliable, well-designed, great support',
+      cons: 'Pricing could be more flexible for small teams',
+      use_case: 'Daily professional use',
+      is_verified_purchase: true, helpful_count: 34,
+      created_at: '2026-02-20',
+      user: { id: 'u10', name: 'Alex Morgan', role: 'Product Manager', company: 'TechCorp' },
+    },
+    {
+      id: `${toolId}-r2`, tool_id: toolId, user_id: 'u11', rating: 4,
+      title: 'Solid product, minor rough edges',
+      body: `${tool.name} delivers on its core promise. The main features work well and the onboarding is smooth. A few edge cases could be handled better but overall it's a strong product.`,
+      pros: 'Core features are excellent, fast and reliable',
+      cons: 'Some advanced features feel incomplete',
+      is_verified_purchase: true, helpful_count: 21,
+      created_at: '2026-02-10',
+      user: { id: 'u11', name: 'Jordan Lee', role: 'Senior Engineer', company: 'BuildFast' },
+    },
+    {
+      id: `${toolId}-r3`, tool_id: toolId, user_id: 'u12', rating: 5,
+      title: 'Best in class for this category',
+      body: `We evaluated 5 alternatives before choosing ${tool.name}. It came out ahead on every metric that mattered to us — quality, reliability, and support responsiveness.`,
+      pros: 'Best-in-class quality, excellent documentation',
+      cons: 'Learning curve for advanced features',
+      is_verified_purchase: true, helpful_count: 18,
+      created_at: '2026-01-28',
+      user: { id: 'u12', name: 'Sam Patel', role: 'CTO', company: 'Launchly' },
+    },
+  ];
+}
+
+// ─── Share helpers ─────────────────────────────────────────────────────────
+function ShareButton({ label, icon, hoverColor, hoverBg, onClick }: {
+  label: string; icon: string; hoverColor: string; hoverBg: string; onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} title={`Share on ${label}`}
+      className="flex-1 py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 transition-all text-[11px] font-bold cursor-pointer"
+      style={{
+        border: `1px solid ${hovered ? hoverColor : '#E2E8F0'}`,
+        background: hovered ? hoverBg : '#F8FAFC',
+        color: hovered ? hoverColor : '#475569',
+      }}
+    >
+      <span className="text-[15px] leading-none">{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function CopyLinkButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+  return (
+    <button onClick={handleCopy} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} title="Copy link"
+      className="flex-1 py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 transition-all text-[11px] font-bold cursor-pointer"
+      style={{
+        border: `1px solid ${copied ? '#BBF7D0' : hovered ? '#F59E0B' : '#E2E8F0'}`,
+        background: copied ? '#F0FDF4' : hovered ? '#FFFBEB' : '#F8FAFC',
+        color: copied ? '#15803D' : hovered ? '#B45309' : '#475569',
+      }}
+    >
+      <span className="text-[15px] leading-none">{copied ? '✓' : '🔗'}</span>
+      <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+    </button>
+  );
+}
+
+// ─── Alternative Product Card (responsive) ────────────────────────────────
+function AlternativeProductCard({ product, currentTool, rank }: { product: Tool; currentTool: Tool; rank: number }) {
+  const router = useRouter();
+  return (
+    <div
+      onClick={() => router.push(`/tools/${product.slug}`)}
+      className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300 flex flex-col gap-3"
+      style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}
+    >
+      {/* Top: Logo + Name + Rating */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center">
+          <img src={product.logo_url} alt={product.name} className="w-full h-full object-contain"
+            onError={e => { const t = e.currentTarget; t.style.display = 'none'; const p = t.parentElement; if (p) { p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${product.name.charAt(0)}</span>`; } }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm sm:text-[15px] font-extrabold text-gray-900 truncate tracking-tight">{product.name}</span>
+            {product.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+          </div>
+          <div className="flex items-center gap-1 mt-0.5">
+            <StarRating rating={product.average_rating} size={11} />
+            <span className="text-xs font-bold text-gray-900 ml-0.5">{product.average_rating.toFixed(1)}</span>
+            <span className="text-[10px] text-slate-400">({product.review_count})</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tagline */}
+      <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed line-clamp-2 m-0">{product.tagline}</p>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-2 mt-auto" style={{ borderTop: '1px solid #F3F4F6' }}>
+        <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">{product.pricing_model}</span>
+        <Link href={`/compare?tools=${currentTool.slug},${product.slug}`} onClick={e => e.stopPropagation()}
+          className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md hover:bg-blue-100 transition-colors no-underline">
+          Compare
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────
+export default function ToolDetail() {
+  const params = useParams();
+  const router = useRouter();
+  const slug = params?.slug as string;
+  const { tools: allTools, reviews: allReviews } = useToolsData();
+  const { isAuthenticated } = useAuth();
+  const { recordVisit: addRecentlyViewed } = useRecentlyViewed();
+  const { isSelected: isComparing, toggle: compareToggle, canAdd: canCompare } = useCompare();
+  const { isSaved, toggle: toggleSave } = useSavedTools();
+
+  const [activeSection, setActiveSection] = useState('about');
+  const [upvoted, setUpvoted] = useState(false);
+  const [upvoteCount, setUpvoteCount] = useState(0);
+  const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authAction, setAuthAction] = useState<'review' | 'upvote' | 'save' | 'claim' | 'general'>('upvote');
+
+  // Track recently viewed
+  useEffect(() => { if (slug) addRecentlyViewed(slug); }, [slug]);
+
+  // Scroll spy
+  useEffect(() => {
+    const ids = ['about', 'media', 'features', 'pricing', 'reviews', 'alternatives'];
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id.replace('section-', ''));
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    ids.forEach(id => {
+      const el = document.getElementById(`section-${id}`);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [allTools]);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(`section-${id}`);
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 140;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  const handleWriteReview = () => {
+    if (!isAuthenticated) { setAuthAction('review'); setShowAuthModal(true); return; }
+    setReviewOpen(true);
+  };
+
+  const tool = allTools.find(t => t.slug === slug);
+
+  if (!tool) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="h-[72px]" />
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 py-20">
+          <AlertCircle className="w-12 h-12 text-slate-400" />
+          <h1 className="text-2xl font-extrabold text-gray-900">Product not found</h1>
+          <p className="text-slate-500">The product you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+          <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-bold text-amber-500 no-underline">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to homepage
+          </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const reviews = getToolReviews(tool.id, allReviews, allTools);
+  const extras = getToolExtras(tool.slug, tool.name, tool.pricing_model, tool.screenshot_url, tool.website_url);
+
+  const alternatives = allTools
+    .filter(t => t.category === tool.category && t.id !== tool.id)
+    .sort((a, b) => b.average_rating - a.average_rating || b.review_count - a.review_count)
+    .slice(0, 8);
+
+  const similarProducts = allTools
+    .filter(t => t.id !== tool.id && t.category !== tool.category)
+    .map(t => ({ ...t, tagOverlap: t.tags.filter(tag => tool.tags.includes(tag)).length }))
+    .filter(t => t.tagOverlap > 0)
+    .sort((a, b) => b.tagOverlap - a.tagOverlap || b.average_rating - a.average_rating)
+    .slice(0, 4);
+
+  const totalReviews = Math.max(reviews.length, tool.review_count);
+  const ratingBreakdown = [5, 4, 3, 2, 1].map(star => {
+    const base = star === Math.round(tool.average_rating) ? 0.45
+      : star === Math.round(tool.average_rating) - 1 ? 0.30
+      : star === Math.round(tool.average_rating) + 1 ? 0.15
+      : 0.05;
+    return { star, count: Math.round(totalReviews * base) };
+  });
+
+  const handleUpvote = async () => {
+    if (!isAuthenticated) { setAuthAction('upvote'); setShowAuthModal(true); return; }
+    const toolId = parseInt(tool.id, 10);
+    const wasUpvoted = upvoted;
+    setUpvoted(!wasUpvoted);
+    setUpvoteCount(c => wasUpvoted ? c - 1 : c + 1);
+    if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
+    const result = await toggleUpvote(toolId);
+    if (!result.success) {
+      setUpvoted(wasUpvoted);
+      setUpvoteCount(c => wasUpvoted ? c + 1 : c - 1);
+      toast.error(result.error || 'Failed to laud');
+    } else {
+      invalidateToolsCache();
+    }
+  };
+
+  const handleHelpful = (reviewId: string) => {
+    if (helpfulMap[reviewId]) return;
+    setHelpfulMap(m => ({ ...m, [reviewId]: true }));
+    toast.success('Marked as helpful');
+  };
+
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50" style={{ paddingTop: 72 }}>
+      <Navbar />
+
+      {/* ══ PRODUCT HEADER ═══════════════════════════════════════════════════ */}
+      <header className="bg-white border-b border-slate-200">
+
+        {/* Founder promotional banner */}
+        {tool.promotional_banner && (
+          <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-6 py-2.5 flex items-center justify-center gap-3 flex-wrap text-center">
+            <span className="text-[13px] font-semibold text-amber-800">{tool.promotional_banner}</span>
+            {tool.promotional_cta && (
+              <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                className="text-xs font-extrabold text-amber-700 bg-amber-100 border border-amber-200 px-3 py-0.5 rounded-full no-underline whitespace-nowrap">
+                {tool.promotional_cta} →
+              </a>
+            )}
+          </div>
+        )}
+
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+
+          {/* Breadcrumb — hidden on very small screens */}
+          <nav className="hidden sm:flex items-center gap-1.5 pt-4 text-xs text-slate-400 font-medium">
+            <Link href="/" className="text-slate-400 no-underline hover:text-amber-500 transition-colors">Home</Link>
+            <ChevronRight className="w-3 h-3 shrink-0" />
+            <Link href="/tools" className="text-slate-400 no-underline hover:text-amber-500 transition-colors">All Stacks</Link>
+            <ChevronRight className="w-3 h-3 shrink-0" />
+            <Link href={`/tools?category=${encodeURIComponent(tool.category)}`} className="text-slate-400 no-underline hover:text-amber-500 transition-colors">{tool.category}</Link>
+            <ChevronRight className="w-3 h-3 shrink-0" />
+            <span className="text-gray-700 font-semibold truncate max-w-[120px]">{tool.name}</span>
+          </nav>
+
+          {/* Mobile back link */}
+          <div className="sm:hidden pt-3">
+            <button onClick={() => router.back()} className="flex items-center gap-1 text-xs font-semibold text-slate-500 bg-transparent border-none cursor-pointer p-0">
+              <ArrowLeft className="w-3.5 h-3.5" /> Back
+            </button>
+          </div>
+
+          {/* ── Hero Row ─────────────────────────────────────────────────── */}
+          <div className="py-6 sm:py-8">
+
+            {/* Top row: Logo + Name + Tagline + Actions */}
+            <div className="flex flex-col sm:flex-row gap-5 sm:gap-6">
+
+              {/* Logo */}
+              <div className="w-[72px] h-[72px] sm:w-[96px] sm:h-[96px] rounded-2xl border-[1.5px] border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center"
+                style={{ boxShadow: '0 2px 16px rgba(15,23,42,0.06)' }}>
+                <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain p-2"
+                  onError={e => { const t = e.currentTarget; t.style.display = 'none'; const p = t.parentElement; if (p) { p.innerHTML = `<span style="font-size:32px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
+              </div>
+
+              {/* Name + Tagline + Actions */}
+              <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+
+                {/* Left: Name + Tagline */}
+                <div className="flex-1 min-w-0">
+                  {/* Name */}
+                  <h1 className="text-2xl sm:text-[28px] lg:text-[36px] font-black text-slate-900 mb-2 sm:mb-2.5 leading-[1.15]" style={{ letterSpacing: '-0.03em' }}>
+                    {tool.name}
+                  </h1>
+
+                  {/* Tagline */}
+                  <p className="text-[15px] sm:text-base text-slate-500 font-medium leading-relaxed max-w-[580px] m-0">
+                    {tool.tagline}
+                  </p>
+
+                  {/* Badges — below name and description, includes category */}
+                  <div className="flex flex-wrap items-center gap-2 mt-4">
+                    <Link href={`/tools?category=${encodeURIComponent(tool.category)}`}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-bold py-1 px-3 rounded-full bg-slate-100 text-slate-600 border border-slate-200 no-underline hover:border-amber-300 hover:text-amber-700 transition-colors">
+                      <Tag className="w-2.5 h-2.5" />
+                      {tool.category}
+                    </Link>
+                    {tool.is_verified && (
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold py-1 px-3 rounded-full bg-green-50 text-green-700 border border-green-200">
+                        <ShieldCheck className="w-3 h-3" /> Verified
+                      </span>
+                    )}
+                    {tool.badges.slice(0, 4).map(b => {
+                      const cfg = BADGE_CONFIG[b];
+                      if (!cfg) return null;
+                      return (
+                        <span key={b} className="inline-flex items-center text-[11px] font-bold py-1 px-3 rounded-full" style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+                          {cfg.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right: Action buttons — stacks on mobile */}
+                <div className="w-full sm:w-[210px] shrink-0 flex flex-col gap-2.5 sm:pt-1">
+
+                  {/* Primary CTA */}
+                  <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-amber-400 text-gray-900 font-extrabold text-sm no-underline transition-all hover:bg-amber-500"
+                    style={{ boxShadow: '0 2px 10px rgba(245,158,11,0.25)' }}>
+                    Visit Website <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+
+                  {/* Secondary actions — horizontal row */}
+                  <div className="grid grid-cols-4 gap-1.5">
+                    <button onClick={handleUpvote}
+                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all"
+                      style={{
+                        border: upvoted ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
+                        background: upvoted ? '#FFFBEB' : '#FFFFFF',
+                        color: upvoted ? '#B45309' : '#475569',
+                      }}>
+                      <ChevronUp className="w-4 h-4" />
+                      <span>{upvoted ? 'Lauded' : 'Laud'}</span>
+                    </button>
+
+                    <button onClick={() => { toggleSave(tool.id); toast.success(isSaved(tool.id) ? 'Removed from saved' : `Saved ${tool.name}!`); }}
+                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all"
+                      style={{
+                        border: isSaved(tool.id) ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
+                        background: isSaved(tool.id) ? '#FFFBEB' : '#FFFFFF',
+                        color: isSaved(tool.id) ? '#B45309' : '#475569',
+                      }}>
+                      <Bookmark className="w-4 h-4" style={{ fill: isSaved(tool.id) ? '#F59E0B' : 'none' }} />
+                      <span>{isSaved(tool.id) ? 'Saved' : 'Save'}</span>
+                    </button>
+
+                    <button onClick={() => {
+                      if (!isComparing(tool.id) && !canCompare) { toast.error('Compare up to 3 products at a time'); return; }
+                      compareToggle(tool);
+                      if (!isComparing(tool.id)) toast.success(`${tool.name} added to comparison`);
+                    }}
+                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all"
+                      style={{
+                        border: isComparing(tool.id) ? '1.5px solid #BFDBFE' : '1.5px solid #E2E8F0',
+                        background: isComparing(tool.id) ? '#EFF6FF' : '#FFFFFF',
+                        color: isComparing(tool.id) ? '#1D4ED8' : '#475569',
+                      }}>
+                      <GitCompareArrows className="w-4 h-4" />
+                      <span>Compare</span>
+                    </button>
+
+                    <button onClick={handleWriteReview}
+                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all border-[1.5px] border-slate-200 bg-white text-slate-500 hover:border-amber-400 hover:text-amber-700">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Review</span>
+                    </button>
+                  </div>
+
+                  {/* Website URL */}
+                  <div className="hidden sm:flex items-center gap-1.5 justify-center">
+                    <Globe className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span className="text-[11px] text-slate-400 truncate max-w-[170px]">
+                      {tool.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Strip — full width below hero row */}
+            <div className="mt-6 pt-6 border-t border-slate-100">
+              <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                <div className="inline-flex items-stretch border border-slate-200 rounded-xl bg-slate-50 min-w-max">
+                  {[
+                    {
+                      label: 'Rating',
+                      value: (
+                        <div className="flex items-center gap-1">
+                          <StarRating rating={tool.average_rating} size={13} />
+                          <span className="text-sm font-extrabold text-slate-900">{tool.average_rating.toFixed(1)}</span>
+                          <span className="text-[11px] text-slate-400 font-medium">({tool.review_count.toLocaleString()})</span>
+                        </div>
+                      ),
+                    },
+                    { label: 'Lauds', value: <span className="text-sm font-extrabold text-slate-900">{(tool.upvote_count + upvoteCount).toLocaleString()}</span> },
+                    { label: 'Pricing', value: <span className="text-sm font-extrabold text-slate-900">{tool.pricing_model}</span> },
+                    { label: 'Launched', value: <span className="text-sm font-extrabold text-slate-900">{new Date(tool.launched_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span> },
+                    { label: 'Category', value: <span className="text-sm font-extrabold text-slate-900">{tool.category}</span> },
+                  ].map((stat, i, arr) => (
+                    <div key={stat.label} className="flex flex-col gap-0.5 px-4 sm:px-6 py-3" style={{ borderRight: i < arr.length - 1 ? '1px solid #E2E8F0' : 'none' }}>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</span>
+                      {stat.value}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </header>
+
+      {/* ══ STICKY TAB BAR ═══════════════════════════════════════════════════ */}
+      <div className="sticky top-[72px] z-[39] bg-white border-b border-slate-200" style={{ boxShadow: '0 1px 6px rgba(15,23,42,0.05)' }}>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <nav className="flex items-center overflow-x-auto" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+            {([
+              { id: 'about', label: 'About' },
+              { id: 'media', label: 'Media' },
+              { id: 'features', label: 'Features' },
+              { id: 'pricing', label: 'Pricing' },
+              { id: 'reviews', label: 'Reviews' },
+              { id: 'alternatives', label: 'Alternatives' },
+            ] as const).map(tab => (
+              <button key={tab.id} onClick={() => scrollToSection(tab.id)}
+                className="shrink-0 px-3 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-[13px] font-medium bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap -mb-px"
+                style={{
+                  fontWeight: activeSection === tab.id ? 700 : 500,
+                  color: activeSection === tab.id ? '#B45309' : '#64748B',
+                  borderBottom: activeSection === tab.id ? '2px solid #F59E0B' : '2px solid transparent',
+                }}>
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* ══ MAIN CONTENT — Responsive Two Column Layout ═════════════════════ */}
+      <div className="max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-7 items-start">
+
+          {/* ── LEFT COLUMN ─────────────────────────────────────────────── */}
+          <div className="flex-1 min-w-0 flex flex-col gap-5 sm:gap-6 order-2 lg:order-1">
+
+            {/* About */}
+            <section id="section-about" className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <h2 className="text-base sm:text-lg font-extrabold text-gray-900 mb-3 sm:mb-4" style={{ letterSpacing: '-0.02em' }}>About {tool.name}</h2>
+              <p className="text-sm sm:text-[15px] text-gray-700 leading-relaxed sm:leading-[1.75] mb-4 sm:mb-5">{tool.description}</p>
+              <div className="flex flex-wrap gap-2">
+                {tool.tags.map(tag => (
+                  <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
+                    className="text-xs font-semibold py-1 px-3 rounded-lg bg-slate-50 text-slate-500 border border-slate-200 no-underline hover:border-amber-300 hover:text-amber-700 transition-colors">
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            {/* Media */}
+            <section id="section-media" className="bg-white rounded-2xl border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <div className="px-5 sm:px-7 py-4 sm:py-5 border-b border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>Media</h2>
+              </div>
+              {extras.screenshots.length > 0 ? (
+                <div className="relative bg-slate-100 aspect-video overflow-hidden">
+                  <img src={extras.screenshots[0]?.url} alt={extras.screenshots[0]?.caption}
+                    className="w-full h-full object-cover object-top"
+                    onError={e => { const img = e.currentTarget; img.style.display = 'none'; const parent = img.parentElement; if (parent) { parent.style.display = 'flex'; parent.style.alignItems = 'center'; parent.style.justifyContent = 'center'; parent.innerHTML = '<p style="color:#94A3B8;font-size:14px;font-weight:500">Media unavailable</p>'; } }} />
+                </div>
+              ) : (
+                <div className="aspect-video flex items-center justify-center bg-slate-50">
+                  <p className="text-slate-400 text-sm font-medium">No media available</p>
+                </div>
+              )}
+            </section>
+
+            {/* Key Features */}
+            <section id="section-features" className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <h2 className="text-base sm:text-lg font-extrabold text-gray-900 mb-4 sm:mb-6" style={{ letterSpacing: '-0.02em' }}>Key Features</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {extras.features.map((feat, i) => (
+                  <div key={i} className="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 transition-all hover:border-amber-200 hover:shadow-sm">
+                    <div className="text-2xl mb-2.5">{feat.icon}</div>
+                    <h3 className="text-sm font-extrabold text-gray-900 mb-1">{feat.title}</h3>
+                    <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed m-0">{feat.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Pricing */}
+            <section id="section-pricing" className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <div className="flex items-center justify-between mb-5 sm:mb-6 flex-wrap gap-2">
+                <h2 className="text-base sm:text-lg font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>Pricing</h2>
+                <a href={tool.website_url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-amber-700 no-underline inline-flex items-center gap-1">
+                  View full pricing <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {extras.pricing_tiers.map((tier, i) => (
+                  <div key={i} className="rounded-2xl p-5 sm:p-6 relative flex flex-col gap-3.5"
+                    style={{
+                      border: tier.highlighted ? '2px solid #F59E0B' : '1px solid #E2E8F0',
+                      background: tier.highlighted ? '#FFFBEB' : '#FAFBFC',
+                      boxShadow: tier.highlighted ? '0 4px 20px rgba(245,158,11,0.12)' : 'none',
+                    }}>
+                    {tier.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-gray-900 text-[11px] font-extrabold px-3.5 py-0.5 rounded-full whitespace-nowrap">
+                        {tier.badge}
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">{tier.name}</div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl sm:text-3xl font-black text-gray-900" style={{ letterSpacing: '-0.03em' }}>{tier.price}</span>
+                        {tier.period && <span className="text-xs text-slate-400 font-medium">{tier.period}</span>}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2 leading-snug">{tier.description}</p>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-2.5">
+                      {tier.features.map((f, j) => (
+                        <div key={j} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: tier.highlighted ? '#B45309' : '#15803D' }} />
+                          <span className="text-[13px] text-gray-700 leading-snug">{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center py-3 rounded-lg text-[13px] font-bold no-underline transition-all"
+                      style={{
+                        background: tier.highlighted ? '#F59E0B' : '#FFFFFF',
+                        color: tier.highlighted ? '#0A0A0A' : '#374151',
+                        border: tier.highlighted ? 'none' : '1.5px solid #E2E8F0',
+                        boxShadow: tier.highlighted ? '0 3px 10px rgba(245,158,11,0.3)' : 'none',
+                      }}>
+                      {tier.cta}
+                    </a>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-4 text-center">
+                Pricing shown is indicative. Visit {tool.name}&apos;s website for the latest pricing.
+              </p>
+            </section>
+
+            {/* Ratings & Reviews Summary */}
+            <section id="section-reviews" className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <div className="flex items-center justify-between gap-3 mb-6 sm:mb-7 flex-wrap">
+                <h2 className="text-base sm:text-lg font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>Ratings &amp; Reviews</h2>
+                <button onClick={handleWriteReview}
+                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-[13px] border-none cursor-pointer transition-all hover:shadow-md whitespace-nowrap"
+                  style={{ boxShadow: '0 3px 10px rgba(245,158,11,0.25)' }}>
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
+                </button>
+              </div>
+
+              {/* Rating summary — stacks on mobile */}
+              <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 items-center sm:items-center mb-7 sm:mb-8 p-5 sm:p-6 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="text-center shrink-0">
+                  <div className="text-4xl sm:text-5xl font-black text-gray-900 leading-none" style={{ letterSpacing: '-0.04em' }}>
+                    {tool.average_rating.toFixed(1)}
+                  </div>
+                  <div className="mt-1.5"><StarRating rating={tool.average_rating} size={16} /></div>
+                  <div className="text-[13px] text-slate-500 mt-1.5 font-medium">{tool.review_count.toLocaleString()} reviews</div>
+                </div>
+                <div className="flex-1 w-full flex flex-col gap-2">
+                  {ratingBreakdown.map(({ star, count }) => (
+                    <RatingBar key={star} label={`${star} ★`} count={count} total={totalReviews} />
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Individual Reviews */}
+            <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <div className="px-5 sm:px-7 py-4 sm:py-5 border-b border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>Community Reviews</h2>
+              </div>
+
+              <div className="flex flex-col">
+                {reviews.map((review, i) => (
+                  <div key={review.id} className="px-5 sm:px-7 py-5 sm:py-6" style={{ borderBottom: i < reviews.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                    {/* Reviewer header — stacks on very small screens */}
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 sm:w-[42px] sm:h-[42px] rounded-full shrink-0 flex items-center justify-center"
+                          style={{ background: `hsl(${(review.user?.name.charCodeAt(0) ?? 65) * 7}, 50%, 52%)` }}>
+                          <span className="text-sm sm:text-base font-extrabold text-white">{review.user?.name.charAt(0) ?? '?'}</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-gray-900">{review.user?.name}</span>
+                            {review.is_verified_purchase && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold py-0.5 px-2 rounded-full bg-green-50 text-green-700 border border-green-200">
+                                <CheckCircle2 className="w-2.5 h-2.5" /> Verified
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-slate-400 font-medium mt-0.5">
+                            {review.user?.role}{review.user?.company ? ` · ${review.user.company}` : ''}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center sm:flex-col sm:items-end gap-2 sm:gap-1">
+                        <StarRating rating={review.rating} size={13} />
+                        <span className="text-xs text-slate-400">{formatDate(review.created_at)}</span>
+                      </div>
+                    </div>
+
+                    {/* Review content */}
+                    <h3 className="text-sm sm:text-[15px] font-bold text-gray-900 mb-2 leading-snug">{review.title}</h3>
+                    <p className="text-[13px] sm:text-sm text-gray-700 leading-relaxed sm:leading-[1.7] mb-4">{review.body}</p>
+
+                    {/* Pros / Cons — stacks on mobile */}
+                    {(review.pros || review.cons) && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        {review.pros && (
+                          <div className="p-3 sm:p-3.5 rounded-xl bg-green-50 border border-green-200">
+                            <div className="text-[11px] font-bold text-green-700 uppercase tracking-wider mb-1.5">Pros</div>
+                            <p className="text-xs sm:text-[13px] text-green-800 m-0 leading-snug">{review.pros}</p>
+                          </div>
+                        )}
+                        {review.cons && (
+                          <div className="p-3 sm:p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+                            <div className="text-[11px] font-bold text-rose-700 uppercase tracking-wider mb-1.5">Cons</div>
+                            <p className="text-xs sm:text-[13px] text-rose-800 m-0 leading-snug">{review.cons}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Helpful */}
+                    <button onClick={() => handleHelpful(review.id)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all"
+                      style={{
+                        color: helpfulMap[review.id] ? '#15803D' : '#64748B',
+                        background: helpfulMap[review.id] ? '#F0FDF4' : 'transparent',
+                        border: helpfulMap[review.id] ? '1px solid #BBF7D0' : '1px solid #E2E8F0',
+                        cursor: helpfulMap[review.id] ? 'default' : 'pointer',
+                      }}>
+                      <ThumbsUp className="w-3 h-3" />
+                      Helpful ({review.helpful_count + (helpfulMap[review.id] ? 1 : 0)})
+                    </button>
+
+                    {/* Founder reply */}
+                    {review.founder_reply && (
+                      <div className="mt-4 p-3.5 sm:p-4 rounded-xl bg-amber-50 border border-amber-200 border-l-[3px] border-l-amber-400">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Building2 className="w-3.5 h-3.5 text-amber-700" />
+                          <span className="text-xs font-bold text-amber-700">Founder Reply</span>
+                          <span className="text-[11px] text-amber-800">· {formatDate(review.founder_reply.created_at)}</span>
+                        </div>
+                        <p className="text-[13px] text-amber-900 leading-relaxed m-0">{review.founder_reply.body}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Write a review CTA */}
+              <div className="px-5 sm:px-7 py-4 sm:py-5 bg-amber-50 border-t border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-gray-900 mb-0.5">Have experience with {tool.name}?</p>
+                  <p className="text-[13px] text-slate-500 m-0">Share your honest review and help others make informed decisions.</p>
+                </div>
+                <button onClick={handleWriteReview}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-[13px] border-none cursor-pointer transition-all hover:shadow-md whitespace-nowrap shrink-0"
+                  style={{ boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}>
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
+                </button>
+              </div>
+            </section>
+          </div>
+
+          {/* ── RIGHT SIDEBAR — hidden on mobile, shown below content on tablet, sticky on desktop ── */}
+          <aside className="w-full lg:w-[340px] shrink-0 flex flex-col gap-5 order-1 lg:order-2 lg:sticky lg:top-[140px]">
+
+            {/* Stack Details */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <h3 className="text-[13px] font-extrabold text-gray-900 mb-4 sm:mb-5 uppercase tracking-wider">Stack Details</h3>
+              <div className="flex flex-col gap-3.5 sm:gap-4">
+                {[
+                  { icon: Tag, label: 'Category', value: tool.category },
+                  { icon: Globe, label: 'Pricing', value: tool.pricing_model },
+                  { icon: Calendar, label: 'Launched', value: new Date(tool.launched_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) },
+                  { icon: Award, label: 'Rank Score', value: tool.rank_score.toLocaleString() },
+                  { icon: TrendingUp, label: 'Weekly Change', value: tool.weekly_rank_change ? `+${tool.weekly_rank_change}` : '—' },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 sm:w-[30px] sm:h-[30px] rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                        <Icon className="w-3.5 h-3.5 text-slate-500" />
+                      </div>
+                      <span className="text-[13px] text-slate-500 font-medium">{label}</span>
+                    </div>
+                    <span className="text-[13px] font-bold text-gray-900">{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-5 pt-5 border-t border-slate-100">
+                <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-amber-400 text-gray-900 font-extrabold text-[13px] no-underline transition-all hover:shadow-md"
+                  style={{ boxShadow: '0 3px 10px rgba(245,158,11,0.3)' }}>
+                  Visit Website <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Founder Info */}
+            {tool.founder && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+                <h3 className="text-[13px] font-extrabold text-gray-900 mb-3.5 sm:mb-4 uppercase tracking-wider">Built By</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full shrink-0 border-2 border-slate-200 flex items-center justify-center overflow-hidden"
+                    style={{ background: `hsl(${(tool.founder.name.charCodeAt(0)) * 7}, 50%, 52%)` }}>
+                    {tool.founder.avatar_url ? (
+                      <img src={tool.founder.avatar_url} alt={tool.founder.name} className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      <span className="text-base font-extrabold text-white">{tool.founder.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-bold text-gray-900 truncate">{tool.founder.name}</span>
+                      {tool.founder.is_pro && (
+                        <span className="text-[10px] font-bold py-0.5 px-1.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200">PRO</span>
+                      )}
+                    </div>
+                    {tool.founder.bio && <p className="text-xs text-slate-500 mt-0.5 leading-snug truncate">{tool.founder.bio}</p>}
+                  </div>
+                </div>
+                {(tool.founder.twitter_handle || tool.founder.linkedin_url) && (
+                  <div className="flex gap-2 mt-3.5">
+                    {tool.founder.twitter_handle && (
+                      <a href={`https://twitter.com/${tool.founder.twitter_handle}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-semibold text-slate-500 no-underline py-1 px-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
+                        @{tool.founder.twitter_handle}
+                      </a>
+                    )}
+                    {tool.founder.linkedin_url && (
+                      <a href={tool.founder.linkedin_url} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-semibold text-slate-500 no-underline py-1 px-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
+                        LinkedIn
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Claim / Verified */}
+            {!tool.is_verified ? (
+              <div className="rounded-2xl p-5 sm:p-6 relative overflow-hidden" style={{ background: '#0F1629', boxShadow: '0 4px 24px rgba(15,23,42,0.18)' }}>
+                <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full mb-3.5" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                  <Building2 className="w-3 h-3 text-amber-400" />
+                  <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">For Founders</span>
+                </div>
+                <h3 className="text-base font-black text-white mb-1.5 leading-tight" style={{ letterSpacing: '-0.02em' }}>Is this your product?</h3>
+                <p className="text-[13px] text-slate-400 leading-relaxed mb-4">Claim this listing to unlock founder features and grow faster.</p>
+                <ul className="m-0 mb-5 p-0 list-none flex flex-col gap-2.5">
+                  {['Respond to reviews publicly', 'Add a promotional banner', 'Access traffic & analytics', 'Get a Verified badge'].map((benefit, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <div className="w-4.5 h-4.5 rounded-full shrink-0 flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', width: 18, height: 18 }}>
+                        <CheckCircle2 className="w-2.5 h-2.5 text-amber-400" />
+                      </div>
+                      <span className="text-xs text-slate-300 font-medium">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => router.push('/launchpad')}
+                  className="w-full py-3 rounded-lg bg-amber-400 text-gray-900 font-extrabold text-[13px] border-none cursor-pointer transition-all flex items-center justify-center gap-1.5"
+                  style={{ boxShadow: '0 4px 14px rgba(245,158,11,0.35)' }}>
+                  <Building2 className="w-3.5 h-3.5" /> Claim This Listing
+                </button>
+              </div>
+            ) : (
+              <div className="bg-green-50 rounded-2xl border-[1.5px] border-green-200 p-4 sm:p-5 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-green-100 border border-green-200 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4 text-green-700" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-extrabold text-green-800 mb-0.5">Verified Listing</p>
+                  <p className="text-xs text-green-700 m-0 leading-snug">This product has been claimed and verified by its founder.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Share */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+              <h3 className="text-[13px] font-extrabold text-gray-900 mb-3.5 uppercase tracking-wider">Share</h3>
+              <div className="flex gap-2">
+                <ShareButton label="Twitter / X" icon="𝕏" hoverColor="#000" hoverBg="#F9FAFB"
+                  onClick={() => {
+                    const text = encodeURIComponent(`Check out ${tool.name} on @LaudStack — ${tool.tagline}`);
+                    const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=600,height=400');
+                  }} />
+                <ShareButton label="LinkedIn" icon="in" hoverColor="#0A66C2" hoverBg="#EFF6FF"
+                  onClick={() => {
+                    const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'noopener,noreferrer,width=600,height=500');
+                  }} />
+                <CopyLinkButton url={typeof window !== 'undefined' ? window.location.href : ''} />
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      {/* ══ ALTERNATIVES (Full Width — Responsive Grid) ═════════════════════ */}
+      {alternatives.length > 0 && (
+        <section id="section-alternatives" className="bg-white border-t border-slate-200 py-12 sm:py-14">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 sm:mb-9 gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 mb-3">
+                  <Layers className="w-3 h-3 text-blue-600" />
+                  <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">Alternatives</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-1.5" style={{ letterSpacing: '-0.02em' }}>
+                  Top Alternatives to {tool.name}
+                </h2>
+                <p className="text-sm text-slate-500 m-0">
+                  {alternatives.length} product{alternatives.length !== 1 ? 's' : ''} in {tool.category} you might also consider
+                </p>
+              </div>
+              <Link href={`/alternatives?product=${tool.slug}`}
+                className="inline-flex items-center gap-1.5 text-[13px] font-bold text-blue-600 no-underline px-4 py-2 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors shrink-0 self-start sm:self-auto">
+                View all alternatives <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {/* Alternatives Grid — responsive columns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {alternatives.map((alt, i) => (
+                <AlternativeProductCard key={alt.id} product={alt} currentTool={tool} rank={i + 1} />
+              ))}
+            </div>
+
+            {/* Quick Comparison Table */}
+            <div className="mt-8 sm:mt-10 bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+              <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h3 className="text-base font-extrabold text-gray-900 m-0">Quick Comparison</h3>
+                <Link href={`/compare?tools=${tool.slug},${alternatives[0]?.slug || ''}`}
+                  className="text-xs font-bold text-amber-700 no-underline inline-flex items-center gap-1">
+                  Full comparison <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]" style={{ minWidth: 560 }}>
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="py-3 px-4 sm:px-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Product</th>
+                      <th className="py-3 px-3 sm:px-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Rating</th>
+                      <th className="py-3 px-3 sm:px-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Reviews</th>
+                      <th className="py-3 px-3 sm:px-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Pricing</th>
+                      <th className="py-3 px-3 sm:px-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Lauds</th>
+                      <th className="py-3 px-3 sm:px-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Current tool row (highlighted) */}
+                    <tr className="bg-amber-50 border-b border-amber-200">
+                      <td className="py-3 px-4 sm:px-5">
+                        <div className="flex items-center gap-2.5">
+                          <img src={tool.logo_url} alt={tool.name} className="w-6 h-6 sm:w-7 sm:h-7 rounded-md object-contain border border-slate-200"
+                            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                          <span className="font-extrabold text-gray-900 text-sm">{tool.name}</span>
+                          <span className="text-[10px] font-bold py-0.5 px-1.5 rounded bg-amber-400 text-gray-900">Current</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 sm:px-4 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <Star className="w-3 h-3" style={{ fill: '#FBBF24', color: '#FBBF24' }} />
+                          <span className="font-bold text-gray-900">{tool.average_rating.toFixed(1)}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 sm:px-4 text-center font-semibold text-gray-700">{tool.review_count.toLocaleString()}</td>
+                      <td className="py-3 px-3 sm:px-4 text-center font-semibold text-gray-700">{tool.pricing_model}</td>
+                      <td className="py-3 px-3 sm:px-4 text-center font-semibold text-gray-700">{tool.upvote_count.toLocaleString()}</td>
+                      <td className="py-3 px-3 sm:px-5 text-center">—</td>
+                    </tr>
+                    {/* Alternative rows */}
+                    {alternatives.slice(0, 5).map((alt, i) => (
+                      <tr key={alt.id} style={{ borderBottom: i < Math.min(alternatives.length, 5) - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                        <td className="py-3 px-4 sm:px-5">
+                          <Link href={`/tools/${alt.slug}`} className="flex items-center gap-2.5 no-underline">
+                            <img src={alt.logo_url} alt={alt.name} className="w-6 h-6 sm:w-7 sm:h-7 rounded-md object-contain border border-slate-200"
+                              onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                            <span className="font-bold text-gray-900 text-sm">{alt.name}</span>
+                            {alt.is_verified && <ShieldCheck className="w-3 h-3 text-emerald-500" />}
+                          </Link>
+                        </td>
+                        <td className="py-3 px-3 sm:px-4 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Star className="w-3 h-3" style={{ fill: '#FBBF24', color: '#FBBF24' }} />
+                            <span className="font-bold text-gray-900">{alt.average_rating.toFixed(1)}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 sm:px-4 text-center font-semibold text-gray-700">{alt.review_count.toLocaleString()}</td>
+                        <td className="py-3 px-3 sm:px-4 text-center font-semibold text-gray-700">{alt.pricing_model}</td>
+                        <td className="py-3 px-3 sm:px-4 text-center font-semibold text-gray-700">{alt.upvote_count.toLocaleString()}</td>
+                        <td className="py-3 px-3 sm:px-5 text-center">
+                          <Link href={`/compare?tools=${tool.slug},${alt.slug}`}
+                            className="text-xs font-bold text-blue-600 no-underline py-1 px-2.5 rounded-md bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors">
+                            Compare
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ══ SIMILAR PRODUCTS (cross-category, tag-based) ═════════════════════ */}
+      {similarProducts.length > 0 && (
+        <section className="bg-slate-50 border-t border-slate-200 py-10 sm:py-12">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-7 sm:mb-8 gap-3">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 mb-2.5">
+                  <Sparkles className="w-3 h-3 text-slate-500" />
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">You Might Also Like</span>
+                </div>
+                <h2 className="text-lg sm:text-xl font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>
+                  Similar Products Across Categories
+                </h2>
+              </div>
+              <Link href="/tools" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-amber-700 no-underline shrink-0">
+                Browse all products <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {similarProducts.map((product, i) => (
+                <AlternativeProductCard key={product.id} product={product} currentTool={tool} rank={i + 1} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <Footer />
+      <WriteReviewModal open={reviewOpen} onClose={() => setReviewOpen(false)} toolName={tool.name} toolLogo={tool.logo_url} toolId={parseInt(tool.id, 10)} />
+      <AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action={authAction} />
+    </div>
+  );
+}
