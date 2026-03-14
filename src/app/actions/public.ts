@@ -467,3 +467,83 @@ export async function getUserReviews() {
     .where(eq(reviews.userId, user.id))
     .orderBy(desc(reviews.createdAt));
 }
+
+// ─── Edit Own Review ────────────────────────────────────────────────────────
+
+export async function editReview(reviewId: number, data: {
+  rating: number;
+  title: string;
+  body: string;
+  pros?: string;
+  cons?: string;
+}) {
+  const user = await getCurrentUser();
+  if (!user) return { success: false, error: "Please sign in to edit your review" };
+
+  // Verify ownership
+  const existing = await db.query.reviews.findFirst({
+    where: and(eq(reviews.id, reviewId), eq(reviews.userId, user.id)),
+  });
+  if (!existing) return { success: false, error: "Review not found or you don't own it" };
+
+  await db.update(reviews).set({
+    rating: data.rating,
+    title: data.title,
+    body: data.body,
+    pros: data.pros ?? null,
+    cons: data.cons ?? null,
+    updatedAt: new Date(),
+  }).where(eq(reviews.id, reviewId));
+
+  // Recalculate tool stats
+  const stats = await db.select({
+    avgRating: avg(reviews.rating),
+    totalReviews: count(),
+  }).from(reviews).where(eq(reviews.toolId, existing.toolId));
+
+  await db.update(tools).set({
+    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
+    reviewCount: stats[0].totalReviews,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, existing.toolId));
+
+  return { success: true };
+}
+
+// ─── Delete Own Review ──────────────────────────────────────────────────────
+
+export async function deleteReview(reviewId: number) {
+  const user = await getCurrentUser();
+  if (!user) return { success: false, error: "Please sign in to delete your review" };
+
+  // Verify ownership
+  const existing = await db.query.reviews.findFirst({
+    where: and(eq(reviews.id, reviewId), eq(reviews.userId, user.id)),
+  });
+  if (!existing) return { success: false, error: "Review not found or you don't own it" };
+
+  await db.delete(reviews).where(eq(reviews.id, reviewId));
+
+  // Recalculate tool stats
+  const stats = await db.select({
+    avgRating: avg(reviews.rating),
+    totalReviews: count(),
+  }).from(reviews).where(eq(reviews.toolId, existing.toolId));
+
+  await db.update(tools).set({
+    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
+    reviewCount: stats[0].totalReviews,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, existing.toolId));
+
+  return { success: true };
+}
+
+// ─── Get Tool Screenshots ───────────────────────────────────────────────────
+
+export async function getToolScreenshots(toolId: number) {
+  const { toolScreenshots } = await import("@/drizzle/schema");
+  return db.select().from(toolScreenshots)
+    .where(eq(toolScreenshots.toolId, toolId))
+    .orderBy(toolScreenshots.sortOrder);
+}

@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { db, getUserBySupabaseId } from "@/server/db";
 import {
   users, tools, reviews, toolSubmissions, toolClaims,
-  newsletterSubscribers, deals,
+  newsletterSubscribers, deals, toolScreenshots, moderationLogs,
 } from "@/drizzle/schema";
 import { eq, desc, ilike, or, sql, and, count } from "drizzle-orm";
 
@@ -337,10 +337,40 @@ export async function getAdminClaims(opts: { status?: string; page?: number } = 
 
 export async function reviewClaim(claimId: number, action: "approved" | "rejected") {
   await requireAdmin();
+  
+  // Get the claim details
+  const claim = await db.query.toolClaims.findFirst({
+    where: eq(toolClaims.id, claimId),
+  });
+  if (!claim) return { success: false, error: "Claim not found" };
+
   await db.update(toolClaims).set({
     status: action,
     updatedAt: new Date(),
   }).where(eq(toolClaims.id, claimId));
+
+  // If approved, update the tool to set claimedBy and submittedBy
+  if (action === "approved" && claim.toolId && claim.userId) {
+    await db.update(tools).set({
+      claimedBy: claim.userId,
+      claimedAt: new Date(),
+      submittedBy: claim.userId,
+      updatedAt: new Date(),
+    }).where(eq(tools.id, claim.toolId));
+
+    // Also upgrade user to founder if not already
+    const claimUser = await db.query.users.findFirst({
+      where: eq(users.id, claim.userId),
+      columns: { founderStatus: true },
+    });
+    if (claimUser && claimUser.founderStatus !== "verified") {
+      await db.update(users).set({
+        founderStatus: "verified",
+        updatedAt: new Date(),
+      }).where(eq(users.id, claim.userId));
+    }
+  }
+
   return { success: true };
 }
 
@@ -537,5 +567,260 @@ export async function toggleAdminDealStatus(dealId: number) {
 export async function deleteAdminDeal(dealId: number) {
   await requireAdmin();
   await db.delete(deals).where(eq(deals.id, dealId));
+  return { success: true };
+}
+
+// ─── Admin Tool Detail ──────────────────────────────────────────────────────
+
+export async function getAdminToolDetail(toolId: number) {
+  await requireAdmin();
+  const tool = await db.query.tools.findFirst({
+    where: eq(tools.id, toolId),
+  });
+  if (!tool) return null;
+
+  // Get screenshots
+  const screenshots = await db.select().from(toolScreenshots)
+    .where(eq(toolScreenshots.toolId, toolId))
+    .orderBy(toolScreenshots.sortOrder);
+
+  // Get reviews
+  const toolReviews = await db
+    .select({
+      id: reviews.id,
+      rating: reviews.rating,
+      title: reviews.title,
+      body: reviews.body,
+      pros: reviews.pros,
+      cons: reviews.cons,
+      isVerified: reviews.isVerified,
+      createdAt: reviews.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+    })
+    .from(reviews)
+    .leftJoin(users, eq(reviews.userId, users.id))
+    .where(eq(reviews.toolId, toolId))
+    .orderBy(desc(reviews.createdAt))
+    .limit(100);
+
+  return { tool, screenshots, reviews: toolReviews };
+}
+
+// ─── Admin Update Tool (full edit) ──────────────────────────────────────────
+
+export async function adminUpdateTool(toolId: number, data: {
+  name?: string;
+  tagline?: string;
+  description?: string;
+  shortDescription?: string;
+  websiteUrl?: string;
+  category?: string;
+  pricingModel?: string;
+  pricingDetails?: string;
+  logoUrl?: string;
+  screenshotUrl?: string;
+  affiliateUrl?: string;
+  isFeatured?: boolean;
+  isSpotlighted?: boolean;
+  isVisible?: boolean;
+  isTrending?: boolean;
+  status?: string;
+}) {
+  const admin = await requireAdmin();
+  
+  const updateData: Record<string, unknown> = { updatedAt: new Date() };
+  
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.tagline !== undefined) updateData.tagline = data.tagline;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.shortDescription !== undefined) updateData.shortDescription = data.shortDescription;
+  if (data.websiteUrl !== undefined) updateData.websiteUrl = data.websiteUrl;
+  if (data.category !== undefined) updateData.category = data.category;
+  if (data.pricingModel !== undefined) updateData.pricingModel = data.pricingModel;
+  if (data.pricingDetails !== undefined) updateData.pricingDetails = data.pricingDetails;
+  if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl;
+  if (data.screenshotUrl !== undefined) updateData.screenshotUrl = data.screenshotUrl;
+  if (data.affiliateUrl !== undefined) updateData.affiliateUrl = data.affiliateUrl;
+  if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
+  if (data.isSpotlighted !== undefined) updateData.isSpotlighted = data.isSpotlighted;
+  if (data.isVisible !== undefined) updateData.isVisible = data.isVisible;
+  if (data.isTrending !== undefined) updateData.isTrending = data.isTrending;
+  if (data.status !== undefined) updateData.status = data.status;
+
+  await db.update(tools).set(updateData).where(eq(tools.id, toolId));
+
+  // Log moderation action if status changed
+  if (data.status) {
+    await db.insert(moderationLogs).values({
+      toolId,
+      adminId: admin.id,
+      action: `status_changed_to_${data.status}`,
+      notes: `Admin updated tool status to ${data.status}`,
+    });
+  }
+
+  return { success: true };
+}
+
+// ─── Admin Moderation Actions ───────────────────────────────────────────────
+
+export async function adminSuspendTool(toolId: number, reason: string) {
+  const admin = await requireAdmin();
+  await db.update(tools).set({
+    status: "suspended",
+    isVisible: false,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, toolId));
+
+  await db.insert(moderationLogs).values({
+    toolId,
+    adminId: admin.id,
+    action: "suspended",
+    notes: reason,
+  });
+
+  return { success: true };
+}
+
+export async function adminUnsuspendTool(toolId: number) {
+  const admin = await requireAdmin();
+  await db.update(tools).set({
+    status: "approved",
+    isVisible: true,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, toolId));
+
+  await db.insert(moderationLogs).values({
+    toolId,
+    adminId: admin.id,
+    action: "unsuspended",
+    notes: "Tool reinstated by admin",
+  });
+
+  return { success: true };
+}
+
+export async function adminToggleSpotlight(toolId: number) {
+  await requireAdmin();
+  const tool = await db.query.tools.findFirst({
+    where: eq(tools.id, toolId),
+    columns: { isSpotlighted: true },
+  });
+  if (!tool) return { success: false, error: "Tool not found" };
+
+  await db.update(tools).set({
+    isSpotlighted: !tool.isSpotlighted,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, toolId));
+
+  return { success: true, isSpotlighted: !tool.isSpotlighted };
+}
+
+export async function adminToggleVisibility(toolId: number) {
+  await requireAdmin();
+  const tool = await db.query.tools.findFirst({
+    where: eq(tools.id, toolId),
+    columns: { isVisible: true },
+  });
+  if (!tool) return { success: false, error: "Tool not found" };
+
+  await db.update(tools).set({
+    isVisible: !tool.isVisible,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, toolId));
+
+  return { success: true, isVisible: !tool.isVisible };
+}
+
+// ─── Admin Screenshot Management ────────────────────────────────────────────
+
+export async function adminAddScreenshot(toolId: number, url: string, caption?: string) {
+  await requireAdmin();
+  
+  // Get the next sort order
+  const existing = await db.select({ maxOrder: sql<number>`COALESCE(MAX(${toolScreenshots.sortOrder}), 0)` })
+    .from(toolScreenshots)
+    .where(eq(toolScreenshots.toolId, toolId));
+  
+  const nextOrder = (existing[0]?.maxOrder ?? 0) + 1;
+
+  await db.insert(toolScreenshots).values({
+    toolId,
+    url,
+    caption: caption ?? null,
+    sortOrder: nextOrder,
+  });
+
+  return { success: true };
+}
+
+export async function adminDeleteScreenshot(screenshotId: number) {
+  await requireAdmin();
+  await db.delete(toolScreenshots).where(eq(toolScreenshots.id, screenshotId));
+  return { success: true };
+}
+
+export async function adminGetScreenshots(toolId: number) {
+  await requireAdmin();
+  return db.select().from(toolScreenshots)
+    .where(eq(toolScreenshots.toolId, toolId))
+    .orderBy(toolScreenshots.sortOrder);
+}
+
+// ─── Admin Moderation Log ───────────────────────────────────────────────────
+
+export async function getAdminModerationLog(toolId: number) {
+  await requireAdmin();
+  return db
+    .select({
+      id: moderationLogs.id,
+      action: moderationLogs.action,
+      notes: moderationLogs.notes,
+      createdAt: moderationLogs.createdAt,
+      adminName: users.name,
+    })
+    .from(moderationLogs)
+    .leftJoin(users, eq(moderationLogs.adminId, users.id))
+    .where(eq(moderationLogs.toolId, toolId))
+    .orderBy(desc(moderationLogs.createdAt))
+    .limit(50);
+}
+
+// ─── Admin Delete Review ────────────────────────────────────────────────────
+
+export async function adminDeleteReview(reviewId: number, reason?: string) {
+  const admin = await requireAdmin();
+  
+  // Get the review to find the tool
+  const review = await db.query.reviews.findFirst({
+    where: eq(reviews.id, reviewId),
+    columns: { toolId: true },
+  });
+  
+  if (!review) return { success: false, error: "Review not found" };
+
+  await db.delete(reviews).where(eq(reviews.id, reviewId));
+
+  // Recalculate tool stats
+  const stats = await db.select({
+    avgRating: sql<number>`COALESCE(AVG(${reviews.rating}), 0)`,
+    totalReviews: count(),
+  }).from(reviews).where(eq(reviews.toolId, review.toolId));
+
+  await db.update(tools).set({
+    averageRating: Number(stats[0].avgRating),
+    reviewCount: stats[0].totalReviews,
+    updatedAt: new Date(),
+  }).where(eq(tools.id, review.toolId));
+
+  // Log the action
+  await db.insert(moderationLogs).values({
+    toolId: review.toolId,
+    adminId: admin.id,
+    action: "review_deleted",
+    notes: reason || "Admin deleted review",
+  });
+
   return { success: true };
 }

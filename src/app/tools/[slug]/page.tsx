@@ -15,18 +15,19 @@ import {
   ThumbsUp, MessageSquare, ChevronRight, Sparkles,
   Globe, Tag, Calendar, Award, CheckCircle2, AlertCircle,
   Building2, GitCompareArrows, Bookmark, ArrowRight,
-  TrendingUp, Users, Layers, BarChart3,
+  TrendingUp, Users, Layers, BarChart3, Edit2, Trash2, Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
-import { toggleUpvote } from '@/app/actions/public';
+import { toggleUpvote, editReview, deleteReview } from '@/app/actions/public';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
 import { useSavedTools } from '@/hooks/useSavedTools';
+import { useDbUser } from '@/hooks/useDbUser';
 import Footer from '@/components/Footer';
 import { useToolsData } from '@/hooks/useToolsData';
 import type { Tool, Review } from '@/lib/types';
@@ -210,7 +211,8 @@ export default function ToolDetail() {
   const router = useRouter();
   const slug = params?.slug as string;
   const { tools: allTools, reviews: allReviews } = useToolsData();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user: authUser } = useAuth();
+  const { dbUser } = useDbUser();
   const { recordVisit: addRecentlyViewed } = useRecentlyViewed();
   const { isSelected: isComparing, toggle: compareToggle, canAdd: canCompare } = useCompare();
   const { isSaved, toggle: toggleSave } = useSavedTools();
@@ -222,9 +224,32 @@ export default function ToolDetail() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authAction, setAuthAction] = useState<'review' | 'upvote' | 'save' | 'claim' | 'general'>('upvote');
+  const [editingReview, setEditingReview] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [editRating, setEditRating] = useState(5);
+  const [editPros, setEditPros] = useState('');
+  const [editCons, setEditCons] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [deletingReview, setDeletingReview] = useState<string | null>(null);
 
-  // Track recently viewed
-  useEffect(() => { if (slug) addRecentlyViewed(slug); }, [slug]);
+  // Track recently viewed + record view
+  useEffect(() => {
+    if (slug) {
+      addRecentlyViewed(slug);
+      // Fire-and-forget view tracking
+      fetch(`/api/tools/${slug}/view`, { method: 'POST' }).catch(() => {});
+    }
+  }, [slug]);
+
+  // Track outbound clicks
+  const trackOutboundClick = (type: 'website' | 'affiliate') => {
+    fetch(`/api/tools/${slug}/click`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    }).catch(() => {});
+  };
 
   // Scroll spy
   useEffect(() => {
@@ -321,6 +346,62 @@ export default function ToolDetail() {
     if (helpfulMap[reviewId]) return;
     setHelpfulMap(m => ({ ...m, [reviewId]: true }));
     toast.success('Marked as helpful');
+  };
+
+  const startEditReview = (review: Review) => {
+    setEditingReview(review.id);
+    setEditTitle(review.title || '');
+    setEditBody(review.body || '');
+    setEditRating(review.rating);
+    setEditPros(review.pros || '');
+    setEditCons(review.cons || '');
+  };
+
+  const handleSaveEdit = async (reviewId: string) => {
+    setSavingEdit(true);
+    try {
+      const result = await editReview(parseInt(reviewId, 10), {
+        title: editTitle,
+        body: editBody,
+        rating: editRating,
+        pros: editPros || undefined,
+        cons: editCons || undefined,
+      });
+      if (result.success) {
+        toast.success('Review updated!');
+        setEditingReview(null);
+        invalidateToolsCache();
+      } else {
+        toast.error(result.error || 'Failed to update review');
+      }
+    } catch {
+      toast.error('Failed to update review');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+    setDeletingReview(reviewId);
+    try {
+      const result = await deleteReview(parseInt(reviewId, 10));
+      if (result.success) {
+        toast.success('Review deleted');
+        invalidateToolsCache();
+      } else {
+        toast.error(result.error || 'Failed to delete review');
+      }
+    } catch {
+      toast.error('Failed to delete review');
+    } finally {
+      setDeletingReview(null);
+    }
+  };
+
+  const isOwnReview = (review: Review) => {
+    if (!dbUser) return false;
+    return review.user_id === String(dbUser.id);
   };
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -422,6 +503,7 @@ export default function ToolDetail() {
 
                   {/* Primary CTA */}
                   <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                    onClick={() => trackOutboundClick('website')}
                     className="flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-amber-400 text-gray-900 font-extrabold text-sm no-underline transition-all hover:bg-amber-500"
                     style={{ boxShadow: '0 2px 10px rgba(245,158,11,0.25)' }}>
                     Visit Website <ExternalLink className="w-3.5 h-3.5" />
@@ -738,18 +820,64 @@ export default function ToolDetail() {
                       </div>
                     )}
 
-                    {/* Helpful */}
-                    <button onClick={() => handleHelpful(review.id)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all"
-                      style={{
-                        color: helpfulMap[review.id] ? '#15803D' : '#64748B',
-                        background: helpfulMap[review.id] ? '#F0FDF4' : 'transparent',
-                        border: helpfulMap[review.id] ? '1px solid #BBF7D0' : '1px solid #E2E8F0',
-                        cursor: helpfulMap[review.id] ? 'default' : 'pointer',
-                      }}>
-                      <ThumbsUp className="w-3 h-3" />
-                      Helpful ({review.helpful_count + (helpfulMap[review.id] ? 1 : 0)})
-                    </button>
+                    {/* Edit form for own review */}
+                    {editingReview === review.id ? (
+                      <div className="mt-3 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                        <div>
+                          <label className="text-xs font-bold text-slate-600 mb-1 block">Rating</label>
+                          <div className="flex gap-1">
+                            {[1,2,3,4,5].map(s => (
+                              <button key={s} onClick={() => setEditRating(s)} className="p-0 border-none bg-transparent cursor-pointer">
+                                <Star className="w-5 h-5" style={{ fill: s <= editRating ? '#FBBF24' : '#E2E8F0', color: s <= editRating ? '#FBBF24' : '#E2E8F0' }} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Review title" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg" />
+                        <textarea value={editBody} onChange={e => setEditBody(e.target.value)} placeholder="Your review" rows={3} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg resize-none" />
+                        <div className="grid grid-cols-2 gap-2">
+                          <input value={editPros} onChange={e => setEditPros(e.target.value)} placeholder="Pros" className="px-3 py-2 text-sm border border-slate-200 rounded-lg" />
+                          <input value={editCons} onChange={e => setEditCons(e.target.value)} placeholder="Cons" className="px-3 py-2 text-sm border border-slate-200 rounded-lg" />
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleSaveEdit(review.id)} disabled={savingEdit}
+                            className="px-4 py-1.5 text-xs font-bold text-white bg-amber-500 rounded-lg hover:bg-amber-600 disabled:opacity-50">
+                            {savingEdit ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                          </button>
+                          <button onClick={() => setEditingReview(null)} className="px-4 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg">
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Helpful + Edit/Delete */}
+                    <div className="flex items-center gap-2 mt-1">
+                      <button onClick={() => handleHelpful(review.id)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all"
+                        style={{
+                          color: helpfulMap[review.id] ? '#15803D' : '#64748B',
+                          background: helpfulMap[review.id] ? '#F0FDF4' : 'transparent',
+                          border: helpfulMap[review.id] ? '1px solid #BBF7D0' : '1px solid #E2E8F0',
+                          cursor: helpfulMap[review.id] ? 'default' : 'pointer',
+                        }}>
+                        <ThumbsUp className="w-3 h-3" />
+                        Helpful ({review.helpful_count + (helpfulMap[review.id] ? 1 : 0)})
+                      </button>
+                      {isOwnReview(review) && editingReview !== review.id && (
+                        <>
+                          <button onClick={() => startEditReview(review)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold py-1.5 px-3 rounded-lg text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors">
+                            <Edit2 className="w-3 h-3" /> Edit
+                          </button>
+                          <button onClick={() => handleDeleteReview(review.id)}
+                            disabled={deletingReview === review.id}
+                            className="inline-flex items-center gap-1 text-xs font-semibold py-1.5 px-3 rounded-lg text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-50">
+                            {deletingReview === review.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />} Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
 
                     {/* Founder reply */}
                     {review.founder_reply && (
@@ -810,6 +938,7 @@ export default function ToolDetail() {
 
               <div className="mt-5 pt-5 border-t border-slate-100">
                 <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
+                  onClick={() => trackOutboundClick('website')}
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-amber-400 text-gray-900 font-extrabold text-[13px] no-underline transition-all hover:shadow-md"
                   style={{ boxShadow: '0 3px 10px rgba(245,158,11,0.3)' }}>
                   Visit Website <ExternalLink className="w-3.5 h-3.5" />

@@ -20,6 +20,8 @@ export const toolStatusEnum = pgEnum("tool_status", [
   "approved",
   "rejected",
   "featured",
+  "suspended",
+  "unpublished",
 ]);
 export const pricingModelEnum = pgEnum("pricing_model", [
   "Free",
@@ -117,12 +119,94 @@ export const tools = pgTable("tools", {
   stripeProductId: varchar("stripe_product_id", { length: 64 }),
   /** Typesense document ID */
   typesenseId: varchar("typesense_id", { length: 64 }),
+  /** Affiliate link for monetization */
+  affiliateUrl: text("affiliate_url"),
+  /** Analytics counters */
+  viewCount: integer("view_count").default(0).notNull(),
+  outboundClickCount: integer("outbound_click_count").default(0).notNull(),
+  saveCount: integer("save_count").default(0).notNull(),
+  /** Visibility and moderation flags */
+  isVisible: boolean("is_visible").default(true).notNull(),
+  isSpotlighted: boolean("is_spotlighted").default(false).notNull(),
+  isTrending: boolean("is_trending").default(false).notNull(),
+  /** Founder who claimed this tool */
+  claimedBy: integer("claimed_by").references(() => users.id),
+  claimedAt: timestamp("claimed_at"),
+  /** Short description for cards (max 200 chars) */
+  shortDescription: text("short_description"),
+  /** Full pricing details text */
+  pricingDetails: text("pricing_details"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export type Tool = typeof tools.$inferSelect;
 export type InsertTool = typeof tools.$inferInsert;
+
+// ─── Tool Screenshots ────────────────────────────────────────────────────────
+
+export const toolScreenshots = pgTable("tool_screenshots", {
+  id: serial("id").primaryKey(),
+  toolId: integer("tool_id")
+    .notNull()
+    .references(() => tools.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  caption: varchar("caption", { length: 256 }),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ToolScreenshot = typeof toolScreenshots.$inferSelect;
+export type InsertToolScreenshot = typeof toolScreenshots.$inferInsert;
+
+// ─── Moderation Logs ─────────────────────────────────────────────────────────
+
+export const moderationLogs = pgTable("moderation_logs", {
+  id: serial("id").primaryKey(),
+  toolId: integer("tool_id")
+    .notNull()
+    .references(() => tools.id, { onDelete: "cascade" }),
+  adminId: integer("admin_id")
+    .notNull()
+    .references(() => users.id),
+  action: varchar("action", { length: 64 }).notNull(), // approved, rejected, suspended, unpublished, featured, spotlighted, verified, unverified, claimed, unclaimed
+  previousStatus: varchar("previous_status", { length: 32 }),
+  newStatus: varchar("new_status", { length: 32 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ModerationLog = typeof moderationLogs.$inferSelect;
+export type InsertModerationLog = typeof moderationLogs.$inferInsert;
+
+// ─── Tool View Tracking ──────────────────────────────────────────────────────
+
+export const toolViews = pgTable("tool_views", {
+  id: serial("id").primaryKey(),
+  toolId: integer("tool_id")
+    .notNull()
+    .references(() => tools.id, { onDelete: "cascade" }),
+  visitorIp: varchar("visitor_ip", { length: 64 }),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ToolView = typeof toolViews.$inferSelect;
+
+// ─── Outbound Click Tracking ─────────────────────────────────────────────────
+
+export const outboundClicks = pgTable("outbound_clicks", {
+  id: serial("id").primaryKey(),
+  toolId: integer("tool_id")
+    .notNull()
+    .references(() => tools.id, { onDelete: "cascade" }),
+  userId: integer("user_id").references(() => users.id),
+  linkType: varchar("link_type", { length: 32 }).notNull().default("website"), // website, affiliate
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type OutboundClick = typeof outboundClicks.$inferSelect;
 
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 

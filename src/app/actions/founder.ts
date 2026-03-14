@@ -1,7 +1,7 @@
 "use server";
 
 import { db, getUserBySupabaseId } from "@/server/db";
-import { tools, reviews, users, deals } from "@/drizzle/schema";
+import { tools, reviews, users, deals, toolClaims } from "@/drizzle/schema";
 import { eq, and, desc, sql, count, sum, avg, inArray } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
@@ -440,5 +440,90 @@ export async function updateFounderTool(
     return { success: true };
   } catch (e: unknown) {
     return { success: false, error: (e as Error).message };
+  }
+}
+
+// ─── Claim Existing Tool ────────────────────────────────────────────────────
+
+export async function claimExistingTool(toolId: number, data: {
+  proofUrl?: string;
+  message?: string;
+}) {
+  try {
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) return { success: false, error: "Please sign in to claim a tool" };
+
+    const dbUser = await getUserBySupabaseId(authUser.id);
+    if (!dbUser) return { success: false, error: "User not found" };
+
+    // Check if tool exists
+    const tool = await db.query.tools.findFirst({
+      where: eq(tools.id, toolId),
+      columns: { id: true, name: true, claimedBy: true, submittedBy: true },
+    });
+    if (!tool) return { success: false, error: "Tool not found" };
+
+    // Check if already claimed
+    if (tool.claimedBy) {
+      return { success: false, error: "This tool has already been claimed by another founder" };
+    }
+
+    // Check if user already has a pending claim for this tool
+    const existingClaim = await db.query.toolClaims.findFirst({
+      where: and(
+        eq(toolClaims.toolId, toolId),
+        eq(toolClaims.userId, dbUser.id),
+        eq(toolClaims.status, "pending"),
+      ),
+    });
+    if (existingClaim) {
+      return { success: false, error: "You already have a pending claim for this tool" };
+    }
+
+    // Create the claim
+    await db.insert(toolClaims).values({
+      toolId,
+      userId: dbUser.id,
+      status: "pending",
+      verificationToken: data.proofUrl ?? null, // store proof URL in verification token field
+    });
+
+    return { success: true };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+// ─── Get Founder's Claims ───────────────────────────────────────────────────
+
+export async function getFounderClaims() {
+  try {
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) return { success: false, claims: [] };
+
+    const dbUser = await getUserBySupabaseId(authUser.id);
+    if (!dbUser) return { success: false, claims: [] };
+
+    const claims = await db
+      .select({
+        id: toolClaims.id,
+        status: toolClaims.status,
+        proofUrl: toolClaims.verificationToken,
+        createdAt: toolClaims.createdAt,
+        toolId: tools.id,
+        toolName: tools.name,
+        toolSlug: tools.slug,
+        toolLogo: tools.logoUrl,
+      })
+      .from(toolClaims)
+      .leftJoin(tools, eq(toolClaims.toolId, tools.id))
+      .where(eq(toolClaims.userId, dbUser.id))
+      .orderBy(desc(toolClaims.createdAt));
+
+    return { success: true, claims };
+  } catch (e: unknown) {
+    return { success: false, claims: [], error: (e as Error).message };
   }
 }

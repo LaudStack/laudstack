@@ -119,6 +119,14 @@ function ToolRow({
               </button>
             </>
           )}
+          {/* Edit tool */}
+          <a
+            href={`/admin/tools/${tool.id}`}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+            title="Edit tool"
+          >
+            <Edit2 className="w-4 h-4" />
+          </a>
           {/* View on site */}
           <a
             href={`/tools/${tool.slug}`}

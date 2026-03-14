@@ -36,10 +36,13 @@ import {
   getFounderAnalytics,
   updateFounderSettings,
   updateFounderTool,
+  claimExistingTool,
+  getFounderClaims,
 } from '@/app/actions/founder';
+import { searchToolsAction } from '@/app/actions/public';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type Tab = 'overview' | 'tools' | 'reviews' | 'deals' | 'analytics' | 'promote' | 'settings';
+type Tab = 'overview' | 'tools' | 'reviews' | 'deals' | 'analytics' | 'promote' | 'claims' | 'settings';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'overview',  label: 'Overview',    icon: <BarChart3 className="w-4 h-4" /> },
@@ -48,6 +51,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'deals',     label: 'Deals',       icon: <Tag className="w-4 h-4" /> },
   { id: 'analytics', label: 'Analytics',   icon: <TrendingUp className="w-4 h-4" /> },
   { id: 'promote',   label: 'Promote',     icon: <Megaphone className="w-4 h-4" /> },
+  { id: 'claims',    label: 'Claim Tool',  icon: <Flag className="w-4 h-4" /> },
   { id: 'settings',  label: 'Settings',    icon: <Settings className="w-4 h-4" /> },
 ];
 
@@ -1367,6 +1371,220 @@ function PromoteTab() {
   );
 }
 
+// ─── Claim Tool Tab ──────────────────────────────────────────────────────────
+function ClaimToolTab() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [claims, setClaims] = useState<any[]>([]);
+  const [loadingClaims, setLoadingClaims] = useState(true);
+  const [claimDialog, setClaimDialog] = useState<{ toolId: number; toolName: string } | null>(null);
+  const [proofUrl, setProofUrl] = useState('');
+  const [claimMessage, setClaimMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadClaims();
+  }, []);
+
+  const loadClaims = async () => {
+    setLoadingClaims(true);
+    const result = await getFounderClaims();
+    if (result.success) setClaims(result.claims);
+    setLoadingClaims(false);
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    try {
+      const result = await searchToolsAction(searchQuery, { limit: 10 });
+      setSearchResults(Array.isArray(result) ? result : []);
+    } catch {
+      toast.error('Search failed');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSubmitClaim = async () => {
+    if (!claimDialog) return;
+    setSubmitting(true);
+    try {
+      const result = await claimExistingTool(claimDialog.toolId, {
+        proofUrl: proofUrl || undefined,
+        message: claimMessage || undefined,
+      });
+      if (result.success) {
+        toast.success('Claim submitted! Our team will review it shortly.');
+        setClaimDialog(null);
+        setProofUrl('');
+        setClaimMessage('');
+        loadClaims();
+      } else {
+        toast.error(result.error || 'Failed to submit claim');
+      }
+    } catch {
+      toast.error('Failed to submit claim');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const statusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      pending: 'bg-amber-100 text-amber-700',
+      approved: 'bg-green-100 text-green-700',
+      rejected: 'bg-red-100 text-red-700',
+    };
+    return (
+      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${styles[status] || 'bg-slate-100 text-slate-600'}`}>
+        {status}
+      </span>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-xl font-black text-slate-900">Claim an Existing Tool</h2>
+        <p className="text-sm text-slate-500 mt-1">
+          If your product is already listed on LaudStack, you can claim ownership to manage its listing, reply to reviews, and access analytics.
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <h3 className="text-sm font-bold text-slate-900 mb-3">Search for Your Tool</h3>
+        <div className="flex gap-2">
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder="Search by tool name..."
+            className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
+          />
+          <button
+            onClick={handleSearch}
+            disabled={searching}
+            className="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50"
+          >
+            {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
+          </button>
+        </div>
+
+        {/* Search Results */}
+        {searchResults.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {searchResults.map((tool: any) => (
+              <div key={tool.id} className="flex items-center gap-3 p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+                {tool.logoUrl ? (
+                  <img src={tool.logoUrl} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400">
+                    {tool.name?.[0]}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{tool.name}</p>
+                  <p className="text-xs text-slate-400 truncate">{tool.tagline}</p>
+                </div>
+                <button
+                  onClick={() => setClaimDialog({ toolId: tool.id, toolName: tool.name })}
+                  className="px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                >
+                  Claim This
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Claim Dialog */}
+      {claimDialog && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+          <h3 className="text-sm font-bold text-slate-900 mb-1">Claim: {claimDialog.toolName}</h3>
+          <p className="text-xs text-slate-500 mb-4">
+            Provide proof of ownership (e.g., a link to your company page, LinkedIn, or domain verification). Our team will review your claim within 24-48 hours.
+          </p>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">Proof URL (optional)</label>
+              <input
+                value={proofUrl}
+                onChange={(e) => setProofUrl(e.target.value)}
+                placeholder="https://yourcompany.com/about or LinkedIn profile"
+                className="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30 bg-white"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">Message to Admin (optional)</label>
+              <textarea
+                value={claimMessage}
+                onChange={(e) => setClaimMessage(e.target.value)}
+                placeholder="Explain your relationship to this tool..."
+                rows={3}
+                className="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30 bg-white resize-none"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSubmitClaim}
+                disabled={submitting}
+                className="px-5 py-2 text-xs font-bold text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+              >
+                {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Submit Claim'}
+              </button>
+              <button
+                onClick={() => { setClaimDialog(null); setProofUrl(''); setClaimMessage(''); }}
+                className="px-5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* My Claims */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <h3 className="text-sm font-bold text-slate-900 mb-4">My Claims</h3>
+        {loadingClaims ? (
+          <LoadingState message="Loading claims..." />
+        ) : claims.length === 0 ? (
+          <div className="text-center py-8">
+            <Flag className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-400">No claims submitted yet</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {claims.map((claim: any) => (
+              <div key={claim.id} className="flex items-center gap-3 p-3 border border-slate-100 rounded-xl">
+                {claim.toolLogo ? (
+                  <img src={claim.toolLogo} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400">
+                    {claim.toolName?.[0]}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{claim.toolName}</p>
+                  <p className="text-xs text-slate-400">
+                    Submitted {new Date(claim.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                {statusBadge(claim.status)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 function FounderSettingsTab() {
   const [name, setName] = useState('');
@@ -1720,6 +1938,7 @@ export default function FounderDashboard() {
             {activeTab === 'deals'     && <DealsTab />}
             {activeTab === 'analytics' && <AnalyticsTab />}
             {activeTab === 'promote'   && <PromoteTab />}
+            {activeTab === 'claims'    && <ClaimToolTab />}
             {activeTab === 'settings'  && <FounderSettingsTab />}
           </div>
         </div>

@@ -298,6 +298,34 @@ export default function AdminDashboard() {
             ))}
           </div>
         </div>
+
+        {/* Recalculate Rankings */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="font-semibold text-slate-800 mb-4">Ranking Engine</h2>
+          <p className="text-sm text-slate-500 mb-4">Recalculate all tool rankings based on reviews, upvotes, saves, views, clicks, and momentum.</p>
+          <button
+            onClick={async () => {
+              toast.loading('Recalculating rankings...');
+              try {
+                const res = await fetch('/api/admin/recalculate-rankings', { method: 'POST' });
+                const data = await res.json();
+                toast.dismiss();
+                if (data.success) {
+                  toast.success(`Rankings updated for ${data.updatedCount} tools`);
+                } else {
+                  toast.error(data.error || 'Failed to recalculate');
+                }
+              } catch {
+                toast.dismiss();
+                toast.error('Failed to recalculate rankings');
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-sm hover:bg-amber-500 transition-colors"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Recalculate Rankings
+          </button>
+        </div>
       </div>
 
       {/* ── Recent Activity ── */}
