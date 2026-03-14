@@ -485,26 +485,7 @@ export default function AllTools() {
             </div>
           </div>
 
-          {/* Stats strip */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap',
-            padding: '16px 0',
-            borderTop: '1px solid #F3F4F6',
-          }}>
-            {[
-              { value: String(allTools.length), label: 'Products' },
-              { value: String(avgRating), label: 'Avg Rating' },
-              { value: totalReviews.toLocaleString(), label: 'Reviews' },
-              { value: String(verifiedCount), label: 'Verified' },
-              { value: String(CATEGORIES.length - 1), label: 'Categories' },
-            ].map((stat, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>{stat.value}</span>
-                <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 500 }}>{stat.label}</span>
-                {i < 4 && <span style={{ width: 1, height: 16, background: '#E5E7EB', marginLeft: 18 }} />}
-              </div>
-            ))}
-          </div>
+
 
           {/* Category quick-filter pills */}
           <div style={{

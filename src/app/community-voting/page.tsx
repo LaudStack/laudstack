@@ -216,11 +216,6 @@ export default function CommunityVotingPage() {
         title="Vote for the Best Products"
         subtitle="The community decides. Laud the SaaS and AI stacks you love and help others discover the best software."
         accent="amber"
-        stats={[
-          { label: 'Products', value: productsWithVotes.length.toString() },
-          { label: 'Total Votes', value: totalVotes.toLocaleString() },
-          { label: 'Categories', value: categories.length.toString() },
-        ]}
       />
 
       <main style={{ flex: 1 }}>

@@ -344,11 +344,6 @@ export default function AlternativesPage() {
         title="Find the Best Alternatives"
         subtitle="Search for any AI or SaaS product and discover top-rated alternatives. Compare features, pricing, and reviews side by side."
         accent="blue"
-        stats={[
-          { label: 'Products', value: allTools.length.toString() },
-          { label: 'Categories', value: categories.length.toString() },
-          { label: 'Reviews', value: allTools.reduce((s, t) => s + t.review_count, 0).toLocaleString() },
-        ]}
       />
 
       <main style={{ flex: 1 }}>

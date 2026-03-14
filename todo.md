@@ -544,3 +544,9 @@
 - [x] Update standalone hero sections (launchpad, tools detail, tools catalog)
 - [x] Downgraded all size="lg" heroes to "md", SEO pages to "sm"
 - [x] Build, test, and push to GitHub
+
+## Remove Hero Stat Bars (March 14, 2026)
+- [x] Remove stat bars from shared PageHero component (StatRow, StatItem, stats prop all removed)
+- [x] Remove stat bars from all 6 pages: trending, deals, alternatives, comparisons, community-voting, launch-archive
+- [x] Remove stats strip from tools catalog page hero
+- [x] Push to GitHub

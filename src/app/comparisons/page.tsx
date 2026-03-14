@@ -248,11 +248,6 @@ export default function ComparisonsPage() {
         title="Compare Products Head to Head"
         subtitle="Put any two AI or SaaS products side by side. Compare features, pricing, ratings, and reviews to make the right choice."
         accent="amber"
-        stats={[
-          { label: 'Products', value: allTools.length.toString() },
-          { label: 'Matchups', value: matchups.length.toString() },
-          { label: 'Categories', value: categoryMatchups.length.toString() },
-        ]}
       />
 
       <main style={{ flex: 1 }}>

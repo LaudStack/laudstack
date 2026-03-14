@@ -232,12 +232,6 @@ export default function Trending() {
         accent="amber"
         layout="split"
         size="md"
-        stats={[
-          { value: String(totalRising), label: 'Rising Tools' },
-          { value: `+${topGain}`,       label: 'Top Gain' },
-          { value: `+${avgGain}`,       label: 'Avg Gain' },
-          { value: String(rocketCount), label: 'Rocket Tier' },
-        ]}
       />
 
       {/* ── Filters + List ──────────────────────────────────────────────── */}

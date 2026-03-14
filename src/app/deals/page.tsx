@@ -867,12 +867,6 @@ export default function Deals() {
         accent="amber"
         layout="split"
         size="md"
-        stats={[
-          { value: String(allDeals.length),         label: 'Active Deals' },
-          { value: String(lifetimeDeals.length),    label: 'Lifetime Deals' },
-          { value: maxDiscount > 0 ? `Up to ${maxDiscount}%` : 'Special', label: 'Max Discount' },
-          { value: '12k+',                          label: 'Members Saved' },
-        ]}
       />
 
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">

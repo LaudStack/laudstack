@@ -184,11 +184,6 @@ export default function LaunchArchivePage() {
         title="Product Launch Archive"
         subtitle="Browse every product that has launched on LaudStack, organized by month. Discover the full history of SaaS and AI innovation."
         accent="amber"
-        stats={[
-          { label: 'Total Launches', value: totalLaunches.toString() },
-          { label: 'Months', value: monthGroups.length.toString() },
-          { label: 'Categories', value: categories.length.toString() },
-        ]}
       />
 
       <main style={{ flex: 1 }}>

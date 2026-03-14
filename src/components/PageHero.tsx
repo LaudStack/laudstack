@@ -14,7 +14,6 @@
  *  - eyebrow:     small uppercase label (shown in accent color)
  *  - title:       main headline (supports JSX for inline highlights)
  *  - subtitle:    supporting text
- *  - stats:       optional array of { value, label } — horizontal stat row
  *  - children:    optional JSX rendered below title/subtitle
  *  - actions:     optional JSX slot (right side on default/split, below title on centered)
  *  - badge:       optional pill (e.g. "Live", "Beta")
@@ -29,11 +28,6 @@ type AccentKey = 'amber' | 'blue' | 'green' | 'rose';
 type SizeKey   = 'sm' | 'md' | 'lg';
 type LayoutKey = 'default' | 'centered' | 'split';
 
-interface StatItem {
-  value: string;
-  label: string;
-}
-
 interface BackLink {
   href: string;
   label: string;
@@ -43,7 +37,6 @@ interface PageHeroProps {
   eyebrow?:   string;
   title:      React.ReactNode;
   subtitle?:  string;
-  stats?:     StatItem[];
   children?:  React.ReactNode;
   actions?:   React.ReactNode;
   badge?:     string;
@@ -57,12 +50,11 @@ interface PageHeroProps {
 const ACCENT: Record<AccentKey, {
   bar: string; eyebrow: string;
   badgeBg: string; badgeBorder: string; badgeText: string;
-  statValue: string; divider: string;
 }> = {
-  amber: { bar: '#F59E0B', eyebrow: '#B45309', badgeBg: '#FFFBEB', badgeBorder: '#FDE68A', badgeText: '#92400E', statValue: '#D97706', divider: '#E5E7EB' },
-  blue:  { bar: '#3B82F6', eyebrow: '#1D4ED8', badgeBg: '#EFF6FF', badgeBorder: '#BFDBFE', badgeText: '#1E40AF', statValue: '#2563EB', divider: '#E5E7EB' },
-  green: { bar: '#22C55E', eyebrow: '#15803D', badgeBg: '#F0FDF4', badgeBorder: '#BBF7D0', badgeText: '#14532D', statValue: '#16A34A', divider: '#E5E7EB' },
-  rose:  { bar: '#F43F5E', eyebrow: '#BE123C', badgeBg: '#FFF1F2', badgeBorder: '#FECDD3', badgeText: '#9F1239', statValue: '#E11D48', divider: '#E5E7EB' },
+  amber: { bar: '#F59E0B', eyebrow: '#B45309', badgeBg: '#FFFBEB', badgeBorder: '#FDE68A', badgeText: '#92400E' },
+  blue:  { bar: '#3B82F6', eyebrow: '#1D4ED8', badgeBg: '#EFF6FF', badgeBorder: '#BFDBFE', badgeText: '#1E40AF' },
+  green: { bar: '#22C55E', eyebrow: '#15803D', badgeBg: '#F0FDF4', badgeBorder: '#BBF7D0', badgeText: '#14532D' },
+  rose:  { bar: '#F43F5E', eyebrow: '#BE123C', badgeBg: '#FFF1F2', badgeBorder: '#FECDD3', badgeText: '#9F1239' },
 };
 
 /* Reduced padding for compact heroes */
@@ -87,22 +79,6 @@ function EyebrowBadge({ eyebrow, badge, a }: { eyebrow?: string; badge?: string;
           {badge}
         </span>
       )}
-    </div>
-  );
-}
-
-function StatRow({ stats, a, centered }: { stats: StatItem[]; a: typeof ACCENT['amber']; centered?: boolean }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: centered ? 'center' : 'flex-start', gap: '0', marginTop: '16px', flexWrap: 'wrap' }}>
-      {stats.map((stat, i) => (
-        <React.Fragment key={stat.label}>
-          {i > 0 && <div style={{ width: '1px', height: '24px', background: a.divider, margin: '0 16px', flexShrink: 0 }} />}
-          <div style={{ textAlign: centered ? 'center' : 'left' }}>
-            <div style={{ fontSize: '18px', fontWeight: 800, color: a.statValue, letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</div>
-            <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 600, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
-          </div>
-        </React.Fragment>
-      ))}
     </div>
   );
 }
@@ -137,7 +113,6 @@ export default function PageHero({
   eyebrow,
   title,
   subtitle,
-  stats,
   children,
   actions,
   badge,
@@ -189,7 +164,6 @@ export default function PageHero({
               </div>
               {actions && <div style={{ flexShrink: 0 }}>{actions}</div>}
             </div>
-            {stats && stats.length > 0 && <StatRow stats={stats} a={a} />}
             {children && <div style={{ marginTop: '14px' }}>{children}</div>}
           </>
         )}
@@ -220,7 +194,6 @@ export default function PageHero({
               </p>
             )}
             {actions && <div style={{ marginTop: '14px' }}>{actions}</div>}
-            {stats && stats.length > 0 && <StatRow stats={stats} a={a} centered />}
             {children && <div style={{ marginTop: '14px' }}>{children}</div>}
           </div>
         )}
@@ -241,27 +214,7 @@ export default function PageHero({
               )}
               {actions && <div style={{ marginTop: '14px' }}>{actions}</div>}
             </div>
-
-            {stats && stats.length > 0 && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${Math.min(stats.length, 2)}, 1fr)`,
-                gap: '1px',
-                background: '#E5E7EB',
-                border: '1px solid #E5E7EB',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                flexShrink: 0,
-              }}>
-                {stats.map(stat => (
-                  <div key={stat.label} style={{ background: '#FAFAFA', padding: '12px 14px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 800, color: a.statValue, letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 600, marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {children && !stats && <div style={{ flexShrink: 0, maxWidth: '100%', overflow: 'hidden' }}>{children}</div>}
+            {children && <div style={{ flexShrink: 0, maxWidth: '100%', overflow: 'hidden' }}>{children}</div>}
           </div>
         )}
 
