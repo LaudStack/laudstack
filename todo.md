@@ -550,3 +550,12 @@
 - [x] Remove stat bars from all 6 pages: trending, deals, alternatives, comparisons, community-voting, launch-archive
 - [x] Remove stats strip from tools catalog page hero
 - [x] Push to GitHub
+
+## Consolidate Recently Launched & Recently Added (March 14, 2026)
+- [x] Audit all routes, pages, and nav references for both pages
+- [x] Rename Recently Added page content to "Recently Launched" (shows both founder launches + admin-added stacks)
+- [x] Delete the old /recently-launched page directory
+- [x] Update all navbar dropdown links — consolidated to one "Recently Launched" in Launches dropdown, replaced duplicate in Discover with "Spotlight Picks", replaced duplicate in Leaderboard with "Community Voting"
+- [x] Update footer links — consolidated to one "Recently Launched" in Launches section, replaced duplicate with "Community Voting"
+- [x] Verified no remaining references to /recently-launched in codebase
+- [x] Push to GitHub

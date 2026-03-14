@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { useToolsData } from "@/hooks/useToolsData";
 import { CATEGORY_META } from "@/lib/categories";
-import { Plus, Star, Shield, ThumbsUp, Clock } from "lucide-react";
+import { Rocket, Star, Shield, ThumbsUp, Clock } from "lucide-react";
 
 function timeAgo(dateStr: string): string {
   const diffDays = Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
@@ -26,7 +26,7 @@ const SORT_OPTIONS = [
   { value: "top_rated", label: "Top Rated" },
 ];
 
-export default function RecentlyAdded() {
+export default function RecentlyLaunched() {
   const { tools: allTools, loading } = useToolsData();
   const router = useRouter();
   const [category, setCategory] = useState("All");
@@ -35,11 +35,17 @@ export default function RecentlyAdded() {
 
   const allCategories = ["All", ...CATEGORY_META.map((c) => c.name).filter((n) => n !== "All")];
 
-  // Recently added = sorted by created_at (when added to platform), not launched_at
+  // Recently launched = all stacks sorted by most recent activity (launched or added)
   const recentTools = useMemo(() => {
     let tools = [...allTools];
     if (category !== "All") tools = tools.filter((t) => t.category === category);
-    if (sort === "newest") tools.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    if (sort === "newest") {
+      tools.sort((a, b) => {
+        const dateA = Math.max(new Date(a.launched_at).getTime(), new Date(a.created_at).getTime());
+        const dateB = Math.max(new Date(b.launched_at).getTime(), new Date(b.created_at).getTime());
+        return dateB - dateA;
+      });
+    }
     else if (sort === "most_lauded") tools.sort((a, b) => b.upvote_count - a.upvote_count);
     else if (sort === "top_rated") tools.sort((a, b) => b.average_rating - a.average_rating);
     return tools;
@@ -52,9 +58,9 @@ export default function RecentlyAdded() {
       <Navbar />
 
       <PageHero
-        eyebrow="Recently Added"
-        title="Recently Added to LaudStack"
-        subtitle="The latest tools added to our directory — freshly curated and ready to explore."
+        eyebrow="Recently Launched"
+        title="Recently Launched on LaudStack"
+        subtitle="The latest stacks launched by founders and added to the platform — discover what's new."
         accent="amber"
         layout="default"
         size="md"
@@ -82,7 +88,7 @@ export default function RecentlyAdded() {
         {loading ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div className="animate-spin" style={{ width: 32, height: 32, border: "3px solid #E5E7EB", borderTopColor: "#F59E0B", borderRadius: "50%", margin: "0 auto 16px" }} />
-            <p style={{ fontSize: "14px", color: "#9CA3AF" }}>Loading recently added tools...</p>
+            <p style={{ fontSize: "14px", color: "#9CA3AF" }}>Loading recently launched stacks...</p>
           </div>
         ) : recentTools.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
@@ -130,8 +136,8 @@ export default function RecentlyAdded() {
                       )}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                      <Plus style={{ width: "12px", height: "12px", color: "#F59E0B" }} />
-                      <span style={{ fontSize: "11px", fontWeight: 600, color: "#9CA3AF" }}>Added {timeAgo(tool.created_at)}</span>
+                      <Rocket style={{ width: "12px", height: "12px", color: "#F59E0B" }} />
+                      <span style={{ fontSize: "11px", fontWeight: 600, color: "#9CA3AF" }}>{timeAgo(Math.max(new Date(tool.launched_at).getTime(), new Date(tool.created_at).getTime()) > new Date(tool.created_at).getTime() ? tool.launched_at : tool.created_at)}</span>
                     </div>
                   </div>
                 </div>

@@ -18,7 +18,7 @@ import {
   TrendingUp, Users, Shield, Layers, ArrowRight,
   User, Settings, FileText, LogOut, PenSquare, Bookmark,
   Tag, Package, DollarSign, Crown, Bell, ChevronRight, Archive,
-  Clock, Calendar, Flame, Heart, Award, FolderOpen
+  Clock, Calendar, Flame, Heart, Award, FolderOpen, Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useToolsData } from '@/hooks/useToolsData';
@@ -34,7 +34,7 @@ const NAV_ITEMS = [
       { icon: Rocket,   label: 'LaunchPad',         desc: 'Launch your product',              href: '/launchpad' },
       { icon: Zap,      label: "Today's Launches",   desc: 'Launched today',                   href: '/new-launches' },
       { icon: Calendar, label: 'Upcoming Launches',  desc: 'Coming soon',                      href: '/upcoming-launches' },
-      { icon: Clock,    label: 'Recently Launched',  desc: 'Fresh on the platform',            href: '/recently-launched' },
+      { icon: Clock,    label: 'Recently Launched',  desc: 'Fresh on the platform',            href: '/recently-added' },
       { icon: Archive,  label: 'Launch Archive',     desc: 'Browse all past launches',         href: '/launch-archive' },
     ],
   },
@@ -45,7 +45,7 @@ const NAV_ITEMS = [
       { icon: FolderOpen, label: 'Browse Categories',  desc: 'Explore by category',               href: '/categories' },
       { icon: BarChart3,  label: 'Comparisons',        desc: 'Product vs product side-by-side',   href: '/comparisons' },
       { icon: Layers,     label: 'Alternatives',       desc: 'Find alternatives to any product',  href: '/alternatives' },
-      { icon: Zap,        label: 'Recently Added',     desc: 'Newest stacks on the platform',     href: '/recently-added' },
+      { icon: Sparkles,   label: 'Spotlight Picks',    desc: 'Editor-curated top stacks',         href: '/editors-picks' },
     ],
   },
   {
@@ -55,7 +55,7 @@ const NAV_ITEMS = [
       { icon: Star,       label: 'Top Rated',          desc: 'Highest community scores',          href: '/top-rated' },
       { icon: Heart,      label: 'Most Lauded',        desc: 'Most loved by the community',       href: '/most-lauded' },
       { icon: Flame,      label: 'Rising Stacks',      desc: 'Gaining momentum fast',             href: '/rising' },
-      { icon: Clock,      label: 'Recently Launched',  desc: 'Fresh launches this week',          href: '/recently-launched' },
+      { icon: Award,       label: 'Community Voting',   desc: 'Vote for the best stacks',          href: '/community-voting' },
     ],
   },
   { label: 'SaaS Deals', href: '/deals' },

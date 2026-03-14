@@ -104,11 +104,11 @@ const BOTTOM_SECTIONS = [
     heading: "Launches",
     links: [
       { label: "Today's Launches", href: "/launches" },
-      { label: "Recently Launched", href: "/recently-launched" },
+      { label: "Recently Launched", href: "/recently-added" },
       { label: "Upcoming Launches", href: "/upcoming-launches" },
       { label: "Spotlight Picks", href: "/editors-picks" },
-      { label: "Recently Added", href: "/recently-added" },
       { label: "Launch Archive", href: "/launch-archive" },
+      { label: "Community Voting", href: "/community-voting" },
     ],
   },
   {
