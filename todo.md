@@ -604,3 +604,12 @@
 - [x] Add FAQ structured data JSON-LD for SEO rich results (FAQPage schema)
 - [x] Add headline A/B test analytics tracking (sessionStorage variant, sendBeacon events)
 - [x] Build, test, and push to GitHub
+
+## Launches Page Polish (March 14, 2026)
+- [x] Remove all stats from the page (completely removed stats grid)
+- [x] Fix page flashing on visit (added PageSkeleton loading state, shown during data fetch)
+- [x] Enhance Upcoming Launch cards with real stack logos, details, and polished compact countdown
+- [x] Wire all modals, features, and interactive components (Notify Me, period tabs, leaderboard rows, upcoming cards)
+- [x] Created /api/launches/upcoming API route for real DB data (tools + submissions with future dates)
+- [x] Ensure page is fully functional and activated
+- [ ] Push to GitHub
