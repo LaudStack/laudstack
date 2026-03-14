@@ -1,11 +1,9 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 /**
  * All Stacks — /tools
  *
- * Professional product catalog with sidebar filters, sorting, view modes,
+ * Professional stack catalog with sidebar filters, sorting, view modes,
  * and URL-synced filter state. Light theme, amber accent, clean alignment.
  * Card design matches /new-launches polished style.
  */
@@ -21,7 +19,7 @@ import { toggleUpvote } from '@/app/actions/public';
 import {
   Search, SlidersHorizontal, X, ChevronDown, ChevronUp,
   Grid3X3, List, ArrowUpDown, Sparkles, LayoutGrid,
-  Star, Shield, Tag, Filter, Package, Eye, Loader2,
+  Star, ShieldCheck, Tag, Filter, Package, Loader2,
   ChevronRight, Rocket,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -297,8 +295,7 @@ function ToolGridCard({
   laudingId: number | null;
   hideCategory?: boolean;
 }) {
-  const screenshotSrc = tool.screenshot_url ?? FALLBACK_SHOTS[index % FALLBACK_SHOTS.length];
-  const viewCount = tool.upvote_count * 3 + tool.review_count * 12;
+  const screenshotSrc = tool.screenshot_url || FALLBACK_SHOTS[index % FALLBACK_SHOTS.length];
   const isLauded = laudedIds.has(tool.id);
   const isLauding = laudingId === Number(tool.id);
 
@@ -329,9 +326,7 @@ function ToolGridCard({
                 {tool.name}
               </span>
               {tool.is_verified && (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="#3B82F6" className="flex-shrink-0">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <ShieldCheck className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
               )}
             </div>
           </Link>
@@ -370,11 +365,7 @@ function ToolGridCard({
             className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500"
             onError={e => { (e.target as HTMLImageElement).src = FALLBACK_SHOTS[index % FALLBACK_SHOTS.length]; }}
           />
-          {/* View count overlay */}
-          <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm rounded-md px-2 py-0.5 flex items-center gap-1">
-            <Eye className="w-2.5 h-2.5 text-slate-400" />
-            <span className="text-[10px] font-bold text-slate-200">{viewCount.toLocaleString()}</span>
-          </div>
+
           {/* New badge */}
           {isNew(tool.launched_at) && (
             <div className="absolute top-2 right-2 bg-amber-500 rounded-md px-1.5 py-0.5">
@@ -466,7 +457,7 @@ function ToolListRow({
       <Link href={`/tools/${tool.slug}`} className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
           <span className="text-sm font-extrabold text-slate-900 tracking-tight">{tool.name}</span>
-          {tool.is_verified && <Shield className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />}
+          {tool.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
           {isNew(tool.launched_at) && (
             <span className="text-[9px] font-extrabold text-slate-900 bg-amber-500 px-1.5 py-0.5 rounded uppercase tracking-wider">New</span>
           )}
@@ -710,7 +701,7 @@ export default function AllTools() {
                   textTransform: 'uppercase', letterSpacing: '0.06em',
                 }}>
                   <Package style={{ width: 11, height: 11 }} />
-                  Product Catalog
+                  Stack Directory
                 </span>
               </div>
               <h1 style={{
@@ -734,7 +725,7 @@ export default function AllTools() {
               <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#9CA3AF', pointerEvents: 'none' }} />
               <input
                 type="text"
-                placeholder="Search products..."
+                  placeholder="Search stacks..."
                 value={search}
                 onChange={e => { setSearch(e.target.value); setVisibleCount(30); }}
                 style={{
@@ -964,7 +955,7 @@ export default function AllTools() {
 
                 <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
                   <strong style={{ color: '#111827', fontWeight: 800 }}>{filtered.length}</strong>
-                  {' '}product{filtered.length !== 1 ? 's' : ''}
+                  {' '}stack{filtered.length !== 1 ? 's' : ''}
                   {hasFilters && <span style={{ color: '#F59E0B', fontWeight: 600, marginLeft: 4 }}>(filtered)</span>}
                 </span>
 
