@@ -341,7 +341,7 @@ export default function Home() {
             {/* Bold container — deeper amber/burnt orange shade */}
             <div
               className="rounded-3xl px-5 sm:px-7 lg:px-9 pt-6 sm:pt-8 pb-6 sm:pb-8"
-              style={{ background: '#F0F7F4' }}
+              style={{ background: '#E3EDE8' }}
             >
               {/* Header row inside the container */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
