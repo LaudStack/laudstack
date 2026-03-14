@@ -416,3 +416,8 @@
 - [x] Update Navbar background from #0F1629 to #EDF2FA (very light blue) with dark text
 - [x] Swap logo to dark-text variant (logo-light-transparent.png), update all UI elements for light bg
 - [x] Verify build and push to GitHub
+
+## Navbar Color — Match Futurepedia (March 14, 2026)
+- [x] Inspect Futurepedia.io navbar background color (#3960EF vivid blue, white text)
+- [x] Update LaudStack Navbar to match (bg, logo, text, icons, search pill, avatar, mobile)
+- [x] Verify build and push to GitHub
