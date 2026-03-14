@@ -1,11 +1,11 @@
 /**
  * AdminStackDetail — View and edit a single stack from the admin panel
  * Shows all details, founder info, claim status, stats, reviews, and edit form
+ * Supports file upload for logos and screenshots (not just URLs)
  */
-import { useState, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
-import { getLoginUrl } from '@/const';
 import { useLocation, useRoute } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Shield, Eye, MousePointer, Star, TrendingUp,
   Heart, Bookmark, Edit, Save, ExternalLink, User, CheckCircle,
-  XCircle, Sparkles, Flame, Globe, Link2
+  XCircle, Sparkles, Flame, Globe, Link2, Upload, Image, Trash2, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -126,6 +126,29 @@ function DetailView({ stack }: { stack: any }) {
           ))}
         </div>
 
+        {/* Logo & Screenshot Preview */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Media</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <span className="text-xs text-gray-500 block mb-2">Logo</span>
+              {stack.logoUrl ? (
+                <img src={stack.logoUrl} alt="Logo" className="w-20 h-20 rounded-lg object-cover border border-gray-200" />
+              ) : (
+                <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No logo</div>
+              )}
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 block mb-2">Screenshot</span>
+              {stack.screenshotUrl ? (
+                <img src={stack.screenshotUrl} alt="Screenshot" className="w-full max-w-[300px] rounded-lg border border-gray-200 object-cover" />
+              ) : (
+                <div className="w-full max-w-[300px] h-32 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No screenshot</div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Description */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <h3 className="text-sm font-semibold text-gray-900 mb-2">Description</h3>
@@ -234,6 +257,139 @@ function DetailView({ stack }: { stack: any }) {
   );
 }
 
+// ─── Image Upload Component ────────────────────────────────────────────────
+function ImageUploadField({
+  label,
+  currentUrl,
+  urlValue,
+  onUrlChange,
+  onUploadComplete,
+}: {
+  label: string;
+  currentUrl?: string;
+  urlValue: string;
+  onUrlChange: (url: string) => void;
+  onUploadComplete: (url: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const uploadImage = trpc.admin.uploadImage.useMutation();
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    // Show preview
+    const previewUrl = URL.createObjectURL(file);
+    setPreview(previewUrl);
+    setUploading(true);
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const { url } = await uploadImage.mutateAsync({
+        base64,
+        filename: file.name,
+        contentType: file.type,
+      });
+
+      onUrlChange(url);
+      onUploadComplete(url);
+      toast.success(`${label} uploaded successfully`);
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+      URL.revokeObjectURL(previewUrl);
+      setPreview(null);
+      // Reset file input
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }, [label, onUrlChange, onUploadComplete, uploadImage]);
+
+  const displayUrl = preview || currentUrl || urlValue;
+  const isLogo = label.toLowerCase().includes('logo');
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+
+      {/* Preview */}
+      {displayUrl && (
+        <div className="relative inline-block">
+          <img
+            src={displayUrl}
+            alt={label}
+            className={`${isLogo ? 'w-20 h-20' : 'w-full max-w-[320px] h-auto max-h-[180px]'} rounded-lg object-cover border border-gray-200`}
+          />
+          {uploading && (
+            <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+              <Loader2 className="w-6 h-6 text-white animate-spin" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Upload button + URL input */}
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <Input
+            value={urlValue}
+            onChange={e => onUrlChange(e.target.value)}
+            placeholder={`Enter ${label.toLowerCase()} URL or upload a file`}
+            className="text-sm"
+          />
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-1 shrink-0"
+        >
+          {uploading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Upload className="w-4 h-4" />
+          )}
+          {uploading ? 'Uploading...' : 'Upload'}
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      </div>
+      <p className="text-xs text-gray-400">Paste a URL or click Upload to select an image file (max 5MB)</p>
+    </div>
+  );
+}
+
+// ─── Edit Form ─────────────────────────────────────────────────────────────
 function EditForm({ stack, onSave }: { stack: any; onSave: () => void }) {
   const [form, setForm] = useState({
     name: stack.name || '',
@@ -282,7 +438,9 @@ function EditForm({ stack, onSave }: { stack: any; onSave: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Edit Stack</h3>
+      <h3 className="text-lg font-bold text-gray-900 mb-6">Edit Stack</h3>
+
+      {/* Basic Info */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -305,6 +463,8 @@ function EditForm({ stack, onSave }: { stack: any; onSave: () => void }) {
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm min-h-[120px] focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
         />
       </div>
+
+      {/* URLs */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
@@ -315,16 +475,30 @@ function EditForm({ stack, onSave }: { stack: any; onSave: () => void }) {
           <Input value={form.affiliateUrl} onChange={e => setForm({ ...form, affiliateUrl: e.target.value })} />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
-          <Input value={form.logoUrl} onChange={e => setForm({ ...form, logoUrl: e.target.value })} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Screenshot URL</label>
-          <Input value={form.screenshotUrl} onChange={e => setForm({ ...form, screenshotUrl: e.target.value })} />
-        </div>
+
+      {/* Logo Upload */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <ImageUploadField
+          label="Logo"
+          currentUrl={stack.logoUrl}
+          urlValue={form.logoUrl}
+          onUrlChange={(url) => setForm({ ...form, logoUrl: url })}
+          onUploadComplete={(url) => setForm(prev => ({ ...prev, logoUrl: url }))}
+        />
       </div>
+
+      {/* Screenshot Upload */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <ImageUploadField
+          label="Screenshot"
+          currentUrl={stack.screenshotUrl}
+          urlValue={form.screenshotUrl}
+          onUrlChange={(url) => setForm({ ...form, screenshotUrl: url })}
+          onUploadComplete={(url) => setForm(prev => ({ ...prev, screenshotUrl: url }))}
+        />
+      </div>
+
+      {/* Category & Pricing */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>

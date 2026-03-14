@@ -1,0 +1,106 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'stacks' ORDER BY ORDINAL_POSITION",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 28uKLfuofPUb1xQ.root --database 3XGasP8CcX57JRU5Ai2Hv7 --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'stacks' ORDER BY ORDINAL_POSITION",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "slug"
+    },
+    {
+      "COLUMN_NAME": "name"
+    },
+    {
+      "COLUMN_NAME": "tagline"
+    },
+    {
+      "COLUMN_NAME": "description"
+    },
+    {
+      "COLUMN_NAME": "logoUrl"
+    },
+    {
+      "COLUMN_NAME": "screenshotUrl"
+    },
+    {
+      "COLUMN_NAME": "websiteUrl"
+    },
+    {
+      "COLUMN_NAME": "affiliateUrl"
+    },
+    {
+      "COLUMN_NAME": "category"
+    },
+    {
+      "COLUMN_NAME": "pricingModel"
+    },
+    {
+      "COLUMN_NAME": "pricingDetails"
+    },
+    {
+      "COLUMN_NAME": "tags"
+    },
+    {
+      "COLUMN_NAME": "founderId"
+    },
+    {
+      "COLUMN_NAME": "claimedAt"
+    },
+    {
+      "COLUMN_NAME": "status"
+    },
+    {
+      "COLUMN_NAME": "isVerified"
+    },
+    {
+      "COLUMN_NAME": "isFeatured"
+    },
+    {
+      "COLUMN_NAME": "isTrending"
+    },
+    {
+      "COLUMN_NAME": "isSpotlighted"
+    },
+    {
+      "COLUMN_NAME": "laudCount"
+    },
+    {
+      "COLUMN_NAME": "saveCount"
+    },
+    {
+      "COLUMN_NAME": "reviewCount"
+    },
+    {
+      "COLUMN_NAME": "averageRating"
+    },
+    {
+      "COLUMN_NAME": "viewCount"
+    },
+    {
+      "COLUMN_NAME": "clickCount"
+    },
+    {
+      "COLUMN_NAME": "rankScore"
+    },
+    {
+      "COLUMN_NAME": "weeklyRankChange"
+    },
+    {
+      "COLUMN_NAME": "launchedAt"
+    },
+    {
+      "COLUMN_NAME": "addedBy"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    },
+    {
+      "COLUMN_NAME": "updatedAt"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nslug\nname\ntagline\ndescription\nlogoUrl\nscreenshotUrl\nwebsiteUrl\naffiliateUrl\ncategory\npricingModel\npricingDetails\ntags\nfounderId\nclaimedAt\nstatus\nisVerified\nisFeatured\nisTrending\nisSpotlighted\nlaudCount\nsaveCount\nreviewCount\naverageRating\nviewCount\nclickCount\nrankScore\nweeklyRankChange\nlaunchedAt\naddedBy\ncreatedAt\nupdatedAt\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

@@ -103,3 +103,12 @@
 ## Homepage Copy Updates
 - [x] Update hero subheader to new copy
 - [x] Update Everything in One Place section subheader to new copy
+
+## Logo & Screenshot Collection + Admin File Upload
+- [x] Add admin file upload endpoint (upload image files, not just URLs) for logos and screenshots
+- [x] Update AdminStackDetail UI with file upload buttons for logo and screenshots
+- [x] Collect real logos for all 50 stacks from their websites
+- [x] Take homepage screenshots for all 50 stacks
+- [x] Upload all logos and screenshots to CDN
+- [x] Update database with real logo and screenshot URLs for all 50 stacks
+- [x] Verify images display correctly across all pages (12 broken logos fixed and re-uploaded to CDN)

@@ -1,0 +1,360 @@
+{
+  "query": "SELECT id, name, slug, logoUrl, screenshotUrl FROM stacks ORDER BY name",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 28uKLfuofPUb1xQ.root --database 3XGasP8CcX57JRU5Ai2Hv7 --execute SELECT id, name, slug, logoUrl, screenshotUrl FROM stacks ORDER BY name",
+  "rows": [
+    {
+      "id": "10",
+      "name": "Airtable",
+      "slug": "airtable",
+      "logoUrl": "https://logo.clearbit.com/airtable.com",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/airtable_ddaa0537.png"
+    },
+    {
+      "id": "42",
+      "name": "Amplitude",
+      "slug": "amplitude",
+      "logoUrl": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://amplitude.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/amplitude_01cbfa38.png"
+    },
+    {
+      "id": "19",
+      "name": "Anthropic Claude",
+      "slug": "anthropic-claude",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=claude.ai&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/anthropic-claude_65467b5e.png"
+    },
+    {
+      "id": "35",
+      "name": "Calendly",
+      "slug": "calendly",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=calendly.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/calendly_ac5467c9.png"
+    },
+    {
+      "id": "13",
+      "name": "Canva",
+      "slug": "canva",
+      "logoUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://canva.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/canva_6b333fa0.png"
+    },
+    {
+      "id": "1",
+      "name": "ChatGPT",
+      "slug": "chatgpt",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/chatgpt_a42e679b.png"
+    },
+    {
+      "id": "33",
+      "name": "Clerk",
+      "slug": "clerk",
+      "logoUrl": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/zUXUngKhMeCjWgFp.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/clerk_03fcb52b.png"
+    },
+    {
+      "id": "43",
+      "name": "Coda",
+      "slug": "coda",
+      "logoUrl": "https://cdn.worldvectorlogo.com/logos/coda-1.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/coda_6dc02a20.png"
+    },
+    {
+      "id": "47",
+      "name": "Coolify",
+      "slug": "coolify",
+      "logoUrl": "https://coolify.io/coolify-logo.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/coolify_d8317cb2.png"
+    },
+    {
+      "id": "3",
+      "name": "Cursor",
+      "slug": "cursor",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=cursor.sh&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/cursor_3cc0be82.png"
+    },
+    {
+      "id": "45",
+      "name": "Datadog",
+      "slug": "datadog",
+      "logoUrl": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://datadoghq.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/datadog_da448cd4.png"
+    },
+    {
+      "id": "25",
+      "name": "Descript",
+      "slug": "descript",
+      "logoUrl": "https://www.stickpng.com/img/download/5fb804257cfcd30004c90c35.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/descript_a5712d41.png"
+    },
+    {
+      "id": "46",
+      "name": "Eleven Labs",
+      "slug": "eleven-labs",
+      "logoUrl": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/ysQLPNqwYqrKZKHa.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/eleven-labs_cd2d08cf.png"
+    },
+    {
+      "id": "50",
+      "name": "Excalidraw",
+      "slug": "excalidraw",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=excalidraw.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/excalidraw_20d8c898.png"
+    },
+    {
+      "id": "5",
+      "name": "Figma",
+      "slug": "figma",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/figma_d475184a.png"
+    },
+    {
+      "id": "17",
+      "name": "Framer",
+      "slug": "framer",
+      "logoUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://framer.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/framer_91b18921.png"
+    },
+    {
+      "id": "12",
+      "name": "GitHub Copilot",
+      "slug": "github-copilot",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=github.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/github-copilot_29e0f63c.png"
+    },
+    {
+      "id": "27",
+      "name": "Grammarly",
+      "slug": "grammarly",
+      "logoUrl": "https://assets.stickpng.com/images/5847f8b2cef1014c0b5e48d5.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/grammarly_d78464c2.png"
+    },
+    {
+      "id": "24",
+      "name": "HubSpot",
+      "slug": "hubspot",
+      "logoUrl": "https://www.logo.wine/a/logo/HubSpot/HubSpot-Logo.wine.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/hubspot_0d0f3a44.png"
+    },
+    {
+      "id": "22",
+      "name": "Intercom",
+      "slug": "intercom",
+      "logoUrl": "https://logovector.net/wp-content/uploads/2021/01/intercom-logo-vector.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/intercom_a918cc10.png"
+    },
+    {
+      "id": "28",
+      "name": "Jasper",
+      "slug": "jasper",
+      "logoUrl": "https://22774847.fs1.hubspotusercontent-na1.net/hubfs/22774847/Jasper%20Logos%20(2025)/Jasper%20Logo%20(2025)%20-%20Dark.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/jasper_ae1cbfe2.png"
+    },
+    {
+      "id": "6",
+      "name": "Linear",
+      "slug": "linear",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=linear.app&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/linear_69745f99.png"
+    },
+    {
+      "id": "15",
+      "name": "Loom",
+      "slug": "loom",
+      "logoUrl": "https://i.pinimg.com/originals/a7/46/5f/a7465f7e52554c873f03416325b35f29.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/loom_97fc3f46.png"
+    },
+    {
+      "id": "40",
+      "name": "Mailchimp",
+      "slug": "mailchimp",
+      "logoUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://mailchimp.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/mailchimp_21148aaa.png"
+    },
+    {
+      "id": "11",
+      "name": "Midjourney",
+      "slug": "midjourney",
+      "logoUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://midjourney.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/midjourney_dd64583b.png"
+    },
+    {
+      "id": "29",
+      "name": "Miro",
+      "slug": "miro",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=miro.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/miro_57f74f34.png"
+    },
+    {
+      "id": "37",
+      "name": "Mixpanel",
+      "slug": "mixpanel",
+      "logoUrl": "https://asset.brandfetch.io/id5rI3c_R-/id532n6_2A/mixpanel-logo.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/mixpanel_612a249d.png"
+    },
+    {
+      "id": "2",
+      "name": "Notion",
+      "slug": "notion",
+      "logoUrl": "https://www.notion.so/images/press/logo-black.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/notion_dae3a168.png"
+    },
+    {
+      "id": "30",
+      "name": "Notion AI",
+      "slug": "notion-ai",
+      "logoUrl": "https://i.pcmag.com/imagery/reviews/05BEr2C434PS2fLpvAmm3T3-1.fit_lim.size_1050x.jpg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/notion-ai_2ae8129c.png"
+    },
+    {
+      "id": "4",
+      "name": "Perplexity AI",
+      "slug": "perplexity-ai",
+      "logoUrl": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/ynAJYbkIlSpjTVks.jpg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/perplexity-ai_baf1978a.png"
+    },
+    {
+      "id": "34",
+      "name": "Planetscale",
+      "slug": "planetscale",
+      "logoUrl": "https://avatars.githubusercontent.com/u/35752188?s=200&v=4",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/planetscale_1393db2f.png"
+    },
+    {
+      "id": "49",
+      "name": "Plausible Analytics",
+      "slug": "plausible-analytics",
+      "logoUrl": "https://plausible.io/assets/images/logo.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/plausible-analytics_5d7b6ccd.png"
+    },
+    {
+      "id": "23",
+      "name": "Postman",
+      "slug": "postman",
+      "logoUrl": "https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/postman_f6715c1b.png"
+    },
+    {
+      "id": "38",
+      "name": "Prisma",
+      "slug": "prisma",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=prisma.io&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/prisma_8834a004.png"
+    },
+    {
+      "id": "26",
+      "name": "Railway",
+      "slug": "railway",
+      "logoUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://railway.app&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/railway_97808763.png"
+    },
+    {
+      "id": "32",
+      "name": "Raycast",
+      "slug": "raycast",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=raycast.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/raycast_71ebb7a5.png"
+    },
+    {
+      "id": "39",
+      "name": "Replit",
+      "slug": "replit",
+      "logoUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://replit.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/replit_ac823859.png"
+    },
+    {
+      "id": "18",
+      "name": "Resend",
+      "slug": "resend",
+      "logoUrl": "https://resend.com/static/images/brand/logo-icon-text-light-400x400.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/resend_2862bec6.png"
+    },
+    {
+      "id": "44",
+      "name": "Retool",
+      "slug": "retool",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=retool.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/retool_78acb3c7.png"
+    },
+    {
+      "id": "36",
+      "name": "Sentry",
+      "slug": "sentry",
+      "logoUrl": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/CLnwlmDwEJaLDARc.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/sentry_d49fb338.png"
+    },
+    {
+      "id": "9",
+      "name": "Slack",
+      "slug": "slack",
+      "logoUrl": "https://cdn.worldvectorlogo.com/logos/slack-new-logo.svg",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/slack_0e0e7ca5.png"
+    },
+    {
+      "id": "8",
+      "name": "Stripe",
+      "slug": "stripe",
+      "logoUrl": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/RlArgbRZffpVjVAb.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/stripe_b71a7b70.png"
+    },
+    {
+      "id": "14",
+      "name": "Supabase",
+      "slug": "supabase",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=supabase.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/supabase_e2c98045.png"
+    },
+    {
+      "id": "21",
+      "name": "Tailwind CSS",
+      "slug": "tailwind-css",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=tailwindcss.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/tailwind-css_7bacae6c.png"
+    },
+    {
+      "id": "48",
+      "name": "Tally",
+      "slug": "tally",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=tally.so&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/tally_b397851e.png"
+    },
+    {
+      "id": "41",
+      "name": "Twilio",
+      "slug": "twilio",
+      "logoUrl": "https://cdn.freebiesupply.com/logos/large/2x/twilio-logo-png-transparent.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/twilio_526c3116.png"
+    },
+    {
+      "id": "31",
+      "name": "Typeform",
+      "slug": "typeform",
+      "logoUrl": "https://www.google.com/s2/favicons?domain=typeform.com&sz=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/typeform_d153e72b.png"
+    },
+    {
+      "id": "7",
+      "name": "Vercel",
+      "slug": "vercel",
+      "logoUrl": "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://vercel.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/vercel_6ebdadbd.png"
+    },
+    {
+      "id": "20",
+      "name": "Webflow",
+      "slug": "webflow",
+      "logoUrl": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://webflow.com&size=128",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/webflow_3de977a7.png"
+    },
+    {
+      "id": "16",
+      "name": "Zapier",
+      "slug": "zapier",
+      "logoUrl": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/AVcIjDDYePxLuwAV.png",
+      "screenshotUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/zapier_0f1822ff.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\tlogoUrl\tscreenshotUrl\n10\tAirtable\tairtable\thttps://logo.clearbit.com/airtable.com\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/airtable_ddaa0537.png\n42\tAmplitude\tamplitude\thttps://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://amplitude.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/amplitude_01cbfa38.png\n19\tAnthropic Claude\tanthropic-claude\thttps://www.google.com/s2/favicons?domain=claude.ai&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/anthropic-claude_65467b5e.png\n35\tCalendly\tcalendly\thttps://www.google.com/s2/favicons?domain=calendly.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/calendly_ac5467c9.png\n13\tCanva\tcanva\thttps://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://canva.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/canva_6b333fa0.png\n1\tChatGPT\tchatgpt\thttps://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/chatgpt_a42e679b.png\n33\tClerk\tclerk\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/zUXUngKhMeCjWgFp.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/clerk_03fcb52b.png\n43\tCoda\tcoda\thttps://cdn.worldvectorlogo.com/logos/coda-1.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/coda_6dc02a20.png\n47\tCoolify\tcoolify\thttps://coolify.io/coolify-logo.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/coolify_d8317cb2.png\n3\tCursor\tcursor\thttps://www.google.com/s2/favicons?domain=cursor.sh&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/cursor_3cc0be82.png\n45\tDatadog\tdatadog\thttps://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://datadoghq.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/datadog_da448cd4.png\n25\tDescript\tdescript\thttps://www.stickpng.com/img/download/5fb804257cfcd30004c90c35.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/descript_a5712d41.png\n46\tEleven Labs\televen-labs\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/ysQLPNqwYqrKZKHa.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/eleven-labs_cd2d08cf.png\n50\tExcalidraw\texcalidraw\thttps://www.google.com/s2/favicons?domain=excalidraw.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/excalidraw_20d8c898.png\n5\tFigma\tfigma\thttps://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/figma_d475184a.png\n17\tFramer\tframer\thttps://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://framer.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/framer_91b18921.png\n12\tGitHub Copilot\tgithub-copilot\thttps://www.google.com/s2/favicons?domain=github.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/github-copilot_29e0f63c.png\n27\tGrammarly\tgrammarly\thttps://assets.stickpng.com/images/5847f8b2cef1014c0b5e48d5.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/grammarly_d78464c2.png\n24\tHubSpot\thubspot\thttps://www.logo.wine/a/logo/HubSpot/HubSpot-Logo.wine.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/hubspot_0d0f3a44.png\n22\tIntercom\tintercom\thttps://logovector.net/wp-content/uploads/2021/01/intercom-logo-vector.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/intercom_a918cc10.png\n28\tJasper\tjasper\thttps://22774847.fs1.hubspotusercontent-na1.net/hubfs/22774847/Jasper%20Logos%20(2025)/Jasper%20Logo%20(2025)%20-%20Dark.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/jasper_ae1cbfe2.png\n6\tLinear\tlinear\thttps://www.google.com/s2/favicons?domain=linear.app&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/linear_69745f99.png\n15\tLoom\tloom\thttps://i.pinimg.com/originals/a7/46/5f/a7465f7e52554c873f03416325b35f29.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/loom_97fc3f46.png\n40\tMailchimp\tmailchimp\thttps://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://mailchimp.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/mailchimp_21148aaa.png\n11\tMidjourney\tmidjourney\thttps://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://midjourney.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/midjourney_dd64583b.png\n29\tMiro\tmiro\thttps://www.google.com/s2/favicons?domain=miro.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/miro_57f74f34.png\n37\tMixpanel\tmixpanel\thttps://asset.brandfetch.io/id5rI3c_R-/id532n6_2A/mixpanel-logo.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/mixpanel_612a249d.png\n2\tNotion\tnotion\thttps://www.notion.so/images/press/logo-black.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/notion_dae3a168.png\n30\tNotion AI\tnotion-ai\thttps://i.pcmag.com/imagery/reviews/05BEr2C434PS2fLpvAmm3T3-1.fit_lim.size_1050x.jpg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/notion-ai_2ae8129c.png\n4\tPerplexity AI\tperplexity-ai\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/ynAJYbkIlSpjTVks.jpg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/perplexity-ai_baf1978a.png\n34\tPlanetscale\tplanetscale\thttps://avatars.githubusercontent.com/u/35752188?s=200&v=4\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/planetscale_1393db2f.png\n49\tPlausible Analytics\tplausible-analytics\thttps://plausible.io/assets/images/logo.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/plausible-analytics_5d7b6ccd.png\n23\tPostman\tpostman\thttps://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/postman_f6715c1b.png\n38\tPrisma\tprisma\thttps://www.google.com/s2/favicons?domain=prisma.io&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/prisma_8834a004.png\n26\tRailway\trailway\thttps://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://railway.app&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/railway_97808763.png\n32\tRaycast\traycast\thttps://www.google.com/s2/favicons?domain=raycast.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/raycast_71ebb7a5.png\n39\tReplit\treplit\thttps://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://replit.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/replit_ac823859.png\n18\tResend\tresend\thttps://resend.com/static/images/brand/logo-icon-text-light-400x400.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/resend_2862bec6.png\n44\tRetool\tretool\thttps://www.google.com/s2/favicons?domain=retool.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/retool_78acb3c7.png\n36\tSentry\tsentry\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/CLnwlmDwEJaLDARc.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/sentry_d49fb338.png\n9\tSlack\tslack\thttps://cdn.worldvectorlogo.com/logos/slack-new-logo.svg\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/slack_0e0e7ca5.png\n8\tStripe\tstripe\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/RlArgbRZffpVjVAb.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/stripe_b71a7b70.png\n14\tSupabase\tsupabase\thttps://www.google.com/s2/favicons?domain=supabase.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/supabase_e2c98045.png\n21\tTailwind CSS\ttailwind-css\thttps://www.google.com/s2/favicons?domain=tailwindcss.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/tailwind-css_7bacae6c.png\n48\tTally\ttally\thttps://www.google.com/s2/favicons?domain=tally.so&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/tally_b397851e.png\n41\tTwilio\ttwilio\thttps://cdn.freebiesupply.com/logos/large/2x/twilio-logo-png-transparent.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/twilio_526c3116.png\n31\tTypeform\ttypeform\thttps://www.google.com/s2/favicons?domain=typeform.com&sz=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/typeform_d153e72b.png\n7\tVercel\tvercel\thttps://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://vercel.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/vercel_6ebdadbd.png\n20\tWebflow\twebflow\thttps://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://webflow.com&size=128\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/webflow_3de977a7.png\n16\tZapier\tzapier\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663413324407/AVcIjDDYePxLuwAV.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/zapier_0f1822ff.png\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}
