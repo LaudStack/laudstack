@@ -300,7 +300,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: Tab) => void }) {
 }
 
 // ─── Tools Tab ────────────────────────────────────────────────────────────────
-function ToolsTab() {
+function ToolsTab({ setActiveTab }: { setActiveTab: (tab: Tab) => void }) {
   const [tools, setTools] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTool, setEditingTool] = useState<number | null>(null);
@@ -1998,7 +1998,7 @@ export default function FounderDashboard() {
           {/* Main content */}
           <div className="lg:col-span-3">
             {activeTab === 'overview'  && <OverviewTab setActiveTab={setActiveTab} />}
-            {activeTab === 'tools'     && <ToolsTab />}
+            {activeTab === 'tools'     && <ToolsTab setActiveTab={setActiveTab} />}
             {activeTab === 'reviews'   && <ReviewsTab />}
             {activeTab === 'deals'     && <DealsTab />}
             {activeTab === 'analytics' && <AnalyticsTab />}
