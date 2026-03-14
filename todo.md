@@ -473,3 +473,50 @@
 ### Final Verification
 - [x] TypeScript + Next.js build passes (zero errors)
 - [x] Push to GitHub
+
+## Programmatic SEO Engine (March 14, 2026)
+
+### Infrastructure
+- [x] Build shared SEO metadata generator (dynamic titles, descriptions, canonical URLs)
+- [x] Build shared server actions for dynamic tool queries (by category, tags, use case)
+- [x] Build shared SEO page components (ToolGrid, SortBar, InternalLinks, SEO heading hierarchy)
+
+### Category SEO Pages
+- [x] Dynamic route: /c/[category-slug] (e.g., /c/ai-writing-tools, /c/marketing-tools)
+- [x] Category description, tool list, sorting (Top Rated, Trending, Newest), stack cards with ratings/Lauds
+- [x] Auto-updates when new stacks added to category
+
+### Best Tools Pages
+- [x] Dynamic route: /best/[slug] (e.g., /best/ai-tools-for-marketing) — 18 page definitions
+- [x] Introduction text, curated list, rankings from real signals, links to stack detail pages
+- [x] Generated from categories + tags
+
+### Alternatives Pages
+- [x] Dynamic route: /[tool-slug]-alternatives via middleware rewrite to /alt/[slug]
+- [x] Original stack overview, list of alternatives, comparison highlights, stack cards
+- [x] Alternatives determined by category similarity + tags
+
+### Comparison Pages
+- [x] Dynamic route: /[tool-a]-vs-[tool-b] via middleware rewrite to /vs/[slugA]/[slugB]
+- [x] Side-by-side comparison table, features, pricing, ratings, links to stack pages
+- [x] Data derived from stack attributes in database
+
+### Trending/Discovery SEO Pages
+- [x] /trending-ai-tools, /top-rated-ai-tools, /new-ai-tools, /most-popular-saas-tools
+- [x] Powered by ranking algorithm, real data
+
+### Internal Linking
+- [x] All SEO pages link to stack detail, category, comparison, and alternatives pages
+- [x] Cross-linking between related SEO pages
+- [x] XML sitemap at /sitemap.xml with all SEO page URLs
+- [x] robots.txt with sitemap reference
+- [x] Footer updated with SEO page links
+
+### Page Generation Rules
+- [x] Pages only generated when enough stacks exist (minimum threshold)
+- [x] No empty pages, no duplicate pages
+- [x] All pages use real database data
+
+### Final Verification
+- [x] TypeScript + Next.js build passes
+- [x] Push to GitHub

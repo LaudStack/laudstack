@@ -2,6 +2,26 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // ─── SEO URL Rewrites ──────────────────────────────────────────────────
+  // /chatgpt-alternatives → /alt/chatgpt
+  const altMatch = pathname.match(/^\/([a-z0-9][a-z0-9-]*)-alternatives$/);
+  if (altMatch) {
+    const toolSlug = altMatch[1];
+    const url = request.nextUrl.clone();
+    url.pathname = `/alt/${toolSlug}`;
+    return NextResponse.rewrite(url);
+  }
+
+  // /chatgpt-vs-claude → /vs/chatgpt/claude
+  const vsMatch = pathname.match(/^\/([a-z0-9][a-z0-9-]*)-vs-([a-z0-9][a-z0-9-]*)$/);
+  if (vsMatch) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/vs/${vsMatch[1]}/${vsMatch[2]}`;
+    return NextResponse.rewrite(url);
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });

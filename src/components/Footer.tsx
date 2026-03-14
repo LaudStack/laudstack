@@ -50,11 +50,11 @@ const FOOTER_SECTIONS = [
   {
     heading: "Comparisons",
     links: [
-      { label: "AI Tools Comparisons", href: "/comparisons?category=AI" },
-      { label: "SaaS Software Comparisons", href: "/comparisons?category=SaaS" },
       { label: "Popular Comparisons", href: "/comparisons" },
-      { label: "Latest Comparisons", href: "/comparisons?sort=newest" },
       { label: "Alternatives", href: "/alternatives" },
+      { label: "Trending AI Tools", href: "/trending-ai-tools" },
+      { label: "Top Rated AI Tools", href: "/top-rated-ai-tools" },
+      { label: "Best Tools Collections", href: "/best" },
     ],
   },
   {
