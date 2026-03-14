@@ -589,3 +589,8 @@
 - [x] Consistent light theme, proper spacing, responsive design
 - [x] TypeScript build passes
 - [x] Push to GitHub
+
+## LaunchPad — Trust Bar & Legibility (March 14, 2026)
+- [x] Replace stats strip with "Trusted by" logo bar (Notion, Linear, Vercel, Stripe, Figma, Supabase)
+- [x] Improve text legibility: body text → text-[15px]/text-[16px], color → slate-600, added leading-relaxed
+- [ ] Push to GitHub

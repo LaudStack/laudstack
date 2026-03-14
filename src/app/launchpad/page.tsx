@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  *
  * Sections:
  *   1. Hero           — Clear value prop, dual CTAs, trust signals
- *   2. Logos/Trust     — Lightweight social proof strip
+ *   2. Trusted By     — Brand logo bar
  *   3. How It Works   — 3-step numbered process
  *   4. What You Get   — Feature comparison (Free vs Verified)
  *   5. Benefits       — 6 founder benefits in a 3×2 grid
@@ -19,19 +19,18 @@ export const dynamic = "force-dynamic";
  *   8. Final CTA      — Clean conversion block
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Rocket, Shield, BarChart3, MessageSquare, Crown, Zap,
-  Star, Users, Globe, CheckCircle2, ArrowRight, ChevronDown,
-  ChevronUp, BadgeCheck, TrendingUp, Eye, Award, Clock,
-  Building2, Search, Sparkles, Target, Megaphone,
-  HeartHandshake, Lock, Check, X, Minus
+  Rocket, Shield, BarChart3, MessageSquare, Crown,
+  Star, CheckCircle2, ArrowRight, ChevronDown,
+  ChevronUp, BadgeCheck, TrendingUp, Clock,
+  Building2, Target, Megaphone,
+  HeartHandshake, Lock, Check, Minus
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { getPlatformStats } from "@/app/actions/public";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -165,6 +164,17 @@ const FAQ_ITEMS = [
   },
 ];
 
+// ─── Trusted-by brand logos (text-based wordmarks for clean rendering) ───────
+
+const TRUSTED_BRANDS = [
+  "Notion",
+  "Linear",
+  "Vercel",
+  "Stripe",
+  "Figma",
+  "Supabase",
+];
+
 // ─── FAQ Item ─────────────────────────────────────────────────────────────────
 
 function FAQItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boolean; onToggle: () => void }) {
@@ -174,7 +184,7 @@ function FAQItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
         onClick={onToggle}
         className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
       >
-        <span className="text-[15px] font-semibold text-slate-900 leading-snug">{q}</span>
+        <span className="text-[15px] font-semibold text-slate-800 leading-snug">{q}</span>
         <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isOpen ? "bg-amber-100" : "bg-slate-100"}`}>
           {isOpen
             ? <ChevronUp className="w-4 h-4 text-amber-600" />
@@ -186,7 +196,7 @@ function FAQItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
         style={{ maxHeight: isOpen ? "200px" : "0px", opacity: isOpen ? 1 : 0 }}
       >
         <div className="px-6 pb-5">
-          <p className="text-sm text-slate-600 leading-relaxed">{a}</p>
+          <p className="text-[15px] text-slate-600 leading-relaxed">{a}</p>
         </div>
       </div>
     </div>
@@ -209,20 +219,6 @@ export default function LaunchPad() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [stats, setStats] = useState({ tools: "—", users: "—", rating: "—", reviews: "—" });
-
-  useEffect(() => {
-    getPlatformStats()
-      .then((s) => {
-        setStats({
-          tools: `${s.totalTools}+`,
-          users: `${s.totalUsers.toLocaleString()}+`,
-          rating: `${s.averageRating}`,
-          reviews: s.verifiedPct,
-        });
-      })
-      .catch(() => {});
-  }, []);
 
   const handleLaunch = () =>
     router.push(isAuthenticated ? "/launch" : "/auth/login?next=/launch");
@@ -252,7 +248,7 @@ export default function LaunchPad() {
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg text-slate-500 leading-relaxed mb-10 max-w-[560px] mx-auto">
+            <p className="text-[18px] text-slate-600 leading-relaxed mb-10 max-w-[560px] mx-auto">
               List your SaaS or AI tool on LaudStack. Reach professionals actively searching for solutions. Free to start, verified in 24 hours.
             </p>
 
@@ -285,7 +281,7 @@ export default function LaunchPad() {
               ].map((label) => (
                 <div key={label} className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  <span className="text-sm font-medium text-slate-500">{label}</span>
+                  <span className="text-[14px] font-medium text-slate-500">{label}</span>
                 </div>
               ))}
             </div>
@@ -294,27 +290,25 @@ export default function LaunchPad() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          2. SOCIAL PROOF STRIP
+          2. TRUSTED BY — Logo bar
       ═══════════════════════════════════════════════════════ */}
-      <section className="border-y border-slate-100 bg-slate-50/60">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10 py-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {[
-              { value: stats.tools, label: "Stacks listed", icon: Globe },
-              { value: stats.users, label: "Professionals", icon: Users },
-              { value: stats.rating, label: "Avg. rating", icon: Star },
-              { value: stats.reviews, label: "Verified reviews", icon: Shield },
-            ].map(({ value, label, icon: Icon }) => (
-              <div key={label} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                  <Icon className="w-4.5 h-4.5 text-slate-400" />
-                </div>
-                <div>
-                  <div className="text-xl font-black text-slate-900 leading-none mb-0.5">{value}</div>
-                  <div className="text-xs font-medium text-slate-400">{label}</div>
-                </div>
-              </div>
-            ))}
+      <section className="border-y border-slate-100 bg-slate-50/40">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10 py-7">
+          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap shrink-0">
+              Trusted by teams at
+            </span>
+            <div className="flex items-center gap-10 sm:gap-14 flex-wrap justify-center">
+              {TRUSTED_BRANDS.map((name) => (
+                <span
+                  key={name}
+                  className="text-[17px] font-bold text-slate-300 tracking-tight select-none"
+                  style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -327,10 +321,10 @@ export default function LaunchPad() {
           {/* Section header */}
           <div className="text-center mb-14">
             <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">How It Works</p>
-            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-3">
+            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-4">
               Three steps to launch
             </h2>
-            <p className="text-slate-500 text-base max-w-md mx-auto">
+            <p className="text-slate-600 text-[16px] leading-relaxed max-w-lg mx-auto">
               No gatekeeping. No lengthy approvals. Get your stack live and in front of buyers fast.
             </p>
           </div>
@@ -350,12 +344,12 @@ export default function LaunchPad() {
                   <step.icon className="w-5 h-5 text-slate-400" />
                 </div>
 
-                <h3 className="text-base font-bold text-slate-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed mb-4">{step.desc}</p>
+                <h3 className="text-[16px] font-bold text-slate-900 mb-2">{step.title}</h3>
+                <p className="text-[15px] text-slate-600 leading-relaxed mb-4">{step.desc}</p>
 
                 <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span className="text-xs font-semibold text-slate-500">{step.detail}</span>
+                  <span className="text-[13px] font-semibold text-slate-500">{step.detail}</span>
                 </div>
               </div>
             ))}
@@ -371,10 +365,10 @@ export default function LaunchPad() {
           {/* Section header */}
           <div className="text-center mb-12">
             <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">What You Get</p>
-            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-3">
+            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-4">
               Free listing vs. verified founder
             </h2>
-            <p className="text-slate-500 text-base max-w-md mx-auto">
+            <p className="text-slate-600 text-[16px] leading-relaxed max-w-lg mx-auto">
               Every stack starts free. Verify ownership to unlock the full founder toolkit.
             </p>
           </div>
@@ -404,7 +398,7 @@ export default function LaunchPad() {
                 className={`grid grid-cols-[1fr_100px_100px] sm:grid-cols-[1fr_120px_120px] ${idx < COMPARISON_FEATURES.length - 1 ? "border-b border-slate-100" : ""}`}
               >
                 <div className="px-6 py-3.5">
-                  <span className="text-sm text-slate-700">{feature}</span>
+                  <span className="text-[15px] text-slate-700">{feature}</span>
                 </div>
                 <div className="px-4 py-3.5 border-l border-slate-100 flex items-center justify-center">
                   <FeatureCell available={free} />
@@ -421,15 +415,15 @@ export default function LaunchPad() {
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Price</span>
               </div>
               <div className="px-4 py-4 text-center border-l border-slate-200">
-                <span className="text-sm font-black text-slate-900">Free</span>
+                <span className="text-[15px] font-black text-slate-900">Free</span>
               </div>
               <div className="px-4 py-4 text-center border-l border-slate-200 bg-amber-50">
-                <span className="text-sm font-black text-amber-700">Free</span>
+                <span className="text-[15px] font-black text-amber-700">Free</span>
               </div>
             </div>
           </div>
 
-          <p className="text-center text-xs text-slate-400 mt-4">
+          <p className="text-center text-[13px] text-slate-400 mt-5">
             Both tiers are completely free. Verification simply requires proving domain ownership.
           </p>
         </div>
@@ -443,10 +437,10 @@ export default function LaunchPad() {
           {/* Section header */}
           <div className="text-center mb-14">
             <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">Why LaudStack</p>
-            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-3">
+            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-4">
               Built for founders who ship
             </h2>
-            <p className="text-slate-500 text-base max-w-md mx-auto">
+            <p className="text-slate-600 text-[16px] leading-relaxed max-w-lg mx-auto">
               Everything you need to get discovered, build trust, and grow your user base.
             </p>
           </div>
@@ -461,8 +455,8 @@ export default function LaunchPad() {
                 <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center mb-4">
                   <Icon className="w-5 h-5 text-slate-500" />
                 </div>
-                <h3 className="text-[15px] font-bold text-slate-900 mb-1.5">{title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+                <h3 className="text-[16px] font-bold text-slate-900 mb-2">{title}</h3>
+                <p className="text-[15px] text-slate-600 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -477,10 +471,10 @@ export default function LaunchPad() {
           {/* Section header */}
           <div className="text-center mb-14">
             <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">Founder Stories</p>
-            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-3">
+            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-4">
               Founders who launched here
             </h2>
-            <p className="text-slate-500 text-base max-w-md mx-auto">
+            <p className="text-slate-600 text-[16px] leading-relaxed max-w-lg mx-auto">
               Real results from founders who used LaudStack to grow their stacks.
             </p>
           </div>
@@ -500,7 +494,7 @@ export default function LaunchPad() {
                 </div>
 
                 {/* Quote */}
-                <p className="text-sm text-slate-600 leading-relaxed flex-1 mb-5">
+                <p className="text-[15px] text-slate-600 leading-relaxed flex-1 mb-5">
                   &ldquo;{quote}&rdquo;
                 </p>
 
@@ -519,8 +513,8 @@ export default function LaunchPad() {
                     {initials}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-slate-900">{name}</div>
-                    <div className="text-xs text-slate-400">{role}</div>
+                    <div className="text-[14px] font-semibold text-slate-900">{name}</div>
+                    <div className="text-[13px] text-slate-400">{role}</div>
                   </div>
                   <BadgeCheck className="w-4 h-4 text-amber-400 ml-auto shrink-0" />
                 </div>
@@ -538,10 +532,10 @@ export default function LaunchPad() {
           {/* Section header */}
           <div className="text-center mb-12">
             <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">FAQ</p>
-            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-3">
+            <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-4">
               Common questions
             </h2>
-            <p className="text-slate-500 text-base">
+            <p className="text-slate-600 text-[16px] leading-relaxed">
               Everything founders ask before getting started.
             </p>
           </div>
@@ -560,7 +554,7 @@ export default function LaunchPad() {
           </div>
 
           <div className="text-center mt-8">
-            <p className="text-sm text-slate-400">
+            <p className="text-[15px] text-slate-500">
               Have another question?{" "}
               <a href="/contact" className="text-amber-600 font-semibold hover:underline">
                 Contact us
@@ -583,7 +577,7 @@ export default function LaunchPad() {
             <h2 className="text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight mb-4">
               Ready to launch your stack?
             </h2>
-            <p className="text-slate-500 text-base mb-8 max-w-md mx-auto">
+            <p className="text-slate-600 text-[16px] leading-relaxed mb-8 max-w-md mx-auto">
               Join the growing community of SaaS and AI tools on LaudStack. Free to start. Verified in 24 hours.
             </p>
 
@@ -613,7 +607,7 @@ export default function LaunchPad() {
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-2">
                   <Icon className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="text-sm text-slate-400 font-medium">{label}</span>
+                  <span className="text-[14px] text-slate-500 font-medium">{label}</span>
                 </div>
               ))}
             </div>
