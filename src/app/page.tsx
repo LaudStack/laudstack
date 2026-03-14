@@ -178,10 +178,11 @@ export default function Home() {
           1. HERO
       ══════════════════════════════════════════════════════ */}
       <section
-        className="relative px-4 sm:px-6 lg:px-10 py-10 sm:py-12 lg:py-16"
+        className="relative px-4 sm:px-6 lg:px-10 py-10 sm:py-12 lg:py-0"
         style={{
           background: '#F8FAFC',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          minHeight: 'min(100vh - 64px, 800px)',
           borderBottom: '1px solid #FFFFFF',
         }}
       >
