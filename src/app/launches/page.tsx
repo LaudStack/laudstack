@@ -10,8 +10,8 @@
  *  4. Full leaderboard table
  *  5. Bottom CTA
  *
- * Removed: Stats bar
- * Fixed: Page flash (loading skeleton), real upcoming data, real laud buttons
+ * All data is real — rankings use rank_score from DB, weekly_rank_change from
+ * the admin recalculate-rankings algorithm, and actual upvote_count.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -19,7 +19,7 @@ import Link from 'next/link';
 import {
   TrendingUp, TrendingDown, Minus, Trophy, Flame, Star, ArrowUpRight,
   ChevronRight, ChevronUp, Zap, Clock, Calendar, Medal, Crown, Award,
-  Rocket, Timer, CheckCircle2, Eye, Loader2, Shield, Bell
+  Rocket, Timer, CheckCircle2, Loader2, Shield, Bell
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
@@ -53,21 +53,9 @@ interface RankedTool {
   rank: number;
   tool: Tool;
   rank_change: number;
-  period_upvotes: number;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-
-const RANK_CHANGES: Record<Period, number[]> = {
-  today:    [0, 2, -1, 5, -2, 1, 0, 3, -1, 4, -3, 2, 1, -2, 0, 3, -1, 2, 4, -2, 1, 0, -1, 3, 2, -4, 1, 0, -2, 3],
-  week:     [2, -1, 0, 3, 1, -2, 0, -1, 4, -3, 1, 0, 2, -1, 3, 0, -2, 1, 4, -1, 2, -3, 0, 1, -1, 2, 3, -2, 0, 1],
-  month:    [5, -3, 2, 0, -1, 4, -2, 1, 3, -5, 2, 0, -1, 3, 1, -2, 4, 0, -3, 2, 1, -1, 3, -2, 0, 4, -1, 2, -3, 1],
-  all_time: [0, 0, 0, 1, -1, 0, 2, 0, -2, 1, 0, -1, 0, 1, 0, -1, 2, 0, -2, 1, 0, 0, 1, -1, 0, 2, -1, 0, 1, -2],
-};
-
-const PERIOD_MULTIPLIERS: Record<Period, number> = {
-  today: 0.03, week: 0.2, month: 0.7, all_time: 1,
-};
 
 const PERIOD_LABELS: Record<Period, { label: string; icon: React.ReactNode; description: string }> = {
   today:    { label: 'Today', icon: <Flame className="w-4 h-4" />, description: 'Hottest launches in the last 24 hours' },
@@ -75,13 +63,6 @@ const PERIOD_LABELS: Record<Period, { label: string; icon: React.ReactNode; desc
   month:    { label: 'This Month', icon: <Calendar className="w-4 h-4" />, description: 'Best stacks launched this month' },
   all_time: { label: 'All Time', icon: <Trophy className="w-4 h-4" />, description: 'The greatest stacks ever listed on LaudStack' },
 };
-
-function getMomentumScore(tool: Tool, multiplier: number): number {
-  const base = tool.rank_score * multiplier;
-  const weeklyBoost = (tool.weekly_rank_change ?? 0) * 0.8;
-  const reviewBoost = tool.review_count * 2.5 * multiplier;
-  return base + weeklyBoost + reviewBoost;
-}
 
 // ─── Countdown Hook (compact) ────────────────────────────────────────────────
 
@@ -278,8 +259,8 @@ function getRankIcon(rank: number) {
 
 function RankChange({ change }: { change: number }) {
   if (change === 0) return <span className="flex items-center text-slate-400 text-xs"><Minus className="w-3 h-3" /></span>;
-  if (change > 0) return <span className="flex items-center gap-0.5 text-green-500 text-xs font-semibold"><TrendingUp className="w-3 h-3" />{change}</span>;
-  return <span className="flex items-center gap-0.5 text-rose-500 text-xs font-semibold"><TrendingDown className="w-3 h-3" />{Math.abs(change)}</span>;
+  if (change > 0) return <span className="flex items-center gap-0.5 text-green-500 text-xs font-semibold"><TrendingUp className="w-3 h-3" />+{change}</span>;
+  return <span className="flex items-center gap-0.5 text-rose-500 text-xs font-semibold"><TrendingDown className="w-3 h-3" />{change}</span>;
 }
 
 // ─── Top 3 Card ──────────────────────────────────────────────────────────────
@@ -297,12 +278,11 @@ function TopThreeCard({
   onLaud: (toolId: number) => void;
   laudingId: number | null;
 }) {
-  const { tool, rank_change, period_upvotes } = entry;
+  const { tool, rank_change } = entry;
   const isFirst = position === 1;
   const isLauded = laudedIds.has(tool.id);
   const isLauding = laudingId === Number(tool.id);
 
-  const accent = { 1: 'amber', 2: 'slate', 3: 'amber' } as const;
   const borderCls = { 1: 'border-amber-300', 2: 'border-slate-300', 3: 'border-amber-400/40' };
   const rankCls = { 1: 'text-amber-500', 2: 'text-slate-500', 3: 'text-amber-700' };
 
@@ -350,8 +330,8 @@ function TopThreeCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-amber-600 font-semibold">
-            <TrendingUp className="w-3 h-3" />
-            {period_upvotes.toLocaleString()} lauds
+            <ChevronUp className="w-3 h-3" />
+            {tool.upvote_count.toLocaleString()} lauds
           </span>
           <span className="flex items-center gap-1 text-slate-500">
             <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
@@ -399,21 +379,21 @@ function LeaderboardRow({
   onLaud: (toolId: number) => void;
   laudingId: number | null;
 }) {
-  const { rank, tool, rank_change, period_upvotes } = entry;
+  const { rank, tool, rank_change } = entry;
   const isLauded = laudedIds.has(tool.id);
   const isLauding = laudingId === Number(tool.id);
 
   return (
-    <div className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0">
+    <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3.5 hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0">
       {/* Rank */}
-      <div className="w-8 flex-shrink-0 flex items-center justify-center">
+      <div className="w-7 sm:w-8 flex-shrink-0 flex items-center justify-center">
         {getRankIcon(rank) || (
           <span className="text-slate-500 font-bold text-sm">{rank}</span>
         )}
       </div>
 
       {/* Rank change */}
-      <div className="w-8 flex-shrink-0">
+      <div className="w-8 flex-shrink-0 hidden sm:block">
         <RankChange change={rank_change} />
       </div>
 
@@ -473,10 +453,10 @@ function LeaderboardRow({
         <span className="text-slate-700 text-xs font-semibold">{tool.average_rating.toFixed(1)}</span>
       </div>
 
-      {/* Period lauds */}
-      <div className="flex items-center gap-1 flex-shrink-0 w-16 justify-end">
+      {/* Total lauds */}
+      <div className="hidden sm:flex items-center gap-1 flex-shrink-0 w-16 justify-end">
         <TrendingUp className="w-3 h-3 text-amber-500" />
-        <span className="text-amber-600 font-semibold text-xs">{period_upvotes.toLocaleString()}</span>
+        <span className="text-amber-600 font-semibold text-xs">{tool.upvote_count.toLocaleString()}</span>
       </div>
 
       {/* Arrow */}
@@ -615,16 +595,47 @@ export default function Launches() {
     }
   }, []);
 
-  // Ranked tools with momentum scoring
+  // Ranked tools sorted by rank_score (real DB data)
+  // Period filtering: for "today" and "week", boost recently launched tools;
+  // for "all_time", use raw rank_score. weekly_rank_change comes from the DB.
   const rankedTools = useMemo((): RankedTool[] => {
-    const multiplier = PERIOD_MULTIPLIERS[period];
-    const changes = RANK_CHANGES[period];
-    const sorted = [...allTools].sort((a, b) => getMomentumScore(b, multiplier) - getMomentumScore(a, multiplier));
+    const now = Date.now();
+    const sorted = [...allTools].sort((a, b) => {
+      const scoreA = a.rank_score;
+      const scoreB = b.rank_score;
+
+      if (period === 'today') {
+        // Boost tools launched in the last 24h
+        const launchA = new Date(a.launched_at).getTime();
+        const launchB = new Date(b.launched_at).getTime();
+        const dayMs = 86400000;
+        const boostA = (now - launchA < dayMs) ? 100 : 0;
+        const boostB = (now - launchB < dayMs) ? 100 : 0;
+        return (scoreB + boostB) - (scoreA + boostA);
+      }
+      if (period === 'week') {
+        // Boost tools with positive weekly momentum
+        const momentumA = (a.weekly_rank_change ?? 0) * 5;
+        const momentumB = (b.weekly_rank_change ?? 0) * 5;
+        return (scoreB + momentumB) - (scoreA + momentumA);
+      }
+      if (period === 'month') {
+        // Boost tools launched in the last 30 days
+        const launchA = new Date(a.launched_at).getTime();
+        const launchB = new Date(b.launched_at).getTime();
+        const monthMs = 30 * 86400000;
+        const boostA = (now - launchA < monthMs) ? 50 : 0;
+        const boostB = (now - launchB < monthMs) ? 50 : 0;
+        return (scoreB + boostB) - (scoreA + boostA);
+      }
+      // all_time: pure rank_score
+      return scoreB - scoreA;
+    });
+
     return sorted.map((tool, i) => ({
       rank: i + 1,
       tool,
-      rank_change: changes[i % changes.length] ?? 0,
-      period_upvotes: Math.round(tool.upvote_count * multiplier * (0.8 + Math.random() * 0.4)),
+      rank_change: tool.weekly_rank_change ?? 0,
     }));
   }, [allTools, period]);
 
@@ -642,7 +653,7 @@ export default function Launches() {
       <PageHero
         eyebrow="LaudStack Leaderboard"
         title="Top SaaS & AI Stacks"
-        subtitle={`${periodInfo.description}. Rankings use momentum scoring — rewarding recent engagement over raw historical counts.`}
+        subtitle={`${periodInfo.description}. Rankings are based on community engagement — lauds, reviews, and weekly momentum.`}
         accent="amber"
         layout="default"
         size="md"
@@ -667,7 +678,7 @@ export default function Launches() {
           })}
           <div className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-400">
             <Clock className="w-3 h-3" />
-            Updated hourly
+            Live data
           </div>
         </div>
       </PageHero>
@@ -738,15 +749,15 @@ export default function Launches() {
         {/* ── Full Leaderboard ── */}
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
           {/* Table header */}
-          <div className="flex items-center gap-4 px-5 py-3 border-b border-slate-200 bg-slate-50/80">
-            <div className="w-8 flex-shrink-0 text-slate-500 text-[11px] font-semibold">#</div>
-            <div className="w-8 flex-shrink-0 text-slate-500 text-[11px] font-semibold">±</div>
+          <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 border-b border-slate-200 bg-slate-50/80">
+            <div className="w-7 sm:w-8 flex-shrink-0 text-slate-500 text-[11px] font-semibold">#</div>
+            <div className="w-8 flex-shrink-0 text-slate-500 text-[11px] font-semibold hidden sm:block">&plusmn;</div>
             <div className="w-10 flex-shrink-0" />
             <div className="w-10 flex-shrink-0" />
             <div className="flex-1 text-slate-500 text-[11px] font-semibold">Stack</div>
             <div className="hidden md:block text-slate-500 text-[11px] font-semibold">Category</div>
             <div className="hidden sm:block text-slate-500 text-[11px] font-semibold w-12 text-right">Rating</div>
-            <div className="text-slate-500 text-[11px] font-semibold w-16 text-right">Lauds</div>
+            <div className="hidden sm:block text-slate-500 text-[11px] font-semibold w-16 text-right">Lauds</div>
             <div className="w-4 flex-shrink-0" />
           </div>
 
@@ -771,7 +782,7 @@ export default function Launches() {
         <div className="mt-10 bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
           <h3 className="text-slate-900 font-bold text-xl mb-2">Is your stack missing from the leaderboard?</h3>
           <p className="text-slate-500 text-sm mb-5 max-w-lg mx-auto">
-            Launch your AI or SaaS product on LaudStack and start collecting reviews from real users. Schedule a launch date to build anticipation.
+            Launch your AI or SaaS stack on LaudStack and start collecting reviews from real users. Schedule a launch date to build anticipation.
           </p>
           <Link href="/launchpad">
             <button className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-bold px-6 py-3 rounded-xl transition-colors shadow-sm">
