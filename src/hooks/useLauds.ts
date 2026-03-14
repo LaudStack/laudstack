@@ -30,8 +30,8 @@ export function useLauds() {
           .then((ids) => {
             setLaudedIds(new Set(ids));
           })
-          .catch((err) => {
-            console.error("[useLauds] Failed to fetch lauded tools:", err);
+          .catch(() => {
+            // Silently fail — user will see un-lauded state
           })
           .finally(() => setLoading(false));
       }
@@ -129,8 +129,8 @@ export function useLauds() {
     try {
       const ids = await getUserLaudedToolIds();
       setLaudedIds(new Set(ids));
-    } catch (err) {
-      console.error("[useLauds] Refresh failed:", err);
+    } catch {
+      // Silently fail on refresh
     }
   }, [isAuthenticated]);
 

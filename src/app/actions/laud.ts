@@ -409,18 +409,27 @@ export async function getAdminSuspiciousLauds() {
       .having(sql`count(*) > 10`);
 
     // Find users with unusually high laud counts in last 24h
-    const suspiciousUsers = await db
+    const suspiciousUsersRaw = await db
       .select({
         userId: upvotes.userId,
         laudCount: count(),
         userName: users.name,
+        userFirstName: users.firstName,
+        userLastName: users.lastName,
         userEmail: users.email,
       })
       .from(upvotes)
       .leftJoin(users, eq(upvotes.userId, users.id))
       .where(gte(upvotes.createdAt, oneDayAgo))
-      .groupBy(upvotes.userId, users.name, users.email)
+      .groupBy(upvotes.userId, users.name, users.firstName, users.lastName, users.email)
       .having(sql`count(*) > 15`);
+
+    const suspiciousUsers = suspiciousUsersRaw.map(u => ({
+      userId: u.userId,
+      laudCount: u.laudCount,
+      userName: (u.userFirstName ? [u.userFirstName, u.userLastName].filter(Boolean).join(' ') : null) ?? u.userName ?? 'Unknown',
+      userEmail: u.userEmail,
+    }));
 
     // Find tools with sudden laud spikes (more than 20 lauds in 24h)
     const suspiciousTools = await db

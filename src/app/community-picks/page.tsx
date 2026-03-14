@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
  * Design: light, consistent with platform theme — amber accents, slate typography.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   ChevronUp, Users, Flame, Filter, Star, ExternalLink,
@@ -20,7 +20,10 @@ import {
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import AuthGateModal from '@/components/AuthGateModal';
 import { useToolsData } from '@/hooks/useToolsData';
+import { useAuth } from '@/hooks/useAuth';
+import { toggleLaud, getUserLaudedToolIds } from '@/app/actions/laud';
 import { CATEGORY_META } from '@/lib/categories';
 import type { Tool } from '@/lib/types';
 
@@ -47,11 +50,13 @@ function CommunityPickCard({
   rank,
   onVote,
   voted,
+  laudCountOffset = 0,
 }: {
   tool: Tool;
   rank: number;
   onVote: (id: string) => void;
   voted: boolean;
+  laudCountOffset?: number;
 }) {
   const router = useRouter();
   const isTop3 = rank <= 3;
@@ -173,7 +178,7 @@ function CommunityPickCard({
         </div>
       </div>
 
-      {/* Upvote */}
+      {/* Laud */}
       <button
         onClick={e => { e.stopPropagation(); onVote(tool.id); }}
         style={{
@@ -201,7 +206,7 @@ function CommunityPickCard({
       >
         <ChevronUp style={{ width: 16, height: 16, color: voted ? '#D97706' : '#64748B' }} />
         <span style={{ fontSize: 13, fontWeight: 800, color: voted ? '#D97706' : '#374151' }}>
-          {(tool.upvote_count + (voted ? 1 : 0)).toLocaleString()}
+          {(tool.upvote_count + laudCountOffset).toLocaleString()}
         </span>
       </button>
 
@@ -245,15 +250,50 @@ export default function CommunityPicks() {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('all_time');
   const [searchQuery, setSearchQuery] = useState('');
   const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
+  const [laudCounts, setLaudCounts] = useState<Record<string, number>>({});
   const [visibleCount, setVisibleCount] = useState(20);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { isAuthenticated } = useAuth();
 
-  const handleVote = (id: string) => {
-    if (votedIds.has(id)) {
-      toast.info('You already voted for this product.');
+  // Initialize voted state from DB
+  useEffect(() => {
+    if (!isAuthenticated) { setVotedIds(new Set()); return; }
+    getUserLaudedToolIds().then(ids => {
+      setVotedIds(new Set(ids.map(String)));
+    }).catch(() => {});
+  }, [isAuthenticated]);
+
+  const handleVote = async (id: string) => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
       return;
     }
+    if (votedIds.has(id)) {
+      // Un-laud
+      setVotedIds(prev => { const next = new Set(Array.from(prev)); next.delete(id); return next; });
+      setLaudCounts(prev => ({ ...prev, [id]: Math.max(0, (prev[id] ?? 0) - 1) }));
+      const result = await toggleLaud(parseInt(id, 10));
+      if (!result.success) {
+        setVotedIds(prev => { const next = new Set(Array.from(prev)); next.add(id); return next; });
+        setLaudCounts(prev => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+        toast.error(result.error || 'Failed to remove laud');
+      } else if (result.newCount !== undefined) {
+        setLaudCounts(prev => ({ ...prev, [id]: result.newCount! - (allTools.find(t => t.id === id)?.upvote_count ?? 0) }));
+      }
+      return;
+    }
+    // Laud
     setVotedIds(prev => { const next = new Set(Array.from(prev)); next.add(id); return next; });
-    toast.success('Vote recorded! Thanks for supporting the community.');
+    setLaudCounts(prev => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+    toast.success('Lauded! Thanks for supporting the community.');
+    const result = await toggleLaud(parseInt(id, 10));
+    if (!result.success) {
+      setVotedIds(prev => { const next = new Set(Array.from(prev)); next.delete(id); return next; });
+      setLaudCounts(prev => ({ ...prev, [id]: Math.max(0, (prev[id] ?? 0) - 1) }));
+      toast.error(result.error || 'Failed to laud');
+    } else if (result.newCount !== undefined) {
+      setLaudCounts(prev => ({ ...prev, [id]: result.newCount! - (allTools.find(t => t.id === id)?.upvote_count ?? 0) }));
+    }
   };
 
   const filteredTools = useMemo(() => {
@@ -285,6 +325,7 @@ export default function CommunityPicks() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+      <AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action="upvote" />
       <Navbar />
       <div style={{ height: 72, flexShrink: 0 }} />
 
@@ -419,6 +460,7 @@ export default function CommunityPicks() {
                   rank={i + 1}
                   onVote={handleVote}
                   voted={votedIds.has(tool.id)}
+                  laudCountOffset={laudCounts[tool.id] ?? 0}
                 />
               ))}
             </div>

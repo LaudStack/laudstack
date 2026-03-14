@@ -395,3 +395,19 @@
 - [x] Verify TypeScript + Next.js build pass with zero errors
 - [x] Test live site Laud flows via browser
 - [x] Push to GitHub (commit 391a5c1)
+
+## Laud Engine Hardening (March 14, 2026)
+- [x] Audit laud.ts backend for bugs, mock data, FIXMEs, TODOs, console.logs
+- [x] Audit public.ts/user.ts laud delegations for correctness
+- [x] Audit founder.ts laud references for correctness
+- [x] Audit ToolCard.tsx laud wiring (useUpvote hook, toggleLaud, optimistic UI)
+- [x] Audit tool detail page laud wiring — FIXED: upvoted state now initialized from DB, laudCount uses absolute value not offset
+- [x] Audit useLauds.ts hook — FIXED: removed console.error calls
+- [x] Audit founder dashboard Lauds tab for bugs and unwired UI
+- [x] Audit admin /admin/lauds page — FIXED: suspicious users query now includes firstName/lastName
+- [x] Audit homepage/tools/search/trending sort options for Most Lauded
+- [x] Audit ranking algorithm laud integration
+- [x] Audit schema (upvotes + laud_rate_limits) for correctness
+- [x] Fix all discovered issues (6 bugs fixed: tool detail upvoted init, laudCount math, community-picks wired to laud engine, console.errors removed, admin suspicious name display, AuthGateModal laud action)
+- [x] Verify TypeScript + Next.js build pass with zero errors
+- [x] Push hardened code to GitHub

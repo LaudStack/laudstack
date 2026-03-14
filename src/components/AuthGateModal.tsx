@@ -12,7 +12,7 @@ import Link from "next/link";
 interface Props {
   open: boolean;
   onClose: () => void;
-  action?: "upvote" | "review" | "save" | "claim" | "general";
+  action?: "upvote" | "laud" | "review" | "save" | "claim" | "general";
 }
 
 const ACTION_CONFIG: Record<
@@ -20,6 +20,12 @@ const ACTION_CONFIG: Record<
   { icon: typeof LogIn; title: string; description: string }
 > = {
   upvote: {
+    icon: ChevronUp,
+    title: "Sign in to Laud",
+    description:
+      "Join the LaudStack community to laud your favorite stacks and help others discover the best software.",
+  },
+  laud: {
     icon: ChevronUp,
     title: "Sign in to Laud",
     description:

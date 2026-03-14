@@ -23,7 +23,7 @@ import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
 import { editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
-import { toggleLaud } from '@/app/actions/laud';
+import { toggleLaud, getUserLaudedToolIds } from '@/app/actions/laud';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
@@ -225,7 +225,8 @@ export default function ToolDetail() {
 
   const [activeSection, setActiveSection] = useState('about');
   const [upvoted, setUpvoted] = useState(false);
-  const [upvoteCount, setUpvoteCount] = useState(0);
+  const [laudCount, setLaudCount] = useState(0);
+  const [laudCountInitialized, setLaudCountInitialized] = useState(false);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -373,21 +374,38 @@ export default function ToolDetail() {
     return { star, count };
   });
 
+  // Initialize laud count from tool data
+  useEffect(() => {
+    if (tool && !laudCountInitialized) {
+      setLaudCount(tool.upvote_count);
+      setLaudCountInitialized(true);
+    }
+  }, [tool, laudCountInitialized]);
+
+  // Initialize upvoted state from DB for authenticated users
+  useEffect(() => {
+    if (!isAuthenticated || !tool) return;
+    const toolId = parseInt(tool.id, 10);
+    getUserLaudedToolIds().then(ids => {
+      setUpvoted(ids.includes(toolId));
+    }).catch(() => {});
+  }, [isAuthenticated, tool?.id]);
+
   const handleUpvote = async () => {
     if (!isAuthenticated) { setAuthAction('upvote'); setShowAuthModal(true); return; }
     const toolId = parseInt(tool.id, 10);
     const wasUpvoted = upvoted;
     setUpvoted(!wasUpvoted);
-    setUpvoteCount(c => wasUpvoted ? c - 1 : c + 1);
+    setLaudCount(c => wasUpvoted ? Math.max(0, c - 1) : c + 1);
     if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
     const result = await toggleLaud(toolId);
     if (!result.success) {
       setUpvoted(wasUpvoted);
-      setUpvoteCount(c => wasUpvoted ? c + 1 : c - 1);
+      setLaudCount(c => wasUpvoted ? c + 1 : Math.max(0, c - 1));
       toast.error(result.error || 'Failed to laud');
     } else {
       if (result.newCount !== undefined) {
-        setUpvoteCount(result.newCount - tool.upvote_count);
+        setLaudCount(result.newCount);
       }
       invalidateToolsCache();
     }
@@ -636,7 +654,7 @@ export default function ToolDetail() {
                         </div>
                       ),
                     },
-                    { label: 'Lauds', value: <span className="text-sm font-extrabold text-slate-900">{(tool.upvote_count + upvoteCount).toLocaleString()}</span> },
+                    { label: 'Lauds', value: <span className="text-sm font-extrabold text-slate-900">{laudCount.toLocaleString()}</span> },
                     { label: 'Pricing', value: <span className="text-sm font-extrabold text-slate-900">{tool.pricing_model}</span> },
                     { label: 'Launched', value: <span className="text-sm font-extrabold text-slate-900">{new Date(tool.launched_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span> },
                     { label: 'Category', value: <span className="text-sm font-extrabold text-slate-900">{tool.category}</span> },
