@@ -2,9 +2,9 @@
 
 /*
  * LaudStack Footer — Product Hunt–style two-tier layout
- * Tier 1: Logo + social + newsletter + 4 menu columns (existing)
- * Tier 2: 5 additional menu columns in a grid (new)
- * Bottom bar: copyright + legal links + social icons
+ * Tier 1: Logo + social + newsletter + 4 menu columns
+ * Tier 2: 5 additional menu columns in a grid
+ * Bottom bar: copyright + legal links
  */
 
 import { useState } from "react";
@@ -62,41 +62,41 @@ const TOP_SECTIONS = [
   },
 ];
 
-/* ─── Bottom Section: 5 new menu columns ──────────────────────────────────── */
+/* ─── Bottom Section: 5 menu columns — balanced SaaS + AI ────────────────── */
 
 const BOTTOM_SECTIONS = [
   {
     heading: "Top Categories",
     links: [
-      { label: "AI Productivity", href: "/c/ai-productivity-tools" },
-      { label: "AI Writing", href: "/c/ai-writing-tools" },
-      { label: "AI Code", href: "/c/ai-code-tools" },
-      { label: "AI Image", href: "/c/ai-image-tools" },
+      { label: "Project Management", href: "/c/project-management-tools" },
+      { label: "CRM", href: "/c/crm-tools" },
       { label: "Marketing", href: "/c/marketing-tools" },
       { label: "Developer Tools", href: "/c/developer-tools-tools" },
+      { label: "AI Productivity", href: "/c/ai-productivity-tools" },
+      { label: "Design", href: "/c/design-tools" },
       { label: "See All Categories", href: "/categories" },
     ],
   },
   {
-    heading: "Best Tools",
+    heading: "Best Stacks",
     links: [
-      { label: "Best AI for Marketing", href: "/best/ai-tools-for-marketing" },
-      { label: "Best AI for Writing", href: "/best/ai-tools-for-writing" },
-      { label: "Best AI for Coding", href: "/best/ai-tools-for-coding" },
-      { label: "Best AI for Design", href: "/best/ai-tools-for-design" },
       { label: "Best for Startups", href: "/best/saas-tools-for-startups" },
       { label: "Best CRM Tools", href: "/best/crm-tools" },
+      { label: "Best for Marketing", href: "/best/ai-tools-for-marketing" },
+      { label: "Best for Remote Teams", href: "/best/saas-tools-for-remote-teams" },
+      { label: "Best for Developers", href: "/best/developer-tools" },
+      { label: "Best for E-commerce", href: "/best/ecommerce-tools" },
       { label: "See All Collections", href: "/best" },
     ],
   },
   {
-    heading: "Comparisons",
+    heading: "Compare & Explore",
     links: [
       { label: "Popular Comparisons", href: "/comparisons" },
       { label: "Alternatives Finder", href: "/alternatives" },
-      { label: "Trending AI Tools", href: "/trending-ai-tools" },
-      { label: "Top Rated AI Tools", href: "/top-rated-ai-tools" },
-      { label: "New AI Tools", href: "/new-ai-tools" },
+      { label: "Rising SaaS & AI Tools", href: "/trending-ai-tools" },
+      { label: "Top Rated Stacks", href: "/top-rated-ai-tools" },
+      { label: "New Launches", href: "/new-ai-tools" },
       { label: "Most Popular SaaS", href: "/most-popular-saas-tools" },
     ],
   },
@@ -104,22 +104,22 @@ const BOTTOM_SECTIONS = [
     heading: "Launches",
     links: [
       { label: "Today's Launches", href: "/launches" },
-      { label: "Upcoming Launches", href: "/upcoming-launches" },
       { label: "Recently Launched", href: "/recently-launched" },
-      { label: "Launch Archive", href: "/launch-archive" },
+      { label: "Upcoming Launches", href: "/upcoming-launches" },
       { label: "Spotlight Picks", href: "/editors-picks" },
       { label: "Recently Added", href: "/recently-added" },
+      { label: "Launch Archive", href: "/launch-archive" },
     ],
   },
   {
-    heading: "More",
+    heading: "Community",
     links: [
       { label: "Reviews", href: "/reviews" },
       { label: "Newsletter", href: "/newsletter" },
-      { label: "Sitemap", href: "/sitemap" },
-      { label: "RSS Feed", href: "/rss" },
-      { label: "Press", href: "/press" },
+      { label: "Discussions", href: "/discussions" },
       { label: "Events", href: "/events" },
+      { label: "RSS Feed", href: "/rss" },
+      { label: "Sitemap", href: "/sitemap" },
     ],
   },
 ];
@@ -137,15 +137,15 @@ const SOCIAL_LINKS = [
 function LinkColumn({ heading, links }: { heading: string; links: { label: string; href: string }[] }) {
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-[11px] font-bold text-slate-200 uppercase tracking-widest">
+      <h4 className="text-[11px] font-bold text-slate-300 uppercase tracking-widest mb-1">
         {heading}
       </h4>
-      <ul className="list-none m-0 p-0 flex flex-col gap-2">
+      <ul className="list-none m-0 p-0 flex flex-col gap-[10px]">
         {links.map(({ label, href }) => (
           <li key={label}>
             <Link
               href={href}
-              className="text-[13px] text-slate-500 no-underline font-medium hover:text-slate-300 transition-colors"
+              className="text-[13px] text-slate-500 no-underline font-medium hover:text-slate-300 transition-colors leading-tight"
             >
               {label}
             </Link>
@@ -193,11 +193,11 @@ export default function Footer() {
       {/* ═══════════════════════════════════════════════════════
           TIER 1 — Logo + Social + Newsletter + 4 Menu Columns
       ═══════════════════════════════════════════════════════ */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-10 lg:gap-8">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
 
-          {/* Brand + Newsletter column */}
-          <div className="lg:col-span-2 flex flex-col gap-5">
+          {/* Brand + Newsletter column — spans 3 of 12 */}
+          <div className="lg:col-span-3 flex flex-col gap-5">
             <Link href="/">
               <img
                 src="/logo-dark-transparent.png"
@@ -226,7 +226,7 @@ export default function Footer() {
                     href={href}
                     aria-label={label}
                     {...extraProps}
-                    className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-700 hover:border-amber-500/40 hover:text-amber-500 transition-all"
+                    className="w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-500 hover:bg-slate-700 hover:border-amber-500/40 hover:text-amber-500 transition-all"
                   >
                     <Icon className="w-[15px] h-[15px]" />
                   </Comp>
@@ -235,13 +235,13 @@ export default function Footer() {
             </div>
 
             {/* Newsletter */}
-            <div className="p-4 bg-slate-800 border border-slate-700 rounded-xl">
+            <div className="p-4 bg-slate-800/60 border border-slate-700/50 rounded-xl">
               <div className="flex items-center gap-1.5 mb-2">
                 <Zap className="w-3.5 h-3.5 text-amber-500" />
-                <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Weekly Tool Digest</span>
+                <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Weekly Digest</span>
               </div>
               <p className="text-xs text-slate-500 mb-3 leading-snug">
-                Top products, trending picks, and founder stories — every Monday.
+                Top stacks, rising picks, and founder stories — every Monday.
               </p>
               {subscribed ? (
                 <div className="flex items-center gap-1.5 text-[13px] font-bold text-green-400">
@@ -271,8 +271,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 4 Link columns */}
-          <div className="lg:col-span-4 grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-6">
+          {/* 4 Link columns — spans 9 of 12, evenly distributed */}
+          <div className="lg:col-span-9 grid grid-cols-2 sm:grid-cols-4 gap-8 lg:gap-10 lg:pl-4">
             {TOP_SECTIONS.map((section) => (
               <LinkColumn key={section.heading} heading={section.heading} links={section.links} />
             ))}
@@ -281,11 +281,11 @@ export default function Footer() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-          TIER 2 — 5 Additional Menu Columns (new grid section)
+          TIER 2 — 5 Additional Menu Columns
       ═══════════════════════════════════════════════════════ */}
-      <div className="border-t border-slate-800">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-6">
+      <div className="border-t border-slate-800/80">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-9">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10">
             {BOTTOM_SECTIONS.map((section) => (
               <LinkColumn key={section.heading} heading={section.heading} links={section.links} />
             ))}
@@ -294,15 +294,15 @@ export default function Footer() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-          BOTTOM BAR — Copyright + Legal + Social
+          BOTTOM BAR — Copyright + Legal
       ═══════════════════════════════════════════════════════ */}
-      <div className="border-t border-slate-800">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4">
+      <div className="border-t border-slate-800/80">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-slate-600 m-0">
               &copy; {new Date().getFullYear()} LaudStack. All rights reserved.
             </p>
-            <div className="flex gap-4 sm:gap-5 flex-wrap justify-center">
+            <div className="flex gap-5 flex-wrap justify-center">
               {[
                 { label: "Privacy", href: "/privacy" },
                 { label: "Terms", href: "/terms" },

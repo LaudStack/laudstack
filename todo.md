@@ -528,6 +528,11 @@
 - [x] Build, test, and push to GitHub
 
 ## Navbar Search Bar Visibility (March 14, 2026)
-- [ ] Make desktop search pill lighter/more visible against dark header
-- [ ] Make mobile search bar lighter/more visible against dark header
+- [x] Make desktop search pill lighter/more visible against dark header
+- [x] Make mobile search bar lighter/more visible against dark header
+- [x] Push to GitHub
+
+## Footer Alignment & Menu Rebalance (March 14, 2026)
+- [ ] Fix alignment issues in footer layout (consistent spacing, column alignment)
+- [ ] Rebalance bottom section menu items — represent SaaS + AI launching platform, not just AI directory
 - [ ] Push to GitHub
