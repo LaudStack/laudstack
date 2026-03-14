@@ -329,3 +329,13 @@
 - [x] Tool detail: Fix rating breakdown to compute from actual review data instead of synthetic formula
 - [x] Tool detail: Add empty state for tools with no reviews ("No reviews yet" + CTA)
 - [x] Push P0 fixes to GitHub and verify Vercel deployment
+
+## Database Migration & Schema Sync (March 14, 2026)
+- [x] Run migration to add features/pricing_tiers JSONB columns to tools table
+- [x] Run migration to add notes/verify_method/proof_url to tool_claims table
+- [x] Run migration to add founder_reply/founder_reply_at to reviews table
+- [x] Run migration to add onboarding fields to users table
+- [x] Run migration to add max_claims/created_by to deals table
+- [x] Create moderation_logs, outbound_clicks, tool_screenshots, tool_views tables
+- [x] Add all foreign key constraints
+- [x] Verify 44 stacks display correctly on live site (www.laudstack.com)
