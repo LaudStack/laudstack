@@ -703,5 +703,18 @@
 ## Countdown Pill + Notify Me Button Polish (March 14, 2026)
 - [x] /launches: Move countdown from tiny top bar to prominent centered pill inside card body (dark pill, amber accents, font-mono)
 - [x] /upcoming-launches: Make Notify Me button more visible and colored (amber bg, white text, shadow, hover)
+- [x] Build verification (zero errors)
+- [x] Push to GitHub (commit fa16dbd)
+
+## LaunchPad Production Audit (March 14, 2026)
+- [ ] Full code audit: read every line, catalog all issues
+- [ ] Remove all mock/placeholder/hardcoded data
+- [ ] Remove all TODO/FIXME/debug code
+- [ ] Verify all backend wiring (form submission, pricing, auth)
+- [ ] Fix flashes and unstable loading behavior
+- [ ] Fix all UI inconsistencies and minor polish
+- [ ] Ensure full mobile responsiveness
+- [ ] Activate all components and interactions (or remove if decorative-only)
+- [ ] Eliminate potential console errors
 - [ ] Build verification
 - [ ] Push to GitHub

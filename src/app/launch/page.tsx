@@ -1,29 +1,28 @@
 "use client";
-export const dynamic = "force-dynamic";
 /*
- * Tool Launch Flow — LaudStack
+ * Stack Launch Flow — LaudStack
  *
- * Multi-step flow for founders to launch a new tool listing.
+ * Multi-step flow for founders to launch a new Stack listing.
  * Auth-gated: users must be signed in before reaching this page.
  * Steps:
- *   1. Tool Info      (name, tagline, website, description, logo, launch date)
+ *   1. Stack Info     (name, tagline, website, description, logo, launch date)
  *   2. Category       (category, tags)
  *   3. Pricing        (pricing model, plans)
  *   4. Media          (screenshots, demo video)
  *   5. Verification   (ownership proof: DNS, meta tag, or email domain)
- *   6. Review Review Review & Submit Launch Launch
+ *   6. Review & Submit
  *
  * Design: Clean white, professional, G2-inspired, amber accent
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Rocket, Globe, Tag, DollarSign, Image as ImageIcon, Eye,
   Shield, CheckCircle2, ArrowRight, ArrowLeft, Plus, Trash2,
-  X, AlertCircle, Clock, BadgeCheck, Lock, ChevronRight,
-  Loader2, Star, Users, BarChart3
+  X, BadgeCheck, Lock,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -55,7 +54,7 @@ const POPULAR_TAGS = [
 ];
 
 const STEPS = [
-  { id: 1, label: "Tool Info",     icon: Globe },
+  { id: 1, label: "Stack Info",    icon: Globe },
   { id: 2, label: "Category",      icon: Tag },
   { id: 3, label: "Pricing",       icon: DollarSign },
   { id: 4, label: "Media",         icon: ImageIcon },
@@ -91,10 +90,10 @@ const VERIFY_METHODS = [
   {
     id: "email",
     label: "Email Domain Match",
-    desc: "Verify using an email address at your tool's domain. Quickest method.",
+    desc: "Verify using an email address at your Stack's domain. Quickest method.",
     icon: BadgeCheck,
     instructions: [
-      "Provide an email address at your tool's domain (e.g. you@yourtool.com)",
+      "Provide an email address at your Stack's domain (e.g. you@yourtool.com)",
       "We'll send a verification code to that address",
       "Enter the code below to confirm ownership",
     ],
@@ -152,7 +151,7 @@ function Required() {
   return <span className="text-red-400 ml-0.5">*</span>;
 }
 
-// ─── Step 1: Tool Info ────────────────────────────────────────────────────────
+// ─── Step 1: Stack Info ─────────────────────────────────────────────────────
 
 function StepToolInfo({ form, setForm }: { form: FormData; setForm: (f: FormData) => void }) {
   const f = (key: keyof FormData, val: string) => setForm({ ...form, [key]: val });
@@ -160,7 +159,7 @@ function StepToolInfo({ form, setForm }: { form: FormData; setForm: (f: FormData
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="md:col-span-2">
-          <label className={labelBase}>Tool Name <Required /></label>
+          <label className={labelBase}>Stack Name <Required /></label>
           <input value={form.name} onChange={e => f("name", e.target.value)}
             placeholder="e.g. Notion, Linear, Cursor" className={inputBase} />
         </div>
@@ -184,7 +183,7 @@ function StepToolInfo({ form, setForm }: { form: FormData; setForm: (f: FormData
       <div>
         <label className={labelBase}>Description <Required /></label>
         <textarea value={form.description} onChange={e => f("description", e.target.value)}
-          placeholder="Describe your tool in detail — key features, use cases, who it's for, and what makes it different from alternatives."
+          placeholder="Describe your Stack in detail — key features, use cases, who it's for, and what makes it different from alternatives."
           rows={5} className={`${inputBase} resize-y min-h-[120px] leading-relaxed`} />
         <div className="text-xs text-slate-400 mt-1">
           {form.description.length} chars {form.description.length < 100 ? `(${100 - form.description.length} more recommended)` : "✓"}
@@ -371,7 +370,6 @@ function StepMedia({ form, setForm }: { form: FormData; setForm: (f: FormData) =
           placeholder="https://youtube.com/watch?v=... or https://loom.com/share/..." className={inputBase} />
         <div className="text-xs text-slate-400 mt-1">YouTube, Loom, or Vimeo links are supported</div>
       </div>
-      {/* Preview */}
       {form.screenshots.filter(Boolean).length > 0 && (
         <div>
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Preview</div>
@@ -391,23 +389,25 @@ function StepMedia({ form, setForm }: { form: FormData; setForm: (f: FormData) =
 // ─── Step 5: Verification ─────────────────────────────────────────────────────
 
 function StepVerification({ form, setForm }: { form: FormData; setForm: (f: FormData) => void }) {
-  const verificationCode = "LS-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+  // Stable verification code — generated once per mount, not on every render
+  const verificationCode = useMemo(
+    () => "LS-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+    []
+  );
   const selectedMethod = VERIFY_METHODS.find(m => m.id === form.verifyMethod) || VERIFY_METHODS[0];
 
   return (
     <div className="flex flex-col gap-7">
-      {/* Intro */}
       <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
         <Shield className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
         <div>
           <div className="text-sm font-bold text-blue-800 mb-1">Why we verify ownership</div>
           <p className="text-xs text-blue-600 leading-relaxed">
-            LaudStack only allows real tool owners to manage listings. Verification ensures no one can impersonate your brand or claim your tool without proof of ownership. This protects you and builds trust with buyers.
+            LaudStack only allows real owners to manage listings. Verification ensures no one can impersonate your brand or claim your Stack without proof of ownership. This protects you and builds trust with the community.
           </p>
         </div>
       </div>
 
-      {/* Method selection */}
       <div>
         <label className={labelBase}>Choose Verification Method <Required /></label>
         <div className="flex flex-col gap-3 mt-2">
@@ -438,7 +438,6 @@ function StepVerification({ form, setForm }: { form: FormData; setForm: (f: Form
         </div>
       </div>
 
-      {/* Instructions */}
       <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl">
         <div className="text-sm font-bold text-slate-700 mb-3">Instructions: {selectedMethod.label}</div>
         <ol className="flex flex-col gap-2">
@@ -469,7 +468,6 @@ function StepVerification({ form, setForm }: { form: FormData; setForm: (f: Form
         )}
       </div>
 
-      {/* Founder info */}
       <div>
         <div className="text-sm font-bold text-slate-700 mb-3">Your Founder Profile</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -500,11 +498,11 @@ function StepVerification({ form, setForm }: { form: FormData; setForm: (f: Form
   );
 }
 
-// ─── Step 6: Review Review Review & Submit Launch Launch ──────────────────────────────────────────────────
+// ─── Step 6: Review & Submit ────────────────────────────────────────────────
 
 function StepReview({ form, setForm }: { form: FormData; setForm: (f: FormData) => void }) {
   const sections = [
-    { label: "Tool Info", items: [
+    { label: "Stack Info", items: [
       { key: "Name", val: form.name },
       { key: "Tagline", val: form.tagline },
       { key: "Website", val: form.website },
@@ -530,7 +528,7 @@ function StepReview({ form, setForm }: { form: FormData; setForm: (f: FormData) 
         <div>
           <div className="text-sm font-bold text-green-800 mb-0.5">Almost there!</div>
           <p className="text-xs text-green-600 leading-relaxed">
-            Review your submission below. Our team will verify your ownership and review your listing within 24 hours. You'll receive an email confirmation once approved.
+            Review your submission below. Our team will review your listing and verify ownership within 24&ndash;48 hours. You&apos;ll receive an email once your Stack is approved.
           </p>
         </div>
       </div>
@@ -551,7 +549,6 @@ function StepReview({ form, setForm }: { form: FormData; setForm: (f: FormData) 
         </div>
       ))}
 
-      {/* Terms */}
       <div className="flex items-start gap-3">
         <button type="button" onClick={() => setForm({ ...form, agreedToTerms: !form.agreedToTerms })}
           className={`w-5 h-5 rounded border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${
@@ -560,7 +557,7 @@ function StepReview({ form, setForm }: { form: FormData; setForm: (f: FormData) 
           {form.agreedToTerms && <CheckCircle2 className="w-3 h-3 text-white" />}
         </button>
         <p className="text-sm text-slate-600 leading-relaxed">
-          I confirm that I am the owner or authorized representative of this product, and I agree to LaudStack's{" "}
+          I confirm that I am the owner or authorized representative of this product, and I agree to LaudStack&apos;s{" "}
           <Link href="/terms" className="text-amber-600 hover:text-amber-700 font-semibold">Terms of Service</Link>{" "}
           and{" "}
           <Link href="/privacy" className="text-amber-600 hover:text-amber-700 font-semibold">Privacy Policy</Link>.
@@ -581,13 +578,13 @@ function SubmissionSuccess({ form }: { form: FormData }) {
       </div>
       <h2 className="text-2xl font-black text-slate-900 mb-3">Submission Received!</h2>
       <p className="text-slate-500 text-base leading-relaxed max-w-md mx-auto mb-6">
-        <strong className="text-slate-700">{form.name}</strong> has been sent for review. Our team will verify your ownership and approve your listing within <strong className="text-slate-700">24 hours</strong>.
+        <strong className="text-slate-700">{form.name}</strong> has been submitted for review. Our team will verify your ownership and approve your listing within <strong className="text-slate-700">24&ndash;48 hours</strong>.
       </p>
       <div className="flex flex-col gap-3 max-w-xs mx-auto mb-8">
         {[
-          "Verification email sent to your address",
-          "Listing under review by our team",
-          "Founder Dashboard unlocks on approval",
+          "Submission saved — our team has been notified",
+          "Ownership verification in progress",
+          "You'll receive an email once approved",
         ].map(item => (
           <div key={item} className="flex items-center gap-2.5 text-sm text-slate-600">
             <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -596,14 +593,14 @@ function SubmissionSuccess({ form }: { form: FormData }) {
         ))}
       </div>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <button onClick={() => router.push("/dashboard")}
+        <button onClick={() => router.push("/")}
           className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
-          Go to My Dashboard
+          Back to Home
           <ArrowRight className="w-4 h-4" />
         </button>
-        <button onClick={() => router.push("/")}
+        <button onClick={() => router.push("/launches")}
           className="flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold px-6 py-3 rounded-xl transition-colors text-sm border border-slate-200">
-          Back to Home
+          Browse Launches
         </button>
       </div>
     </div>
@@ -628,9 +625,9 @@ export default function LaunchPage() {
       const name = (dbUser?.firstName ? [dbUser.firstName, dbUser.lastName].filter(Boolean).join(' ') : null) || dbUser?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || "";
       if (name) setForm(f => ({ ...f, founderName: name }));
     }
-  }, [user, dbUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, dbUser, form.founderName]);
 
-  // Auth gate
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -649,7 +646,7 @@ export default function LaunchPage() {
             <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-5">
               <Lock className="w-7 h-7 text-amber-500" />
             </div>
-            <h2 className="text-2xl font-black text-slate-900 mb-3">Sign in to Launch Your Tool</h2>
+            <h2 className="text-2xl font-black text-slate-900 mb-3">Sign in to Launch Your Stack</h2>
             <p className="text-slate-500 text-base leading-relaxed mb-6">
               You need a LaudStack account to launch a product. It&apos;s free and takes under 2 minutes.
             </p>
@@ -673,7 +670,7 @@ export default function LaunchPage() {
 
   const validateStep = () => {
     if (currentStep === 1) {
-      if (!form.name.trim()) { toast.error("Tool name is required"); return false; }
+      if (!form.name.trim()) { toast.error("Stack name is required"); return false; }
       if (!form.tagline.trim()) { toast.error("Tagline is required"); return false; }
       if (!form.website.trim()) { toast.error("Website URL is required"); return false; }
       if (!form.description.trim() || form.description.length < 50) { toast.error("Description must be at least 50 characters"); return false; }
@@ -710,12 +707,11 @@ export default function LaunchPage() {
       const result = await submitTool(form as ToolFormData);
       if (result.success) {
         setSubmitted(true);
-        toast.success("Tool launched for review! We'll notify you within 24 hours.");
+        toast.success("Submission received! We'll review your Stack within 24–48 hours.");
       } else {
         toast.error(result.error || "Submission failed. Please try again.");
       }
-    } catch (err) {
-      console.error("[handleSubmit]", err);
+    } catch {
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setSubmitting(false);
@@ -735,18 +731,17 @@ export default function LaunchPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
 
-            {/* ── Sidebar: Step Navigator ── */}
+            {/* Sidebar: Step Navigator */}
             <div className="lg:sticky lg:top-24 lg:self-start">
               <div className="mb-6">
                 <Link href="/launchpad" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Back to LaunchPad
                 </Link>
-                <h1 className="text-xl font-black text-slate-900 mb-1">Launch Your Tool</h1>
-                <p className="text-sm text-slate-500">Complete all steps to launch your listing</p>
+                <h1 className="text-xl font-black text-slate-900 mb-1">Launch Your Stack</h1>
+                <p className="text-sm text-slate-500">Complete all steps to submit your listing</p>
               </div>
 
-              {/* Progress bar */}
               <div className="h-1.5 bg-slate-100 rounded-full mb-6 overflow-hidden">
                 <div
                   className="h-full bg-amber-400 rounded-full transition-all duration-500"
@@ -754,7 +749,6 @@ export default function LaunchPage() {
                 />
               </div>
 
-              {/* Steps list */}
               <div className="flex flex-col gap-1">
                 {STEPS.map(step => {
                   const isCompleted = step.id < currentStep;
@@ -781,7 +775,6 @@ export default function LaunchPage() {
                 })}
               </div>
 
-              {/* Trust note */}
               <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="w-4 h-4 text-slate-400" />
@@ -793,9 +786,8 @@ export default function LaunchPage() {
               </div>
             </div>
 
-            {/* ── Main: Step Content ── */}
+            {/* Main: Step Content */}
             <div>
-              {/* Step header */}
               <div className="mb-8 pb-6 border-b border-slate-100">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center">
@@ -811,7 +803,6 @@ export default function LaunchPage() {
                 </div>
               </div>
 
-              {/* Step content */}
               <div className="mb-8">
                 {currentStep === 1 && <StepToolInfo form={form} setForm={setForm} />}
                 {currentStep === 2 && <StepCategory form={form} setForm={setForm} />}
@@ -821,7 +812,6 @@ export default function LaunchPage() {
                 {currentStep === 6 && <StepReview form={form} setForm={setForm} />}
               </div>
 
-              {/* Navigation */}
               <div className="flex items-center justify-between pt-6 border-t border-slate-100">
                 <button
                   type="button"
@@ -856,12 +846,12 @@ export default function LaunchPage() {
                     {submitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Launching...
+                        Submitting...
                       </>
                     ) : (
                       <>
                         <Rocket className="w-4 h-4" />
-                        Launch for Review
+                        Submit for Review
                       </>
                     )}
                   </button>

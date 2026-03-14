@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 
 // LaudStack — Claim Your Stack Page
 // Design: Dark editorial, amber accents, trust-forward verification flow
@@ -11,7 +9,7 @@ import Link from 'next/link';
 import {
   Shield, CheckCircle, Building2, Mail, Globe, FileText,
   ArrowRight, Zap, Star, BarChart3, MessageSquare, Crown,
-  Upload, AlertCircle, Clock, Lock, Loader2
+  AlertCircle, Clock, Lock, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
@@ -108,7 +106,7 @@ export default function ClaimTool() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <Navbar />
       <AuthGateModal open={showAuthGate} onClose={() => setShowAuthGate(false)} action="claim" />
       <div className="flex-1">
