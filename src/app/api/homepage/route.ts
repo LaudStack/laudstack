@@ -11,17 +11,18 @@ export async function GET() {
       totalReviewCount,
       totalUserCount,
     ] = await Promise.all([
-      db.select().from(tools).where(eq(tools.status, "approved")).orderBy(desc(tools.rankScore)),
+      db.select().from(tools)
+        .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+        .orderBy(desc(tools.rankScore)),
       db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
       db.select({ count: count() }).from(users),
     ]);
 
     const frontendTools = dbToolsToFrontend(allApprovedTools);
 
-    // Build leaderboard from top tools by average rating
+    // Build leaderboard: already ordered by rankScore from DB — take top 10 with reviews
     const leaderboard = allApprovedTools
       .filter(t => t.reviewCount > 0)
-      .sort((a, b) => b.averageRating - a.averageRating || b.reviewCount - a.reviewCount)
       .slice(0, 10)
       .map((t, i) => dbToolToLeaderboard(t, i + 1));
 

@@ -3,6 +3,7 @@
 import { db } from "@/server/db";
 import { tools, reviews, users, upvotes, savedTools, deals, reviewRateLimits } from "@/drizzle/schema";
 import { eq, desc, asc, and, or, ilike, sql, count, avg, ne, gte } from "drizzle-orm";
+import { recalcAndPersistToolScore } from "@/lib/ranking";
 import { createClient } from "@/lib/supabase/server";
 import { getUserBySupabaseId } from "@/server/db";
 import { headers } from "next/headers";
@@ -20,22 +21,22 @@ export async function getHomepageData() {
     totalUserCount,
   ] = await Promise.all([
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isFeatured, true)))
+      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), eq(tools.isFeatured, true)))
       .orderBy(desc(tools.rankScore))
       .limit(6),
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), sql`${tools.weeklyRankChange} > 0`))
+      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), sql`${tools.weeklyRankChange} > 0`))
       .orderBy(desc(tools.weeklyRankChange))
       .limit(4),
     db.select().from(tools)
-      .where(eq(tools.status, "approved"))
+      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
       .orderBy(desc(tools.launchedAt))
       .limit(4),
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), sql`${tools.reviewCount} > 0`))
+      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), sql`${tools.reviewCount} > 0`))
       .orderBy(desc(tools.averageRating))
       .limit(5),
-    db.select({ count: count() }).from(tools).where(eq(tools.status, "approved")),
+    db.select({ count: count() }).from(tools).where(and(eq(tools.status, "approved"), eq(tools.isVisible, true))),
     db.select({ count: count() }).from(reviews),
     db.select({ count: count() }).from(users),
   ]);
@@ -63,7 +64,7 @@ export async function getToolsListing(opts: {
   const { category, pricingModel, sort = "rank_score", page = 1, limit = 20 } = opts;
   const offset = (page - 1) * limit;
 
-  const conditions = [eq(tools.status, "approved")];
+  const conditions = [eq(tools.status, "approved"), eq(tools.isVisible, true)];
   if (category && category !== "All") conditions.push(eq(tools.category, category));
   if (pricingModel && pricingModel !== "All") {
     conditions.push(eq(tools.pricingModel, pricingModel as "Free" | "Freemium" | "Paid" | "Free Trial" | "Open Source"));
@@ -171,6 +172,7 @@ export async function searchToolsAction(query: string, opts: {
 
   const conditions = [
     eq(tools.status, "approved"),
+    eq(tools.isVisible, true),
     or(
       ilike(tools.name, `%${query}%`),
       ilike(tools.tagline, `%${query}%`),
@@ -192,8 +194,13 @@ export async function searchToolsAction(query: string, opts: {
 // ─── Trending ────────────────────────────────────────────────────────────────
 
 export async function getTrendingToolsAction(limit = 20) {
+  // Only return tools with positive weekly rank change (actually trending up)
   return db.select().from(tools)
-    .where(eq(tools.status, "approved"))
+    .where(and(
+      eq(tools.status, "approved"),
+      eq(tools.isVisible, true),
+      sql`${tools.weeklyRankChange} > 0`,
+    ))
     .orderBy(desc(tools.weeklyRankChange))
     .limit(limit);
 }
@@ -214,9 +221,14 @@ export async function getCategoriesWithCounts() {
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 
 export async function getLeaderboard(limit = 10) {
+  // Sort by rankScore for the leaderboard — it combines rating, reviews, and engagement
   return db.select().from(tools)
-    .where(and(eq(tools.status, "approved"), sql`${tools.reviewCount} > 0`))
-    .orderBy(desc(tools.averageRating), desc(tools.reviewCount))
+    .where(and(
+      eq(tools.status, "approved"),
+      eq(tools.isVisible, true),
+      sql`${tools.reviewCount} > 0`,
+    ))
+    .orderBy(desc(tools.rankScore))
     .limit(limit);
 }
 
@@ -394,18 +406,9 @@ async function checkRateLimit(userId: number, ip: string): Promise<boolean> {
   return true;
 }
 
-/** Recalculate tool average_rating and review_count from published reviews only */
+/** Recalculate tool stats and rank score after a review mutation */
 async function recalcToolStats(toolId: number) {
-  const stats = await db.select({
-    avgRating: avg(reviews.rating),
-    totalReviews: count(),
-  }).from(reviews).where(and(eq(reviews.toolId, toolId), eq(reviews.status, "published")));
-
-  await db.update(tools).set({
-    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
-    reviewCount: stats[0].totalReviews,
-    updatedAt: new Date(),
-  }).where(eq(tools.id, toolId));
+  await recalcAndPersistToolScore(toolId);
 }
 
 // ─── Submit Review (with anti-fraud) ─────────────────────────────────────────

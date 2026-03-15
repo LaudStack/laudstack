@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { tools, reviews, upvotes, savedTools, toolViews, outboundClicks } from "@/drizzle/schema";
 import { eq, sql, and, gte, count, avg } from "drizzle-orm";
+import { indexTool } from "@/server/search";
+import { computeRankScore } from "@/lib/ranking";
 
 /**
  * LaudStack Ranking Algorithm
@@ -17,40 +19,56 @@ import { eq, sql, and, gte, count, avg } from "drizzle-orm";
  *             + (weeklyMomentum * 20)
  *
  * Recency boost: tools launched in last 30 days get +50, last 90 days get +25
- * Weekly momentum: change in upvotes + reviews in last 7 days vs prior 7 days
+ * Weekly momentum: change in upvotes + published reviews in last 7 days vs prior 7 days
+ * weeklyRankChange: actual rank position delta (prevRank - newRank), positive = moved up
+ * Review filter: status = 'published' is the moderation gate.
+ *   isVerified on reviews means the reviewer's email is verified, not that the review passed moderation.
  */
 
 export async function POST(request: Request) {
-  try {
-    // Simple admin auth check via header
-    const authHeader = request.headers.get("x-admin-key");
-    const cronSecret = process.env.CRON_SECRET;
-    // Allow if admin key matches or if called from cron
-    if (cronSecret && authHeader !== cronSecret) {
-      // Also allow if called from admin UI (check cookie-based auth in production)
-      // For now, allow all POST requests to this endpoint
+  // ── Auth guard ────────────────────────────────────────────────────────────
+  const authHeader =
+    request.headers.get("x-admin-key") ?? request.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const isValid =
+      authHeader === cronSecret || authHeader === `Bearer ${cronSecret}`;
+    if (!isValid) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+   }
 
+  try {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    // Get all approved tools
-    const allTools = await db.select().from(tools).where(eq(tools.status, "approved"));
+    // Get all approved, visible tools
+    const allTools = await db
+      .select()
+      .from(tools)
+      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)));
 
-    let updatedCount = 0;
+    // Snapshot previous rank positions before we overwrite scores
+    const previousRanks = new Map<number, number>();
+    [...allTools]
+      .sort((a, b) => (b.rankScore ?? 0) - (a.rankScore ?? 0))
+      .forEach((t, i) => previousRanks.set(t.id, i + 1));
+
+    // Accumulate new scores so we can compute position deltas after the loop
+    const newScores = new Map<number, number>();
 
     for (const tool of allTools) {
-      // Count reviews
+      // Published reviews only — status = 'published' is the moderation gate
       const [reviewStats] = await db
         .select({
           count: count(),
           avgRating: avg(reviews.rating),
         })
         .from(reviews)
-        .where(and(eq(reviews.toolId, tool.id), eq(reviews.isVerified, true)));
+        .where(and(eq(reviews.toolId, tool.id), eq(reviews.status, "published")));
 
       const reviewCount = reviewStats?.count ?? 0;
       const avgRating = parseFloat(String(reviewStats?.avgRating ?? 0));
@@ -100,15 +118,16 @@ export async function POST(request: Request) {
           )
         );
 
+      // Weekly momentum: published reviews this week vs last week
       const [thisWeekReviews] = await db
         .select({ count: count() })
         .from(reviews)
         .where(
           and(
             eq(reviews.toolId, tool.id),
-            eq(reviews.isVerified, true),
-            gte(reviews.createdAt, sevenDaysAgo)
-          )
+            eq(reviews.status, "published"),
+            gte(reviews.createdAt, sevenDaysAgo),
+          ),
         );
 
       const [lastWeekReviews] = await db
@@ -117,10 +136,10 @@ export async function POST(request: Request) {
         .where(
           and(
             eq(reviews.toolId, tool.id),
-            eq(reviews.isVerified, true),
+            eq(reviews.status, "published"),
             gte(reviews.createdAt, fourteenDaysAgo),
-            sql`${reviews.createdAt} < ${sevenDaysAgo}`
-          )
+            sql`${reviews.createdAt} < ${sevenDaysAgo}`,
+          ),
         );
 
       const weeklyMomentum =
@@ -135,51 +154,74 @@ export async function POST(request: Request) {
         else if (launchedAt >= ninetyDaysAgo) recencyBoost = 25;
       }
 
-      // Compute rank score
-      const rankScore =
-        (avgRating * 25) +
-        (reviewCount * 15) +
-        (upvoteCount * 10) +
-        (saveCount * 8) +
-        (viewCount * 0.1) +
-        (clickCount * 5) +
-        recencyBoost +
-        (weeklyMomentum * 20);
+      const rawScore = computeRankScore({
+        avgRating,
+        reviewCount,
+        upvoteCount,
+        saveCount,
+        viewCount,
+        clickCount,
+        recencyBoost,
+        weeklyMomentum,
+      });
+      const rankScore = Math.round(rawScore * 100) / 100;
+      newScores.set(tool.id, rankScore);
 
-      // Determine weekly rank change (difference from previous score)
-      const previousScore = tool.rankScore ?? 0;
-      const weeklyRankChange = Math.round(rankScore - previousScore);
-
-      // Update tool
+      // Write updated stats + score (weeklyRankChange written in second pass below)
       await db
         .update(tools)
         .set({
-          rankScore: Math.round(rankScore * 100) / 100,
-          weeklyRankChange,
-          upvoteCount,
-          reviewCount,
+          rankScore,
           averageRating: Math.round(avgRating * 100) / 100,
+          reviewCount,
+          upvoteCount,
           saveCount,
           viewCount,
           outboundClickCount: clickCount,
           updatedAt: now,
         })
         .where(eq(tools.id, tool.id));
+    }
 
-      updatedCount++;
+    // Second pass: compute actual rank position deltas and write weeklyRankChange
+    const sortedByNewScore = [...allTools].sort(
+      (a, b) => (newScores.get(b.id) ?? 0) - (newScores.get(a.id) ?? 0),
+    );
+    const newRanks = new Map<number, number>();
+    sortedByNewScore.forEach((t, i) => newRanks.set(t.id, i + 1));
+
+    for (const tool of allTools) {
+      const prevRank = previousRanks.get(tool.id) ?? 0;
+      const newRank = newRanks.get(tool.id) ?? 0;
+      // prevRank - newRank: positive = moved up (e.g. was #5, now #3 → +2)
+      const weeklyRankChange = prevRank > 0 ? prevRank - newRank : 0;
+      await db
+        .update(tools)
+        .set({ weeklyRankChange, updatedAt: now })
+        .where(eq(tools.id, tool.id));
+
+      // Sync updated document to Typesense search index (fire-and-forget)
+      const updatedTool = await db.query.tools.findFirst({
+        where: eq(tools.id, tool.id),
+      });
+      if (updatedTool) {
+        indexTool(updatedTool).catch((err) =>
+          console.error(`[Ranking] Typesense sync failed for tool ${tool.id}:`, err),
+        );
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Rankings recalculated for ${updatedCount} tools`,
-      updatedCount,
+      message: `Rankings recalculated for ${allTools.length} tools`,
+      updatedCount: allTools.length,
       timestamp: now.toISOString(),
     });
   } catch (error) {
-    console.error("Ranking recalculation error:", error);
+    console.error("[Ranking] Recalculation error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to recalculate rankings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

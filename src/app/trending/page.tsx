@@ -224,7 +224,22 @@ export default function Trending() {
 
   /* ── Filtered + sorted list ──────────────────────────────────────────────── */
   const trendingTools = useMemo(() => {
-    let tools = allTools.filter((t) => (t.weekly_rank_change || 0) > 0);
+    // Period filter: "7d" and "30d" restrict to tools launched within that window.
+    // "all" shows all tools with positive weekly_rank_change regardless of launch date.
+    const now = Date.now();
+    const periodMs =
+      period === "7d" ? 7 * 24 * 60 * 60 * 1000
+      : period === "30d" ? 30 * 24 * 60 * 60 * 1000
+      : null;
+
+    let tools = allTools.filter((t) => {
+      if ((t.weekly_rank_change || 0) <= 0) return false;
+      if (periodMs !== null) {
+        const launchedMs = t.launched_at ? new Date(t.launched_at).getTime() : 0;
+        if (now - launchedMs > periodMs) return false;
+      }
+      return true;
+    });
 
     if (category !== "All Categories") {
       tools = tools.filter((t) => t.category === category);
@@ -254,7 +269,7 @@ export default function Trending() {
     });
 
     return tools;
-  }, [allTools, category, sortBy, query, activeBadge]);
+  }, [allTools, category, sortBy, query, activeBadge, period]);
 
   const getMomentumColor = (change: number) =>
     change >= 20 ? "#F59E0B" : change >= 12 ? "#D97706" : "#16A34A";

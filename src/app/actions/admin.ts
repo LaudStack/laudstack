@@ -8,6 +8,7 @@ import {
   newsletterSubscribers, deals, toolScreenshots, moderationLogs,
 } from "@/drizzle/schema";
 import { eq, desc, ilike, or, sql, and, count, avg } from "drizzle-orm";
+import { recalcAndPersistToolScore } from "@/lib/ranking";
 import {
   sendClaimApprovedEmail,
   sendClaimRejectedEmail,
@@ -186,6 +187,10 @@ export async function getAdminTools(opts: { search?: string; status?: string; ca
 export async function updateToolStatus(toolId: number, status: "pending" | "approved" | "rejected" | "featured") {
   await requireAdmin();
   await db.update(tools).set({ status, updatedAt: new Date() }).where(eq(tools.id, toolId));
+  // Recalculate rank score when a tool is approved or featured so it appears in ranked lists
+  if (status === "approved" || status === "featured") {
+    await recalcAndPersistToolScore(toolId);
+  }
   return { success: true };
 }
 
@@ -312,17 +317,9 @@ export async function reviewSubmission(
 
 /// ─── Reviews Management (Full Moderation) ─────────────────────────────────
 
-/** Recalculate tool stats from published reviews */
+/** Recalculate tool stats and rank score after an admin review mutation */
 async function recalcToolStats(toolId: number) {
-  const stats = await db.select({
-    avgRating: avg(reviews.rating),
-    totalReviews: count(),
-  }).from(reviews).where(and(eq(reviews.toolId, toolId), eq(reviews.status, "published")));
-  await db.update(tools).set({
-    averageRating: parseFloat(String(stats[0].avgRating ?? 0)),
-    reviewCount: stats[0].totalReviews,
-    updatedAt: new Date(),
-  }).where(eq(tools.id, toolId));
+  await recalcAndPersistToolScore(toolId);
 }
 
 export async function getAdminReviews(opts: {

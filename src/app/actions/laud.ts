@@ -3,6 +3,7 @@
 import { db } from "@/server/db";
 import { tools, upvotes, users, laudRateLimits } from "@/drizzle/schema";
 import { eq, and, desc, sql, count, gte, inArray } from "drizzle-orm";
+import { recalcAndPersistToolScore } from "@/lib/ranking";
 import { createClient } from "@/lib/supabase/server";
 import { getUserBySupabaseId } from "@/server/db";
 import { headers } from "next/headers";
@@ -167,6 +168,10 @@ export async function toggleLaud(toolId: number): Promise<{
     const updated = await db.select({ upvoteCount: tools.upvoteCount })
       .from(tools).where(eq(tools.id, toolId));
 
+    // Refresh rank score (fire-and-forget — don't block the response)
+    recalcAndPersistToolScore(toolId).catch((err) =>
+      console.error(`[Laud] recalc failed for tool ${toolId}:`, err),
+    );
     return { success: true, lauded: false, newCount: updated[0]?.upvoteCount ?? 0 };
   } else {
     // LAUD: check rate limits first
@@ -200,6 +205,10 @@ export async function toggleLaud(toolId: number): Promise<{
     const updated = await db.select({ upvoteCount: tools.upvoteCount })
       .from(tools).where(eq(tools.id, toolId));
 
+    // Refresh rank score (fire-and-forget — don't block the response)
+    recalcAndPersistToolScore(toolId).catch((err) =>
+      console.error(`[Laud] recalc failed for tool ${toolId}:`, err),
+    );
     return { success: true, lauded: true, newCount: updated[0]?.upvoteCount ?? 0 };
   }
 }
