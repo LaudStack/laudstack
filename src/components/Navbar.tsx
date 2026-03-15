@@ -8,7 +8,7 @@
  * Polished avatar with subtle container
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDbUser } from '@/hooks/useDbUser';
 import { getInitials } from '@/lib/utils';
 import { useSavedTools } from '@/hooks/useSavedTools';
+import { getUnreadNotificationCount } from '@/app/actions/notifications';
 
 const NAV_ITEMS = [
   {
@@ -82,6 +83,18 @@ export default function Navbar() {
   const { dbUser } = useDbUser();
   const { savedIds } = useSavedTools();
   const avatarRef = useRef<HTMLDivElement>(null);
+  const [navUnreadCount, setNavUnreadCount] = useState(0);
+
+  // Poll for unread notification count
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchCount = () => {
+      getUnreadNotificationCount().then(setNavUnreadCount).catch(() => {});
+    };
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const founderStatus = dbUser?.founderStatus ?? 'none';
   const isVerifiedFounder = founderStatus === 'verified';
@@ -273,6 +286,11 @@ export default function Navbar() {
                     className="relative p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all"
                   >
                     <Bell className="h-[18px] w-[18px]" />
+                    {navUnreadCount > 0 && (
+                      <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                        {navUnreadCount > 9 ? '9+' : navUnreadCount}
+                      </span>
+                    )}
                   </button>
 
                   {/* Avatar with subtle container */}
@@ -526,7 +544,7 @@ export default function Navbar() {
                   { icon: User, label: 'My Dashboard', href: '/dashboard' },
                   { icon: PenSquare, label: 'My Reviews', href: '/dashboard?tab=reviews' },
                   { icon: Bookmark, label: `Saved Stacks${savedIds.length > 0 ? ` (${savedIds.length})` : ''}`, href: '/dashboard?tab=saved' },
-                  { icon: Bell, label: 'Notifications', href: '/dashboard?tab=notifications' },
+                  { icon: Bell, label: `Notifications${navUnreadCount > 0 ? ` (${navUnreadCount})` : ''}`, href: '/dashboard?tab=notifications' },
                   { icon: Settings, label: 'Settings', href: '/dashboard?tab=settings' },
                 ].map(item => (
                   <button

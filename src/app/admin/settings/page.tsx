@@ -4,13 +4,14 @@
  * General, SEO, email, moderation, feature flags
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Settings, Globe, Mail, Shield, Zap, Bell, Save,
   CheckCircle, AlertTriangle, ToggleLeft, ToggleRight,
   Key, Database, Palette,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getPlatformSettings, savePlatformSettings } from "@/app/actions/admin";
 
 type SettingSection = "general" | "seo" | "email" | "moderation" | "features" | "security";
 
@@ -78,11 +79,45 @@ export default function AdminSettings() {
     setFeatures(f => ({ ...f, [key]: !f[key] }));
   };
 
+  // Load settings from DB on mount
+  useEffect(() => {
+    getPlatformSettings().then(map => {
+      if (map.siteName) setSiteName(map.siteName);
+      if (map.siteTagline) setSiteTagline(map.siteTagline);
+      if (map.siteUrl) setSiteUrl(map.siteUrl);
+      if (map.supportEmail) setSupportEmail(map.supportEmail);
+      // Feature flags
+      const flagKeys = Object.keys(features) as (keyof typeof features)[];
+      const newFeatures = { ...features };
+      for (const k of flagKeys) {
+        if (map[`feature_${k}`] !== undefined) {
+          newFeatures[k] = map[`feature_${k}`] === "true";
+        }
+      }
+      setFeatures(newFeatures);
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(r => setTimeout(r, 800));
+    const settings: Record<string, string> = {
+      siteName,
+      siteTagline,
+      siteUrl,
+      supportEmail,
+    };
+    // Flatten feature flags
+    for (const [k, v] of Object.entries(features)) {
+      settings[`feature_${k}`] = String(v);
+    }
+    const res = await savePlatformSettings(settings);
     setSaving(false);
-    toast.success("Settings saved successfully");
+    if (res.success) {
+      toast.success("Settings saved successfully");
+    } else {
+      toast.error(res.error || "Failed to save settings");
+    }
   };
 
   return (

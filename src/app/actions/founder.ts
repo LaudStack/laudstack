@@ -4,6 +4,7 @@ import { db, getUserBySupabaseId } from "@/server/db";
 import { tools, reviews, users, deals, toolClaims, moderationLogs } from "@/drizzle/schema";
 import { eq, and, or, desc, sql, count, sum, avg, inArray } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/app/actions/notifications";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
 
@@ -126,6 +127,23 @@ export async function replyToReview(reviewId: number, reply: string) {
         updatedAt: new Date(),
       })
       .where(eq(reviews.id, reviewId));
+
+    // Notify the reviewer that the founder replied
+    if (review.userId && review.userId !== user.id) {
+      try {
+        await createNotification({
+          recipientId: review.userId,
+          type: "founder_reply",
+          title: "Founder replied to your review",
+          message: `The founder of ${tool.name} replied to your review.`,
+          link: `/tools/${tool.slug}#reviews`,
+          actorId: user.id,
+          toolId: tool.id,
+        });
+      } catch (e) {
+        console.error("[replyToReview] notification error:", e);
+      }
+    }
 
     return { success: true };
   } catch (e: unknown) {

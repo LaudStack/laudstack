@@ -15,6 +15,7 @@ import {
   sendVerificationOutcomeEmail,
   sendPromotionOutcomeEmail,
 } from "@/server/email";
+import { createNotification } from "@/app/actions/notifications";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
 
@@ -327,6 +328,26 @@ export async function reviewSubmission(
       }
     }
   }
+
+  // Notify the founder about the submission decision
+  try {
+    const [sub] = await db.select({ userId: toolSubmissions.userId, name: toolSubmissions.name })
+      .from(toolSubmissions).where(eq(toolSubmissions.id, submissionId));
+    if (sub) {
+      await createNotification({
+        recipientId: sub.userId,
+        type: action === "approved" ? "submission_approved" : "submission_rejected",
+        title: action === "approved" ? "Your tool has been approved!" : "Tool submission update",
+        message: action === "approved"
+          ? `${sub.name} has been approved and is now live on LaudStack.`
+          : `Your submission for ${sub.name} was not approved.${notes ? ` Reason: ${notes}` : ""}`,
+        link: action === "approved" ? "/founder" : "/launch",
+      });
+    }
+  } catch (e) {
+    console.error("[reviewSubmission] notification error:", e);
+  }
+
   return { success: true };
 }
 
@@ -656,6 +677,22 @@ export async function reviewClaim(claimId: number, action: "approved" | "rejecte
     if (claimUser?.email && claimTool) {
       sendClaimRejectedEmail(claimUser.email, claimTool.name).catch(() => {});
     }
+  }
+
+  // In-app notification for the claim decision
+  try {
+    await createNotification({
+      recipientId: claim.userId,
+      type: action === "approved" ? "claim_approved" : "claim_rejected",
+      title: action === "approved" ? "Your claim has been approved!" : "Claim update",
+      message: action === "approved"
+        ? `Your claim for ${claimTool?.name ?? "a tool"} has been approved. You now have founder access.`
+        : `Your claim for ${claimTool?.name ?? "a tool"} was not approved.`,
+      link: action === "approved" ? "/founder" : "/claim",
+      toolId: claim.toolId ?? undefined,
+    });
+  } catch (e) {
+    console.error("[reviewClaim] notification error:", e);
   }
 
   return { success: true };
@@ -1198,4 +1235,42 @@ export async function reviewPromotionRequest(
   }
 
   return { success: true };
+}
+
+// ─── Platform Settings (key-value store) ─────────────────────────────────────
+
+import { platformSettings } from "@/drizzle/schema";
+
+export async function getPlatformSettings() {
+  await requireAdmin();
+  const rows = await db.select().from(platformSettings);
+  const map: Record<string, string> = {};
+  for (const r of rows) {
+    map[r.key] = r.value ?? "";
+  }
+  return map;
+}
+
+export async function savePlatformSettings(settings: Record<string, string>) {
+  await requireAdmin();
+  try {
+    for (const [key, value] of Object.entries(settings)) {
+      // Upsert each key
+      const existing = await db.query.platformSettings.findFirst({
+        where: eq(platformSettings.key, key),
+      });
+      if (existing) {
+        await db
+          .update(platformSettings)
+          .set({ value, updatedAt: new Date() })
+          .where(eq(platformSettings.key, key));
+      } else {
+        await db.insert(platformSettings).values({ key, value });
+      }
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("[savePlatformSettings] Error:", error);
+    return { success: false, error: "Failed to save settings" };
+  }
 }

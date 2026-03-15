@@ -25,6 +25,11 @@ import { useSavedTools } from '@/hooks/useSavedTools';
 import { useToolsData } from '@/hooks/useToolsData';
 import { getUserReviews, updateProfile, getActiveDeals } from '@/app/actions/user';
 import { editReview, deleteReview } from '@/app/actions/public';
+import {
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from '@/app/actions/notifications';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -741,23 +746,148 @@ function SavedTab() {
 
 // ─── Notifications Tab ────────────────────────────────────────────────────────
 function NotificationsTab() {
-  // For now, notifications are empty until we wire a notifications table
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const router = useRouter();
+  const [notifs, setNotifs] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const LIMIT = 15;
+
+  const load = useCallback(async (p = 0) => {
+    setLoading(true);
+    try {
+      const res = await getNotifications({ limit: LIMIT, offset: p * LIMIT });
+      setNotifs(res.notifications);
+      setUnreadCount(res.unreadCount);
+      setTotal(res.total);
+    } catch (e) {
+      console.error('[NotificationsTab] load error:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
+
+  const handleMarkAllRead = async () => {
+    const res = await markAllNotificationsAsRead();
+    if (res.success) {
+      setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+      toast.success('All notifications marked as read');
+    }
+  };
+
+  const handleClick = async (n: any) => {
+    if (!n.isRead) {
+      await markNotificationAsRead(n.id);
+      setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+    if (n.link) router.push(n.link);
+  };
+
+  const timeAgo = (date: Date | string) => {
+    const diff = Math.max(0, Date.now() - new Date(date).getTime());
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(date).toLocaleDateString();
+  };
+
+  const notifIcon = (type: string) => {
+    if (type === 'new_review') return <Star className="w-4 h-4 text-amber-500" />;
+    if (type === 'founder_reply') return <MessageSquare className="w-4 h-4 text-blue-500" />;
+    if (type === 'comment_reply') return <MessageSquare className="w-4 h-4 text-indigo-500" />;
+    if (type === 'claim_approved' || type === 'submission_approved') return <CheckCircle className="w-4 h-4 text-green-500" />;
+    if (type === 'claim_rejected' || type === 'submission_rejected') return <AlertCircle className="w-4 h-4 text-red-500" />;
+    if (type === 'tool_verified') return <Shield className="w-4 h-4 text-emerald-500" />;
+    if (type === 'tool_featured') return <Award className="w-4 h-4 text-amber-500" />;
+    return <Bell className="w-4 h-4 text-slate-400" />;
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-slate-900 font-bold text-base">Notifications</h3>
-          <p className="text-slate-500 text-xs mt-0.5">All caught up</p>
+          <p className="text-slate-500 text-xs mt-0.5">
+            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+          </p>
         </div>
+        {unreadCount > 0 && (
+          <button
+            onClick={handleMarkAllRead}
+            className="text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors"
+          >
+            Mark all as read
+          </button>
+        )}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-        <Bell className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-        <h4 className="text-slate-700 font-bold mb-1">No notifications</h4>
-        <p className="text-slate-500 text-sm">You&apos;re all caught up! We&apos;ll notify you when something happens.</p>
-      </div>
+      {loading && notifs.length === 0 ? (
+        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+          <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+      ) : notifs.length === 0 ? (
+        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+          <Bell className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+          <h4 className="text-slate-700 font-bold mb-1">No notifications</h4>
+          <p className="text-slate-500 text-sm">You&apos;re all caught up! We&apos;ll notify you when something happens.</p>
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          {notifs.map(n => (
+            <div
+              key={n.id}
+              onClick={() => handleClick(n)}
+              className={`flex items-start gap-3 px-5 py-4 border-b border-slate-100 last:border-0 cursor-pointer hover:bg-slate-50 transition-colors ${
+                !n.isRead ? 'bg-amber-50/40' : ''
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                !n.isRead ? 'bg-amber-100' : 'bg-slate-100'
+              }`}>
+                {notifIcon(n.type)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-slate-900">{n.title}</p>
+                <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{n.message}</p>
+                <p className="text-[10px] text-slate-400 mt-1">{timeAgo(n.createdAt)}</p>
+              </div>
+              {!n.isRead && <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 mt-2" />}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {total > LIMIT && (
+        <div className="flex items-center justify-center gap-3">
+          <button
+            disabled={page === 0}
+            onClick={() => setPage(p => p - 1)}
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ← Previous
+          </button>
+          <span className="text-xs text-slate-400">
+            Page {page + 1} of {Math.ceil(total / LIMIT)}
+          </span>
+          <button
+            disabled={(page + 1) * LIMIT >= total}
+            onClick={() => setPage(p => p + 1)}
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Next →
+          </button>
+        </div>
+      )}
 
       {/* Notification preferences */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5">

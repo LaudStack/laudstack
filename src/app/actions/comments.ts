@@ -4,6 +4,7 @@ import { db, getUserBySupabaseId } from "@/server/db";
 import { comments, users, tools } from "@/drizzle/schema";
 import { eq, and, desc, count, gte, lt, isNull, sql, inArray } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/app/actions/notifications";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
 
@@ -438,6 +439,29 @@ export async function createComment(input: {
   const name = user.firstName
     ? [user.firstName, user.lastName].filter(Boolean).join(" ")
     : user.name ?? "Anonymous";
+
+  // Notify the parent comment author if this is a reply
+  if (input.parentCommentId) {
+    try {
+      const parentComment = await db.query.comments.findFirst({
+        where: eq(comments.id, input.parentCommentId),
+        columns: { userId: true },
+      });
+      if (parentComment?.userId && parentComment.userId !== user.id) {
+        await createNotification({
+          recipientId: parentComment.userId,
+          type: "comment_reply",
+          title: "Someone replied to your comment",
+          message: `${name} replied to your comment on ${tool.name}.`,
+          link: `/tools/${tool.slug}#comments`,
+          actorId: user.id,
+          toolId: input.toolId,
+        });
+      }
+    } catch (e) {
+      console.error("[createComment] notification error:", e);
+    }
+  }
 
   return {
     success: true,

@@ -10,6 +10,7 @@ import { eq, desc, asc, and, or, ilike, sql, count, avg, ne, gte, inArray } from
  */
 const VISIBLE_STATUSES = ["approved", "featured"] as const;
 import { recalcAndPersistToolScore } from "@/lib/ranking";
+import { createNotification } from "@/app/actions/notifications";
 import { createClient } from "@/lib/supabase/server";
 import { getUserBySupabaseId } from "@/server/db";
 import { headers } from "next/headers";
@@ -541,6 +542,29 @@ export async function submitReview(data: {
 
   // Recalculate tool stats (only published reviews count)
   await recalcToolStats(data.toolId);
+
+  // Notify the tool's founder (if claimed) about the new review
+  if (!isSpam) {
+    try {
+      const tool = await db.query.tools.findFirst({
+        where: eq(tools.id, data.toolId),
+        columns: { claimedBy: true, name: true, slug: true },
+      });
+      if (tool?.claimedBy && tool.claimedBy !== user.id) {
+        await createNotification({
+          recipientId: tool.claimedBy,
+          type: "new_review",
+          title: "New review on your tool",
+          message: `${user.firstName || 'Someone'} left a ${data.rating}-star review on ${tool.name}.`,
+          link: `/tools/${tool.slug}#reviews`,
+          actorId: user.id,
+          toolId: data.toolId,
+        });
+      }
+    } catch (e) {
+      console.error("[submitReview] notification error:", e);
+    }
+  }
 
   if (isSpam) {
     return { success: true, message: "Your review has been submitted and is pending moderation." };

@@ -540,3 +540,51 @@ export const reviewHelpfulVotes = pgTable("review_helpful_votes", {
   uniqueIndex("review_helpful_votes_unique").on(table.reviewId, table.userId),
   index("review_helpful_votes_review_idx").on(table.reviewId),
 ]);
+
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+// In-app notifications for users, founders, and admins.
+
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "new_review",        // A new review was posted on your tool (→ founder)
+  "founder_reply",     // A founder replied to your review (→ reviewer)
+  "comment_reply",     // Someone replied to your comment (→ commenter)
+  "claim_approved",    // Your claim request was approved (→ founder)
+  "claim_rejected",    // Your claim request was rejected (→ founder)
+  "submission_approved", // Your tool submission was approved (→ founder)
+  "submission_rejected", // Your tool submission was rejected (→ founder)
+  "tool_verified",     // Your tool was verified (→ founder)
+  "tool_featured",     // Your tool was featured (→ founder)
+  "new_submission",    // A new tool was submitted (→ admin)
+  "new_claim",         // A new claim request was filed (→ admin)
+  "system",            // System/platform notification
+]);
+
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  /** The user who receives this notification */
+  recipientId: integer("recipient_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  /** Notification category */
+  type: notificationTypeEnum("type").notNull(),
+  /** Human-readable title */
+  title: varchar("title", { length: 255 }).notNull(),
+  /** Human-readable message body */
+  message: text("message").notNull(),
+  /** Optional link to navigate to when clicked */
+  link: varchar("link", { length: 500 }),
+  /** Whether the notification has been read */
+  isRead: boolean("is_read").default(false).notNull(),
+  /** Optional: the actor who triggered this notification */
+  actorId: integer("actor_id").references(() => users.id, { onDelete: "set null" }),
+  /** Optional: related tool */
+  toolId: integer("tool_id").references(() => tools.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("notifications_recipient_idx").on(table.recipientId),
+  index("notifications_recipient_read_idx").on(table.recipientId, table.isRead),
+]);
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;

@@ -6,6 +6,7 @@ import { db } from "@/server/db";
 import { toolSubmissions, users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { sendToolSubmissionEmail } from "@/server/email";
 
 export interface ToolFormData {
   name: string;
@@ -130,6 +131,16 @@ export async function submitTool(formData: ToolFormData): Promise<SubmitToolResu
         updatedAt: new Date(),
       })
       .where(eq(users.id, dbUser.id));
+
+    // N6: Send confirmation email to the founder
+    if (dbUser.email) {
+      const tempSlug = formData.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      sendToolSubmissionEmail(
+        dbUser.email,
+        formData.name.trim(),
+        tempSlug
+      ).catch((e) => console.error("[submitTool] email error:", e));
+    }
 
     return {
       success: true,

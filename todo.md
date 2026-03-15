@@ -799,4 +799,17 @@
 - [x] A5: Fix welcome page hero text color — text-slate-900 on dark bg should be text-white
 - [x] A6: Remove or redirect dead /auth/verify-email page — OTP verification happens inline in login page
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit 49b3c94)
+
+## Notification System Audit (Mar 15, 2026)
+- [x] N1: Create `notifications` table schema with type, recipientId, message, read, link, createdAt
+- [x] N2: Create server-side `createNotification` helper and `getNotifications`/`markAsRead` actions
+- [x] N3: Wire admin bell to real notifications (replace MOCK_NOTIFICATIONS)
+- [x] N4: Wire user dashboard NotificationsTab to real notifications from DB
+- [x] N5: Add notification triggers: new review, founder reply, comment reply, claim/submission status
+- [x] N6: Call sendToolSubmissionEmail when founder submits a tool
+- [x] N7: Wire admin settings handleSave to real DB persistence (platform_settings table)
+- [x] N8: Add unread notification badge to Navbar bell (desktop + mobile)
+- [x] N9: Admin bell polls every 30s, click-to-navigate, mark-all-as-read
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub

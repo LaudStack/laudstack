@@ -6,7 +6,7 @@
  * Role-gated: redirects non-admins to /auth/login
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -20,6 +20,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDbUser } from "@/hooks/useDbUser";
 import { getInitials } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "@/app/actions/notifications";
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
 
@@ -70,15 +75,21 @@ const NAV_SECTIONS = [
   },
 ];
 
-// ─── Notification mock ────────────────────────────────────────────────────────
+// ─── Notification type → icon mapping ────────────────────────────────────────
 
-const MOCK_NOTIFICATIONS = [
-  { id: 1, type: "submission", message: "New tool submission: 'AI Writer Pro'", time: "2m ago", read: false },
-  { id: 2, type: "founder", message: "Founder verification request from John Doe", time: "15m ago", read: false },
-  { id: 3, type: "review", message: "New 1-star review flagged for moderation", time: "1h ago", read: false },
-  { id: 4, type: "system", message: "Database backup completed successfully", time: "3h ago", read: true },
-  { id: 5, type: "user", message: "New admin user created: sarah@example.com", time: "1d ago", read: true },
-];
+function timeAgo(date: Date | string): string {
+  const now = Date.now();
+  const then = new Date(date).getTime();
+  const diff = Math.max(0, now - then);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(date).toLocaleDateString();
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -95,7 +106,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
+  // ─── Real notifications from DB ─────────────────────────────────────────────
+  const [adminNotifs, setAdminNotifs] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifsLoading, setNotifsLoading] = useState(false);
+
+  const loadNotifications = useCallback(async () => {
+    try {
+      setNotifsLoading(true);
+      const res = await getNotifications({ limit: 10 });
+      setAdminNotifs(res.notifications);
+      setUnreadCount(res.unreadCount);
+    } catch (e) {
+      console.error("[AdminLayout] Failed to load notifications:", e);
+    } finally {
+      setNotifsLoading(false);
+    }
+  }, []);
+
+  // Load notifications on mount and poll every 30s
+  useEffect(() => {
+    if (dbUser && (dbUser.role === "admin" || dbUser.role === "super_admin")) {
+      loadNotifications();
+      const interval = setInterval(loadNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [dbUser, loadNotifications]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -148,11 +184,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const notifIcon = (type: string) => {
-    if (type === "submission") return <FileText className="w-3.5 h-3.5 text-blue-400" />;
-    if (type === "founder") return <UserCheck className="w-3.5 h-3.5 text-green-400" />;
-    if (type === "review") return <Star className="w-3.5 h-3.5 text-amber-400" />;
+    if (type === "new_submission") return <FileText className="w-3.5 h-3.5 text-blue-400" />;
+    if (type === "new_claim") return <Shield className="w-3.5 h-3.5 text-green-400" />;
+    if (type === "new_review") return <Star className="w-3.5 h-3.5 text-amber-400" />;
     if (type === "system") return <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />;
     return <AlertCircle className="w-3.5 h-3.5 text-slate-400" />;
+  };
+
+  const handleMarkAllRead = async () => {
+    const res = await markAllNotificationsAsRead();
+    if (res.success) {
+      setAdminNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+      toast.success("All notifications marked as read");
+    }
+  };
+
+  const handleNotifClick = async (notif: any) => {
+    if (!notif.isRead) {
+      await markNotificationAsRead(notif.id);
+      setAdminNotifs(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+    if (notif.link) {
+      router.push(notif.link);
+      setNotifOpen(false);
+    }
   };
 
   const displayName = dbUser?.name || dbUser?.firstName || user?.email?.split("@")[0] || "Admin";
@@ -350,27 +407,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </span>
                   </div>
                   <div className="max-h-72 overflow-y-auto">
-                    {MOCK_NOTIFICATIONS.map(n => (
-                      <div
-                        key={n.id}
-                        className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50 last:border-0 ${!n.read ? "bg-amber-50/30" : ""}`}
-                      >
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? "bg-amber-100" : "bg-slate-100"}`}>
-                          {notifIcon(n.type)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs text-slate-700 leading-relaxed">{n.message}</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{n.time}</p>
-                        </div>
-                        {!n.read && <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 mt-1.5" />}
+                    {notifsLoading && adminNotifs.length === 0 ? (
+                      <div className="px-4 py-8 text-center">
+                        <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
                       </div>
-                    ))}
+                    ) : adminNotifs.length === 0 ? (
+                      <div className="px-4 py-8 text-center">
+                        <Bell className="w-6 h-6 text-slate-300 mx-auto mb-2" />
+                        <p className="text-xs text-slate-400">No notifications yet</p>
+                      </div>
+                    ) : (
+                      adminNotifs.map(n => (
+                        <div
+                          key={n.id}
+                          onClick={() => handleNotifClick(n)}
+                          className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50 last:border-0 ${!n.isRead ? "bg-amber-50/30" : ""}`}
+                        >
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.isRead ? "bg-amber-100" : "bg-slate-100"}`}>
+                            {notifIcon(n.type)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-slate-800">{n.title}</p>
+                            <p className="text-xs text-slate-600 leading-relaxed mt-0.5">{n.message}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{timeAgo(n.createdAt)}</p>
+                          </div>
+                          {!n.isRead && <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 mt-1.5" />}
+                        </div>
+                      ))
+                    )}
                   </div>
-                  <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50">
-                    <button className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors">
-                      Mark all as read
-                    </button>
-                  </div>
+                  {adminNotifs.length > 0 && (
+                    <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50">
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+                      >
+                        Mark all as read
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
