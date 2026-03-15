@@ -6,22 +6,21 @@
  * Product-level commenting system for stack detail pages.
  * Features:
  * - Auth-gated comment creation
- * - Single-level replies
+ * - Single-level replies (no deeper nesting)
  * - Founder badge for stack owner/claimer
  * - Edit/delete own comments
  * - Loading skeleton & empty state
  * - Mobile responsive
+ * - Error boundary wrapper for resilience
  */
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  MessageSquare,
   Send,
   CornerDownRight,
   Edit2,
   Trash2,
   Loader2,
-  X,
   Shield,
   ChevronDown,
   ChevronUp,
@@ -50,6 +49,7 @@ interface Props {
 function timeAgo(dateStr: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
+  if (isNaN(then)) return "";
   const diff = now - then;
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -169,7 +169,7 @@ function CommentComposer({
       return;
     }
     const trimmed = content.trim();
-    if (!trimmed) return;
+    if (!trimmed || submitting) return;
     setSubmitting(true);
     try {
       await onSubmit(trimmed);
@@ -188,6 +188,8 @@ function CommentComposer({
       onCancel();
     }
   };
+
+  const hasContent = content.trim().length > 0;
 
   return (
     <div
@@ -235,12 +237,12 @@ function CommentComposer({
           )}
           <button
             onClick={handleSubmit}
-            disabled={submitting || (!isAuthenticated && false) || !content.trim()}
+            disabled={submitting || !hasContent}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed border-none cursor-pointer"
             style={{
               background:
-                content.trim() && !submitting ? "#F59E0B" : "#E2E8F0",
-              color: content.trim() && !submitting ? "#0A0A0A" : "#94A3B8",
+                hasContent && !submitting ? "#F59E0B" : "#E2E8F0",
+              color: hasContent && !submitting ? "#0A0A0A" : "#94A3B8",
             }}
           >
             {submitting ? (
@@ -283,11 +285,18 @@ function CommentItem({
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // Sync editContent when comment.content changes (e.g. after parent re-renders with updated data)
+  useEffect(() => {
+    if (!editing) {
+      setEditContent(comment.content);
+    }
+  }, [comment.content, editing]);
+
   const isOwner = currentUserId === comment.userId;
 
   const handleSaveEdit = async () => {
     const trimmed = editContent.trim();
-    if (!trimmed) return;
+    if (!trimmed || saving) return;
     setSaving(true);
     try {
       await onEdit(comment.id, trimmed);
@@ -298,6 +307,7 @@ function CommentItem({
   };
 
   const handleDelete = async () => {
+    if (deleting) return;
     setDeleting(true);
     try {
       await onDelete(comment.id);
@@ -348,7 +358,10 @@ function CommentItem({
                   e.preventDefault();
                   handleSaveEdit();
                 }
-                if (e.key === "Escape") setEditing(false);
+                if (e.key === "Escape") {
+                  setEditing(false);
+                  setEditContent(comment.content);
+                }
               }}
             />
             <div className="flex items-center gap-2 mt-2">
@@ -448,9 +461,33 @@ function CommentItem({
   );
 }
 
+// ─── Error Boundary Wrapper ──────────────────────────────────────────────────
+
+function CommentsFallback() {
+  return (
+    <section
+      id="section-comments"
+      className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7"
+      style={{ boxShadow: "0 1px 4px rgba(15,23,42,0.04)" }}
+    >
+      <div className="text-center py-10">
+        <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-4">
+          <MessageCircle className="w-6 h-6 text-slate-400" />
+        </div>
+        <p className="text-sm font-semibold text-slate-500 mb-1">
+          Unable to load comments
+        </p>
+        <p className="text-xs text-slate-400">
+          Please refresh the page to try again.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 // ─── Main CommentsSection ─────────────────────────────────────────────────────
 
-export default function CommentsSection({
+function CommentsSectionInner({
   toolId,
   isAuthenticated,
   currentUserId,
@@ -459,16 +496,19 @@ export default function CommentsSection({
   const [commentsList, setCommentsList] = useState<CommentWithUser[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [showAllComments, setShowAllComments] = useState(false);
 
   // Fetch comments
   const fetchComments = useCallback(async () => {
     try {
+      setLoadError(false);
       const data = await getCommentsByToolId(toolId);
       setCommentsList(data.comments);
       setTotalCount(data.totalCount);
     } catch {
+      setLoadError(true);
       toast.error("Failed to load comments");
     } finally {
       setLoading(false);
@@ -481,82 +521,101 @@ export default function CommentsSection({
 
   // Create top-level comment
   const handleCreateComment = async (content: string) => {
-    const result = await createComment({ toolId, content });
-    if (result.success && result.comment) {
-      setCommentsList((prev) => [result.comment!, ...prev]);
-      setTotalCount((c) => c + 1);
-      toast.success("Comment posted");
-    } else {
-      toast.error(result.error ?? "Failed to post comment");
+    try {
+      const result = await createComment({ toolId, content });
+      if (result.success && result.comment) {
+        setCommentsList((prev) => [result.comment!, ...prev]);
+        setTotalCount((c) => c + 1);
+        toast.success("Comment posted");
+      } else {
+        toast.error(result.error ?? "Failed to post comment");
+      }
+    } catch {
+      toast.error("Failed to post comment. Please try again.");
     }
   };
 
   // Create reply
   const handleReply = async (parentId: number, content: string) => {
-    const result = await createComment({
-      toolId,
-      content,
-      parentCommentId: parentId,
-    });
-    if (result.success && result.comment) {
-      setCommentsList((prev) =>
-        prev.map((c) =>
-          c.id === parentId
-            ? { ...c, replies: [...c.replies, result.comment!] }
-            : c
-        )
-      );
-      setTotalCount((c) => c + 1);
-      setReplyingTo(null);
-      toast.success("Reply posted");
-    } else {
-      toast.error(result.error ?? "Failed to post reply");
+    try {
+      const result = await createComment({
+        toolId,
+        content,
+        parentCommentId: parentId,
+      });
+      if (result.success && result.comment) {
+        setCommentsList((prev) =>
+          prev.map((c) =>
+            c.id === parentId
+              ? { ...c, replies: [...c.replies, result.comment!] }
+              : c
+          )
+        );
+        setTotalCount((c) => c + 1);
+        setReplyingTo(null);
+        toast.success("Reply posted");
+      } else {
+        toast.error(result.error ?? "Failed to post reply");
+      }
+    } catch {
+      toast.error("Failed to post reply. Please try again.");
     }
   };
 
   // Edit comment
   const handleEdit = async (commentId: number, content: string) => {
-    const result = await editComment({ commentId, content });
-    if (result.success) {
-      // Update in top-level
-      setCommentsList((prev) =>
-        prev.map((c) => {
-          if (c.id === commentId) {
-            return { ...c, content, isEdited: true };
-          }
-          // Check replies
-          return {
-            ...c,
-            replies: c.replies.map((r) =>
-              r.id === commentId ? { ...r, content, isEdited: true } : r
-            ),
-          };
-        })
-      );
-      toast.success("Comment updated");
-    } else {
-      toast.error(result.error ?? "Failed to update comment");
+    try {
+      const result = await editComment({ commentId, content });
+      if (result.success) {
+        // Update in top-level or replies
+        setCommentsList((prev) =>
+          prev.map((c) => {
+            if (c.id === commentId) {
+              return { ...c, content, isEdited: true };
+            }
+            return {
+              ...c,
+              replies: c.replies.map((r) =>
+                r.id === commentId ? { ...r, content, isEdited: true } : r
+              ),
+            };
+          })
+        );
+        toast.success("Comment updated");
+      } else {
+        toast.error(result.error ?? "Failed to update comment");
+      }
+    } catch {
+      toast.error("Failed to update comment. Please try again.");
     }
   };
 
   // Delete comment
   const handleDelete = async (commentId: number) => {
-    const result = await deleteComment(commentId);
-    if (result.success) {
-      // Remove from top-level or replies
-      setCommentsList((prev) => {
-        // If it's a top-level comment, remove it and its replies
-        const filtered = prev.filter((c) => c.id !== commentId);
-        // If it's a reply, remove from parent's replies
-        return filtered.map((c) => ({
-          ...c,
-          replies: c.replies.filter((r) => r.id !== commentId),
-        }));
-      });
-      setTotalCount((c) => Math.max(0, c - 1));
-      toast.success("Comment deleted");
-    } else {
-      toast.error(result.error ?? "Failed to delete comment");
+    try {
+      const result = await deleteComment(commentId);
+      if (result.success) {
+        // Check if it's a top-level comment (to subtract replies from count)
+        const topLevelComment = commentsList.find((c) => c.id === commentId);
+        const deletedTotal = topLevelComment
+          ? 1 + topLevelComment.replies.length
+          : 1;
+
+        // Remove from top-level or replies
+        setCommentsList((prev) => {
+          const filtered = prev.filter((c) => c.id !== commentId);
+          return filtered.map((c) => ({
+            ...c,
+            replies: c.replies.filter((r) => r.id !== commentId),
+          }));
+        });
+        setTotalCount((c) => Math.max(0, c - deletedTotal));
+        toast.success("Comment deleted");
+      } else {
+        toast.error(result.error ?? "Failed to delete comment");
+      }
+    } catch {
+      toast.error("Failed to delete comment. Please try again.");
     }
   };
 
@@ -609,8 +668,29 @@ export default function CommentsSection({
         </div>
       )}
 
+      {/* Error state */}
+      {!loading && loadError && (
+        <div className="text-center py-10 sm:py-12">
+          <div className="w-14 h-14 rounded-full bg-red-50 border border-red-200 flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <p className="text-sm font-semibold text-slate-500 mb-2">
+            Failed to load comments
+          </p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchComments();
+            }}
+            className="text-xs font-bold text-amber-600 hover:text-amber-700 bg-transparent border-none cursor-pointer"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
       {/* Empty state */}
-      {!loading && commentsList.length === 0 && (
+      {!loading && !loadError && commentsList.length === 0 && (
         <div className="text-center py-10 sm:py-12">
           <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="w-6 h-6 text-slate-400" />
@@ -625,7 +705,7 @@ export default function CommentsSection({
       )}
 
       {/* Comments list */}
-      {!loading && commentsList.length > 0 && (
+      {!loading && !loadError && commentsList.length > 0 && (
         <div className="flex flex-col gap-5">
           {displayedComments.map((comment) => (
             <div key={comment.id}>
@@ -650,9 +730,7 @@ export default function CommentsSection({
                       currentUserId={currentUserId}
                       isAuthenticated={isAuthenticated}
                       onAuthRequired={onAuthRequired}
-                      onReply={(parentId) =>
-                        setReplyingTo(comment.id)
-                      }
+                      onReply={() => setReplyingTo(comment.id)}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       isReply
@@ -702,5 +780,38 @@ export default function CommentsSection({
         </div>
       )}
     </section>
+  );
+}
+
+// ─── Exported wrapper with error boundary ────────────────────────────────────
+
+import React from "react";
+
+class CommentsErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <CommentsFallback />;
+    }
+    return this.props.children;
+  }
+}
+
+export default function CommentsSection(props: Props) {
+  return (
+    <CommentsErrorBoundary>
+      <CommentsSectionInner {...props} />
+    </CommentsErrorBoundary>
   );
 }

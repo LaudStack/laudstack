@@ -735,4 +735,18 @@
 - [x] Mobile responsive design
 - [x] Integrate comments section into stack detail page (new tab)
 - [ ] Write vitest tests for comments server actions
-- [ ] Push to GitHub for Vercel deployment
+- [x] Push to GitHub for Vercel deployment (commit 0531b5f)
+
+## Comments System Audit & Hardening (March 14, 2026)
+- [x] Add toolId existence validation in createComment before insert
+- [x] Add Number.isFinite() guards for toolId/commentId in all server actions
+- [x] Add try-catch wrappers in handleCreateComment, handleReply, handleEdit, handleDelete
+- [x] Remove dead variable oneHourAgo and fix misleading rate-limit comment
+- [x] Remove unused imports: asc, isNull from comments.ts; MessageSquare, X from CommentsSection.tsx
+- [x] Fix bogus disabled condition (!isAuthenticated && false) in CommentComposer
+- [x] Fix delete count for top-level comments with replies (decrement by 1 + replies.length)
+- [x] Add self-referencing FK constraint for parentCommentId in schema
+- [x] Add DB index on comments.tool_id for query performance
+- [x] Add error boundary / defensive rendering around CommentsSection
+- [x] Sync editContent state with comment.content prop changes
+- [x] Implement proper time-based rate limiting (10 comments per hour per user per tool)

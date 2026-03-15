@@ -2,7 +2,7 @@
 
 import { db, getUserBySupabaseId } from "@/server/db";
 import { comments, users, tools } from "@/drizzle/schema";
-import { eq, and, desc, asc, isNull, count } from "drizzle-orm";
+import { eq, and, desc, count, gte } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
@@ -20,6 +20,23 @@ async function requireAuth() {
   const user = await getCurrentUser();
   if (!user) throw new Error("UNAUTHORIZED");
   return user;
+}
+
+// ─── Input validation helpers ────────────────────────────────────────────────
+
+function isValidId(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 && Number.isInteger(value);
+}
+
+function validateContent(content: string): { valid: boolean; trimmed: string; error?: string } {
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return { valid: false, trimmed, error: "Comment cannot be empty" };
+  }
+  if (trimmed.length > 2000) {
+    return { valid: false, trimmed, error: "Comment must be 2000 characters or less" };
+  }
+  return { valid: true, trimmed };
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -52,6 +69,10 @@ export interface CommentWithUser {
 export async function getCommentsByToolId(
   toolId: number
 ): Promise<{ comments: CommentWithUser[]; totalCount: number }> {
+  if (!isValidId(toolId)) {
+    return { comments: [], totalCount: 0 };
+  }
+
   // Fetch all non-deleted comments for this tool with user info
   const allComments = await db
     .select({
@@ -158,16 +179,26 @@ export async function createComment(input: {
 }): Promise<{ success: boolean; comment?: CommentWithUser; error?: string }> {
   const user = await requireAuth();
 
-  // Validate content
-  const trimmed = input.content.trim();
-  if (!trimmed) {
-    return { success: false, error: "Comment cannot be empty" };
+  // Validate IDs
+  if (!isValidId(input.toolId)) {
+    return { success: false, error: "Invalid tool ID" };
   }
-  if (trimmed.length > 2000) {
-    return {
-      success: false,
-      error: "Comment must be 2000 characters or less",
-    };
+  if (input.parentCommentId != null && !isValidId(input.parentCommentId)) {
+    return { success: false, error: "Invalid parent comment ID" };
+  }
+
+  // Validate content
+  const { valid, trimmed, error } = validateContent(input.content);
+  if (!valid) {
+    return { success: false, error };
+  }
+
+  // Verify the tool exists
+  const tool = await db.query.tools.findFirst({
+    where: eq(tools.id, input.toolId),
+  });
+  if (!tool) {
+    return { success: false, error: "Stack not found" };
   }
 
   // If this is a reply, verify the parent comment exists and belongs to the same tool
@@ -191,9 +222,29 @@ export async function createComment(input: {
     }
   }
 
-  // Rate limit: max 10 comments per user per tool per hour
+  // Time-based rate limit: max 10 comments per user per tool per hour
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const recentCount = await db
+    .select({ count: count() })
+    .from(comments)
+    .where(
+      and(
+        eq(comments.userId, user.id),
+        eq(comments.toolId, input.toolId),
+        eq(comments.isDeleted, false),
+        gte(comments.createdAt, oneHourAgo)
+      )
+    );
+
+  if (recentCount[0]?.count && recentCount[0].count >= 10) {
+    return {
+      success: false,
+      error: "Too many comments. Please wait before posting again.",
+    };
+  }
+
+  // Total cap: max 50 comments per tool per user
+  const totalUserComments = await db
     .select({ count: count() })
     .from(comments)
     .where(
@@ -204,11 +255,10 @@ export async function createComment(input: {
       )
     );
 
-  // Simple rate limit: max 50 comments per tool per user total
-  if (recentCount[0]?.count && recentCount[0].count >= 50) {
+  if (totalUserComments[0]?.count && totalUserComments[0].count >= 50) {
     return {
       success: false,
-      error: "You have reached the maximum number of comments for this tool",
+      error: "You have reached the maximum number of comments for this stack",
     };
   }
 
@@ -223,16 +273,12 @@ export async function createComment(input: {
     })
     .returning();
 
-  // Get the tool to determine founder status
-  const tool = await db.query.tools.findFirst({
-    where: eq(tools.id, input.toolId),
-  });
-
+  // Determine founder status
   const founderUserIds = new Set<number>();
-  if (tool?.submittedBy) founderUserIds.add(tool.submittedBy);
-  if (tool?.claimedBy) founderUserIds.add(tool.claimedBy);
+  if (tool.submittedBy) founderUserIds.add(tool.submittedBy);
+  if (tool.claimedBy) founderUserIds.add(tool.claimedBy);
 
-  const displayName = user.firstName
+  const name = user.firstName
     ? [user.firstName, user.lastName].filter(Boolean).join(" ")
     : user.name ?? "Anonymous";
 
@@ -250,7 +296,7 @@ export async function createComment(input: {
       updatedAt: newComment.updatedAt.toISOString(),
       user: {
         id: user.id,
-        name: displayName,
+        name,
         avatarUrl: user.avatarUrl,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -269,15 +315,15 @@ export async function editComment(input: {
 }): Promise<{ success: boolean; error?: string }> {
   const user = await requireAuth();
 
-  const trimmed = input.content.trim();
-  if (!trimmed) {
-    return { success: false, error: "Comment cannot be empty" };
+  // Validate ID
+  if (!isValidId(input.commentId)) {
+    return { success: false, error: "Invalid comment ID" };
   }
-  if (trimmed.length > 2000) {
-    return {
-      success: false,
-      error: "Comment must be 2000 characters or less",
-    };
+
+  // Validate content
+  const { valid, trimmed, error } = validateContent(input.content);
+  if (!valid) {
+    return { success: false, error };
   }
 
   // Find the comment and verify ownership
@@ -315,8 +361,13 @@ export async function editComment(input: {
 
 export async function deleteComment(
   commentId: number
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   const user = await requireAuth();
+
+  // Validate ID
+  if (!isValidId(commentId)) {
+    return { success: false, error: "Invalid comment ID" };
+  }
 
   const comment = await db.query.comments.findFirst({
     where: and(eq(comments.id, commentId), eq(comments.isDeleted, false)),
@@ -334,6 +385,8 @@ export async function deleteComment(
     };
   }
 
+  let deletedCount = 1;
+
   await db
     .update(comments)
     .set({
@@ -342,9 +395,9 @@ export async function deleteComment(
     })
     .where(eq(comments.id, commentId));
 
-  // Also soft-delete all replies to this comment
+  // Also soft-delete all replies to this comment if it's a top-level comment
   if (comment.parentCommentId === null) {
-    await db
+    const replyResult = await db
       .update(comments)
       .set({
         isDeleted: true,
@@ -356,9 +409,25 @@ export async function deleteComment(
           eq(comments.isDeleted, false)
         )
       );
+    // Count deleted replies
+    if (replyResult && Array.isArray(replyResult)) {
+      deletedCount += replyResult.length;
+    } else {
+      // Fallback: count replies that existed
+      const replyCount = await db
+        .select({ count: count() })
+        .from(comments)
+        .where(
+          and(
+            eq(comments.parentCommentId, commentId),
+            eq(comments.isDeleted, true)
+          )
+        );
+      deletedCount += replyCount[0]?.count ?? 0;
+    }
   }
 
-  return { success: true };
+  return { success: true, deletedCount };
 }
 
 // ─── Get comment count for a tool ─────────────────────────────────────────────
@@ -366,6 +435,8 @@ export async function deleteComment(
 export async function getCommentCount(
   toolId: number
 ): Promise<number> {
+  if (!isValidId(toolId)) return 0;
+
   const result = await db
     .select({ count: count() })
     .from(comments)
