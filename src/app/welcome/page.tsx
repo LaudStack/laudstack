@@ -100,21 +100,21 @@ export default function Welcome() {
               <Sparkles className="w-3.5 h-3.5" />
               Account Activated
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
               Welcome to LaudStack,<br />
               <span className="text-amber-400">{firstName}!</span>
             </h1>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
+            <p className="text-slate-300 text-lg max-w-xl mx-auto leading-relaxed">
               You're now part of a community of 12,400+ buyers, founders, and reviewers shaping the future of SaaS & AI.
             </p>
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-2xl mx-auto">
               {PLATFORM_STATS.map(({ icon: Icon, value, label }) => (
-                <div key={label} className="bg-gray-100/60 border border-gray-300/50 rounded-xl p-4">
+                <div key={label} className="bg-white/10 border border-white/15 rounded-xl p-4">
                   <Icon className="w-4 h-4 text-amber-400 mx-auto mb-2" />
-                  <div className="text-slate-900 font-black text-xl">{value}</div>
-                  <div className="text-slate-500 text-xs mt-0.5">{label}</div>
+                  <div className="text-white font-black text-xl">{value}</div>
+                  <div className="text-slate-400 text-xs mt-0.5">{label}</div>
                 </div>
               ))}
             </div>
@@ -202,14 +202,12 @@ export default function Welcome() {
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <button
                 onClick={() => { window.open('https://twitter.com', '_blank'); }}
-                className="inline-flex items-center gap-2 bg-[#1DA1F2] hover:bg-[#1a8fd1] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl transition-colors"
-              >
+                className="inline-flex items-center gap-2 bg-[#1DA1F2] hover:bg-[#1a8fd1] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
                 Follow on X (Twitter)
               </button>
               <button
                 onClick={() => { window.open('https://discord.com', '_blank'); }}
-                className="inline-flex items-center gap-2 bg-[#5865F2] hover:bg-[#4752c4] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl transition-colors"
-              >
+                className="inline-flex items-center gap-2 bg-[#5865F2] hover:bg-[#4752c4] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
                 Join Discord
               </button>
             </div>

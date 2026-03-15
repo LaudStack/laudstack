@@ -125,11 +125,15 @@ function OTPInput({
 function VerifyStep({
   email,
   supabaseId,
+  firstName,
+  lastName,
   onSuccess,
 }: {
   email: string;
   supabaseId: string;
-  onSuccess: () => void;
+  firstName?: string;
+  lastName?: string;
+  onSuccess: (isNewUser?: boolean) => void;
 }) {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -151,10 +155,10 @@ function VerifyStep({
     setLoading(true);
     setError(null);
     try {
-      const result = await verifyCode({ email, supabaseId, code: code.replace(/\s/g, "") });
+      const result = await verifyCode({ email, supabaseId, code: code.replace(/\s/g, ""), firstName, lastName });
       if (result.success) {
         setVerified(true);
-        setTimeout(onSuccess, 1400);
+        setTimeout(() => onSuccess(result.isNewUser), 1400);
       } else {
         setError(result.error ?? "Invalid or expired code. Please try again.");
       }
@@ -330,7 +334,9 @@ function AuthForm() {
       <VerifyStep
         email={pendingEmail}
         supabaseId={pendingSupabaseId}
-        onSuccess={() => router.push(returnUrl)}
+        firstName={firstName}
+        lastName={lastName}
+        onSuccess={(isNewUser) => router.push(isNewUser ? '/onboarding' : returnUrl)}
       />
     );
   }

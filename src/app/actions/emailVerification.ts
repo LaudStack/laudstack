@@ -6,13 +6,14 @@
  * Flow:
  *   1. User signs up → signUpWithEmail creates Supabase user (no email confirmation)
  *   2. sendVerificationCode() generates a 6-digit code, stores in DB, sends via Resend
- *   3. User enters code → verifyCode() validates, marks user.emailVerified = true
+ *   3. User enters code → verifyCode() validates, creates DB user record, marks emailVerified = true
  */
 
 import { db } from "@/server/db";
 import { emailVerifications, users } from "@/drizzle/schema";
 import { eq, and, gt } from "drizzle-orm";
 import { sendVerificationEmail } from "@/server/email";
+import { upsertUser } from "@/server/db";
 
 // ─── Generate a 6-digit numeric code ─────────────────────────────────────────
 
@@ -25,9 +26,13 @@ function generateCode(): string {
 export async function sendVerificationCode({
   email,
   supabaseId,
+  firstName,
+  lastName,
 }: {
   email: string;
   supabaseId: string;
+  firstName?: string;
+  lastName?: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const code = generateCode();
@@ -65,11 +70,15 @@ export async function verifyCode({
   email,
   supabaseId,
   code,
+  firstName,
+  lastName,
 }: {
   email: string;
   supabaseId: string;
   code: string;
-}): Promise<{ success: boolean; error?: string }> {
+  firstName?: string;
+  lastName?: string;
+}): Promise<{ success: boolean; error?: string; isNewUser?: boolean }> {
   try {
     const now = new Date();
 
@@ -101,13 +110,22 @@ export async function verifyCode({
       .set({ usedAt: now })
       .where(eq(emailVerifications.id, record.id));
 
-    // Mark user as email verified
-    await db
-      .update(users)
-      .set({ emailVerified: true })
-      .where(eq(users.supabaseId, supabaseId));
+    // Create or update DB user record (critical for email signups)
+    // OAuth users get this via the callback route, but email users need it here
+    const fullName = [firstName, lastName].filter(Boolean).join(" ") || undefined;
+    const dbUser = await upsertUser({
+      supabaseId,
+      email,
+      name: fullName,
+      firstName: firstName || undefined,
+      lastName: lastName || undefined,
+      loginMethod: "email",
+      emailVerified: true,
+    });
 
-    return { success: true };
+    const isNewUser = dbUser ? !dbUser.onboardingCompleted : true;
+
+    return { success: true, isNewUser };
   } catch (err) {
     console.error("[emailVerification] verifyCode error:", err);
     return { success: false, error: "An unexpected error occurred. Please try again." };

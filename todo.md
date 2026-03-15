@@ -789,4 +789,14 @@
 - [x] Redirect unauthenticated users to login when clicking Notify Me
 - [x] Update notify API to support userId-based subscriptions (capture account details)
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit ffb5f2e)
+
+## User & Founder Account/Onboarding Audit (Mar 2026)
+- [x] A1: Create /auth/error page — auth callback redirects here on failure but page doesn't exist (404)
+- [x] A2: Wire password reset to Supabase — currently entirely fake (setTimeout simulation)
+- [x] A3: Create DB user record on email signup — upsertUser only called in OAuth callback, email users have no DB record
+- [x] A4: Redirect email signup users to onboarding after OTP verification — currently skips onboarding
+- [x] A5: Fix welcome page hero text color — text-slate-900 on dark bg should be text-white
+- [x] A6: Remove or redirect dead /auth/verify-email page — OTP verification happens inline in login page
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub
