@@ -324,7 +324,7 @@ function ToolGridCard({
   const isLauding = laudingId === Number(tool.id);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-250 flex flex-col group">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col group">
       {/* Header: logo + name + category + laud */}
       <div className="p-4 pb-3 flex items-start gap-3.5">
         <Link href={`/tools/${tool.slug}`} className="flex-shrink-0">
@@ -456,7 +456,7 @@ function ToolListRow({
   const isLauding = laudingId === Number(tool.id);
 
   return (
-    <div className="bg-white border border-slate-200/80 shadow-sm rounded-xl px-5 py-4 flex items-center gap-4 hover:shadow-md hover:border-slate-300 transition-all">
+    <div className="bg-white border border-slate-200/80 shadow-sm rounded-xl px-3 sm:px-5 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 hover:shadow-md hover:border-slate-300 transition-all">
       {/* Laud button */}
       <button
         onClick={() => onLaud(Number(tool.id))}
@@ -507,7 +507,7 @@ function ToolListRow({
       </Link>
 
       {/* Stats */}
-      <div className="flex-shrink-0 flex items-center gap-5">
+      <div className="flex-shrink-0 flex items-center gap-3 sm:gap-5">
         <div className="text-right hidden sm:block">
           <div className="flex items-center gap-1 justify-end">
             <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
@@ -515,7 +515,7 @@ function ToolListRow({
           </div>
           <div className="text-xs text-slate-400 mt-0.5">{timeAgo(tool.launched_at)}</div>
         </div>
-        <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">{tool.pricing_model}</span>
+        <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md hidden sm:inline">{tool.pricing_model}</span>
         <ChevronRight className="w-4 h-4 text-slate-300" />
       </div>
     </div>
@@ -542,6 +542,7 @@ export default function AllTools() {
   const [activeBadge, setActiveBadge] = useState(initialParams.badge);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>('category');
   const toggleSection = useCallback((id: string) => {
     setOpenSection(prev => prev === id ? null : id);
@@ -684,6 +685,9 @@ export default function AllTools() {
   }, []);
 
   const hasFilters = selectedCategories.length > 0 || selectedPricing.length > 0 || minRating > 0 || search.trim() || !!activeBadge;
+
+  /* Close mobile filters on route change */
+  useEffect(() => { setMobileFiltersOpen(false); }, [pathname]);
   const activeFilterCount = selectedCategories.length + selectedPricing.length + (minRating > 0 ? 1 : 0) + (activeBadge ? 1 : 0);
 
   /* ── Counts ─────────────────────────────────────────────────────────────── */
@@ -764,8 +768,8 @@ export default function AllTools() {
           </div>
 
           {/* Category quick-filter pills */}
-          <div className="flex flex-wrap gap-1.5 items-center py-3.5 border-t border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+          <div className="flex gap-1.5 items-center py-3.5 border-t border-slate-100 overflow-x-auto scrollbar-hide flex-nowrap sm:flex-wrap">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 flex-shrink-0 whitespace-nowrap">
               Quick filter:
             </span>
             {CATEGORIES.filter(c => c.name !== 'All').slice(0, 12).map(cat => {
@@ -774,7 +778,7 @@ export default function AllTools() {
                 <button
                   key={cat.name}
                   onClick={() => toggleCategory(cat.name)}
-                  className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                  className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition-all flex-shrink-0 whitespace-nowrap ${
                     isActive
                       ? 'bg-amber-500 text-white border-amber-500'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:bg-amber-50'
@@ -787,7 +791,7 @@ export default function AllTools() {
             {selectedCategories.length > 0 && (
               <button
                 onClick={() => setSelectedCategories([])}
-                className="px-3 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors"
+                className="px-3 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0 whitespace-nowrap"
               >
                 Clear
               </button>
@@ -941,12 +945,27 @@ export default function AllTools() {
             <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
               {/* Left: toggle + count + active chips */}
               <div className="flex items-center gap-2.5 flex-wrap">
+                {/* Desktop sidebar toggle */}
                 <button
                   onClick={() => setSidebarOpen(v => !v)}
                   className="hidden lg:flex items-center gap-1.5 px-3 py-[7px] rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 cursor-pointer transition-all hover:border-slate-300 hover:shadow-sm"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   {sidebarOpen ? 'Hide Filters' : 'Show Filters'}
+                </button>
+
+                {/* Mobile filter button */}
+                <button
+                  onClick={() => setMobileFiltersOpen(true)}
+                  className="lg:hidden flex items-center gap-1.5 px-3 py-[7px] rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 cursor-pointer transition-all hover:border-slate-300 hover:shadow-sm relative"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  Filters
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 text-[9px] font-bold text-white bg-amber-500 w-4 h-4 rounded-full flex items-center justify-center">
+                      {activeFilterCount}
+                    </span>
+                  )}
                 </button>
 
                 <span className="text-[13px] text-slate-500 font-medium">
@@ -1089,7 +1108,7 @@ export default function AllTools() {
                       onClick={() => setVisibleCount(v => v + 30)}
                       className="px-8 py-3 rounded-xl border-[1.5px] border-slate-200 bg-white text-sm font-bold text-slate-700 hover:border-amber-400 hover:text-amber-700 transition-all shadow-sm"
                     >
-                      Load More ({filtered.length - visibleCount} remaining)
+                      Load More ({Math.max(0, filtered.length - visibleCount)} remaining)
                     </button>
                   ) : (
                     <p className="text-sm text-slate-400 font-medium">
@@ -1120,7 +1139,7 @@ export default function AllTools() {
                       onClick={() => setVisibleCount(v => v + 30)}
                       className="px-6 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-sm font-bold text-slate-700 hover:border-amber-400 hover:text-amber-700 transition-all"
                     >
-                      Load More ({filtered.length - visibleCount} remaining)
+                      Load More ({Math.max(0, filtered.length - visibleCount)} remaining)
                     </button>
                   ) : (
                     <p className="text-sm text-slate-400 font-medium">
@@ -1133,6 +1152,158 @@ export default function AllTools() {
           </div>
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          MOBILE FILTER DRAWER
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="absolute right-0 top-0 bottom-0 w-[320px] max-w-[85vw] bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-slate-500" />
+                <span className="text-sm font-extrabold text-slate-900">Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="text-[10px] font-bold text-white bg-amber-500 w-5 h-5 rounded-full flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {hasFilters && (
+                  <button
+                    onClick={clearAll}
+                    className="text-[11px] font-bold text-red-500 hover:text-red-600 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
+                  >
+                    Clear all
+                  </button>
+                )}
+                <button
+                  onClick={() => setMobileFiltersOpen(false)}
+                  className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                >
+                  <X className="w-4 h-4 text-slate-500" />
+                </button>
+              </div>
+            </div>
+
+            {/* Drawer body */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+              {/* Category */}
+              <FilterSection
+                title="Category"
+                icon={LayoutGrid}
+                expanded={openSection === 'category'}
+                onToggle={() => toggleSection('category')}
+                count={selectedCategories.length || undefined}
+              >
+                <div className="mb-1.5">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+                    <input
+                      type="text"
+                      value={catSearch}
+                      onChange={e => setCatSearch(e.target.value)}
+                      placeholder="Search categories..."
+                      className="w-full pl-7 pr-2 py-[6px] text-[12px] text-slate-700 bg-slate-50 border border-slate-200/80 rounded-lg outline-none placeholder:text-slate-400 focus:border-amber-300 focus:ring-1 focus:ring-amber-200 transition-colors"
+                    />
+                  </div>
+                </div>
+                {categoryNames
+                  .filter(cat => !catSearch.trim() || cat.toLowerCase().includes(catSearch.toLowerCase()))
+                  .map(cat => (
+                    <FilterCheckbox
+                      key={cat}
+                      label={cat}
+                      checked={selectedCategories.includes(cat)}
+                      onChange={() => toggleCategory(cat)}
+                      count={catCounts[cat] || 0}
+                    />
+                  ))
+                }
+              </FilterSection>
+
+              {/* Pricing */}
+              <FilterSection
+                title="Pricing"
+                icon={Tag}
+                expanded={openSection === 'pricing'}
+                onToggle={() => toggleSection('pricing')}
+                count={selectedPricing.length || undefined}
+              >
+                {PRICING_OPTIONS.map(p => (
+                  <FilterCheckbox
+                    key={p}
+                    label={p}
+                    checked={selectedPricing.includes(p)}
+                    onChange={() => togglePricing(p)}
+                  />
+                ))}
+              </FilterSection>
+
+              {/* Badges */}
+              <FilterSection
+                title="Badges"
+                icon={Sparkles}
+                expanded={openSection === 'badges'}
+                onToggle={() => toggleSection('badges')}
+                count={activeBadge ? 1 : undefined}
+              >
+                <FilterRadio
+                  label="Any badge"
+                  checked={activeBadge === ''}
+                  onChange={() => setActiveBadge('')}
+                  count={allTools.length}
+                />
+                {availableBadges.map(([key, label]) => (
+                  <FilterRadio
+                    key={key}
+                    label={label}
+                    checked={activeBadge === key}
+                    onChange={() => setActiveBadge(activeBadge === key ? '' : key)}
+                    count={badgeCounts[key] || 0}
+                  />
+                ))}
+              </FilterSection>
+
+              {/* Rating */}
+              <FilterSection
+                title="Min Rating"
+                icon={Star}
+                expanded={openSection === 'rating'}
+                onToggle={() => toggleSection('rating')}
+                count={minRating > 0 ? 1 : undefined}
+              >
+                {RATING_OPTIONS.map(r => (
+                  <FilterRadio
+                    key={r.value}
+                    label={r.label}
+                    checked={minRating === r.value}
+                    onChange={() => setMinRating(r.value)}
+                  />
+                ))}
+              </FilterSection>
+            </div>
+
+            {/* Drawer footer */}
+            <div className="px-5 py-4 border-t border-slate-100">
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold hover:bg-amber-400 transition-colors"
+              >
+                Show {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
