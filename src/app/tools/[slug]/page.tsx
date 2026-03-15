@@ -341,6 +341,39 @@ export default function ToolDetail() {
     setReviewOpen(true);
   };
 
+  // ALL hooks must be called before any early return (Rules of Hooks)
+  // Memoized stable primitives — only recompute when slug or allTools reference changes
+  const toolUpvoteCount = useMemo(
+    () => allTools.find(t => t.slug === slug)?.upvote_count ?? 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slug, allTools]
+  );
+  const stableToolId = useMemo(
+    () => allTools.find(t => t.slug === slug)?.id ?? null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slug, allTools]
+  );
+
+  // Initialize laud count once tool data loads
+  useEffect(() => {
+    if (!laudCountInitialized && toolUpvoteCount > 0) {
+      setLaudCount(toolUpvoteCount);
+      setLaudCountInitialized(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, toolUpvoteCount]);
+
+  // Initialize upvoted state from DB for authenticated users
+  useEffect(() => {
+    if (!isAuthenticated || !stableToolId) return;
+    const toolIdNum = parseInt(stableToolId, 10);
+    if (!Number.isFinite(toolIdNum)) return;
+    getUserLaudedToolIds().then(ids => {
+      setUpvoted(ids.includes(toolIdNum));
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, stableToolId]);
+
   const tool = allTools.find(t => t.slug === slug);
 
   if (!tool) {
@@ -385,36 +418,6 @@ export default function ToolDetail() {
     const count = ratingDistribution[star] ?? 0;
     return { star, count };
   });
-
-  // Initialize laud count from tool data — memoized so it only recomputes when slug/allTools changes
-  const toolUpvoteCount = useMemo(
-    () => allTools.find(t => t.slug === slug)?.upvote_count ?? 0,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slug, allTools]
-  );
-  useEffect(() => {
-    if (!laudCountInitialized && toolUpvoteCount > 0) {
-      setLaudCount(toolUpvoteCount);
-      setLaudCountInitialized(true);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, toolUpvoteCount]);
-
-  // Initialize upvoted state from DB for authenticated users — memoized stable primitive
-  const stableToolId = useMemo(
-    () => allTools.find(t => t.slug === slug)?.id ?? null,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slug, allTools]
-  );
-  useEffect(() => {
-    if (!isAuthenticated || !stableToolId) return;
-    const toolIdNum = parseInt(stableToolId, 10);
-    if (!Number.isFinite(toolIdNum)) return;
-    getUserLaudedToolIds().then(ids => {
-      setUpvoted(ids.includes(toolIdNum));
-    }).catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, stableToolId]);
 
   const handleUpvote = async () => {
     if (!isAuthenticated) { setAuthAction('upvote'); setShowAuthModal(true); return; }
