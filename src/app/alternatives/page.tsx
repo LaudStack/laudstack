@@ -5,39 +5,60 @@
  * Search for any stack and discover top-rated alternatives in the same category.
  * Shows a search-driven workflow with popular stacks grid as the default view.
  */
-import { useState, useMemo, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useMemo, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Search, Star, Layers, ChevronRight, Sparkles, X,
-  Home, ArrowRight, Repeat2, ShieldCheck,
-} from 'lucide-react';
-import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { useToolsData } from '@/hooks/useToolsData';
-import { CATEGORY_META } from '@/lib/categories';
-import type { Tool } from '@/lib/types';
+  Search,
+  Star,
+  Layers,
+  ChevronRight,
+  Sparkles,
+  X,
+  Home,
+  ArrowRight,
+  Repeat2,
+  ShieldCheck,
+} from "lucide-react";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import LogoWithFallback from "@/components/LogoWithFallback";
+import { useToolsData } from "@/hooks/useToolsData";
+import { CATEGORY_META } from "@/lib/categories";
+import type { Tool } from "@/lib/types";
 
 /* ─── Search Result Item ────────────────────────────────────────────────────── */
-function SearchResultItem({ tool, onSelect }: { tool: Tool; onSelect: (slug: string) => void }) {
+function SearchResultItem({
+  tool,
+  onSelect,
+}: {
+  tool: Tool;
+  onSelect: (slug: string) => void;
+}) {
   return (
     <button
       onMouseDown={() => onSelect(tool.slug)}
       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
     >
-      <img
-        src={tool.logo_url || `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`}
-        alt={tool.name}
-        className="w-8 h-8 rounded-lg object-cover border border-slate-100 shadow-sm shrink-0"
-        onError={e => { (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`; }}
-      />
+      <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm shrink-0 bg-slate-50 flex items-center justify-center">
+        <LogoWithFallback
+          src={tool.logo_url}
+          alt={tool.name}
+          className="w-full h-full object-cover"
+          fallbackSize="text-[10px]"
+        />
+      </div>
       <div className="flex-1 min-w-0">
-        <span className="text-[13px] font-bold text-slate-900">{tool.name}</span>
+        <span className="text-[13px] font-bold text-slate-900">
+          {tool.name}
+        </span>
         <p className="text-[11px] text-slate-400 truncate">{tool.tagline}</p>
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <Star className="w-[10px] h-[10px] fill-amber-400 text-amber-400" />
-        <span className="text-[11px] font-bold text-slate-900">{tool.average_rating.toFixed(1)}</span>
+        <span className="text-[11px] font-bold text-slate-900">
+          {tool.average_rating.toFixed(1)}
+        </span>
       </div>
     </button>
   );
@@ -52,34 +73,50 @@ function AlternativeRow({ tool, rank }: { tool: Tool; rank: number }) {
       className="group w-full bg-white border border-slate-200 rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-3 sm:gap-4 text-left transition-all duration-200 hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5"
     >
       {/* Rank */}
-      <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-black shrink-0 ${
-        rank <= 3 ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-500 border border-slate-200'
-      }`}>
+      <span
+        className={`w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-black shrink-0 ${
+          rank <= 3
+            ? "bg-amber-50 text-amber-600 border border-amber-200"
+            : "bg-slate-50 text-slate-500 border border-slate-200"
+        }`}
+      >
         {rank}
       </span>
 
       {/* Logo */}
-      <img
-        src={tool.logo_url || `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`}
-        alt={tool.name}
-        className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-cover border border-slate-100 shadow-sm shrink-0"
-        onError={e => { (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`; }}
-      />
+      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-slate-100 shadow-sm shrink-0 bg-slate-50 flex items-center justify-center">
+        <LogoWithFallback
+          src={tool.logo_url}
+          alt={tool.name}
+          className="w-full h-full object-cover"
+          fallbackSize="text-sm"
+        />
+      </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[14px] font-extrabold text-slate-900 truncate">{tool.name}</span>
-          {tool.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-green-500 shrink-0" />}
+          <span className="text-[14px] font-extrabold text-slate-900 truncate">
+            {tool.name}
+          </span>
+          {tool.is_verified && (
+            <ShieldCheck className="w-3.5 h-3.5 text-green-500 shrink-0" />
+          )}
         </div>
-        <p className="text-[12px] text-slate-500 truncate mt-0.5">{tool.tagline}</p>
+        <p className="text-[12px] text-slate-500 truncate mt-0.5">
+          {tool.tagline}
+        </p>
       </div>
 
       {/* Rating */}
       <div className="hidden sm:flex items-center gap-1 shrink-0">
         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-        <span className="text-[13px] font-bold text-slate-900">{tool.average_rating.toFixed(1)}</span>
-        <span className="text-[11px] text-slate-400">({tool.review_count})</span>
+        <span className="text-[13px] font-bold text-slate-900">
+          {tool.average_rating.toFixed(1)}
+        </span>
+        <span className="text-[11px] text-slate-400">
+          ({tool.review_count})
+        </span>
       </div>
 
       {/* Category badge */}
@@ -93,25 +130,41 @@ function AlternativeRow({ tool, rank }: { tool: Tool; rank: number }) {
 }
 
 /* ─── Popular Stack Card ────────────────────────────────────────────────────── */
-function PopularStackCard({ tool, altCount, onSelect }: { tool: Tool; altCount: number; onSelect: (slug: string) => void }) {
+function PopularStackCard({
+  tool,
+  altCount,
+  onSelect,
+}: {
+  tool: Tool;
+  altCount: number;
+  onSelect: (slug: string) => void;
+}) {
   return (
     <button
       onClick={() => onSelect(tool.slug)}
       className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 text-left transition-all duration-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-amber-200 w-full"
     >
       <div className="flex items-center gap-3 mb-3">
-        <img
-          src={tool.logo_url || `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`}
-          alt={tool.name}
-          className="w-11 h-11 rounded-xl object-cover border border-slate-100 shadow-sm shrink-0"
-          onError={e => { (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`; }}
-        />
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-slate-100 shadow-sm shrink-0 bg-slate-50 flex items-center justify-center">
+          <LogoWithFallback
+            src={tool.logo_url}
+            alt={tool.name}
+            className="w-full h-full object-cover"
+            fallbackSize="text-sm"
+          />
+        </div>
         <div className="flex-1 min-w-0">
-          <span className="text-[14px] font-extrabold text-slate-900 block truncate">{tool.name}</span>
+          <span className="text-[14px] font-extrabold text-slate-900 block truncate">
+            {tool.name}
+          </span>
           <div className="flex items-center gap-1 mt-0.5">
             <Star className="w-[11px] h-[11px] fill-amber-400 text-amber-400" />
-            <span className="text-[11px] font-bold text-slate-900">{tool.average_rating.toFixed(1)}</span>
-            <span className="text-[10px] text-slate-400">({tool.review_count})</span>
+            <span className="text-[11px] font-bold text-slate-900">
+              {tool.average_rating.toFixed(1)}
+            </span>
+            <span className="text-[10px] text-slate-400">
+              ({tool.review_count})
+            </span>
           </div>
         </div>
       </div>
@@ -121,7 +174,9 @@ function PopularStackCard({ tool, altCount, onSelect }: { tool: Tool; altCount: 
       </p>
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-        <span className="text-[11px] font-bold text-amber-600">{altCount} alternative{altCount !== 1 ? 's' : ''}</span>
+        <span className="text-[11px] font-bold text-amber-600">
+          {altCount} alternative{altCount !== 1 ? "s" : ""}
+        </span>
         <ArrowRight className="w-3.5 h-3.5 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
       </div>
     </button>
@@ -131,7 +186,7 @@ function PopularStackCard({ tool, altCount, onSelect }: { tool: Tool; altCount: 
 /* ─── Loading Skeletons ─────────────────────────────────────────────────────── */
 function PopularCardSkeleton() {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm animate-pulse">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-11 h-11 rounded-xl bg-slate-200" />
         <div className="flex-1">
@@ -151,9 +206,9 @@ function PopularCardSkeleton() {
 
 function AlternativeRowSkeleton() {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center gap-4 animate-pulse">
+    <div className="bg-white border border-slate-200 rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-3 sm:gap-4 shadow-sm animate-pulse">
       <div className="w-7 h-7 rounded-lg bg-slate-200" />
-      <div className="w-11 h-11 rounded-xl bg-slate-200" />
+      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-200" />
       <div className="flex-1">
         <div className="w-28 h-4 bg-slate-200 rounded" />
         <div className="w-40 h-3 bg-slate-200 rounded mt-1.5" />
@@ -169,12 +224,12 @@ export default function AlternativesPage() {
   const { tools: allTools, loading } = useToolsData();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Auto-select from URL param
-  const urlProduct = searchParams?.get('product') ?? null;
+  const urlProduct = searchParams?.get("product") ?? null;
   useEffect(() => {
     if (urlProduct && !selectedSlug) {
       setSelectedSlug(urlProduct);
@@ -183,7 +238,7 @@ export default function AlternativesPage() {
 
   const selectedProduct = useMemo(() => {
     const slug = selectedSlug || urlProduct;
-    return slug ? allTools.find(t => t.slug === slug) : null;
+    return slug ? allTools.find((t) => t.slug === slug) : null;
   }, [allTools, selectedSlug, urlProduct]);
 
   // Search results
@@ -191,7 +246,11 @@ export default function AlternativesPage() {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
     return allTools
-      .filter(t => t.name.toLowerCase().includes(q) || t.tagline.toLowerCase().includes(q))
+      .filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.tagline.toLowerCase().includes(q)
+      )
       .slice(0, 8);
   }, [allTools, searchQuery]);
 
@@ -199,7 +258,11 @@ export default function AlternativesPage() {
   const alternatives = useMemo(() => {
     if (!selectedProduct) return [];
     return allTools
-      .filter(t => t.category === selectedProduct.category && t.slug !== selectedProduct.slug)
+      .filter(
+        (t) =>
+          t.category === selectedProduct.category &&
+          t.slug !== selectedProduct.slug
+      )
       .sort((a, b) => b.average_rating - a.average_rating);
   }, [allTools, selectedProduct]);
 
@@ -213,15 +276,19 @@ export default function AlternativesPage() {
   // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    allTools.forEach(t => { counts[t.category] = (counts[t.category] || 0) + 1; });
+    allTools.forEach((t) => {
+      counts[t.category] = (counts[t.category] || 0) + 1;
+    });
     return counts;
   }, [allTools]);
 
-  const categories = CATEGORY_META.filter(c => c.name !== 'All' && (categoryCounts[c.name] || 0) > 1);
+  const categories = CATEGORY_META.filter(
+    (c) => c.name !== "All" && (categoryCounts[c.name] || 0) > 1
+  );
 
   const handleSelect = (slug: string) => {
     setSelectedSlug(slug);
-    setSearchQuery('');
+    setSearchQuery("");
     setSearchOpen(false);
   };
 
@@ -230,12 +297,15 @@ export default function AlternativesPage() {
       <Navbar />
       <div className="h-[72px] shrink-0" />
 
-      {/* ── Hero (matches /tools hero pattern) ── */}
-      <section className="bg-white border-b border-slate-200" style={{ paddingTop: 84, paddingBottom: 28 }}>
+      {/* ── Hero ── */}
+      <section className="bg-white border-b border-slate-200 pt-[84px] pb-7">
         <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-[12px] text-slate-400 mb-4">
-            <Link href="/" className="hover:text-amber-600 transition-colors flex items-center gap-1">
+            <Link
+              href="/"
+              className="hover:text-amber-600 transition-colors flex items-center gap-1"
+            >
               <Home className="w-3 h-3" /> Home
             </Link>
             <span>/</span>
@@ -246,13 +316,16 @@ export default function AlternativesPage() {
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 mb-3">
                 <Repeat2 className="w-3 h-3 text-amber-600" />
-                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Discover</span>
+                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">
+                  Alternatives
+                </span>
               </div>
-              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(24px, 3vw, 30px)', fontWeight: 900, letterSpacing: '-0.025em', color: '#111827', margin: 0, lineHeight: 1.2 }}>
+              <h1 className="font-['Inter',sans-serif] text-[clamp(24px,3vw,30px)] font-black tracking-tight text-gray-900 m-0 leading-tight">
                 Find the Best Alternatives
               </h1>
               <p className="text-[14px] text-slate-500 mt-2 max-w-[480px]">
-                Search for any AI or SaaS stack and discover top-rated alternatives. Compare features, pricing, and reviews.
+                Search for any AI or SaaS stack and discover top-rated
+                alternatives. Compare features, pricing, and reviews.
               </p>
             </div>
           </div>
@@ -271,7 +344,10 @@ export default function AlternativesPage() {
                 <Search className="ml-4 w-[16px] h-[16px] text-slate-400 shrink-0" />
                 <input
                   value={searchQuery}
-                  onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSearchOpen(true);
+                  }}
                   onFocus={() => setSearchOpen(true)}
                   onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
                   placeholder="e.g. ChatGPT, Notion, Figma..."
@@ -279,7 +355,9 @@ export default function AlternativesPage() {
                 />
                 {searchQuery && (
                   <button
-                    onClick={() => { setSearchQuery(''); }}
+                    onClick={() => {
+                      setSearchQuery("");
+                    }}
                     className="px-3 py-3.5 text-slate-400 hover:text-slate-600 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -288,19 +366,30 @@ export default function AlternativesPage() {
               </div>
 
               {/* Search results dropdown */}
-              {searchOpen && searchQuery.trim() && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-20 mt-1.5 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl overflow-hidden">
-                  {searchResults.map(tool => (
-                    <SearchResultItem key={tool.slug} tool={tool} onSelect={handleSelect} />
-                  ))}
-                </div>
-              )}
+              {searchOpen &&
+                searchQuery.trim() &&
+                searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 z-20 mt-1.5 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                    {searchResults.map((tool) => (
+                      <SearchResultItem
+                        key={tool.slug}
+                        tool={tool}
+                        onSelect={handleSelect}
+                      />
+                    ))}
+                  </div>
+                )}
 
-              {searchOpen && searchQuery.trim() && searchResults.length === 0 && !loading && (
-                <div className="absolute top-full left-0 right-0 z-20 mt-1.5 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-lg p-4 text-center">
-                  <p className="text-[13px] text-slate-500">No stacks found matching &ldquo;{searchQuery}&rdquo;</p>
-                </div>
-              )}
+              {searchOpen &&
+                searchQuery.trim() &&
+                searchResults.length === 0 &&
+                !loading && (
+                  <div className="absolute top-full left-0 right-0 z-20 mt-1.5 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-lg p-4 text-center">
+                    <p className="text-[13px] text-slate-500">
+                      No stacks found matching &ldquo;{searchQuery}&rdquo;
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
         </section>
@@ -312,25 +401,34 @@ export default function AlternativesPage() {
               {/* Selected stack header */}
               <div className="bg-white border-[1.5px] border-amber-200 rounded-2xl p-5 sm:p-6 mb-6 shadow-sm">
                 <div className="flex items-center gap-4 flex-wrap">
-                  <img
-                    src={selectedProduct.logo_url || `https://www.google.com/s2/favicons?domain=${selectedProduct.website_url}&sz=64`}
-                    alt={selectedProduct.name}
-                    className="w-14 h-14 rounded-xl object-cover border border-slate-100 shadow-sm shrink-0"
-                    onError={e => { (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${selectedProduct.website_url}&sz=64`; }}
-                  />
+                  <div className="w-14 h-14 rounded-xl overflow-hidden border border-slate-100 shadow-sm shrink-0 bg-slate-50 flex items-center justify-center">
+                    <LogoWithFallback
+                      src={selectedProduct.logo_url}
+                      alt={selectedProduct.name}
+                      className="w-full h-full object-cover"
+                      fallbackSize="text-xl"
+                    />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-lg sm:text-xl font-black text-slate-900">
                         Alternatives to {selectedProduct.name}
                       </h2>
-                      {selectedProduct.is_verified && <ShieldCheck className="w-4 h-4 text-green-500" />}
+                      {selectedProduct.is_verified && (
+                        <ShieldCheck className="w-4 h-4 text-green-500" />
+                      )}
                     </div>
                     <p className="text-[13px] text-slate-500 mt-1">
-                      {alternatives.length} alternative{alternatives.length !== 1 ? 's' : ''} in {selectedProduct.category}
+                      {alternatives.length} alternative
+                      {alternatives.length !== 1 ? "s" : ""} in{" "}
+                      {selectedProduct.category}
                     </p>
                   </div>
                   <button
-                    onClick={() => { setSelectedSlug(null); setSearchQuery(''); }}
+                    onClick={() => {
+                      setSelectedSlug(null);
+                      setSearchQuery("");
+                    }}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-bold text-slate-500 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" /> Clear
@@ -342,15 +440,22 @@ export default function AlternativesPage() {
               {alternatives.length > 0 ? (
                 <div className="flex flex-col gap-2.5">
                   {alternatives.map((tool, i) => (
-                    <AlternativeRow key={tool.slug} tool={tool} rank={i + 1} />
+                    <AlternativeRow
+                      key={tool.slug}
+                      tool={tool}
+                      rank={i + 1}
+                    />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-12 bg-white rounded-2xl border border-slate-200">
                   <Layers className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                  <h3 className="text-[15px] font-bold text-slate-600 mb-1">No alternatives found</h3>
+                  <h3 className="text-[15px] font-bold text-slate-600 mb-1">
+                    No alternatives found
+                  </h3>
                   <p className="text-[13px] text-slate-400">
-                    We don&apos;t have other stacks in the {selectedProduct.category} category yet.
+                    We don&apos;t have other stacks in the{" "}
+                    {selectedProduct.category} category yet.
                   </p>
                 </div>
               )}
@@ -365,27 +470,38 @@ export default function AlternativesPage() {
               <div className="mb-8">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 mb-3">
                   <Sparkles className="w-3 h-3 text-amber-600" />
-                  <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Popular</span>
+                  <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">
+                    Popular
+                  </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1.5">
                   Popular Stacks
                 </h2>
                 <p className="text-[14px] text-slate-500 max-w-[480px]">
-                  Discover alternatives to the most popular AI and SaaS stacks on the platform.
+                  Discover alternatives to the most popular AI and SaaS stacks
+                  on the platform.
                 </p>
               </div>
 
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {Array.from({ length: 8 }).map((_, i) => <PopularCardSkeleton key={i} />)}
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <PopularCardSkeleton key={i} />
+                  ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {popularStacks.map(tool => (
+                  {popularStacks.map((tool) => (
                     <PopularStackCard
                       key={tool.slug}
                       tool={tool}
-                      altCount={allTools.filter(t => t.category === tool.category && t.slug !== tool.slug).length}
+                      altCount={
+                        allTools.filter(
+                          (t) =>
+                            t.category === tool.category &&
+                            t.slug !== tool.slug
+                        ).length
+                      }
                       onSelect={handleSelect}
                     />
                   ))}
@@ -401,27 +517,38 @@ export default function AlternativesPage() {
             <div className="mb-8">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 mb-3">
                 <Layers className="w-3 h-3 text-blue-600" />
-                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">By Category</span>
+                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                  By Category
+                </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1.5">
                 Find Alternatives by Category
               </h2>
               <p className="text-[14px] text-slate-500 max-w-[480px]">
-                Browse categories to discover alternative stacks in your area of interest.
+                Browse categories to discover alternative stacks in your area of
+                interest.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <button
                   key={cat.name}
-                  onClick={() => router.push(`/tools?category=${encodeURIComponent(cat.name)}`)}
+                  onClick={() =>
+                    router.push(
+                      `/tools?category=${encodeURIComponent(cat.name)}`
+                    )
+                  }
                   className="group bg-white border border-slate-200 rounded-xl px-4 sm:px-5 py-3.5 flex items-center gap-3 text-left transition-all duration-200 hover:border-amber-200 hover:shadow-md w-full"
                 >
                   <span className="text-2xl shrink-0">{cat.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <span className="text-[13px] font-extrabold text-slate-900">{cat.name}</span>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{categoryCounts[cat.name] || 0} stacks</p>
+                    <span className="text-[13px] font-extrabold text-slate-900">
+                      {cat.name}
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {categoryCounts[cat.name] || 0} stacks
+                    </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-500 transition-colors shrink-0" />
                 </button>
