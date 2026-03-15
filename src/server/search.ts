@@ -33,6 +33,9 @@ export const toolsCollectionSchema = {
     { name: "badges", type: "string[]" as const, facet: true },
     { name: "is_featured", type: "bool" as const, facet: true },
     { name: "is_verified", type: "bool" as const },
+    { name: "is_visible", type: "bool" as const },
+    { name: "status", type: "string" as const },
+    { name: "is_approved", type: "bool" as const },  // derived field for easy filtering
     { name: "average_rating", type: "float" as const },
     { name: "review_count", type: "int32" as const },
     { name: "upvote_count", type: "int32" as const },
@@ -59,6 +62,9 @@ export async function indexTool(tool: Tool): Promise<void> {
     badges: (tool.badges as string[]) ?? [],
     is_featured: tool.isFeatured,
     is_verified: tool.isVerified,
+    is_visible: tool.isVisible,
+    status: tool.status,
+    is_approved: tool.status === "approved",
     average_rating: tool.averageRating,
     review_count: tool.reviewCount,
     upvote_count: tool.upvoteCount,
@@ -96,7 +102,11 @@ export async function searchTools(
     perPage?: number;
   } = {}
 ) {
-  const filterParts: string[] = [];
+  const filterParts: string[] = [
+    // Always restrict to approved and visible tools
+    "is_approved:=true",
+    "is_visible:=true",
+  ];
 
   if (category && category !== "All") {
     filterParts.push(`category:=${category}`);

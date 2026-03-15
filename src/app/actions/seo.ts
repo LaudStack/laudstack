@@ -71,7 +71,7 @@ export async function getAllCategoriesWithCounts(): Promise<
   const rows = await db
     .select({ category: tools.category, count: count() })
     .from(tools)
-    .where(eq(tools.status, "approved"))
+    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
     .groupBy(tools.category);
 
   return CATEGORY_META
@@ -112,7 +112,7 @@ export async function getCategorySEOData(
     default: orderBy = desc(tools.rankScore);
   }
 
-  const conditions = [eq(tools.status, "approved"), eq(tools.category, categoryName)];
+  const conditions = [eq(tools.status, "approved"), eq(tools.isVisible, true), eq(tools.category, categoryName)];
 
   const [rows, totalResult] = await Promise.all([
     db.select().from(tools).where(and(...conditions)).orderBy(orderBy).limit(limit).offset(offset),
@@ -189,6 +189,7 @@ export async function getAllBestToolsSlugs(): Promise<string[]> {
     const catConditions = def.categories.map((c) => eq(tools.category, c));
     const whereClause = and(
       eq(tools.status, "approved"),
+      eq(tools.isVisible, true),
       catConditions.length === 1 ? catConditions[0] : or(...catConditions)
     );
     const [{ count: c }] = await db.select({ count: count() }).from(tools).where(whereClause!);
@@ -220,6 +221,7 @@ export async function getBestToolsData(
   const catConditions = def.categories.map((c) => eq(tools.category, c));
   const whereClause = and(
     eq(tools.status, "approved"),
+    eq(tools.isVisible, true),
     catConditions.length === 1 ? catConditions[0] : or(...catConditions)
   );
 
@@ -254,7 +256,7 @@ export async function getAllAlternativeSlugs(): Promise<string[]> {
   const approvedTools = await db
     .select({ slug: tools.slug, category: tools.category })
     .from(tools)
-    .where(eq(tools.status, "approved"));
+    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)));
 
   // Only generate alternatives pages for tools that have at least 2 alternatives in the same category
   const categoryCounts: Record<string, number> = {};
@@ -295,6 +297,7 @@ export async function getAlternativesData(
   // Find alternatives: same category, different tool
   const conditions = [
     eq(tools.status, "approved"),
+    eq(tools.isVisible, true),
     eq(tools.category, tool.category),
     ne(tools.id, tool.id),
   ];
@@ -348,7 +351,7 @@ export async function getPopularComparisonPairs(): Promise<
       rankScore: tools.rankScore,
     })
     .from(tools)
-    .where(eq(tools.status, "approved"))
+    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
     .orderBy(desc(tools.rankScore))
     .limit(100);
 
@@ -420,7 +423,7 @@ export async function getDiscoverySEOData(
       break;
   }
 
-  const conditions = [eq(tools.status, "approved")];
+  const conditions = [eq(tools.status, "approved"), eq(tools.isVisible, true)];
 
   const [rows, totalResult] = await Promise.all([
     db.select().from(tools).where(and(...conditions)).orderBy(orderBy).limit(limit).offset(offset),

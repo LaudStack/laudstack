@@ -24,7 +24,11 @@ interface HomepageData {
 }
 
 let cachedData: HomepageData | null = null;
+let cacheTimestamp: number | null = null;
 let fetchPromise: Promise<HomepageData> | null = null;
+
+/** Cache TTL: 5 minutes. Prevents serving stale rankings after a recalculation. */
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 /**
  * Normalize leaderboard entries from the API.
@@ -60,7 +64,10 @@ function normalizeLeaderboard(raw: unknown[]): FlatLeaderboardEntry[] {
 }
 
 function fetchData(): Promise<HomepageData> {
-  if (cachedData) return Promise.resolve(cachedData);
+  // Expire the cache after TTL so rankings stay fresh
+  if (cachedData && cacheTimestamp && Date.now() - cacheTimestamp < CACHE_TTL_MS) {
+    return Promise.resolve(cachedData);
+  }
   if (fetchPromise) return fetchPromise;
   fetchPromise = fetch("/api/homepage")
     .then((r) => r.json())
@@ -73,6 +80,7 @@ function fetchData(): Promise<HomepageData> {
         totalUsers: data.totalUsers ?? 0,
       };
       cachedData = normalized;
+      cacheTimestamp = Date.now();
       return normalized;
     })
     .catch(() => ({ tools: [], reviews: [], leaderboard: [], totalReviews: 0, totalUsers: 0 }));
@@ -104,5 +112,6 @@ export function useToolsData() {
 // Invalidate cache (call after mutations like upvote)
 export function invalidateToolsCache() {
   cachedData = null;
+  cacheTimestamp = null;
   fetchPromise = null;
 }

@@ -213,7 +213,7 @@ export async function getCategoriesWithCounts() {
     count: count(),
   })
     .from(tools)
-    .where(eq(tools.status, "approved"))
+    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
     .groupBy(tools.category)
     .orderBy(desc(count()));
 }

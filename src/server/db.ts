@@ -98,7 +98,7 @@ export async function getTools({
   limit?: number;
   offset?: number;
 }) {
-  const conditions = [eq(schema.tools.status, "approved")];
+  const conditions = [eq(schema.tools.status, "approved"), eq(schema.tools.isVisible, true)];
 
   if (category && category !== "All") {
     conditions.push(eq(schema.tools.category, category));
@@ -148,6 +148,7 @@ export async function searchTools(query: string, limit = 20) {
   return db.query.tools.findMany({
     where: and(
       eq(schema.tools.status, "approved"),
+      eq(schema.tools.isVisible, true),
       or(
         ilike(schema.tools.name, `%${query}%`),
         ilike(schema.tools.tagline, `%${query}%`),
@@ -163,6 +164,7 @@ export async function getTrendingTools(limit = 4) {
   return db.query.tools.findMany({
     where: and(
       eq(schema.tools.status, "approved"),
+      eq(schema.tools.isVisible, true),
       sql`${schema.tools.weeklyRankChange} > 0`
     ),
     orderBy: desc(schema.tools.weeklyRankChange),
@@ -172,7 +174,7 @@ export async function getTrendingTools(limit = 4) {
 
 export async function getRecentLaunches(limit = 4) {
   return db.query.tools.findMany({
-    where: eq(schema.tools.status, "approved"),
+    where: and(eq(schema.tools.status, "approved"), eq(schema.tools.isVisible, true)),
     orderBy: desc(schema.tools.launchedAt),
     limit,
   });
