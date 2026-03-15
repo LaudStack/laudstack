@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import { MessageSquare, Bell, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
-import { trpc } from '@/lib/trpc';
+import { trpc } from '@/lib/trpc/client';
 import { toast } from 'sonner';
 
 export default function Discussions() {
@@ -15,7 +15,7 @@ export default function Discussions() {
       toast.success('You\'ll be notified when Discussions launches!');
       setEmail('');
     },
-    onError: (err) => {
+    onError: (err: any) => {
       if (err.message.includes('already subscribed')) {
         toast.info('You\'re already on the list — we\'ll notify you when it launches!');
       } else {

@@ -5,7 +5,7 @@
 // Design: LaudStack dark-slate + amber accent. Affiliate program with commission tiers.
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { trpc } from '@/lib/trpc';
+import { trpc } from '@/lib/trpc/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';

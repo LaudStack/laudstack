@@ -275,7 +275,7 @@ export default function FAQ() {
         title="Frequently Asked Questions"
         subtitle="Everything you need to know about LaudStack — from how reviews work to launching your tool."
         accent="amber"
-        layout="center"
+        layout="centered"
         size="md"
       />
 
