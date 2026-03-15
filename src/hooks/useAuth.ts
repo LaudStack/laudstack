@@ -1,13 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
 
 export interface AuthState {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
+}
+
+/**
+ * Module-level singleton — createBrowserClient is called once per browser
+ * session, not on every render. This prevents the infinite re-render loop
+ * caused by a new client instance being created each time the hook runs.
+ *
+ * We defer initialisation to the first call so that server-side rendering
+ * (where window/document are unavailable) doesn't throw.
+ */
+let supabaseClient: ReturnType<typeof createBrowserClient> | null = null;
+
+function getSupabaseClient() {
+  if (!supabaseClient) {
+    supabaseClient = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return supabaseClient;
 }
 
 export function useAuth(): AuthState & {
@@ -19,7 +39,9 @@ export function useAuth(): AuthState & {
 } {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+
+  // Stable reference — same object across all renders
+  const supabase = getSupabaseClient();
 
   useEffect(() => {
     // Get initial session
@@ -37,6 +59,8 @@ export function useAuth(): AuthState & {
     });
 
     return () => subscription.unsubscribe();
+  // supabase is a stable singleton — safe to omit from deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const signOut = async () => {

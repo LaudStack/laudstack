@@ -569,9 +569,39 @@ export default function ToolDetail() {
                   </div>
 
                   {/* Tagline */}
-                  <p className="text-[15px] sm:text-base text-slate-500 font-medium leading-relaxed max-w-[580px] m-0">
+                  <p className="text-[14px] sm:text-[15px] text-slate-500 font-medium leading-relaxed max-w-[580px] m-0 mb-3">
                     {tool.tagline}
                   </p>
+
+                  {/* Stats row — inline under tagline */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                    {[
+                      {
+                        label: 'Rating',
+                        value: (
+                          <div className="flex items-center gap-1">
+                            <StarRating rating={tool.average_rating} size={12} />
+                            <span className="text-[13px] font-extrabold text-slate-900">{tool.average_rating.toFixed(1)}</span>
+                            <span className="text-[11px] text-slate-400 font-medium">({tool.review_count.toLocaleString()})</span>
+                          </div>
+                        ),
+                      },
+                      { label: 'Lauds', value: <span className="text-[13px] font-extrabold text-slate-900">{laudCount.toLocaleString()}</span> },
+                      { label: 'Pricing', value: <span className="text-[13px] font-extrabold text-slate-900">{tool.pricing_model}</span> },
+                      { label: 'Launched', value: <span className="text-[13px] font-extrabold text-slate-900">{new Date(tool.launched_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span> },
+                      { label: 'Category', value: <span className="text-[13px] font-extrabold text-slate-900">{tool.category}</span> },
+                    ].map((stat, i, arr) => (
+                      <div key={stat.label} className="flex items-center gap-3">
+                        <div className="flex flex-col gap-0">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">{stat.label}</span>
+                          {stat.value}
+                        </div>
+                        {i < arr.length - 1 && (
+                          <div className="w-px h-7 bg-slate-200 shrink-0" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Right: Action buttons — stacks on mobile */}
@@ -632,35 +662,6 @@ export default function ToolDetail() {
                       Compare
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats Strip — full width below hero row */}
-            <div className="mt-4 pt-4 border-t border-slate-100">
-              <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-                <div className="inline-flex items-stretch border border-slate-200 rounded-xl bg-slate-50 min-w-max">
-                  {[
-                    {
-                      label: 'Rating',
-                      value: (
-                        <div className="flex items-center gap-1">
-                          <StarRating rating={tool.average_rating} size={13} />
-                          <span className="text-sm font-extrabold text-slate-900">{tool.average_rating.toFixed(1)}</span>
-                          <span className="text-[11px] text-slate-400 font-medium">({tool.review_count.toLocaleString()})</span>
-                        </div>
-                      ),
-                    },
-                    { label: 'Lauds', value: <span className="text-sm font-extrabold text-slate-900">{laudCount.toLocaleString()}</span> },
-                    { label: 'Pricing', value: <span className="text-sm font-extrabold text-slate-900">{tool.pricing_model}</span> },
-                    { label: 'Launched', value: <span className="text-sm font-extrabold text-slate-900">{new Date(tool.launched_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span> },
-                    { label: 'Category', value: <span className="text-sm font-extrabold text-slate-900">{tool.category}</span> },
-                  ].map((stat, i, arr) => (
-                    <div key={stat.label} className="flex flex-col gap-0.5 px-4 sm:px-6 py-3" style={{ borderRight: i < arr.length - 1 ? '1px solid #E2E8F0' : 'none' }}>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</span>
-                      {stat.value}
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
