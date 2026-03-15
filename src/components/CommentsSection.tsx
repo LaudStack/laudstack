@@ -5,16 +5,20 @@
  *
  * Product-level commenting system for stack detail pages.
  * Features:
+ * - Cursor-based pagination (load more)
+ * - Supabase Realtime subscriptions for live updates
+ * - Soft-delete with "[deleted]" placeholder UI
  * - Auth-gated comment creation
  * - Single-level replies (no deeper nesting)
  * - Founder badge for stack owner/claimer
  * - Edit/delete own comments
+ * - 30-second rate limiting feedback
  * - Loading skeleton & empty state
  * - Mobile responsive
  * - Error boundary wrapper for resilience
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Send,
   CornerDownRight,
@@ -23,8 +27,8 @@ import {
   Loader2,
   Shield,
   ChevronDown,
-  ChevronUp,
   MessageCircle,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -33,7 +37,9 @@ import {
   editComment,
   deleteComment,
   type CommentWithUser,
+  type PaginatedComments,
 } from "@/app/actions/comments";
+import { createClient } from "@/lib/supabase/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -131,14 +137,14 @@ function UserAvatar({
       style={{
         width: size,
         height: size,
-        background: avatarColor(user.name),
+        background: user.name === "[deleted]" ? "#CBD5E1" : avatarColor(user.name),
       }}
     >
       <span
         className="text-white font-bold"
         style={{ fontSize: size * 0.38 }}
       >
-        {getInitials(user.name)}
+        {user.name === "[deleted]" ? "?" : getInitials(user.name)}
       </span>
     </div>
   );
@@ -296,7 +302,7 @@ function CommentItem({
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // Sync editContent when comment.content changes (e.g. after parent re-renders with updated data)
+  // Sync editContent when comment.content changes
   useEffect(() => {
     if (!editing) {
       setEditContent(comment.content);
@@ -327,6 +333,28 @@ function CommentItem({
       setConfirmDelete(false);
     }
   };
+
+  // ─── Soft-deleted comment placeholder ─────────────────────────────────────
+  if (comment.isDeleted) {
+    return (
+      <div className={`flex gap-3 ${isReply ? "ml-0" : ""} opacity-60`}>
+        <UserAvatar user={comment.user} size={isReply ? 30 : 36} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[13px] font-medium text-slate-400 italic">
+              [deleted]
+            </span>
+            <span className="text-[11px] text-slate-300">
+              {timeAgo(comment.createdAt)}
+            </span>
+          </div>
+          <p className="text-[13px] text-slate-400 italic leading-relaxed m-0">
+            [This comment has been deleted]
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex gap-3 ${isReply ? "ml-0" : ""}`}>
@@ -502,6 +530,21 @@ function CommentsFallback() {
   );
 }
 
+// ─── New Comments Banner ─────────────────────────────────────────────────────
+
+function NewCommentsBanner({ count, onRefresh }: { count: number; onRefresh: () => void }) {
+  if (count <= 0) return null;
+  return (
+    <button
+      onClick={onRefresh}
+      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 cursor-pointer transition-all hover:bg-amber-100 mb-4"
+    >
+      <RefreshCw className="w-3.5 h-3.5" />
+      {count === 1 ? "1 new comment" : `${count} new comments`} — click to refresh
+    </button>
+  );
+}
+
 // ─── Main CommentsSection ─────────────────────────────────────────────────────
 
 function CommentsSectionInner({
@@ -514,42 +557,168 @@ function CommentsSectionInner({
   const [commentsList, setCommentsList] = useState<CommentWithUser[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
-  const [showAllComments, setShowAllComments] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [newRealtimeCount, setNewRealtimeCount] = useState(0);
+
+  // Track known comment IDs to detect new ones from Realtime
+  const knownIdsRef = useRef(new Set<number>());
 
   // Notify parent of count changes
   useEffect(() => {
     onCountChange?.(totalCount);
   }, [totalCount, onCountChange]);
 
-  // Fetch comments
-  const fetchComments = useCallback(async () => {
+  // ─── Fetch comments (initial or refresh) ──────────────────────────────────
+  const fetchComments = useCallback(async (cursorVal?: string | null) => {
     try {
       setLoadError(false);
-      const data = await getCommentsByToolId(toolId);
-      setCommentsList(data.comments);
+      const data: PaginatedComments = await getCommentsByToolId(toolId, cursorVal ?? undefined);
+
+      if (!cursorVal) {
+        // Initial load or refresh — replace everything
+        setCommentsList(data.comments);
+        knownIdsRef.current = new Set(
+          data.comments.flatMap(c => [c.id, ...c.replies.map(r => r.id)])
+        );
+      } else {
+        // Load more — append
+        setCommentsList((prev) => {
+          const existingIds = new Set(prev.map(c => c.id));
+          const newComments = data.comments.filter(c => !existingIds.has(c.id));
+          const combined = [...prev, ...newComments];
+          knownIdsRef.current = new Set(
+            combined.flatMap(c => [c.id, ...c.replies.map(r => r.id)])
+          );
+          return combined;
+        });
+      }
+
       setTotalCount(data.totalCount);
+      setNextCursor(data.nextCursor);
+      setHasMore(data.hasMore);
     } catch {
       setLoadError(true);
       toast.error("Failed to load comments");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [toolId]);
 
-  // Only re-fetch when toolId changes; fetchComments is stable via useCallback([toolId])
+  // Initial fetch
   useEffect(() => {
-    fetchComments();
+    setLoading(true);
+    setCommentsList([]);
+    setNextCursor(null);
+    setHasMore(false);
+    setNewRealtimeCount(0);
+    knownIdsRef.current = new Set();
+    fetchComments(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolId]);
 
-  // Create top-level comment
+  // ─── Supabase Realtime subscription ───────────────────────────────────────
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel(`comments-tool-${toolId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "comments",
+          filter: `tool_id=eq.${toolId}`,
+        },
+        (payload) => {
+          const newRecord = payload.new as { id?: number; is_deleted?: boolean } | undefined;
+          const oldRecord = payload.old as { id?: number } | undefined;
+
+          if (payload.eventType === "INSERT" && newRecord?.id) {
+            // Only show banner if this is a comment we don't already know about
+            if (!knownIdsRef.current.has(newRecord.id)) {
+              setNewRealtimeCount((c) => c + 1);
+            }
+          } else if (payload.eventType === "UPDATE") {
+            // If a comment was soft-deleted or edited, bump the refresh counter
+            if (newRecord?.id && knownIdsRef.current.has(newRecord.id)) {
+              // If it was soft-deleted, update local state immediately
+              if (newRecord.is_deleted) {
+                setCommentsList((prev) =>
+                  prev.map((c) => {
+                    if (c.id === newRecord.id) {
+                      return {
+                        ...c,
+                        isDeleted: true,
+                        content: "[This comment has been deleted]",
+                        user: { id: 0, name: "[deleted]", avatarUrl: null, firstName: null, lastName: null },
+                      };
+                    }
+                    return {
+                      ...c,
+                      replies: c.replies.map((r) =>
+                        r.id === newRecord.id
+                          ? {
+                              ...r,
+                              isDeleted: true,
+                              content: "[This comment has been deleted]",
+                              user: { id: 0, name: "[deleted]", avatarUrl: null, firstName: null, lastName: null },
+                            }
+                          : r
+                      ),
+                    };
+                  })
+                );
+              }
+            }
+          } else if (payload.eventType === "DELETE" && oldRecord?.id) {
+            // Hard delete (shouldn't happen with soft-delete, but handle gracefully)
+            setCommentsList((prev) => {
+              const filtered = prev.filter((c) => c.id !== oldRecord.id);
+              return filtered.map((c) => ({
+                ...c,
+                replies: c.replies.filter((r) => r.id !== oldRecord.id),
+              }));
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toolId]);
+
+  // ─── Handle refresh from Realtime banner ──────────────────────────────────
+  const handleRealtimeRefresh = useCallback(() => {
+    setNewRealtimeCount(0);
+    setLoading(true);
+    setCommentsList([]);
+    setNextCursor(null);
+    setHasMore(false);
+    fetchComments(null);
+  }, [fetchComments]);
+
+  // ─── Load more (pagination) ───────────────────────────────────────────────
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || !hasMore || !nextCursor) return;
+    setLoadingMore(true);
+    fetchComments(nextCursor);
+  }, [loadingMore, hasMore, nextCursor, fetchComments]);
+
+  // ─── Create top-level comment ─────────────────────────────────────────────
   const handleCreateComment = async (content: string) => {
     try {
       const result = await createComment({ toolId, content });
       if (result.success && result.comment) {
         setCommentsList((prev) => [result.comment!, ...prev]);
+        knownIdsRef.current.add(result.comment.id);
         setTotalCount((c) => c + 1);
         toast.success("Comment posted");
       } else {
@@ -560,7 +729,7 @@ function CommentsSectionInner({
     }
   };
 
-  // Create reply
+  // ─── Create reply ─────────────────────────────────────────────────────────
   const handleReply = async (parentId: number, content: string) => {
     try {
       const result = await createComment({
@@ -576,6 +745,7 @@ function CommentsSectionInner({
               : c
           )
         );
+        knownIdsRef.current.add(result.comment.id);
         setTotalCount((c) => c + 1);
         setReplyingTo(null);
         toast.success("Reply posted");
@@ -587,13 +757,12 @@ function CommentsSectionInner({
     }
   };
 
-  // Edit comment
+  // ─── Edit comment ─────────────────────────────────────────────────────────
   const handleEdit = async (commentId: number, content: string) => {
     try {
       const result = await editComment({ commentId, content });
       if (result.success) {
         const updatedAt = result.updatedAt ?? new Date().toISOString();
-        // Update in top-level or replies
         setCommentsList((prev) =>
           prev.map((c) => {
             if (c.id === commentId) {
@@ -616,26 +785,42 @@ function CommentsSectionInner({
     }
   };
 
-  // Delete comment
+  // ─── Delete comment ───────────────────────────────────────────────────────
   const handleDelete = async (commentId: number) => {
     try {
       const result = await deleteComment(commentId);
       if (result.success) {
-        // Check if it's a top-level comment (to subtract replies from count)
-        const topLevelComment = commentsList.find((c) => c.id === commentId);
-        const deletedTotal = topLevelComment
-          ? 1 + topLevelComment.replies.length
-          : 1;
-
-        // Remove from top-level or replies
+        // With soft-delete, the comment becomes a placeholder
+        // Update local state to show [deleted] immediately
         setCommentsList((prev) => {
-          const filtered = prev.filter((c) => c.id !== commentId);
-          return filtered.map((c) => ({
-            ...c,
-            replies: c.replies.filter((r) => r.id !== commentId),
-          }));
+          return prev.map((c) => {
+            if (c.id === commentId) {
+              // Top-level comment deleted
+              if (c.replies.length > 0) {
+                // Has replies — show as placeholder
+                return {
+                  ...c,
+                  isDeleted: true,
+                  content: "[This comment has been deleted]",
+                  user: { id: 0, name: "[deleted]", avatarUrl: null, firstName: null, lastName: null },
+                  isFounder: false,
+                  isEdited: false,
+                };
+              } else {
+                // No replies — remove entirely
+                return null as unknown as CommentWithUser;
+              }
+            }
+            // Check if it's a reply being deleted
+            const updatedReplies = c.replies.filter((r) => r.id !== commentId);
+            // If parent was [deleted] and now has no more replies, remove parent too
+            if (c.isDeleted && updatedReplies.length === 0) {
+              return null as unknown as CommentWithUser;
+            }
+            return { ...c, replies: updatedReplies };
+          }).filter(Boolean);
         });
-        setTotalCount((c) => Math.max(0, c - deletedTotal));
+        setTotalCount((c) => Math.max(0, c - (result.deletedCount ?? 1)));
         toast.success("Comment deleted");
       } else {
         toast.error(result.error ?? "Failed to delete comment");
@@ -644,13 +829,6 @@ function CommentsSectionInner({
       toast.error("Failed to delete comment. Please try again.");
     }
   };
-
-  // Display logic — show first 5 top-level comments by default
-  const INITIAL_DISPLAY = 5;
-  const displayedComments = showAllComments
-    ? commentsList
-    : commentsList.slice(0, INITIAL_DISPLAY);
-  const hasMore = commentsList.length > INITIAL_DISPLAY;
 
   return (
     <section
@@ -685,6 +863,9 @@ function CommentsSectionInner({
         />
       </div>
 
+      {/* Realtime new comments banner */}
+      <NewCommentsBanner count={newRealtimeCount} onRefresh={handleRealtimeRefresh} />
+
       {/* Loading state */}
       {loading && (
         <div className="flex flex-col gap-5">
@@ -706,7 +887,7 @@ function CommentsSectionInner({
           <button
             onClick={() => {
               setLoading(true);
-              fetchComments();
+              fetchComments(null);
             }}
             className="text-xs font-bold text-amber-600 hover:text-amber-700 bg-transparent border-none cursor-pointer"
           >
@@ -733,7 +914,7 @@ function CommentsSectionInner({
       {/* Comments list */}
       {!loading && !loadError && commentsList.length > 0 && (
         <div className="flex flex-col gap-5">
-          {displayedComments.map((comment) => (
+          {commentsList.map((comment) => (
             <div key={comment.id}>
               {/* Top-level comment */}
               <CommentItem
@@ -766,7 +947,7 @@ function CommentsSectionInner({
               )}
 
               {/* Reply composer */}
-              {replyingTo === comment.id && (
+              {replyingTo === comment.id && !comment.isDeleted && (
                 <div className="ml-8 sm:ml-12 mt-3 pl-4 border-l-2 border-amber-200">
                   <CommentComposer
                     onSubmit={(content) =>
@@ -784,21 +965,22 @@ function CommentsSectionInner({
             </div>
           ))}
 
-          {/* Show more / less */}
+          {/* Load more (cursor pagination) */}
           {hasMore && (
             <button
-              onClick={() => setShowAllComments(!showAllComments)}
-              className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold text-slate-500 bg-slate-50 border border-slate-200 cursor-pointer transition-all hover:bg-slate-100 hover:text-slate-700"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold text-slate-500 bg-slate-50 border border-slate-200 cursor-pointer transition-all hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
             >
-              {showAllComments ? (
+              {loadingMore ? (
                 <>
-                  <ChevronUp className="w-3.5 h-3.5" />
-                  Show less
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Loading...
                 </>
               ) : (
                 <>
                   <ChevronDown className="w-3.5 h-3.5" />
-                  Show all {commentsList.length} comments
+                  Load more comments
                 </>
               )}
             </button>

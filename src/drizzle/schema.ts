@@ -511,6 +511,8 @@ export const comments = pgTable("comments", {
   content: text("content").notNull(),
   /** Soft delete flag */
   isDeleted: boolean("is_deleted").default(false).notNull(),
+  /** Timestamp when the comment was soft-deleted (null = not deleted) */
+  deletedAt: timestamp("deleted_at"),
   /** Whether this comment has been edited */
   isEdited: boolean("is_edited").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -2,7 +2,7 @@
 
 import { db, getUserBySupabaseId } from "@/server/db";
 import { comments, users, tools } from "@/drizzle/schema";
-import { eq, and, desc, count, gte } from "drizzle-orm";
+import { eq, and, desc, count, gte, lt, isNull, sql } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
@@ -45,6 +45,20 @@ function validateContent(content: string): { valid: boolean; trimmed: string; er
   return { valid: true, trimmed };
 }
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Number of top-level comments per page */
+const PAGE_SIZE = 20;
+
+/** Cooldown between comments from the same user (seconds) */
+const RATE_LIMIT_COOLDOWN_SECONDS = 30;
+
+/** Max comments per user per tool per hour */
+const RATE_LIMIT_HOURLY_MAX = 10;
+
+/** Max total comments per user per tool */
+const RATE_LIMIT_TOTAL_MAX = 50;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface CommentWithUser {
@@ -70,6 +84,15 @@ export interface CommentWithUser {
   replies: CommentWithUser[];
 }
 
+export interface PaginatedComments {
+  comments: CommentWithUser[];
+  totalCount: number;
+  /** Cursor for next page — null means no more pages */
+  nextCursor: string | null;
+  /** Whether there are more pages */
+  hasMore: boolean;
+}
+
 // ─── Shared: verify tool is visible and approved ─────────────────────────────
 
 async function getVisibleTool(toolId: number) {
@@ -83,23 +106,52 @@ async function getVisibleTool(toolId: number) {
   return tool ?? null;
 }
 
-// ─── Get comments for a tool ──────────────────────────────────────────────────
+// ─── Deleted comment placeholder ─────────────────────────────────────────────
+
+const DELETED_PLACEHOLDER: CommentWithUser["user"] = {
+  id: 0,
+  name: "[deleted]",
+  avatarUrl: null,
+  firstName: null,
+  lastName: null,
+};
+
+// ─── Get comments for a tool (cursor-paginated) ─────────────────────────────
 
 export async function getCommentsByToolId(
-  toolId: number
-): Promise<{ comments: CommentWithUser[]; totalCount: number }> {
+  toolId: number,
+  cursor?: string | null,
+): Promise<PaginatedComments> {
   if (!isValidId(toolId)) {
-    return { comments: [], totalCount: 0 };
+    return { comments: [], totalCount: 0, nextCursor: null, hasMore: false };
   }
 
   // Only return comments for visible, approved tools
   const tool = await getVisibleTool(toolId);
   if (!tool) {
-    return { comments: [], totalCount: 0 };
+    return { comments: [], totalCount: 0, nextCursor: null, hasMore: false };
   }
 
-  // Fetch all non-deleted comments for this tool with user info
-  const allComments = await db
+  // Parse cursor (ISO timestamp of the last top-level comment seen)
+  let cursorDate: Date | null = null;
+  if (cursor) {
+    const parsed = new Date(cursor);
+    if (!isNaN(parsed.getTime())) {
+      cursorDate = parsed;
+    }
+  }
+
+  // ─── Fetch top-level comments (paginated) ─────────────────────────────────
+  const topLevelConditions = [
+    eq(comments.toolId, toolId),
+    isNull(comments.parentCommentId),
+  ];
+  if (cursorDate) {
+    topLevelConditions.push(lt(comments.createdAt, cursorDate));
+  }
+
+  // Fetch PAGE_SIZE + 1 to detect hasMore
+  const topLevelRows = await db
     .select({
       id: comments.id,
       toolId: comments.toolId,
@@ -117,15 +169,55 @@ export async function getCommentsByToolId(
     })
     .from(comments)
     .leftJoin(users, eq(comments.userId, users.id))
-    .where(and(eq(comments.toolId, toolId), eq(comments.isDeleted, false)))
-    .orderBy(desc(comments.createdAt));
+    .where(and(...topLevelConditions))
+    .orderBy(desc(comments.createdAt))
+    .limit(PAGE_SIZE + 1);
 
-  // Determine founder user IDs (submittedBy or claimedBy)
+  const hasMore = topLevelRows.length > PAGE_SIZE;
+  const pageRows = hasMore ? topLevelRows.slice(0, PAGE_SIZE) : topLevelRows;
+
+  // Compute next cursor from the last item on this page
+  const nextCursor = hasMore && pageRows.length > 0
+    ? pageRows[pageRows.length - 1].createdAt.toISOString()
+    : null;
+
+  // ─── Fetch all replies for the top-level comments on this page ────────────
+  const topLevelIds = pageRows.map(r => r.id);
+  let replyRows: typeof topLevelRows = [];
+  if (topLevelIds.length > 0) {
+    replyRows = await db
+      .select({
+        id: comments.id,
+        toolId: comments.toolId,
+        userId: comments.userId,
+        parentCommentId: comments.parentCommentId,
+        content: comments.content,
+        isDeleted: comments.isDeleted,
+        isEdited: comments.isEdited,
+        createdAt: comments.createdAt,
+        updatedAt: comments.updatedAt,
+        userName: users.name,
+        userAvatarUrl: users.avatarUrl,
+        userFirstName: users.firstName,
+        userLastName: users.lastName,
+      })
+      .from(comments)
+      .leftJoin(users, eq(comments.userId, users.id))
+      .where(
+        and(
+          eq(comments.toolId, toolId),
+          sql`${comments.parentCommentId} IN (${sql.join(topLevelIds.map(id => sql`${id}`), sql`, `)})`
+        )
+      )
+      .orderBy(comments.createdAt);
+  }
+
+  // ─── Determine founder user IDs ───────────────────────────────────────────
   const founderUserIds = new Set<number>();
   if (tool.submittedBy) founderUserIds.add(tool.submittedBy);
   if (tool.claimedBy) founderUserIds.add(tool.claimedBy);
 
-  // Build display name helper
+  // ─── Build display name helper ────────────────────────────────────────────
   function displayName(row: {
     userFirstName: string | null;
     userLastName: string | null;
@@ -137,15 +229,33 @@ export async function getCommentsByToolId(
     return row.userName ?? "Anonymous";
   }
 
-  // Convert to CommentWithUser
-  function toComment(row: (typeof allComments)[number]): CommentWithUser {
+  // ─── Convert to CommentWithUser (with soft-delete placeholder) ────────────
+  function toComment(row: (typeof topLevelRows)[number]): CommentWithUser {
+    // Soft-deleted comments show placeholder content but keep structure
+    if (row.isDeleted) {
+      return {
+        id: row.id,
+        toolId: row.toolId,
+        userId: row.userId,
+        parentCommentId: row.parentCommentId,
+        content: "[This comment has been deleted]",
+        isDeleted: true,
+        isEdited: false,
+        createdAt: row.createdAt.toISOString(),
+        updatedAt: row.updatedAt.toISOString(),
+        user: DELETED_PLACEHOLDER,
+        isFounder: false,
+        replies: [],
+      };
+    }
+
     return {
       id: row.id,
       toolId: row.toolId,
       userId: row.userId,
       parentCommentId: row.parentCommentId,
       content: row.content,
-      isDeleted: row.isDeleted,
+      isDeleted: false,
       isEdited: row.isEdited,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
@@ -161,34 +271,41 @@ export async function getCommentsByToolId(
     };
   }
 
-  // Separate top-level comments and replies
-  const topLevel: CommentWithUser[] = [];
+  // ─── Build reply map ──────────────────────────────────────────────────────
   const repliesMap = new Map<number, CommentWithUser[]>();
+  for (const row of replyRows) {
+    const reply = toComment(row);
+    const parentId = row.parentCommentId!;
+    const existing = repliesMap.get(parentId) ?? [];
+    existing.push(reply);
+    repliesMap.set(parentId, existing);
+  }
 
-  for (const row of allComments) {
+  // ─── Assemble top-level with replies ──────────────────────────────────────
+  const topLevel: CommentWithUser[] = [];
+  for (const row of pageRows) {
     const comment = toComment(row);
-    if (row.parentCommentId === null) {
-      topLevel.push(comment);
-    } else {
-      const existing = repliesMap.get(row.parentCommentId) ?? [];
-      existing.push(comment);
-      repliesMap.set(row.parentCommentId, existing);
+    const replies = repliesMap.get(row.id) ?? [];
+
+    // For soft-deleted top-level comments: only include if they have non-deleted replies
+    if (row.isDeleted) {
+      const hasActiveReplies = replies.some(r => !r.isDeleted);
+      if (!hasActiveReplies) continue; // Skip entirely if no active replies
     }
+
+    // Filter out deleted replies that have no reason to show
+    comment.replies = replies.filter(r => !r.isDeleted);
+    topLevel.push(comment);
   }
 
-  // Attach replies to their parent comments (sorted oldest first for readability)
-  for (const parent of topLevel) {
-    const replies = repliesMap.get(parent.id) ?? [];
-    parent.replies = replies.sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
-  }
+  // ─── Total count (non-deleted only) ───────────────────────────────────────
+  const countResult = await db
+    .select({ count: count() })
+    .from(comments)
+    .where(and(eq(comments.toolId, toolId), eq(comments.isDeleted, false)));
+  const totalCount = countResult[0]?.count ?? 0;
 
-  // Total count includes both top-level and replies
-  const totalCount = allComments.length;
-
-  return { comments: topLevel, totalCount };
+  return { comments: topLevel, totalCount, nextCursor, hasMore };
 }
 
 // ─── Create a comment ─────────────────────────────────────────────────────────
@@ -241,7 +358,28 @@ export async function createComment(input: {
     }
   }
 
-  // Time-based rate limit: max 10 comments per user per tool per hour
+  // ─── Rate limiting ────────────────────────────────────────────────────────
+
+  // 1. Per-user cooldown: 30 seconds between any comments
+  const cooldownCutoff = new Date(Date.now() - RATE_LIMIT_COOLDOWN_SECONDS * 1000);
+  const recentAny = await db
+    .select({ count: count() })
+    .from(comments)
+    .where(
+      and(
+        eq(comments.userId, user.id),
+        gte(comments.createdAt, cooldownCutoff)
+      )
+    );
+
+  if (recentAny[0]?.count && recentAny[0].count > 0) {
+    return {
+      success: false,
+      error: "Please wait 30 seconds between comments.",
+    };
+  }
+
+  // 2. Hourly limit: max 10 comments per user per tool per hour
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const recentCount = await db
     .select({ count: count() })
@@ -255,14 +393,14 @@ export async function createComment(input: {
       )
     );
 
-  if (recentCount[0]?.count && recentCount[0].count >= 10) {
+  if (recentCount[0]?.count && recentCount[0].count >= RATE_LIMIT_HOURLY_MAX) {
     return {
       success: false,
       error: "Too many comments. Please wait before posting again.",
     };
   }
 
-  // Total cap: max 50 comments per tool per user
+  // 3. Total cap: max 50 comments per tool per user
   const totalUserComments = await db
     .select({ count: count() })
     .from(comments)
@@ -274,7 +412,7 @@ export async function createComment(input: {
       )
     );
 
-  if (totalUserComments[0]?.count && totalUserComments[0].count >= 50) {
+  if (totalUserComments[0]?.count && totalUserComments[0].count >= RATE_LIMIT_TOTAL_MAX) {
     return {
       success: false,
       error: "You have reached the maximum number of comments for this stack",
@@ -377,7 +515,7 @@ export async function editComment(input: {
   return { success: true, updatedAt: now.toISOString() };
 }
 
-// ─── Delete a comment (soft delete) ───────────────────────────────────────────
+// ─── Delete a comment (soft delete with placeholder) ─────────────────────────
 
 export async function deleteComment(
   commentId: number
@@ -405,9 +543,15 @@ export async function deleteComment(
     };
   }
 
-  // Count replies BEFORE deleting (to get accurate count)
-  let replyCount = 0;
+  const now = new Date();
+
+  // For top-level comments with replies: soft-delete but keep the row as placeholder
+  // For top-level comments without replies: soft-delete normally
+  // For replies: soft-delete normally
+  let deletedCount = 1;
+
   if (comment.parentCommentId === null) {
+    // Count active replies
     const replyResult = await db
       .select({ count: count() })
       .from(comments)
@@ -417,35 +561,47 @@ export async function deleteComment(
           eq(comments.isDeleted, false)
         )
       );
-    replyCount = replyResult[0]?.count ?? 0;
-  }
+    const replyCount = replyResult[0]?.count ?? 0;
 
-  // Soft-delete the comment
-  await db
-    .update(comments)
-    .set({
-      isDeleted: true,
-      updatedAt: new Date(),
-    })
-    .where(eq(comments.id, commentId));
-
-  // Also soft-delete all replies to this comment if it's a top-level comment
-  if (comment.parentCommentId === null && replyCount > 0) {
+    if (replyCount > 0) {
+      // Has replies — soft-delete only the parent, keep replies visible
+      // The parent will show as "[deleted]" placeholder in the UI
+      await db
+        .update(comments)
+        .set({
+          isDeleted: true,
+          deletedAt: now,
+          updatedAt: now,
+        })
+        .where(eq(comments.id, commentId));
+      // Don't cascade to replies — they stay visible
+      deletedCount = 1;
+    } else {
+      // No replies — soft-delete the parent
+      await db
+        .update(comments)
+        .set({
+          isDeleted: true,
+          deletedAt: now,
+          updatedAt: now,
+        })
+        .where(eq(comments.id, commentId));
+      deletedCount = 1;
+    }
+  } else {
+    // It's a reply — just soft-delete it
     await db
       .update(comments)
       .set({
         isDeleted: true,
-        updatedAt: new Date(),
+        deletedAt: now,
+        updatedAt: now,
       })
-      .where(
-        and(
-          eq(comments.parentCommentId, commentId),
-          eq(comments.isDeleted, false)
-        )
-      );
+      .where(eq(comments.id, commentId));
+    deletedCount = 1;
   }
 
-  return { success: true, deletedCount: 1 + replyCount };
+  return { success: true, deletedCount };
 }
 
 // ─── Get comment count for a tool ─────────────────────────────────────────────
