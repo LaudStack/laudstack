@@ -517,7 +517,7 @@ function CommentsSectionInner({
 
   useEffect(() => {
     fetchComments();
-  }, [fetchComments]);
+  }, [toolId, fetchComments]);
 
   // Create top-level comment
   const handleCreateComment = async (content: string) => {
