@@ -25,7 +25,6 @@ import {
   ShieldCheck,
   Zap,
   TrendingUp,
-  Home,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -416,17 +415,12 @@ export default function EditorsPicks() {
     EDITORIAL_COLLECTIONS.find((c) => c.id === activeCollection) ??
     EDITORIAL_COLLECTIONS[0];
 
-  const getCollectionTools = (badgeFilter: string, limit: number): Tool[] => {
+  const collectionTools = useMemo(() => {
     return allTools
-      .filter((t) => t.badges?.includes(badgeFilter as any))
+      .filter((t) => t.badges?.includes(active.badgeFilter as any))
       .sort((a, b) => b.average_rating - a.average_rating)
-      .slice(0, limit);
-  };
-
-  const collectionTools = useMemo(
-    () => getCollectionTools(active.badgeFilter, active.limit),
-    [allTools, active.badgeFilter, active.limit]
-  );
+      .slice(0, active.limit);
+  }, [allTools, active.badgeFilter, active.limit]);
 
   const spotlightTool = collectionTools[0];
   const listTools = collectionTools.slice(1);
@@ -448,42 +442,42 @@ export default function EditorsPicks() {
   }, [allTools]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <div className="h-[72px] shrink-0" />
 
       {/* ══════════════════════════════════════════════════════
-          HERO
+          HERO (matches /categories hero pattern)
       ══════════════════════════════════════════════════════ */}
-      <section className="bg-white border-b border-slate-200 pt-[84px] pb-8 sm:pb-10">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1.5 text-[12px] text-slate-400 mb-5">
+          <nav className="flex items-center gap-1.5 mb-5">
             <Link
               href="/"
-              className="hover:text-amber-600 transition-colors flex items-center gap-1"
+              className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors"
             >
-              <Home className="w-3 h-3" /> Home
+              Home
             </Link>
-            <span>/</span>
-            <span className="text-slate-600 font-medium">
+            <span className="text-[11px] text-slate-300">/</span>
+            <span className="text-xs text-slate-500 font-semibold">
               Editor&apos;s Picks
             </span>
           </nav>
 
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div className="flex items-start justify-between gap-6 flex-wrap mb-6">
             {/* Left: Title block */}
-            <div className="max-w-xl">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 mb-4">
-                <Shield className="w-3 h-3 text-purple-600" />
-                <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-purple-800 bg-purple-100 border border-purple-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <Shield className="w-3 h-3" />
                   Editor&apos;s Picks
                 </span>
               </div>
-              <h1 className="font-['Inter',sans-serif] text-[clamp(26px,3.5vw,40px)] font-black text-slate-900 tracking-tight leading-[1.1] mb-3">
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
                 Curated by Our Editorial Team
               </h1>
-              <p className="text-[15px] sm:text-base text-slate-500 leading-relaxed max-w-lg">
+              <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed">
                 Every stack here has been individually tested, reviewed, and
                 selected by the LaudStack editorial team for outstanding
                 quality, innovation, and real-world value.
@@ -518,7 +512,7 @@ export default function EditorsPicks() {
           </div>
 
           {/* Editorial independence callout */}
-          <div className="mt-6 sm:mt-8 p-4 bg-purple-50 border border-purple-200 rounded-xl flex items-start gap-3">
+          <div className="p-4 bg-purple-50 border border-purple-200 rounded-xl flex items-start gap-3">
             <Shield className="w-[18px] h-[18px] text-purple-600 shrink-0 mt-0.5" />
             <p className="text-[13px] text-purple-800 leading-relaxed">
               <strong>Editorial Independence:</strong> Our picks are never paid
@@ -535,7 +529,7 @@ export default function EditorsPicks() {
           COLLECTION TABS
       ══════════════════════════════════════════════════════ */}
       <section className="bg-white border-b border-slate-200">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           <div className="flex overflow-x-auto scrollbar-hide">
             {EDITORIAL_COLLECTIONS.map((col) => {
               const Icon = col.icon;
@@ -562,8 +556,8 @@ export default function EditorsPicks() {
       {/* ══════════════════════════════════════════════════════
           MAIN CONTENT — Spotlight + List
       ══════════════════════════════════════════════════════ */}
-      <main className="flex-1 py-8 sm:py-10">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 bg-slate-50/60 py-8 sm:py-10">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           {/* Collection description */}
           <div className="mb-7">
             <div
@@ -647,7 +641,7 @@ export default function EditorsPicks() {
           ALL COLLECTIONS GRID
       ══════════════════════════════════════════════════════ */}
       <section className="bg-white border-t border-slate-200 py-12 sm:py-14">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           <div className="text-center mb-8 sm:mb-10">
             <h2 className="font-['Inter',sans-serif] text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2">
               Browse All Collections
