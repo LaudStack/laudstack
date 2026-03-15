@@ -7,7 +7,7 @@ import {
 } from "@/app/actions/seo";
 import { db } from "@/server/db";
 import { tools } from "@/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://laudstack.com";
 
@@ -70,7 +70,7 @@ export async function GET() {
     const allTools = await db
       .select({ slug: tools.slug })
       .from(tools)
-      .where(eq(tools.status, "approved"));
+      .where(inArray(tools.status, ["approved", "featured"]));
 
     for (const t of allTools) {
       urls.push(url(`/tools/${t.slug}`, "0.7", "weekly"));

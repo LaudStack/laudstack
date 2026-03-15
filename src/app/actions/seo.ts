@@ -2,8 +2,22 @@
 
 import { db } from "@/server/db";
 import { tools } from "@/drizzle/schema";
-import { eq, and, desc, count, sql, ilike, or, ne } from "drizzle-orm";
+import { eq, and, desc, count, sql, ilike, or, ne, inArray } from "drizzle-orm";
 import { CATEGORY_META } from "@/lib/categories";
+
+/**
+ * Visible tool statuses — tools that should appear on public-facing pages.
+ * Both "approved" and "featured" tools are publicly visible.
+ */
+const VISIBLE_STATUSES = ["approved", "featured"] as const;
+
+/** Reusable condition: tool is publicly visible (approved or featured, and is_visible=true) */
+function visibleToolConditions() {
+  return [
+    inArray(tools.status, [...VISIBLE_STATUSES]),
+    eq(tools.isVisible, true),
+  ] as const;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,7 +85,7 @@ export async function getAllCategoriesWithCounts(): Promise<
   const rows = await db
     .select({ category: tools.category, count: count() })
     .from(tools)
-    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+    .where(and(...visibleToolConditions()))
     .groupBy(tools.category);
 
   return CATEGORY_META
@@ -112,7 +126,7 @@ export async function getCategorySEOData(
     default: orderBy = desc(tools.rankScore);
   }
 
-  const conditions = [eq(tools.status, "approved"), eq(tools.isVisible, true), eq(tools.category, categoryName)];
+  const conditions = [...visibleToolConditions(), eq(tools.category, categoryName)];
 
   const [rows, totalResult] = await Promise.all([
     db.select().from(tools).where(and(...conditions)).orderBy(orderBy).limit(limit).offset(offset),
@@ -188,8 +202,7 @@ export async function getAllBestToolsSlugs(): Promise<string[]> {
   for (const def of defs) {
     const catConditions = def.categories.map((c) => eq(tools.category, c));
     const whereClause = and(
-      eq(tools.status, "approved"),
-      eq(tools.isVisible, true),
+      ...visibleToolConditions(),
       catConditions.length === 1 ? catConditions[0] : or(...catConditions)
     );
     const [{ count: c }] = await db.select({ count: count() }).from(tools).where(whereClause!);
@@ -220,8 +233,7 @@ export async function getBestToolsData(
 
   const catConditions = def.categories.map((c) => eq(tools.category, c));
   const whereClause = and(
-    eq(tools.status, "approved"),
-    eq(tools.isVisible, true),
+    ...visibleToolConditions(),
     catConditions.length === 1 ? catConditions[0] : or(...catConditions)
   );
 
@@ -256,7 +268,7 @@ export async function getAllAlternativeSlugs(): Promise<string[]> {
   const approvedTools = await db
     .select({ slug: tools.slug, category: tools.category })
     .from(tools)
-    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)));
+    .where(and(...visibleToolConditions()));
 
   // Only generate alternatives pages for tools that have at least 2 alternatives in the same category
   const categoryCounts: Record<string, number> = {};
@@ -277,7 +289,7 @@ export async function getAlternativesData(
   const [tool] = await db
     .select()
     .from(tools)
-    .where(and(eq(tools.slug, toolSlug), eq(tools.status, "approved")))
+    .where(and(eq(tools.slug, toolSlug), ...visibleToolConditions()))
     .limit(1);
 
   if (!tool) return null;
@@ -296,8 +308,7 @@ export async function getAlternativesData(
 
   // Find alternatives: same category, different tool
   const conditions = [
-    eq(tools.status, "approved"),
-    eq(tools.isVisible, true),
+    ...visibleToolConditions(),
     eq(tools.category, tool.category),
     ne(tools.id, tool.id),
   ];
@@ -324,13 +335,13 @@ export async function getComparisonData(
   const [toolA] = await db
     .select()
     .from(tools)
-    .where(and(eq(tools.slug, slugA), eq(tools.status, "approved")))
+    .where(and(eq(tools.slug, slugA), ...visibleToolConditions()))
     .limit(1);
 
   const [toolB] = await db
     .select()
     .from(tools)
-    .where(and(eq(tools.slug, slugB), eq(tools.status, "approved")))
+    .where(and(eq(tools.slug, slugB), ...visibleToolConditions()))
     .limit(1);
 
   if (!toolA || !toolB) return null;
@@ -351,7 +362,7 @@ export async function getPopularComparisonPairs(): Promise<
       rankScore: tools.rankScore,
     })
     .from(tools)
-    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+    .where(and(...visibleToolConditions()))
     .orderBy(desc(tools.rankScore))
     .limit(100);
 
@@ -423,7 +434,7 @@ export async function getDiscoverySEOData(
       break;
   }
 
-  const conditions = [eq(tools.status, "approved"), eq(tools.isVisible, true)];
+  const conditions = [...visibleToolConditions()];
 
   const [rows, totalResult] = await Promise.all([
     db.select().from(tools).where(and(...conditions)).orderBy(orderBy).limit(limit).offset(offset),

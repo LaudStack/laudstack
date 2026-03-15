@@ -2,7 +2,13 @@
 
 import { db } from "@/server/db";
 import { tools, reviews, users, upvotes, savedTools, deals, reviewRateLimits, reviewHelpfulVotes } from "@/drizzle/schema";
-import { eq, desc, asc, and, or, ilike, sql, count, avg, ne, gte } from "drizzle-orm";
+import { eq, desc, asc, and, or, ilike, sql, count, avg, ne, gte, inArray } from "drizzle-orm";
+
+/**
+ * Visible tool statuses — tools that should appear on public-facing pages.
+ * Both "approved" and "featured" tools are publicly visible.
+ */
+const VISIBLE_STATUSES = ["approved", "featured"] as const;
 import { recalcAndPersistToolScore } from "@/lib/ranking";
 import { createClient } from "@/lib/supabase/server";
 import { getUserBySupabaseId } from "@/server/db";
@@ -21,22 +27,22 @@ export async function getHomepageData() {
     totalUserCount,
   ] = await Promise.all([
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), eq(tools.isFeatured, true)))
+      .where(and(inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true), eq(tools.isFeatured, true)))
       .orderBy(desc(tools.rankScore))
       .limit(6),
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), sql`${tools.weeklyRankChange} > 0`))
+      .where(and(inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true), sql`${tools.weeklyRankChange} > 0`))
       .orderBy(desc(tools.weeklyRankChange))
       .limit(4),
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+      .where(and(inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true)))
       .orderBy(desc(tools.launchedAt))
       .limit(4),
     db.select().from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), sql`${tools.reviewCount} > 0`))
+      .where(and(inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true), sql`${tools.reviewCount} > 0`))
       .orderBy(desc(tools.averageRating))
       .limit(5),
-    db.select({ count: count() }).from(tools).where(and(eq(tools.status, "approved"), eq(tools.isVisible, true))),
+    db.select({ count: count() }).from(tools).where(and(inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true))),
     db.select({ count: count() }).from(reviews),
     db.select({ count: count() }).from(users),
   ]);
@@ -64,7 +70,7 @@ export async function getToolsListing(opts: {
   const { category, pricingModel, sort = "rank_score", page = 1, limit = 20 } = opts;
   const offset = (page - 1) * limit;
 
-  const conditions = [eq(tools.status, "approved"), eq(tools.isVisible, true)];
+  const conditions: ReturnType<typeof eq>[] = [inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true)];
   if (category && category !== "All") conditions.push(eq(tools.category, category));
   if (pricingModel && pricingModel !== "All") {
     conditions.push(eq(tools.pricingModel, pricingModel as "Free" | "Freemium" | "Paid" | "Free Trial" | "Open Source"));
@@ -95,7 +101,7 @@ export async function getToolDetail(slug: string) {
   const tool = await db.query.tools.findFirst({
     where: and(
       eq(tools.slug, slug),
-      eq(tools.status, "approved"),
+      inArray(tools.status, [...VISIBLE_STATUSES]),
       eq(tools.isVisible, true),
     ),
   });
@@ -137,7 +143,7 @@ export async function getToolDetail(slug: string) {
   // Get related products (same category)
   const relatedTools = await db.select().from(tools)
     .where(and(
-      eq(tools.status, "approved"),
+      inArray(tools.status, [...VISIBLE_STATUSES]),
       eq(tools.isVisible, true),
       eq(tools.category, tool.category),
       ne(tools.id, tool.id)
@@ -175,14 +181,14 @@ export async function searchToolsAction(query: string, opts: {
 } = {}) {
   const { category, pricingModel, limit = 30 } = opts;
 
-  const conditions = [
-    eq(tools.status, "approved"),
+  const conditions: ReturnType<typeof eq>[] = [
+    inArray(tools.status, [...VISIBLE_STATUSES]),
     eq(tools.isVisible, true),
     or(
       ilike(tools.name, `%${query}%`),
       ilike(tools.tagline, `%${query}%`),
       ilike(tools.description, `%${query}%`),
-    ),
+    )!,
   ];
 
   if (category && category !== "All") conditions.push(eq(tools.category, category));
@@ -202,7 +208,7 @@ export async function getTrendingToolsAction(limit = 20) {
   // Only return tools with positive weekly rank change (actually trending up)
   return db.select().from(tools)
     .where(and(
-      eq(tools.status, "approved"),
+      inArray(tools.status, [...VISIBLE_STATUSES]),
       eq(tools.isVisible, true),
       sql`${tools.weeklyRankChange} > 0`,
     ))
@@ -218,7 +224,7 @@ export async function getCategoriesWithCounts() {
     count: count(),
   })
     .from(tools)
-    .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+    .where(and(inArray(tools.status, [...VISIBLE_STATUSES]), eq(tools.isVisible, true)))
     .groupBy(tools.category)
     .orderBy(desc(count()));
 }
@@ -229,7 +235,7 @@ export async function getLeaderboard(limit = 10) {
   // Sort by rankScore for the leaderboard — it combines rating, reviews, and engagement
   return db.select().from(tools)
     .where(and(
-      eq(tools.status, "approved"),
+      inArray(tools.status, [...VISIBLE_STATUSES]),
       eq(tools.isVisible, true),
       sql`${tools.reviewCount} > 0`,
     ))
@@ -710,7 +716,7 @@ export async function getToolScreenshots(toolId: number) {
 // ─── Platform Stats ──────────────────────────────────────────────────────────
 export async function getPlatformStats() {
   const [toolCount, reviewCount, userCount, avgRatingResult] = await Promise.all([
-    db.select({ count: count() }).from(tools).where(eq(tools.status, "approved")),
+    db.select({ count: count() }).from(tools).where(inArray(tools.status, [...VISIBLE_STATUSES])),
     db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
     db.select({ count: count() }).from(users),
     db.select({ avg: avg(reviews.rating) }).from(reviews).where(eq(reviews.status, "published")),

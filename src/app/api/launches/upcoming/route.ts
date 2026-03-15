@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { tools, toolSubmissions } from "@/drizzle/schema";
-import { eq, and, gt, or, desc, sql } from "drizzle-orm";
+import { eq, and, gt, or, desc, sql, inArray } from "drizzle-orm";
 
 /**
  * GET /api/launches/upcoming
@@ -24,7 +24,7 @@ export async function GET() {
         or(
           gt(tools.scheduledLaunchAt, now),
           and(
-            eq(tools.status, "approved"),
+            inArray(tools.status, ["approved", "featured"]),
             gt(tools.launchedAt, now)
           )
         )
@@ -62,7 +62,7 @@ export async function GET() {
       .from(tools)
       .where(
         and(
-          eq(tools.status, "approved"),
+          inArray(tools.status, ["approved", "featured"]),
           eq(tools.isVisible, true)
         )
       )

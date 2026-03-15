@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { tools, reviews, users } from "@/drizzle/schema";
-import { eq, desc, and, sql, count } from "drizzle-orm";
+import { eq, desc, and, sql, count, inArray } from "drizzle-orm";
 import { dbToolsToFrontend, dbToolToLeaderboard } from "@/lib/adapters";
 
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
       totalUserCount,
     ] = await Promise.all([
       db.select().from(tools)
-        .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+        .where(and(inArray(tools.status, ["approved", "featured"]), eq(tools.isVisible, true)))
         .orderBy(desc(tools.rankScore)),
       db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
       db.select({ count: count() }).from(users),

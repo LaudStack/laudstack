@@ -253,7 +253,7 @@ export default function AlternativesPage() {
       .slice(0, 8);
   }, [allTools, searchQuery]);
 
-  // Alternatives: same category, excluding selected, sorted by rating
+  // Alternatives: same category, excluding selected, sorted by rank_score
   const alternatives = useMemo(() => {
     if (!selectedProduct) return [];
     return allTools
@@ -262,7 +262,7 @@ export default function AlternativesPage() {
           t.category === selectedProduct.category &&
           t.slug !== selectedProduct.slug
       )
-      .sort((a, b) => b.average_rating - a.average_rating);
+      .sort((a, b) => b.rank_score - a.rank_score);
   }, [allTools, selectedProduct]);
 
   // Popular stacks (most reviewed) for default view
@@ -272,7 +272,7 @@ export default function AlternativesPage() {
       .slice(0, 12);
   }, [allTools]);
 
-  // Category counts
+  // Category counts — precomputed once so PopularStackCard doesn't recompute per card (A10)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     allTools.forEach((t) => {
@@ -280,6 +280,11 @@ export default function AlternativesPage() {
     });
     return counts;
   }, [allTools]);
+
+  // Precompute altCount per tool (category size - 1) so each card doesn't recompute
+  const altCountForTool = useMemo(() => {
+    return (tool: Tool) => Math.max(0, (categoryCounts[tool.category] || 1) - 1);
+  }, [categoryCounts]);
 
   const categories = CATEGORY_META.filter(
     (c) => c.name !== "All" && (categoryCounts[c.name] || 0) > 1
@@ -486,13 +491,7 @@ export default function AlternativesPage() {
                     <PopularStackCard
                       key={tool.slug}
                       tool={tool}
-                      altCount={
-                        allTools.filter(
-                          (t) =>
-                            t.category === tool.category &&
-                            t.slug !== tool.slug
-                        ).length
-                      }
+                      altCount={altCountForTool(tool)}
                       onSelect={handleSelect}
                     />
                   ))}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { tools, reviews, upvotes, savedTools, toolViews, outboundClicks } from "@/drizzle/schema";
-import { eq, sql, and, gte, count, avg } from "drizzle-orm";
+import { eq, sql, and, gte, count, avg, inArray } from "drizzle-orm";
 import { indexTool } from "@/server/search";
 import { computeRankScore } from "@/lib/ranking";
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const allTools = await db
       .select()
       .from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)));
+      .where(and(inArray(tools.status, ["approved", "featured"]), eq(tools.isVisible, true)));
 
     // Snapshot previous rank positions before we overwrite scores
     const previousRanks = new Map<number, number>();

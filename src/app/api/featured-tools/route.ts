@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { tools } from "@/drizzle/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
@@ -15,7 +15,7 @@ export async function GET() {
     const featured = await db
       .select()
       .from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true), eq(tools.isFeatured, true)))
+      .where(and(inArray(tools.status, ["approved", "featured"]), eq(tools.isVisible, true), eq(tools.isFeatured, true)))
       .orderBy(sql`RANDOM()`)
       .limit(6);
 
@@ -24,7 +24,7 @@ export async function GET() {
       const topRated = await db
         .select()
         .from(tools)
-      .where(and(eq(tools.status, "approved"), eq(tools.isVisible, true)))
+      .where(and(inArray(tools.status, ["approved", "featured"]), eq(tools.isVisible, true)))
       .orderBy(sql`${tools.averageRating} DESC, RANDOM()`)
         .limit(6);
 

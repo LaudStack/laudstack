@@ -2,7 +2,7 @@
 
 import { db, getUserBySupabaseId } from "@/server/db";
 import { comments, users, tools } from "@/drizzle/schema";
-import { eq, and, desc, count, gte, lt, isNull, sql } from "drizzle-orm";
+import { eq, and, desc, count, gte, lt, isNull, sql, inArray } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ async function getVisibleTool(toolId: number) {
     where: and(
       eq(tools.id, toolId),
       eq(tools.isVisible, true),
-      eq(tools.status, "approved")
+      inArray(tools.status, ["approved", "featured"])
     ),
   });
   return tool ?? null;

@@ -419,7 +419,7 @@ export default function ToolDetail() {
 
   const alternatives = allTools
     .filter(t => t.category === tool.category && t.id !== tool.id)
-    .sort((a, b) => b.average_rating - a.average_rating || b.review_count - a.review_count)
+    .sort((a, b) => b.rank_score - a.rank_score)
     .slice(0, 8);
 
   const totalReviews = reviews.length;
