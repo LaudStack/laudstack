@@ -174,7 +174,7 @@ export default function AlternativesPage() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Auto-select from URL param
-  const urlProduct = searchParams.get('product');
+  const urlProduct = searchParams?.get('product') ?? null;
   useEffect(() => {
     if (urlProduct && !selectedSlug) {
       setSelectedSlug(urlProduct);

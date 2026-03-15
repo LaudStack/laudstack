@@ -71,14 +71,7 @@ const BADGE_COLORS: Record<string, string> = {
   laudstack_pick: '#D97706',
 };
 
-const FALLBACK_SHOTS = [
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&auto=format',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop&auto=format',
-  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=500&fit=crop&auto=format',
-  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=500&fit=crop&auto=format',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&h=500&fit=crop&auto=format',
-  'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=500&fit=crop&auto=format',
-];
+
 
 /* ── Helpers ────────────────────────────────────────────────────────────────── */
 
@@ -325,7 +318,8 @@ function ToolGridCard({
   laudingId: number | null;
   hideCategory?: boolean;
 }) {
-  const screenshotSrc = tool.screenshot_url || FALLBACK_SHOTS[index % FALLBACK_SHOTS.length];
+  const [logoError, setLogoError] = useState(false);
+  const [screenshotError, setScreenshotError] = useState(false);
   const isLauded = laudedIds.has(tool.id);
   const isLauding = laudingId === Number(tool.id);
 
@@ -335,17 +329,16 @@ function ToolGridCard({
       <div className="p-4 pb-3 flex items-start gap-3.5">
         <Link href={`/tools/${tool.slug}`} className="flex-shrink-0">
           <div className="w-[52px] h-[52px] rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center shadow-sm">
-            <img
-              src={tool.logo_url}
-              alt={tool.name}
-              className="w-10 h-10 object-contain"
-              onError={e => {
-                const t = e.currentTarget;
-                t.style.display = 'none';
-                const p = t.parentElement;
-                if (p) { p.innerHTML = `<span style="font-size:20px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; }
-              }}
-            />
+            {logoError ? (
+              <span className="text-xl font-extrabold text-slate-500">{tool.name.charAt(0)}</span>
+            ) : (
+              <img
+                src={tool.logo_url}
+                alt={tool.name}
+                className="w-10 h-10 object-contain"
+                onError={() => setLogoError(true)}
+              />
+            )}
           </div>
         </Link>
 
@@ -389,26 +382,29 @@ function ToolGridCard({
       {/* Screenshot — centered with rounded corners (matches homepage Rising cards) */}
       <Link href={`/tools/${tool.slug}`} className="block px-3 sm:px-4">
         <div
-          className="relative w-full overflow-hidden rounded-xl"
-          style={{ aspectRatio: '16 / 9', background: '#F1F5F9' }}
+          className="relative w-full overflow-hidden rounded-xl bg-slate-100 aspect-video"
         >
-          <img
-            src={screenshotSrc}
-            alt={`${tool.name} screenshot`}
-            className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-            onError={e => {
-              const img = e.target as HTMLImageElement;
-              img.style.display = 'none';
-              const parent = img.parentElement;
-              if (parent && !parent.querySelector('.placeholder-fallback')) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'placeholder-fallback absolute inset-0 flex items-center justify-center';
-                placeholder.style.background = '#F1F5F9';
-                placeholder.innerHTML = `<div style="text-align:center"><div style="width:36px;height:36px;margin:0 auto 6px;border-radius:8px;background:#E2E8F0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div><span style="font-size:11px;color:#94A3B8;font-weight:500">Preview unavailable</span></div>`;
-                parent.appendChild(placeholder);
-              }
-            }}
-          />
+          {!tool.screenshot_url || screenshotError ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-9 h-9 mx-auto mb-1.5 rounded-lg bg-slate-200/80 flex items-center justify-center">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth={1.5}>
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                  </svg>
+                </div>
+                <span className="text-[11px] text-slate-400 font-medium">Preview unavailable</span>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={tool.screenshot_url}
+              alt={`${tool.name} screenshot`}
+              className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+              onError={() => setScreenshotError(true)}
+            />
+          )}
 
           {/* New badge */}
           {isNew(tool.launched_at) && (
@@ -425,7 +421,7 @@ function ToolGridCard({
       </Link>
 
       {/* Footer */}
-      <div className="mt-auto px-4 py-3 flex items-center justify-between border-t border-slate-100 mt-3">
+      <div className="mt-auto px-4 py-3 flex items-center justify-between border-t border-slate-100">
         <div className="flex items-center gap-2.5">
           <span className="text-xs text-slate-400 font-medium">{timeAgo(tool.launched_at)}</span>
           <span className="w-1 h-1 rounded-full bg-slate-300" />
@@ -455,6 +451,7 @@ function ToolListRow({
   onLaud: (toolId: number) => void;
   laudingId: number | null;
 }) {
+  const [logoError, setLogoError] = useState(false);
   const isLauded = laudedIds.has(tool.id);
   const isLauding = laudingId === Number(tool.id);
 
@@ -483,17 +480,16 @@ function ToolListRow({
       {/* Logo */}
       <Link href={`/tools/${tool.slug}`} className="flex-shrink-0">
         <div className="w-11 h-11 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center shadow-sm">
-          <img
-            src={tool.logo_url}
-            alt={tool.name}
-            className="w-8 h-8 object-contain"
-            onError={e => {
-              const t = e.currentTarget;
-              t.style.display = 'none';
-              const p = t.parentElement;
-              if (p) { p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; }
-            }}
-          />
+          {logoError ? (
+            <span className="text-base font-extrabold text-slate-500">{tool.name.charAt(0)}</span>
+          ) : (
+            <img
+              src={tool.logo_url}
+              alt={tool.name}
+              className="w-8 h-8 object-contain"
+              onError={() => setLogoError(true)}
+            />
+          )}
         </div>
       </Link>
 
@@ -503,7 +499,7 @@ function ToolListRow({
           <span className="text-[15px] font-extrabold text-slate-900 tracking-tight">{tool.name}</span>
           {tool.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
           {isNew(tool.launched_at) && (
-            <span className="text-[9px] font-extrabold text-slate-900 bg-amber-500 px-1.5 py-0.5 rounded uppercase tracking-wider">New</span>
+            <span className="text-[9px] font-extrabold text-white bg-amber-500 px-1.5 py-0.5 rounded uppercase tracking-wider">New</span>
           )}
           <span className="text-[11px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-medium">{tool.category}</span>
         </div>
@@ -608,7 +604,7 @@ export default function AllTools() {
     if (typeof window !== 'undefined' && window.location.pathname + window.location.search !== newPath) {
       router.replace(newPath);
     }
-  }, [selectedCategories, selectedPricing, minRating, sortBy, search, activeBadge]);
+  }, [selectedCategories, selectedPricing, minRating, sortBy, search, activeBadge, router, syncingFromUrl]);
 
   /* ── URL sync: inbound ──────────────────────────────────────────────────── */
   useEffect(() => {
@@ -714,92 +710,62 @@ export default function AllTools() {
   const categoryNames = useMemo(() => CATEGORIES.filter(c => c.name !== 'All').map(c => c.name), []);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
 
       {/* ═══════════════════════════════════════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section style={{
-        background: '#FFFFFF',
-        borderBottom: '1px solid #E5E7EB',
-        paddingTop: 84,
-        paddingBottom: 0,
-      }}>
-        <div style={{ maxWidth: 1300, margin: '0 auto', padding: '0 24px' }}>
+      <section className="bg-white border-b border-slate-200 pt-[84px]">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           {/* Breadcrumb */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
-            <Link href="/" style={{ fontSize: 12, color: '#9CA3AF', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
-            <span style={{ fontSize: 11, color: '#D1D5DB' }}>/</span>
-            <span style={{ fontSize: 12, color: '#6B7280', fontWeight: 600 }}>All Stacks</span>
+          <nav className="flex items-center gap-1.5 mb-5">
+            <Link href="/" className="text-xs text-slate-400 hover:text-slate-600 font-medium transition-colors">Home</Link>
+            <span className="text-[11px] text-slate-300">/</span>
+            <span className="text-xs text-slate-500 font-semibold">All Stacks</span>
           </nav>
 
           {/* Title row */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', marginBottom: 24 }}>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 mb-6">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  fontSize: 11, fontWeight: 700, color: '#B45309',
-                  background: '#FEF3C7', border: '1px solid #FDE68A',
-                  padding: '3px 10px', borderRadius: 20,
-                  textTransform: 'uppercase', letterSpacing: '0.06em',
-                }}>
-                  <Package style={{ width: 11, height: 11 }} />
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-100 border border-amber-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  <Package className="w-[11px] h-[11px]" />
                   Stack Directory
                 </span>
               </div>
-              <h1 style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
-                fontSize: 'clamp(24px, 3vw, 30px)',
-                fontWeight: 900,
-                color: '#111827',
-                letterSpacing: '-0.025em',
-                lineHeight: 1.15,
-                margin: 0,
-              }}>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
                 All Stacks
               </h1>
-              <p style={{ fontSize: 15, color: '#6B7280', fontWeight: 400, margin: '8px 0 0', lineHeight: 1.6 }}>
+              <p className="text-[15px] text-slate-500 mt-2 leading-relaxed">
                 Discover {allTools.length} SaaS &amp; AI stacks, verified and ranked by the community.
               </p>
             </div>
 
             {/* Search bar */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: 340 }}>
-              <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#9CA3AF', pointerEvents: 'none' }} />
+            <div className="relative w-full sm:max-w-[340px]">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                  placeholder="Search stacks..."
+                placeholder="Search stacks..."
                 value={search}
                 onChange={e => { setSearch(e.target.value); setVisibleCount(30); }}
-                style={{
-                  width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB',
-                  borderRadius: 10, padding: '11px 36px 11px 40px', fontSize: 13,
-                  color: '#111827', outline: 'none', fontFamily: 'inherit',
-                  transition: 'border-color 0.15s',
-                }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#F59E0B'; }}
-                onBlur={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-[10px] py-2.5 pl-10 pr-9 text-[13px] text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30"
               />
               {search && (
                 <button
                   onClick={() => { setSearch(''); setVisibleCount(30); }}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', display: 'flex', padding: 0 }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  <X style={{ width: 14, height: 14 }} />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
           </div>
 
           {/* Category quick-filter pills */}
-          <div style={{
-            display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center',
-            padding: '14px 0 18px',
-            borderTop: '1px solid #F3F4F6',
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>
+          <div className="flex flex-wrap gap-1.5 items-center py-3.5 border-t border-slate-100">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
               Quick filter:
             </span>
             {CATEGORIES.filter(c => c.name !== 'All').slice(0, 12).map(cat => {
@@ -808,25 +774,11 @@ export default function AllTools() {
                 <button
                   key={cat.name}
                   onClick={() => toggleCategory(cat.name)}
-                  style={{
-                    padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer', transition: 'all 0.15s', border: '1px solid',
-                    background: isActive ? '#F59E0B' : '#FFFFFF',
-                    color: isActive ? '#FFFFFF' : '#4B5563',
-                    borderColor: isActive ? '#F59E0B' : '#E5E7EB',
-                  }}
-                  onMouseEnter={e => {
-                    if (!isActive) {
-                      e.currentTarget.style.borderColor = '#FCD34D';
-                      e.currentTarget.style.background = '#FFFBEB';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isActive) {
-                      e.currentTarget.style.borderColor = '#E5E7EB';
-                      e.currentTarget.style.background = '#FFFFFF';
-                    }
-                  }}
+                  className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                    isActive
+                      ? 'bg-amber-500 text-white border-amber-500'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:bg-amber-50'
+                  }`}
                 >
                   {cat.icon} {cat.name}
                 </button>
@@ -835,11 +787,7 @@ export default function AllTools() {
             {selectedCategories.length > 0 && (
               <button
                 onClick={() => setSelectedCategories([])}
-                style={{
-                  padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-                  cursor: 'pointer', background: '#FEF2F2', color: '#DC2626',
-                  border: '1px solid #FECACA', transition: 'all 0.15s',
-                }}
+                className="px-3 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors"
               >
                 Clear
               </button>
@@ -954,13 +902,12 @@ export default function AllTools() {
                     count={allTools.length}
                   />
                   {availableBadges.map(([key, label]) => (
-                    <FilterCheckbox
+                    <FilterRadio
                       key={key}
                       label={label}
                       checked={activeBadge === key}
                       onChange={() => setActiveBadge(activeBadge === key ? '' : key)}
                       count={badgeCounts[key] || 0}
-                      dot={BADGE_COLORS[key]}
                     />
                   ))}
                 </FilterSection>
@@ -1061,35 +1008,51 @@ export default function AllTools() {
 
             {/* Tool grid / list */}
             {toolsLoading ? (
-              /* Loading skeleton — matches new-launches style */
-              <div className={viewMode === 'grid'
-                ? `grid grid-cols-1 sm:grid-cols-2 ${sidebarOpen ? 'lg:grid-cols-2 xl:grid-cols-3' : 'lg:grid-cols-3 xl:grid-cols-4'} gap-6`
-                : 'flex flex-col gap-3'
-              }>
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                    <div className="p-4 pb-3 flex items-start gap-3.5">
-                      <div className="w-[52px] h-[52px] rounded-xl bg-slate-100 animate-pulse flex-shrink-0" />
-                      <div className="flex-1 pt-0.5">
-                        <div className="h-4 w-28 bg-slate-100 rounded mb-2 animate-pulse" />
-                        <div className="h-3 w-20 bg-slate-100 rounded animate-pulse" />
+              /* Loading skeleton — adapts to current view mode */
+              viewMode === 'grid' ? (
+                <div className={`grid grid-cols-1 sm:grid-cols-2 ${sidebarOpen ? 'lg:grid-cols-2 xl:grid-cols-3' : 'lg:grid-cols-3 xl:grid-cols-4'} gap-6`}>
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                      <div className="p-4 pb-3 flex items-start gap-3.5">
+                        <div className="w-[52px] h-[52px] rounded-xl bg-slate-100 animate-pulse flex-shrink-0" />
+                        <div className="flex-1 pt-0.5">
+                          <div className="h-4 w-28 bg-slate-100 rounded mb-2 animate-pulse" />
+                          <div className="h-3 w-20 bg-slate-100 rounded animate-pulse" />
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 animate-pulse flex-shrink-0" />
                       </div>
-                      <div className="w-12 h-12 rounded-xl bg-slate-100 animate-pulse flex-shrink-0" />
+                      <div className="px-3 sm:px-4">
+                        <div className="bg-slate-100 animate-pulse rounded-xl aspect-video" />
+                      </div>
+                      <div className="px-4 pt-3 pb-3">
+                        <div className="h-3 w-full bg-slate-100 rounded mb-2 animate-pulse" />
+                        <div className="h-3 w-3/4 bg-slate-100 rounded animate-pulse" />
+                      </div>
+                      <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between">
+                        <div className="h-3 w-24 bg-slate-100 rounded animate-pulse" />
+                        <div className="h-5 w-16 bg-slate-100 rounded-md animate-pulse" />
+                      </div>
                     </div>
-                    <div className="px-3 sm:px-4">
-                      <div className="h-40 bg-slate-100 animate-pulse rounded-xl" style={{ aspectRatio: '16 / 9' }} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {Array.from({ length: 10 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-xl border border-slate-200/80 shadow-sm px-5 py-4 flex items-center gap-4">
+                      <div className="w-11 h-11 rounded-xl bg-slate-100 animate-pulse flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="h-4 w-32 bg-slate-100 rounded mb-2 animate-pulse" />
+                        <div className="h-3 w-48 bg-slate-100 rounded animate-pulse" />
+                      </div>
+                      <div className="hidden sm:flex items-center gap-5">
+                        <div className="h-4 w-10 bg-slate-100 rounded animate-pulse" />
+                        <div className="h-5 w-16 bg-slate-100 rounded-md animate-pulse" />
+                      </div>
+                      <div className="w-4 h-4 bg-slate-100 rounded animate-pulse" />
                     </div>
-                    <div className="px-4 pt-3 pb-3">
-                      <div className="h-3 w-full bg-slate-100 rounded mb-2 animate-pulse" />
-                      <div className="h-3 w-3/4 bg-slate-100 rounded animate-pulse" />
-                    </div>
-                    <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between">
-                      <div className="h-3 w-24 bg-slate-100 rounded animate-pulse" />
-                      <div className="h-5 w-16 bg-slate-100 rounded-md animate-pulse" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )
             ) : filtered.length === 0 ? (
               /* Empty state */
               <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl">
