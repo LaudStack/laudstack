@@ -6,13 +6,13 @@
  * vote, review, save, or claim deals.
  */
 
-import { X, LogIn, Star, ChevronUp, Bookmark, Tag } from "lucide-react";
+import { X, LogIn, Star, ChevronUp, Bookmark, Tag, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  action?: "upvote" | "laud" | "review" | "save" | "claim" | "general";
+  action?: "upvote" | "laud" | "review" | "save" | "claim" | "comment" | "general";
 }
 
 const ACTION_CONFIG: Record<
@@ -48,6 +48,12 @@ const ACTION_CONFIG: Record<
     title: "Sign in to Claim This Deal",
     description:
       "Get exclusive discounts and offers. Sign in to claim deals and save on the products you love.",
+  },
+  comment: {
+    icon: MessageSquare,
+    title: "Sign in to Comment",
+    description:
+      "Join the LaudStack community to share your thoughts, ask questions, and engage with founders and other users.",
   },
   general: {
     icon: LogIn,

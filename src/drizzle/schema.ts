@@ -489,3 +489,32 @@ export const launchNotifications = pgTable("launch_notifications", {
 
 export type LaunchNotification = typeof launchNotifications.$inferSelect;
 export type InsertLaunchNotification = typeof launchNotifications.$inferInsert;
+
+// ─── Comments ───────────────────────────────────────────────────────────────
+// Product-level commenting system — comments exist only on individual stack pages.
+// Supports single-level replies (parent_comment_id) for founder/user responses.
+
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  /** The stack/tool this comment belongs to */
+  toolId: integer("tool_id")
+    .notNull()
+    .references(() => tools.id, { onDelete: "cascade" }),
+  /** The user who wrote this comment */
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  /** Parent comment ID for single-level replies (null = top-level comment) */
+  parentCommentId: integer("parent_comment_id"),
+  /** Comment text content */
+  content: text("content").notNull(),
+  /** Soft delete flag */
+  isDeleted: boolean("is_deleted").default(false).notNull(),
+  /** Whether this comment has been edited */
+  isEdited: boolean("is_edited").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type Comment = typeof comments.$inferSelect;
+export type InsertComment = typeof comments.$inferInsert;

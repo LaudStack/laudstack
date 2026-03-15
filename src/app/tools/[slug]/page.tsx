@@ -33,6 +33,7 @@ import Footer from '@/components/Footer';
 import { useToolsData } from '@/hooks/useToolsData';
 import type { Tool, Review } from '@/lib/types';
 import { getToolExtras } from '@/lib/toolExtras';
+import CommentsSection from '@/components/CommentsSection';
 
 // ─── Badge config ──────────────────────────────────────────────────────────
 const BADGE_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
@@ -237,7 +238,7 @@ export default function ToolDetail() {
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authAction, setAuthAction] = useState<'review' | 'upvote' | 'save' | 'claim' | 'general'>('upvote');
+  const [authAction, setAuthAction] = useState<'review' | 'upvote' | 'save' | 'claim' | 'comment' | 'general'>('upvote');
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editBody, setEditBody] = useState('');
@@ -308,7 +309,7 @@ export default function ToolDetail() {
 
   // Scroll spy
   useEffect(() => {
-    const ids = ['about', 'media', 'features', 'pricing', 'reviews', 'alternatives'];
+    const ids = ['about', 'media', 'features', 'pricing', 'reviews', 'comments', 'alternatives'];
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -693,6 +694,7 @@ export default function ToolDetail() {
               { id: 'features', label: 'Features' },
               { id: 'pricing', label: 'Pricing' },
               { id: 'reviews', label: 'Reviews' },
+              { id: 'comments', label: 'Discussion' },
               { id: 'alternatives', label: 'Alternatives' },
             ] as const).map(tab => (
               <button key={tab.id} onClick={() => scrollToSection(tab.id)}
@@ -1011,6 +1013,17 @@ export default function ToolDetail() {
                 </button>
               </div>
             </section>
+
+            {/* Comments / Discussion */}
+            <CommentsSection
+              toolId={parseInt(tool.id, 10)}
+              isAuthenticated={isAuthenticated}
+              currentUserId={dbUser?.id ?? null}
+              onAuthRequired={() => {
+                setAuthAction('comment');
+                setShowAuthModal(true);
+              }}
+            />
           </div>
 
           {/* ── RIGHT SIDEBAR — hidden on mobile, shown below content on tablet, sticky on desktop ── */}

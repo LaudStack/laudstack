@@ -43,6 +43,13 @@
       "when": 1773520964102,
       "tag": "0005_orange_titanium_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773549164636,
+      "tag": "0006_chunky_loners",
+      "breakpoints": true
     }
   ]
 }

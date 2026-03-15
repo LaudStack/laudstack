@@ -718,3 +718,21 @@
 - [ ] Eliminate potential console errors
 - [ ] Build verification
 - [ ] Push to GitHub
+
+## Product-Level Commenting System (March 14, 2026)
+- [x] Add comments table to database schema (id, tool_id, user_id, parent_comment_id, content, is_deleted, is_edited, created_at, updated_at)
+- [x] Generate and apply migration to Supabase (0006_chunky_loners.sql)
+- [x] Create server actions for comments CRUD (getComments, createComment, editComment, deleteComment)
+- [x] Auth-gated comment creation (only logged-in users)
+- [x] Only comment author can edit/delete their own comments
+- [x] Founder badge logic (show badge only for stack owner/claimer)
+- [x] Build Comments UI component (composer, comment list, reply support)
+- [x] Loading skeletons for comments section
+- [x] Empty state for no comments
+- [x] Auth gate modal for unauthenticated comment attempts
+- [x] Single-level reply support (founder and user replies)
+- [x] Edit and delete own comments
+- [x] Mobile responsive design
+- [x] Integrate comments section into stack detail page (new tab)
+- [ ] Write vitest tests for comments server actions
+- [ ] Push to GitHub for Vercel deployment
