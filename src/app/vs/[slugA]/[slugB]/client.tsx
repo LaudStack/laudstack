@@ -79,34 +79,19 @@ function ComparisonRow({
 }) {
   return (
     <div
+      className="grid grid-cols-3 gap-0"
       style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr",
-        gap: "0",
         borderBottom: "1px solid #F1F5F9",
       }}
     >
       <div
-        style={{
-          padding: "14px 16px",
-          fontSize: "13px",
-          fontWeight: 700,
-          color: "#374151",
-          display: "flex",
-          alignItems: "center",
-        }}
+        className="px-3 py-3 sm:px-4 sm:py-3.5 text-[12px] sm:text-[13px] font-bold text-gray-600 flex items-center"
       >
         {label}
       </div>
       <div
+        className="px-3 py-3 sm:px-4 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold text-slate-900 flex items-center gap-1 sm:gap-1.5 flex-wrap"
         style={{
-          padding: "14px 16px",
-          fontSize: "13px",
-          color: "#171717",
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
           background: highlight === "a" ? "#FEFCE8" : "transparent",
         }}
       >
@@ -114,14 +99,8 @@ function ComparisonRow({
         {highlight === "a" && <WinnerBadge label="Winner" />}
       </div>
       <div
+        className="px-3 py-3 sm:px-4 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold text-slate-900 flex items-center gap-1 sm:gap-1.5 flex-wrap"
         style={{
-          padding: "14px 16px",
-          fontSize: "13px",
-          color: "#171717",
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
           background: highlight === "b" ? "#FEFCE8" : "transparent",
         }}
       >
@@ -136,65 +115,32 @@ function ComparisonRow({
 
 function ToolHeaderCard({ tool }: { tool: Tool }) {
   return (
-    <div style={{ textAlign: "center", padding: "20px 12px" }}>
+    <div className="text-center p-3 sm:p-5">
       <div
-        style={{
-          width: "64px",
-          height: "64px",
-          borderRadius: "16px",
-          border: "1px solid #E8ECF0",
-          background: "#F8FAFC",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "0 auto 10px",
-        }}
+        className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center mx-auto mb-2 sm:mb-2.5"
       >
-        <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-12 h-12 object-contain" fallbackSize="text-2xl" />
+        <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" fallbackSize="text-xl sm:text-2xl" />
       </div>
       <h2
-        style={{
-          fontSize: "18px",
-          fontWeight: 800,
-          color: "#171717",
-          margin: "0 0 4px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "6px",
-        }}
+        className="text-[14px] sm:text-[18px] font-extrabold text-slate-900 m-0 mb-1 flex items-center justify-center gap-1.5"
       >
         {tool.name}
         {tool.is_verified && (
           <Shield
-            style={{ width: "14px", height: "14px", color: "#22C55E" }}
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500"
           />
         )}
       </h2>
       <p
-        style={{
-          fontSize: "12px",
-          color: "#6B7280",
-          margin: "0 0 8px",
-          lineHeight: 1.4,
-        }}
+        className="text-[11px] sm:text-[12px] text-gray-500 m-0 mb-2 leading-snug line-clamp-2"
       >
         {tool.tagline}
       </p>
       <Link
         href={`/tools/${tool.slug}`}
-        style={{
-          fontSize: "12px",
-          fontWeight: 700,
-          color: "#D97706",
-          textDecoration: "none",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "3px",
-        }}
+        className="text-[11px] sm:text-[12px] font-bold text-amber-600 no-underline inline-flex items-center gap-1"
       >
-        View profile <ArrowRight style={{ width: "11px", height: "11px" }} />
+        View profile <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
       </Link>
     </div>
   );
@@ -345,22 +291,16 @@ export default function ComparisonClient({ toolA, toolB }: Props) {
         >
           {/* Tool Headers */}
           <div
+            className="grid grid-cols-3"
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
               borderBottom: "2px solid #E8ECF0",
             }}
           >
             <div
-              style={{
-                padding: "16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              className="p-3 sm:p-4 flex items-center justify-center"
             >
               <GitCompareArrows
-                style={{ width: "20px", height: "20px", color: "#F59E0B" }}
+                className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500"
               />
             </div>
             <ToolHeaderCard tool={toolA} />
@@ -456,21 +396,14 @@ export default function ComparisonClient({ toolA, toolB }: Props) {
           {featureTitles.length > 0 && (
             <>
               <div
+                className="px-3 py-3 sm:px-4 sm:py-3.5 bg-slate-50"
                 style={{
-                  padding: "14px 16px",
-                  background: "#F8FAFC",
                   borderBottom: "1px solid #E8ECF0",
                   borderTop: "2px solid #E8ECF0",
                 }}
               >
                 <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 800,
-                    color: "#6B7280",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                  }}
+                  className="text-[11px] sm:text-[12px] font-extrabold text-gray-500 uppercase tracking-widest"
                 >
                   Features
                 </span>
@@ -492,55 +425,20 @@ export default function ComparisonClient({ toolA, toolB }: Props) {
         </div>
 
         {/* CTA Buttons */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "16px",
-            marginTop: "24px",
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6">
           <Link
             href={`/tools/${toolA.slug}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              padding: "14px",
-              background: "#FFFFFF",
-              borderRadius: "12px",
-              border: "1.5px solid #E8ECF0",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 700,
-              color: "#171717",
-              transition: "border-color 0.15s",
-            }}
+            className="flex items-center justify-center gap-2 py-3 sm:py-3.5 bg-white rounded-xl border-[1.5px] border-slate-200 no-underline text-[13px] sm:text-[14px] font-bold text-slate-900 hover:border-amber-300 transition-colors"
           >
             View {toolA.name}
-            <ArrowRight style={{ width: "14px", height: "14px" }} />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <Link
             href={`/tools/${toolB.slug}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              padding: "14px",
-              background: "#FFFFFF",
-              borderRadius: "12px",
-              border: "1.5px solid #E8ECF0",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 700,
-              color: "#171717",
-              transition: "border-color 0.15s",
-            }}
+            className="flex items-center justify-center gap-2 py-3 sm:py-3.5 bg-white rounded-xl border-[1.5px] border-slate-200 no-underline text-[13px] sm:text-[14px] font-bold text-slate-900 hover:border-amber-300 transition-colors"
           >
             View {toolB.name}
-            <ArrowRight style={{ width: "14px", height: "14px" }} />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 

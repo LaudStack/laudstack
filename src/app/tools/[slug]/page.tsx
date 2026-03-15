@@ -194,7 +194,7 @@ function AlternativeProductCard({ product, currentTool }: { product: Tool; curre
       <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed line-clamp-2 m-0">{product.tagline}</p>
       <div className="flex items-center justify-between pt-2 mt-auto" style={{ borderTop: '1px solid #F3F4F6' }}>
         <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">{product.pricing_model}</span>
-        <Link href={`/compare?tools=${currentTool.slug},${product.slug}`} onClick={e => e.stopPropagation()}
+        <Link href={`/vs/${currentTool.slug}/${product.slug}`} onClick={e => e.stopPropagation()}
           className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md hover:bg-blue-100 transition-colors no-underline">
           Compare
         </Link>

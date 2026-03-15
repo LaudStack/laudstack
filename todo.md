@@ -750,3 +750,17 @@
 - [x] Add error boundary / defensive rendering around CommentsSection
 - [x] Sync editContent state with comment.content prop changes
 - [x] Implement proper time-based rate limiting (10 comments per hour per user per tool)
+
+## Comparison System Audit & Hardening (March 15, 2026)
+- [x] C5: Add compare button to ToolCard (StandardCard) for listing pages (desktop + mobile)
+- [x] C7: Add horizontal scroll wrapper to /compare page for mobile grid overflow
+- [x] C7: Add minWidth to all grid containers in /compare page
+- [x] C8: SEO routing — CompareBar and share URL use /vs/slugA/slugB for 2-tool comparisons
+- [x] C8: CompareBar handleCompare uses /vs/ route for 2 tools, /compare?tools= for 3
+- [x] C9: Mobile-responsive ComparisonRow in /vs/ page (responsive padding, font sizes, flex-wrap)
+- [x] C9: Mobile-responsive ToolHeaderCard in /vs/ page (responsive logo, text, padding)
+- [x] C9: Mobile-responsive CTA buttons in /vs/ page (stacked on mobile)
+- [x] C9: Mobile-responsive feature comparison header in /vs/ page
+- [x] C9: CompareBar flexWrap for mobile layout
+- [x] Build verification (zero errors)
+- [ ] Push to GitHub

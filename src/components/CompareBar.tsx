@@ -14,6 +14,7 @@ import { useCompare } from '@/contexts/CompareContext';
 
 /** Pages where the compare bar should be visible */
 const COMPARE_PAGES = [
+  '/',
   '/tools',
   '/compare',
   '/comparisons',
@@ -26,6 +27,10 @@ const COMPARE_PAGES = [
   '/launches',
   '/categories',
   '/editors-picks',
+  '/most-lauded',
+  '/recently-added',
+  '/stack-finder',
+  '/launch-archive',
 ];
 
 export default function CompareBar() {
@@ -33,13 +38,25 @@ export default function CompareBar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Only show on relevant pages (exact match or starts with /tools/)
-  const isRelevantPage = pathname ? (COMPARE_PAGES.includes(pathname) || pathname.startsWith('/tools/')) : false;
+  // Only show on relevant pages (exact match or starts with tool/category/alt paths)
+  const isRelevantPage = pathname ? (
+    COMPARE_PAGES.includes(pathname) ||
+    pathname.startsWith('/tools/') ||
+    pathname.startsWith('/alt/') ||
+    pathname.startsWith('/c/') ||
+    pathname.startsWith('/best/')
+  ) : false;
   if (!isRelevantPage) return null;
 
   const handleCompare = () => {
     if (selected.length < 2) return;
-    router.push('/compare');
+    // For exactly 2 tools, use SEO-friendly /vs/ route
+    if (selected.length === 2) {
+      router.push(`/vs/${selected[0].slug}/${selected[1].slug}`);
+    } else {
+      const slugs = selected.map(t => t.slug).join(',');
+      router.push(`/compare?tools=${slugs}`);
+    }
   };
 
   return (
@@ -59,6 +76,7 @@ export default function CompareBar() {
             boxShadow: '0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04)',
             padding: '14px 18px',
             display: 'flex', alignItems: 'center', gap: '14px',
+            flexWrap: 'wrap',
           }}>
             {/* Icon */}
             <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -74,7 +92,7 @@ export default function CompareBar() {
             </div>
 
             {/* Tool chips */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, overflowX: 'auto', padding: '2px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 auto', minWidth: 0, overflowX: 'auto', padding: '2px 0' }}>
               {selected.map(tool => (
                 <div
                   key={tool.id}

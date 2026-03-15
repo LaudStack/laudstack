@@ -31,7 +31,7 @@ function MatchupCard({ toolA, toolB }: { toolA: Tool; toolB: Tool }) {
   return (
     <button
       onClick={() =>
-        router.push(`/compare?tools=${toolA.slug},${toolB.slug}`)
+        router.push(`/vs/${toolA.slug}/${toolB.slug}`)
       }
       className="group bg-white border border-slate-200 rounded-2xl p-5 text-left cursor-pointer transition-all duration-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-amber-200 w-full"
     >
@@ -384,7 +384,7 @@ export default function ComparisonsPage() {
                   onClick={() => {
                     if (canCompare)
                       router.push(
-                        `/compare?tools=${stackA!.slug},${stackB!.slug}`
+                        `/vs/${stackA!.slug}/${stackB!.slug}`
                       );
                   }}
                   disabled={!canCompare}
@@ -481,7 +481,7 @@ export default function ComparisonsPage() {
                     key={cat.name}
                     onClick={() =>
                       router.push(
-                        `/compare?tools=${cat.tools[0].slug},${cat.tools[1].slug}`
+                        `/vs/${cat.tools[0].slug}/${cat.tools[1].slug}`
                       )
                     }
                     className="group bg-white border border-slate-200 rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-3 sm:gap-4 text-left transition-all duration-200 hover:border-amber-200 hover:shadow-md w-full"

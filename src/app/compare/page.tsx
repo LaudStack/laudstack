@@ -98,7 +98,7 @@ const PRICING_CLASSES: Record<string, string> = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Compare() {
-  const { tools: allTools, reviews: allReviews, loading: toolsLoading } = useToolsData();
+  const { tools: allTools, loading: toolsLoading } = useToolsData();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -106,13 +106,16 @@ export default function Compare() {
   const [copied, setCopied] = useState(false);
 
   // ── Hydrate from URL query params (?tools=slug1,slug2,slug3) ──────────────
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
+    if (toolsLoading || allTools.length === 0 || hydrated) return;
+
     const params = new URLSearchParams(window.location.search);
     const slugsParam = params.get('tools');
-    if (!slugsParam) return;
+    if (!slugsParam) { setHydrated(true); return; }
 
     const slugs = slugsParam.split(',').filter(Boolean).slice(0, 3);
-    if (slugs.length < 2) return;
+    if (slugs.length < 2) { setHydrated(true); return; }
 
     // Only hydrate if the context is currently empty (avoid overwriting user selection)
     if (selected.length === 0) {
@@ -122,13 +125,18 @@ export default function Compare() {
 
       toolsFromUrl.forEach(tool => toggle(tool));
     }
+    setHydrated(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount
+  }, [allTools, toolsLoading]); // re-run when tools load
 
   // ── Build shareable URL ───────────────────────────────────────────────────
   function buildShareUrl(tools: Tool[]): string {
-    const slugs = tools.map(t => t.slug).join(',');
     const base = window.location.origin;
+    // For exactly 2 tools, use SEO-friendly /vs/ route
+    if (tools.length === 2) {
+      return `${base}/vs/${tools[0].slug}/${tools[1].slug}`;
+    }
+    const slugs = tools.map(t => t.slug).join(',');
     return `${base}/compare?tools=${slugs}`;
   }
 
@@ -145,6 +153,27 @@ export default function Compare() {
     }).catch(() => {
       toast.info('Share this link:', { description: url, duration: 8000 });
     });
+  }
+
+  // ── Loading state ─────────────────────────────────────────────────────────
+  const hasUrlTools = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('tools');
+  if (toolsLoading || (hasUrlTools && !hydrated)) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Navbar />
+        <div className="h-[72px]" />
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 px-6 py-20 text-center">
+          <div className="w-[72px] h-[72px] rounded-[20px] bg-amber-50 border-[1.5px] border-amber-200 flex items-center justify-center">
+            <GitCompareArrows className="w-8 h-8 text-amber-500 animate-pulse" />
+          </div>
+          <h1 className="font-black text-[28px] text-slate-900 tracking-tight">Loading comparison...</h1>
+          <p className="text-base text-slate-500 max-w-[400px] leading-relaxed">
+            Fetching stack data for your comparison.
+          </p>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   // ── Empty state ───────────────────────────────────────────────────────────
@@ -204,7 +233,7 @@ export default function Compare() {
       case 'feat_team':         return <CheckCell val={featMap['Team Collaboration']} />;
       case 'feat_analytics':    return <CheckCell val={featMap['Analytics & Reporting']} />;
       case 'feat_ai':           return <CheckCell val={featMap['AI-Powered']} />;
-      case 'feat_verified':     return <CheckCell val={featMap['Verified Tool']} />;
+      case 'feat_verified':     return <CheckCell val={featMap['Verified Product']} />;
       default: return null;
     }
   }
@@ -217,7 +246,9 @@ export default function Compare() {
     return vals[idx] === max && vals.filter(v => v === max).length === 1;
   }
 
-  const gridCols = `220px repeat(${colCount}, 1fr)`;
+  const gridCols = `180px repeat(${colCount}, minmax(160px, 1fr))`;
+  // Minimum width to prevent mobile overflow: label col + tool cols
+  const gridMinWidth = 180 + colCount * 160;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -281,9 +312,11 @@ export default function Compare() {
 
       {/* ── Main content ── */}
       <div className="max-w-[1200px] mx-auto w-full px-4 sm:px-10 pt-10 pb-20">
+        {/* Horizontal scroll wrapper for mobile */}
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
 
         {/* ── Tool header cards ── */}
-        <div className="grid gap-4 mb-7 items-stretch" style={{ gridTemplateColumns: gridCols }}>
+        <div className="grid gap-4 mb-7 items-stretch" style={{ gridTemplateColumns: gridCols, minWidth: gridMinWidth }}>
           {/* Label column header */}
           <div />
 
@@ -350,7 +383,7 @@ export default function Compare() {
               <div
                 key={row.key}
                 className={`grid gap-4 px-6 py-3.5 items-center ${ri % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${ri < section.rows.length - 1 ? 'border-b border-slate-100' : ''}`}
-                style={{ gridTemplateColumns: gridCols }}
+                style={{ gridTemplateColumns: gridCols, minWidth: gridMinWidth }}
               >
                 {/* Row label */}
                 <div className="text-[13px] font-semibold text-slate-500">{row.label}</div>
@@ -380,7 +413,7 @@ export default function Compare() {
           <div className="px-6 py-3.5 bg-slate-50 border-b border-gray-200">
             <span className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Tags</span>
           </div>
-          <div className="grid gap-4 px-6 py-4 items-start" style={{ gridTemplateColumns: gridCols }}>
+          <div className="grid gap-4 px-6 py-4 items-start" style={{ gridTemplateColumns: gridCols, minWidth: gridMinWidth }}>
             <div className="text-[13px] font-semibold text-slate-500">Keywords</div>
             {tools.map(tool => (
               <div key={tool.id} className="flex flex-wrap gap-1.5">
@@ -403,7 +436,7 @@ export default function Compare() {
             <div
               key={tierName}
               className={`grid gap-4 px-6 py-4 items-start ${ri % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${ri < allTierNames.length - 1 ? 'border-b border-slate-100' : ''}`}
-              style={{ gridTemplateColumns: gridCols }}
+              style={{ gridTemplateColumns: gridCols, minWidth: gridMinWidth }}
             >
               {/* Row label */}
               <div className="text-[13px] font-bold text-gray-700 pt-1">{tierName}</div>
@@ -453,6 +486,8 @@ export default function Compare() {
             <p className="text-[11px] text-slate-400">Pricing is indicative. Visit each product's website for the latest plans and pricing.</p>
           </div>
         </div>
+
+        </div>{/* end horizontal scroll wrapper */}
 
         {/* ── Bottom CTA ── */}
         <div className="bg-slate-900 rounded-2xl px-8 py-7 flex items-center justify-between gap-4 flex-wrap">

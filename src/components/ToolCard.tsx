@@ -24,7 +24,9 @@ import {
   TrendingDown,
   Bookmark,
   Star,
+  GitCompareArrows,
 } from "lucide-react";
+import { useCompare } from "@/contexts/CompareContext";
 import { toast } from "sonner";
 import type { Tool } from "@/lib/types";
 import { useSavedTools } from "@/hooks/useSavedTools";
@@ -388,6 +390,19 @@ function StandardCard({ tool, rank, hideCategory = false }: ToolCardProps) {
     useLaudGlobal(tool);
   const { saved, handleSave, isPending: isPendingSave, showAuthModal: showSaveAuth, setShowAuthModal: setShowSaveAuth } =
     useSaveGlobal(tool);
+  const { isSelected: isComparing, toggle: compareToggle, canAdd: canCompare } = useCompare();
+  const comparing = isComparing(tool.id);
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!comparing && !canCompare) {
+      toast.error('Compare up to 3 stacks at a time');
+      return;
+    }
+    compareToggle(tool);
+    if (!comparing) toast.success(`${tool.name} added to comparison`);
+  };
 
   // Only show 1 badge max to keep it clean
   const visibleBadges = (tool.badges as BadgeType[]).filter(b => BADGE_CONFIG[b]).slice(0, 1);
@@ -544,9 +559,38 @@ function StandardCard({ tool, rank, hideCategory = false }: ToolCardProps) {
           >
             <Bookmark style={{ width: 14, height: 14 }} fill={saved ? "#1D4ED8" : "none"} />
           </button>
+          <button
+            onClick={handleCompare}
+            className="flex items-center justify-center transition-all"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              border: "1.5px solid",
+              background: comparing ? "#EFF6FF" : "#FAFAFA",
+              borderColor: comparing ? "#BFDBFE" : "#E5E7EB",
+              color: comparing ? "#1D4ED8" : "#9CA3AF",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              if (!comparing) {
+                e.currentTarget.style.borderColor = "#BFDBFE";
+                e.currentTarget.style.background = "#EFF6FF";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!comparing) {
+                e.currentTarget.style.borderColor = "#E5E7EB";
+                e.currentTarget.style.background = "#FAFAFA";
+              }
+            }}
+            title={comparing ? 'Remove from comparison' : 'Add to comparison'}
+          >
+            <GitCompareArrows style={{ width: 14, height: 14 }} />
+          </button>
         </div>
 
-        {/* Mobile: upvote + save — top right */}
+        {/* Mobile: upvote + save + compare — top right */}
         <div className="sm:hidden shrink-0 self-start mt-0.5 flex flex-col items-center gap-1.5">
           <UpvoteButton
             count={upvoteCount}
@@ -571,6 +615,23 @@ function StandardCard({ tool, rank, hideCategory = false }: ToolCardProps) {
             }}
           >
             <Bookmark style={{ width: 12, height: 12 }} fill={saved ? "#1D4ED8" : "none"} />
+          </button>
+          <button
+            onClick={handleCompare}
+            className="flex items-center justify-center transition-all"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              border: "1.5px solid",
+              background: comparing ? "#EFF6FF" : "#FAFAFA",
+              borderColor: comparing ? "#BFDBFE" : "#E5E7EB",
+              color: comparing ? "#1D4ED8" : "#9CA3AF",
+              cursor: "pointer",
+            }}
+            title={comparing ? 'Remove from comparison' : 'Add to comparison'}
+          >
+            <GitCompareArrows style={{ width: 12, height: 12 }} />
           </button>
         </div>
       </Link>
