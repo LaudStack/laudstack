@@ -763,4 +763,13 @@
 - [x] C9: Mobile-responsive feature comparison header in /vs/ page
 - [x] C9: CompareBar flexWrap for mobile layout
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit 5f10cbe)
+
+## Newsletter Subscription System Audit & Hardening (March 15, 2026)
+- [x] N1: Fix blog detail page (/blog/[slug]) — wire fake subscribe form to tRPC newsletter.subscribe
+- [x] N2: Fix blog listing page — add email @ validation before calling subscribe mutation
+- [x] N3: Fix newsletter page — remove dead onError 'already subscribed' check, handle via onSuccess
+- [x] N4: Add server-side rate limiting to newsletter.subscribe tRPC endpoint
+- [x] N5: Add input sanitization/trimming for firstName field in subscribe procedure
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub

@@ -27,8 +27,15 @@ export default function Blog() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [subEmail, setSubEmail] = useState('');
   const subscribeMutation = trpc.newsletter.subscribe.useMutation({
-    onSuccess: () => { toast.success('Subscribed! Check your inbox.'); setSubEmail(''); },
-    onError: (err: any) => toast.error(err.message || 'Subscribe failed'),
+    onSuccess: (data) => {
+      if (data.alreadySubscribed) {
+        toast.info("You're already subscribed — thanks!");
+      } else {
+        toast.success('Subscribed! Check your inbox.');
+      }
+      setSubEmail('');
+    },
+    onError: (err: any) => toast.error(err.message || 'Something went wrong. Please try again.'),
   });
 
   const filtered = activeCategory === 'All'
@@ -195,10 +202,10 @@ export default function Blog() {
         <div className="mt-16 bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
           <h3 className="text-xl font-bold text-slate-900 mb-2">Get the Weekly Digest</h3>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
-            New tool reviews, comparison guides, and industry insights — delivered every Tuesday.
+            New tool reviews, comparison guides, and industry insights — delivered every Monday.
           </p>
           <form
-            onSubmit={(e) => { e.preventDefault(); const trimmed = subEmail.trim(); if (!trimmed) return; subscribeMutation.mutate({ email: trimmed, source: 'blog' }); }}
+            onSubmit={(e) => { e.preventDefault(); const trimmed = subEmail.trim(); if (!trimmed || !trimmed.includes('@')) { toast.error('Please enter a valid email address.'); return; } subscribeMutation.mutate({ email: trimmed, source: 'blog' }); }}
             className="flex items-center gap-3 max-w-sm mx-auto"
           >
             <input

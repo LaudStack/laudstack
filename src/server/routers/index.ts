@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import {
   subscribeToNewsletter,
@@ -14,6 +15,34 @@ import {
 import { sendWelcomeEmail, sendContactFormEmail } from "../email";
 import { searchTools as typesenseSearch } from "../search";
 
+// ─── Rate limiter (in-memory, per-IP) ─────────────────────────────────────────
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 5; // max 5 subscribe attempts per minute per IP
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  entry.count++;
+  return true;
+}
+
+// Periodic cleanup of stale entries (every 5 minutes)
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitMap) {
+    if (now > entry.resetAt) rateLimitMap.delete(key);
+  }
+}, 300_000);
+
 // ─── Newsletter router ────────────────────────────────────────────────────────
 
 const newsletterRouter = router({
@@ -21,11 +50,27 @@ const newsletterRouter = router({
     .input(
       z.object({
         email: z.string().email("Please enter a valid email address"),
-        firstName: z.string().max(80).optional(),
+        firstName: z
+          .string()
+          .max(80)
+          .optional()
+          .transform((v) => v?.trim().replace(/[<>]/g, "") || undefined),
         source: z.string().max(40).optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // Rate limiting by IP
+      const ip =
+        ctx.req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        ctx.req.headers.get("x-real-ip") ||
+        "unknown";
+      if (!checkRateLimit(ip)) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please try again in a minute.",
+        });
+      }
+
       const { isNew, alreadyUnsubscribed } = await subscribeToNewsletter({
         email: input.email,
         firstName: input.firstName ?? null,

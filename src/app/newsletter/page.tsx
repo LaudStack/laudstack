@@ -81,16 +81,16 @@ const SOCIAL_PROOF = [
 export default function Newsletter() {
   const [email, setEmail] = useState('');
   const subscribe = trpc.newsletter.subscribe.useMutation({
-    onSuccess: () => {
-      toast.success('You\'re subscribed! Check your inbox for a welcome email.');
+    onSuccess: (data) => {
+      if (data.alreadySubscribed) {
+        toast.info('You\'re already subscribed — thanks for being part of the community!');
+      } else {
+        toast.success('You\'re subscribed! Check your inbox for a welcome email.');
+      }
       setEmail('');
     },
     onError: (err) => {
-      if (err.message.includes('already subscribed')) {
-        toast.info('You\'re already subscribed — thanks for being part of the community!');
-      } else {
-        toast.error('Something went wrong. Please try again.');
-      }
+      toast.error(err.message || 'Something went wrong. Please try again.');
     },
   });
 
@@ -100,7 +100,7 @@ export default function Newsletter() {
       toast.error('Please enter a valid email address.');
       return;
     }
-    subscribe.mutate({ email: email.trim() });
+    subscribe.mutate({ email: email.trim(), source: 'newsletter_page' });
   };
 
   return (

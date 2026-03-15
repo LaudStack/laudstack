@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
  * Typography: prose-style with generous line-height, clear heading hierarchy
  */
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -20,6 +20,7 @@ import {
   Twitter, Linkedin, Link2, BookOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc/client';
 import {
   ARTICLES, AUTHORS, getArticleBySlug, getRelatedArticles, formatDate
 } from '@/data/blogData';
@@ -125,6 +126,33 @@ export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const slug = params?.slug ?? '';
+  const [nlEmail, setNlEmail] = useState('');
+  const [nlSubscribed, setNlSubscribed] = useState(false);
+
+  const nlSubscribe = trpc.newsletter.subscribe.useMutation({
+    onSuccess: (data) => {
+      if (data.alreadySubscribed) {
+        toast.info("You're already subscribed — thanks!");
+      } else {
+        toast.success("You're subscribed! Check your inbox.");
+        setNlSubscribed(true);
+      }
+      setNlEmail('');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Something went wrong. Please try again.');
+    },
+  });
+
+  const handleNlSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = nlEmail.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    nlSubscribe.mutate({ email: trimmed, source: 'blog_article' });
+  };
 
   const article = getArticleBySlug(slug);
   const related = article ? getRelatedArticles(article) : [];
@@ -309,19 +337,31 @@ export default function BlogPost() {
               <BookOpen className="h-6 w-6 text-amber-600 mb-3" />
               <h4 className="text-sm font-black text-slate-900 mb-1">Weekly Tool Digest</h4>
               <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                New reviews, comparisons, and guides — delivered every Tuesday.
+                New reviews, comparisons, and guides — delivered every Monday.
               </p>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                className="w-full px-3 py-2 rounded-lg bg-white border border-amber-200 text-slate-900 text-xs placeholder-gray-400 focus:outline-none focus:border-amber-500 mb-2"
-              />
-              <button
-                onClick={() => toast.success('Subscribed! Check your inbox.')}
-                className="w-full py-2 rounded-lg bg-amber-500 text-white font-bold text-xs hover:bg-amber-400 transition-colors"
-              >
-                Subscribe
-              </button>
+              {nlSubscribed ? (
+                <div className="flex items-center gap-1.5 text-sm font-bold text-green-600">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  You&apos;re subscribed!
+                </div>
+              ) : (
+                <form onSubmit={handleNlSubscribe}>
+                  <input
+                    type="email"
+                    value={nlEmail}
+                    onChange={e => setNlEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-amber-200 text-slate-900 text-xs placeholder-gray-400 focus:outline-none focus:border-amber-500 mb-2"
+                  />
+                  <button
+                    type="submit"
+                    disabled={nlSubscribe.isPending}
+                    className="w-full py-2 rounded-lg bg-amber-500 text-white font-bold text-xs hover:bg-amber-400 transition-colors disabled:opacity-60"
+                  >
+                    {nlSubscribe.isPending ? 'Subscribing...' : 'Subscribe'}
+                  </button>
+                </form>
+              )}
             </div>
           </aside>
         </div>
