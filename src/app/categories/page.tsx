@@ -10,13 +10,13 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LogoWithFallback from "@/components/LogoWithFallback";
 import {
   ArrowRight,
   Search,
   Layers,
   Rocket,
   LayoutGrid,
-  Package,
   X,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -77,11 +77,7 @@ function CategoryCard({
       onClick={() =>
         router.push(`/tools?category=${encodeURIComponent(cat.name)}`)
       }
-      className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 text-left w-full transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 overflow-hidden"
-      style={{
-        boxShadow:
-          "0 1px 3px rgba(15,23,42,0.04), 0 1px 2px rgba(15,23,42,0.02)",
-      }}
+      className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm text-left w-full transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 overflow-hidden"
     >
       {/* Top accent bar */}
       <div
@@ -139,20 +135,11 @@ function CategoryCard({
                       zIndex: topTools.length - i,
                     }}
                   >
-                    <img
+                    <LogoWithFallback
                       src={tool.logo_url}
                       alt={tool.name}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const el = e.currentTarget;
-                        el.style.display = "none";
-                        if (el.parentElement) {
-                          el.parentElement.style.display = "flex";
-                          el.parentElement.style.alignItems = "center";
-                          el.parentElement.style.justifyContent = "center";
-                          el.parentElement.innerHTML = `<span style="font-size:10px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-                        }
-                      }}
+                      fallbackSize="text-[10px]"
                     />
                   </div>
                 ))}
@@ -182,7 +169,7 @@ function CategoryCard({
 // ─── Skeleton Card ──────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div className="flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+    <div className="flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
       <div className="h-[3px] w-full bg-slate-100 animate-pulse" />
       <div className="flex-1 p-5 sm:p-6">
         <div className="flex items-start gap-3.5 mb-3.5">
@@ -237,19 +224,12 @@ export default function CategoriesPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#F8FAFC" }}>
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
 
       {/* ══════════ HERO — matches /tools hero pattern ══════════ */}
-      <section
-        style={{
-          background: "#FFFFFF",
-          borderBottom: "1px solid #E5E7EB",
-          paddingTop: 84,
-          paddingBottom: 24,
-        }}
-      >
-        <div style={{ maxWidth: 1300, margin: "0 auto", padding: "0 24px" }}>
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 mb-5">
             <Link
@@ -273,17 +253,7 @@ export default function CategoriesPage() {
                   Browse Categories
                 </span>
               </div>
-              <h1
-                style={{
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                  fontSize: "clamp(24px, 3vw, 30px)",
-                  fontWeight: 900,
-                  color: "#111827",
-                  letterSpacing: "-0.025em",
-                  lineHeight: 1.15,
-                  margin: 0,
-                }}
-              >
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
                 All Categories
               </h1>
               <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed">
