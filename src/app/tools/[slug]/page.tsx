@@ -307,7 +307,7 @@ export default function ToolDetail() {
     }).catch(() => {});
   };
 
-  // Scroll spy
+  // Scroll spy — runs once after mount; sections are static DOM elements
   useEffect(() => {
     const ids = ['about', 'media', 'features', 'pricing', 'reviews', 'comments', 'alternatives'];
     const observer = new IntersectionObserver(entries => {
@@ -317,12 +317,16 @@ export default function ToolDetail() {
         }
       });
     }, { rootMargin: '-30% 0px -60% 0px' });
-    ids.forEach(id => {
-      const el = document.getElementById(`section-${id}`);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [allTools]);
+    // Small delay to ensure DOM is rendered before observing
+    const timer = setTimeout(() => {
+      ids.forEach(id => {
+        const el = document.getElementById(`section-${id}`);
+        if (el) observer.observe(el);
+      });
+    }, 100);
+    return () => { clearTimeout(timer); observer.disconnect(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(`section-${id}`);
@@ -382,22 +386,27 @@ export default function ToolDetail() {
     return { star, count };
   });
 
-  // Initialize laud count from tool data
+  // Initialize laud count from tool data — use stable primitive slug, not tool object
+  const toolUpvoteCount = allTools.find(t => t.slug === slug)?.upvote_count ?? 0;
   useEffect(() => {
-    if (tool && !laudCountInitialized) {
-      setLaudCount(tool.upvote_count);
+    if (!laudCountInitialized && toolUpvoteCount > 0) {
+      setLaudCount(toolUpvoteCount);
       setLaudCountInitialized(true);
     }
-  }, [tool, laudCountInitialized]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, toolUpvoteCount]);
 
-  // Initialize upvoted state from DB for authenticated users
+  // Initialize upvoted state from DB for authenticated users — use stable primitive tool?.id
+  const stableToolId = allTools.find(t => t.slug === slug)?.id ?? null;
   useEffect(() => {
-    if (!isAuthenticated || !tool) return;
-    const toolId = parseInt(tool.id, 10);
+    if (!isAuthenticated || !stableToolId) return;
+    const toolIdNum = parseInt(stableToolId, 10);
+    if (!Number.isFinite(toolIdNum)) return;
     getUserLaudedToolIds().then(ids => {
-      setUpvoted(ids.includes(toolId));
+      setUpvoted(ids.includes(toolIdNum));
     }).catch(() => {});
-  }, [isAuthenticated, tool?.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, stableToolId]);
 
   const handleUpvote = async () => {
     if (!isAuthenticated) { setAuthAction('upvote'); setShowAuthModal(true); return; }

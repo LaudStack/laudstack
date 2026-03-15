@@ -515,9 +515,11 @@ function CommentsSectionInner({
     }
   }, [toolId]);
 
+  // Only re-fetch when toolId changes; fetchComments is stable via useCallback([toolId])
   useEffect(() => {
     fetchComments();
-  }, [toolId, fetchComments]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toolId]);
 
   // Create top-level comment
   const handleCreateComment = async (content: string) => {
