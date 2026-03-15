@@ -34,6 +34,7 @@ import { useToolsData } from '@/hooks/useToolsData';
 import type { Tool, Review } from '@/lib/types';
 import { getToolExtras } from '@/lib/toolExtras';
 import CommentsSection from '@/components/CommentsSection';
+import { getCommentCount } from '@/app/actions/comments';
 
 // ─── Star Rating ───────────────────────────────────────────────────────────
 function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
@@ -287,10 +288,21 @@ export default function ToolDetail() {
   const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [realAvgRating, setRealAvgRating] = useState(0);
+  const [commentCount, setCommentCount] = useState(0);
 
   // Stable ref to addRecentlyViewed to avoid effect re-runs
   const addRecentlyViewedRef = useRef(addRecentlyViewed);
   useEffect(() => { addRecentlyViewedRef.current = addRecentlyViewed; }, [addRecentlyViewed]);
+
+  // Fetch comment count for the Discussion tab label
+  useEffect(() => {
+    if (!slug || toolsLoading) return;
+    const tool = allTools.find(t => t.slug === slug);
+    if (!tool) return;
+    const toolId = parseInt(tool.id, 10);
+    if (isNaN(toolId) || toolId <= 0) return;
+    getCommentCount(toolId).then(c => setCommentCount(c)).catch(() => {});
+  }, [slug, toolsLoading, allTools]);
 
   // Fetch per-tool reviews from server action
   useEffect(() => {
@@ -709,7 +721,7 @@ export default function ToolDetail() {
               { id: 'pricing' as const, label: 'Pricing' },
               { id: 'reviews' as const, label: `Reviews${totalReviews > 0 ? ` (${totalReviews})` : ''}` },
               { id: 'team' as const, label: 'Team' },
-              { id: 'discussion' as const, label: 'Discussion' },
+              { id: 'discussion' as const, label: `Discussion${commentCount > 0 ? ` (${commentCount})` : ''}` },
               { id: 'alternatives' as const, label: `Alternatives${alternatives.length > 0 ? ` (${alternatives.length})` : ''}` },
             ]).map(tab => (
               <button key={tab.id} onClick={() => setSelectedTab(tab.id)}
@@ -805,16 +817,26 @@ export default function ToolDetail() {
                   </section>
                 )}
 
-                {/* Comments in Overview */}
-                <CommentsSection
-                  toolId={parseInt(tool.id, 10)}
-                  isAuthenticated={isAuthenticated}
-                  currentUserId={dbUser?.id ?? null}
-                  onAuthRequired={() => {
-                    setAuthAction('comment');
-                    setShowAuthModal(true);
-                  }}
-                />
+                {/* Discussion preview — directs to Discussion tab */}
+                <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <h2 className="text-base sm:text-lg font-extrabold text-gray-900 m-0" style={{ letterSpacing: '-0.02em' }}>Discussion</h2>
+                      {commentCount > 0 && (
+                        <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-slate-100 text-[11px] font-bold text-slate-600">{commentCount}</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setSelectedTab('discussion')}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 bg-transparent border-none cursor-pointer transition-colors"
+                    >
+                      {commentCount > 0 ? 'View all' : 'Start a discussion'} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                  {commentCount === 0 && (
+                    <p className="text-sm text-slate-500 mt-2 mb-0">Be the first to share your thoughts about this stack.</p>
+                  )}
+                </section>
               </>
             )}
 
@@ -1232,6 +1254,7 @@ export default function ToolDetail() {
                   setAuthAction('comment');
                   setShowAuthModal(true);
                 }}
+                onCountChange={setCommentCount}
               />
             )}
 

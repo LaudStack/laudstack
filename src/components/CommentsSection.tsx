@@ -14,7 +14,7 @@
  * - Error boundary wrapper for resilience
  */
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Send,
   CornerDownRight,
@@ -42,6 +42,8 @@ interface Props {
   isAuthenticated: boolean;
   currentUserId: number | null;
   onAuthRequired: () => void;
+  /** Optional callback to report comment count changes to parent */
+  onCountChange?: (count: number) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -112,6 +114,7 @@ function UserAvatar({
 
   if (user.avatarUrl && !imgErr) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={user.avatarUrl}
         alt={user.name}
@@ -169,7 +172,7 @@ function CommentComposer({
       return;
     }
     const trimmed = content.trim();
-    if (!trimmed || submitting) return;
+    if (!trimmed || trimmed.length < 2 || submitting) return;
     setSubmitting(true);
     try {
       await onSubmit(trimmed);
@@ -189,7 +192,8 @@ function CommentComposer({
     }
   };
 
-  const hasContent = content.trim().length > 0;
+  const trimmedLen = content.trim().length;
+  const hasContent = trimmedLen >= 2;
 
   return (
     <div
@@ -224,7 +228,14 @@ function CommentComposer({
         style={{ paddingTop: 0 }}
       >
         <span className="text-[11px] text-slate-400">
-          {content.length > 0 && `${content.length}/2000`}
+          {content.length > 0 && (
+            <>
+              {content.length}/2000
+              {trimmedLen > 0 && trimmedLen < 2 && (
+                <span className="ml-1 text-red-400">min 2 chars</span>
+              )}
+            </>
+          )}
         </span>
         <div className="flex items-center gap-2">
           {onCancel && (
@@ -296,7 +307,7 @@ function CommentItem({
 
   const handleSaveEdit = async () => {
     const trimmed = editContent.trim();
-    if (!trimmed || saving) return;
+    if (!trimmed || trimmed.length < 2 || saving) return;
     setSaving(true);
     try {
       await onEdit(comment.id, trimmed);
@@ -365,9 +376,15 @@ function CommentItem({
               }}
             />
             <div className="flex items-center gap-2 mt-2">
+              <span className="text-[11px] text-slate-400 mr-auto">
+                {editContent.length}/2000
+                {editContent.trim().length > 0 && editContent.trim().length < 2 && (
+                  <span className="ml-1 text-red-400">min 2 chars</span>
+                )}
+              </span>
               <button
                 onClick={handleSaveEdit}
-                disabled={saving || !editContent.trim()}
+                disabled={saving || editContent.trim().length < 2}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-bold bg-amber-400 text-gray-900 border-none cursor-pointer transition-all disabled:opacity-40 hover:bg-amber-500"
               >
                 {saving ? (
@@ -492,6 +509,7 @@ function CommentsSectionInner({
   isAuthenticated,
   currentUserId,
   onAuthRequired,
+  onCountChange,
 }: Props) {
   const [commentsList, setCommentsList] = useState<CommentWithUser[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -499,6 +517,11 @@ function CommentsSectionInner({
   const [loadError, setLoadError] = useState(false);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [showAllComments, setShowAllComments] = useState(false);
+
+  // Notify parent of count changes
+  useEffect(() => {
+    onCountChange?.(totalCount);
+  }, [totalCount, onCountChange]);
 
   // Fetch comments
   const fetchComments = useCallback(async () => {
@@ -569,16 +592,17 @@ function CommentsSectionInner({
     try {
       const result = await editComment({ commentId, content });
       if (result.success) {
+        const updatedAt = result.updatedAt ?? new Date().toISOString();
         // Update in top-level or replies
         setCommentsList((prev) =>
           prev.map((c) => {
             if (c.id === commentId) {
-              return { ...c, content, isEdited: true };
+              return { ...c, content, isEdited: true, updatedAt };
             }
             return {
               ...c,
               replies: c.replies.map((r) =>
-                r.id === commentId ? { ...r, content, isEdited: true } : r
+                r.id === commentId ? { ...r, content, isEdited: true, updatedAt } : r
               ),
             };
           })
@@ -785,9 +809,7 @@ function CommentsSectionInner({
   );
 }
 
-// ─── Exported wrapper with error boundary ────────────────────────────────────
-
-import React from "react";
+// ─── Error Boundary ─────────────────────────────────────────────────────────
 
 class CommentsErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -809,6 +831,8 @@ class CommentsErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
+
+// ─── Exported wrapper ───────────────────────────────────────────────────────
 
 export default function CommentsSection(props: Props) {
   return (

@@ -28,13 +28,19 @@ function isValidId(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0 && Number.isInteger(value);
 }
 
+const MIN_CONTENT_LENGTH = 2;
+const MAX_CONTENT_LENGTH = 2000;
+
 function validateContent(content: string): { valid: boolean; trimmed: string; error?: string } {
   const trimmed = content.trim();
   if (!trimmed) {
     return { valid: false, trimmed, error: "Comment cannot be empty" };
   }
-  if (trimmed.length > 2000) {
-    return { valid: false, trimmed, error: "Comment must be 2000 characters or less" };
+  if (trimmed.length < MIN_CONTENT_LENGTH) {
+    return { valid: false, trimmed, error: `Comment must be at least ${MIN_CONTENT_LENGTH} characters` };
+  }
+  if (trimmed.length > MAX_CONTENT_LENGTH) {
+    return { valid: false, trimmed, error: `Comment must be ${MAX_CONTENT_LENGTH} characters or less` };
   }
   return { valid: true, trimmed };
 }
@@ -64,12 +70,31 @@ export interface CommentWithUser {
   replies: CommentWithUser[];
 }
 
+// ─── Shared: verify tool is visible and approved ─────────────────────────────
+
+async function getVisibleTool(toolId: number) {
+  const tool = await db.query.tools.findFirst({
+    where: and(
+      eq(tools.id, toolId),
+      eq(tools.isVisible, true),
+      eq(tools.status, "approved")
+    ),
+  });
+  return tool ?? null;
+}
+
 // ─── Get comments for a tool ──────────────────────────────────────────────────
 
 export async function getCommentsByToolId(
   toolId: number
 ): Promise<{ comments: CommentWithUser[]; totalCount: number }> {
   if (!isValidId(toolId)) {
+    return { comments: [], totalCount: 0 };
+  }
+
+  // Only return comments for visible, approved tools
+  const tool = await getVisibleTool(toolId);
+  if (!tool) {
     return { comments: [], totalCount: 0 };
   }
 
@@ -95,14 +120,10 @@ export async function getCommentsByToolId(
     .where(and(eq(comments.toolId, toolId), eq(comments.isDeleted, false)))
     .orderBy(desc(comments.createdAt));
 
-  // Get the tool to determine founder (submittedBy or claimedBy)
-  const tool = await db.query.tools.findFirst({
-    where: eq(tools.id, toolId),
-  });
-
+  // Determine founder user IDs (submittedBy or claimedBy)
   const founderUserIds = new Set<number>();
-  if (tool?.submittedBy) founderUserIds.add(tool.submittedBy);
-  if (tool?.claimedBy) founderUserIds.add(tool.claimedBy);
+  if (tool.submittedBy) founderUserIds.add(tool.submittedBy);
+  if (tool.claimedBy) founderUserIds.add(tool.claimedBy);
 
   // Build display name helper
   function displayName(row: {
@@ -193,10 +214,8 @@ export async function createComment(input: {
     return { success: false, error };
   }
 
-  // Verify the tool exists
-  const tool = await db.query.tools.findFirst({
-    where: eq(tools.id, input.toolId),
-  });
+  // Verify the tool exists AND is visible + approved
+  const tool = await getVisibleTool(input.toolId);
   if (!tool) {
     return { success: false, error: "Stack not found" };
   }
@@ -312,7 +331,7 @@ export async function createComment(input: {
 export async function editComment(input: {
   commentId: number;
   content: string;
-}): Promise<{ success: boolean; error?: string }> {
+}): Promise<{ success: boolean; updatedAt?: string; error?: string }> {
   const user = await requireAuth();
 
   // Validate ID
@@ -345,16 +364,17 @@ export async function editComment(input: {
     };
   }
 
+  const now = new Date();
   await db
     .update(comments)
     .set({
       content: trimmed,
       isEdited: true,
-      updatedAt: new Date(),
+      updatedAt: now,
     })
     .where(eq(comments.id, input.commentId));
 
-  return { success: true };
+  return { success: true, updatedAt: now.toISOString() };
 }
 
 // ─── Delete a comment (soft delete) ───────────────────────────────────────────
@@ -385,8 +405,22 @@ export async function deleteComment(
     };
   }
 
-  let deletedCount = 1;
+  // Count replies BEFORE deleting (to get accurate count)
+  let replyCount = 0;
+  if (comment.parentCommentId === null) {
+    const replyResult = await db
+      .select({ count: count() })
+      .from(comments)
+      .where(
+        and(
+          eq(comments.parentCommentId, commentId),
+          eq(comments.isDeleted, false)
+        )
+      );
+    replyCount = replyResult[0]?.count ?? 0;
+  }
 
+  // Soft-delete the comment
   await db
     .update(comments)
     .set({
@@ -396,8 +430,8 @@ export async function deleteComment(
     .where(eq(comments.id, commentId));
 
   // Also soft-delete all replies to this comment if it's a top-level comment
-  if (comment.parentCommentId === null) {
-    const replyResult = await db
+  if (comment.parentCommentId === null && replyCount > 0) {
+    await db
       .update(comments)
       .set({
         isDeleted: true,
@@ -409,25 +443,9 @@ export async function deleteComment(
           eq(comments.isDeleted, false)
         )
       );
-    // Count deleted replies
-    if (replyResult && Array.isArray(replyResult)) {
-      deletedCount += replyResult.length;
-    } else {
-      // Fallback: count replies that existed
-      const replyCount = await db
-        .select({ count: count() })
-        .from(comments)
-        .where(
-          and(
-            eq(comments.parentCommentId, commentId),
-            eq(comments.isDeleted, true)
-          )
-        );
-      deletedCount += replyCount[0]?.count ?? 0;
-    }
   }
 
-  return { success: true, deletedCount };
+  return { success: true, deletedCount: 1 + replyCount };
 }
 
 // ─── Get comment count for a tool ─────────────────────────────────────────────
