@@ -7,7 +7,7 @@
  * No fixed pixel widths that break on small screens.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -386,8 +386,12 @@ export default function ToolDetail() {
     return { star, count };
   });
 
-  // Initialize laud count from tool data — use stable primitive slug, not tool object
-  const toolUpvoteCount = allTools.find(t => t.slug === slug)?.upvote_count ?? 0;
+  // Initialize laud count from tool data — memoized so it only recomputes when slug/allTools changes
+  const toolUpvoteCount = useMemo(
+    () => allTools.find(t => t.slug === slug)?.upvote_count ?? 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slug, allTools]
+  );
   useEffect(() => {
     if (!laudCountInitialized && toolUpvoteCount > 0) {
       setLaudCount(toolUpvoteCount);
@@ -396,8 +400,12 @@ export default function ToolDetail() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, toolUpvoteCount]);
 
-  // Initialize upvoted state from DB for authenticated users — use stable primitive tool?.id
-  const stableToolId = allTools.find(t => t.slug === slug)?.id ?? null;
+  // Initialize upvoted state from DB for authenticated users — memoized stable primitive
+  const stableToolId = useMemo(
+    () => allTools.find(t => t.slug === slug)?.id ?? null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slug, allTools]
+  );
   useEffect(() => {
     if (!isAuthenticated || !stableToolId) return;
     const toolIdNum = parseInt(stableToolId, 10);
