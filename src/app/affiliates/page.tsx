@@ -1,11 +1,11 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 
 // Design: LaudStack dark-slate + amber accent. Affiliate program with commission tiers.
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
@@ -85,14 +85,28 @@ export default function Affiliates() {
   const [form, setForm] = useState({ name: '', email: '', website: '', audience: '', tier: 'Starter' });
   const [submitted, setSubmitted] = useState(false);
 
+  const contactMutation = trpc.contact.submit.useMutation({
+    onSuccess: () => {
+      setSubmitted(true);
+      toast.success('Application submitted! We\'ll review and get back to you within 24 hours.');
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.');
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email) {
       toast.error('Please fill in your name and email.');
       return;
     }
-    setSubmitted(true);
-    toast.success('Application submitted! We\'ll review and get back to you within 24 hours.');
+    contactMutation.mutate({
+      name: form.name,
+      email: form.email,
+      topic: 'Affiliate Application',
+      message: `Affiliate Application\n\nName: ${form.name}\nEmail: ${form.email}\nWebsite: ${form.website || 'N/A'}\nAudience: ${form.audience || 'N/A'}\nTier: ${form.tier}`,
+    });
   };
 
   return (
@@ -107,11 +121,11 @@ export default function Affiliates() {
         layout="centered"
         size="md"
       >
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-          <a href="#apply" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', textDecoration: 'none' }}>
-            Apply Now — It's Free <ArrowRight style={{ width: '14px', height: '14px' }} />
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <a href="#apply" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[10px] bg-amber-500 text-slate-900 font-bold text-sm no-underline hover:bg-amber-400 transition-colors">
+            Apply Now — It's Free <ArrowRight className="w-3.5 h-3.5" />
           </a>
-          <a href="#tiers" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#F8FAFC', border: '1.5px solid #E2E8F0', color: '#374151', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}>
+          <a href="#tiers" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[10px] bg-slate-50 border-[1.5px] border-gray-200 text-slate-700 font-semibold text-sm no-underline hover:border-gray-300 transition-colors">
             View Commission Tiers
           </a>
         </div>

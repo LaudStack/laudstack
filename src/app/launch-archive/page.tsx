@@ -19,6 +19,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import { useToolsData } from '@/hooks/useToolsData';
 import { CATEGORY_META } from '@/lib/categories';
 import type { Tool } from '@/lib/types';
@@ -35,32 +36,32 @@ function getMonthLabel(key: string): string {
   return `${MONTH_NAMES[parseInt(month) - 1]} ${year}`;
 }
 
-function pricingStyle(model: string): React.CSSProperties {
-  if (model === 'Free')     return { background: '#F0FDF4', color: '#15803D', borderColor: '#BBF7D0' };
-  if (model === 'Freemium') return { background: '#EFF6FF', color: '#1D4ED8', borderColor: '#BFDBFE' };
-  if (model === 'Open Source') return { background: '#F5F3FF', color: '#7C3AED', borderColor: '#DDD6FE' };
-  return { background: '#F8FAFC', color: '#475569', borderColor: '#CBD5E1' };
+function pricingCls(model: string): string {
+  if (model === 'Free')        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  if (model === 'Freemium')    return 'bg-blue-50 text-blue-700 border-blue-200';
+  if (model === 'Open Source') return 'bg-violet-50 text-violet-700 border-violet-200';
+  return 'bg-slate-50 text-slate-600 border-slate-300';
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function MonthGroupSkeleton() {
   return (
-    <div style={{ background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
-      <div style={{ padding: '18px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div className="animate-pulse" style={{ width: 16, height: 16, borderRadius: 4, background: '#F1F5F9' }} />
-        <div className="animate-pulse" style={{ width: 140, height: 18, borderRadius: 6, background: '#F1F5F9', flex: 1 }} />
-        <div className="animate-pulse" style={{ width: 70, height: 22, borderRadius: 6, background: '#FEF3C7' }} />
+    <div className="bg-white border-[1.5px] border-slate-200 rounded-2xl overflow-hidden">
+      <div className="p-4 sm:px-6 flex items-center gap-3">
+        <div className="animate-pulse w-4 h-4 rounded bg-slate-100" />
+        <div className="animate-pulse w-36 h-4.5 rounded-md bg-slate-100 flex-1" />
+        <div className="animate-pulse w-18 h-5.5 rounded-md bg-amber-50" />
       </div>
-      <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="px-4 sm:px-5 pb-5 flex flex-col gap-2">
         {[1, 2, 3].map(i => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px', background: '#FAFBFC', borderRadius: 14 }}>
-            <div className="animate-pulse" style={{ width: 44, height: 44, borderRadius: 10, background: '#F1F5F9', flexShrink: 0 }} />
-            <div className="animate-pulse" style={{ width: 44, height: 44, borderRadius: 10, background: '#F1F5F9', flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div className="animate-pulse" style={{ width: '50%', height: 14, borderRadius: 4, background: '#F1F5F9', marginBottom: 6 }} />
-              <div className="animate-pulse" style={{ width: '80%', height: 10, borderRadius: 4, background: '#F8FAFC' }} />
+          <div key={i} className="flex items-center gap-3.5 p-4 bg-slate-50/60 rounded-xl">
+            <div className="animate-pulse w-11 h-11 rounded-lg bg-slate-100 shrink-0 hidden sm:block" />
+            <div className="animate-pulse w-11 h-11 rounded-lg bg-slate-100 shrink-0" />
+            <div className="flex-1">
+              <div className="animate-pulse w-1/2 h-3.5 rounded bg-slate-100 mb-1.5" />
+              <div className="animate-pulse w-4/5 h-2.5 rounded bg-slate-50" />
             </div>
-            <div className="animate-pulse" style={{ width: 40, height: 40, borderRadius: 8, background: '#F8FAFC', flexShrink: 0 }} />
+            <div className="animate-pulse w-10 h-10 rounded-lg bg-slate-50 shrink-0" />
           </div>
         ))}
       </div>
@@ -72,94 +73,56 @@ function MonthGroupSkeleton() {
 function LaunchCard({ tool }: { tool: Tool }) {
   const router = useRouter();
   const launchDate = new Date(tool.launched_at);
-  const dayStr = launchDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <div
       onClick={() => router.push(`/tools/${tool.slug}`)}
-      style={{
-        background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: 14,
-        padding: '18px 20px', cursor: 'pointer', transition: 'all 0.18s',
-        display: 'flex', alignItems: 'center', gap: 14,
-        boxShadow: '0 1px 4px rgba(15,23,42,0.04)',
-      }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 6px 20px rgba(15,23,42,0.08)';
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#FDE68A';
-        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 4px rgba(15,23,42,0.04)';
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#E2E8F0';
-        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-      }}
+      className="bg-white border-[1.5px] border-slate-200 rounded-xl px-4 sm:px-5 py-4 cursor-pointer transition-all duration-150 flex items-center gap-3 sm:gap-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.04)] hover:shadow-lg hover:border-amber-200 hover:-translate-y-px"
     >
       {/* Date badge */}
-      <div className="hidden sm:flex" style={{
-        width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-        background: '#FFFBEB', border: '1px solid #FDE68A',
-        flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', lineHeight: 1 }}>
+      <div className="hidden sm:flex w-11 h-11 rounded-lg shrink-0 bg-amber-50 border border-amber-200 flex-col items-center justify-center">
+        <span className="text-[9px] font-bold text-amber-600 uppercase leading-none">
           {launchDate.toLocaleDateString('en-US', { month: 'short' })}
         </span>
-        <span style={{ fontSize: 16, fontWeight: 900, color: '#B45309', lineHeight: 1.1 }}>
+        <span className="text-base font-black text-amber-700 leading-tight">
           {launchDate.getDate()}
         </span>
       </div>
 
       {/* Logo */}
-      <img
-        src={tool.logo_url || `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`}
+      <LogoWithFallback
+        src={tool.logo_url}
+        fallbackSrc={`https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`}
         alt={tool.name}
-        style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', border: '1px solid #F1F5F9', flexShrink: 0 }}
-        onError={e => {
-          const img = e.target as HTMLImageElement;
-          // Prevent infinite loop — only try favicon fallback once
-          if (!img.dataset.fallback) {
-            img.dataset.fallback = '1';
-            img.src = `https://www.google.com/s2/favicons?domain=${tool.website_url}&sz=64`;
-          } else {
-            // Show text initial instead
-            img.style.display = 'none';
-            if (img.parentElement) {
-              const span = document.createElement('span');
-              span.style.cssText = 'width:44px;height:44px;border-radius:10px;background:#F1F5F9;border:1px solid #E2E8F0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#64748B;flex-shrink:0';
-              span.textContent = tool.name.charAt(0);
-              img.parentElement.insertBefore(span, img);
-            }
-          }
-        }}
+        size={44}
+        className="rounded-lg border border-slate-100 shrink-0"
       />
 
       {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 800, color: '#111827' }}>{tool.name}</span>
-          {tool.is_verified && <ShieldCheck style={{ width: 13, height: 13, color: '#22C55E' }} />}
-          <span className="hidden sm:inline" style={{ ...pricingStyle(tool.pricing_model), fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: '1px solid', lineHeight: '15px' }}>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[15px] font-extrabold text-slate-900">{tool.name}</span>
+          {tool.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />}
+          <span className={`hidden sm:inline text-[10px] font-bold px-1.5 py-px rounded border leading-snug ${pricingCls(tool.pricing_model)}`}>
             {tool.pricing_model}
           </span>
         </div>
-        <p style={{ fontSize: 12, color: '#6B7280', margin: '3px 0 0', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed line-clamp-1">
           {tool.tagline}
         </p>
       </div>
 
       {/* Rating + lauds */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+      <div className="flex items-center gap-3 sm:gap-3.5 shrink-0">
         {tool.average_rating > 0 && (
-          <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 3 }}>
-            <Star style={{ width: 13, height: 13, fill: '#F59E0B', color: '#F59E0B' }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{tool.average_rating.toFixed(1)}</span>
+          <div className="hidden sm:flex items-center gap-1">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <span className="text-sm font-bold text-slate-900">{tool.average_rating.toFixed(1)}</span>
           </div>
         )}
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
-          padding: '6px 10px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0',
-        }}>
-          <ChevronUp style={{ width: 14, height: 14, color: '#94A3B8' }} />
-          <span style={{ fontSize: 11, fontWeight: 800, color: '#475569' }}>{tool.upvote_count || 0}</span>
+        <div className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+          <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-[11px] font-extrabold text-slate-500">{tool.upvote_count || 0}</span>
         </div>
       </div>
     </div>
@@ -218,7 +181,7 @@ export default function LaunchArchivePage() {
   const totalLaunches = monthGroups.reduce((s, g) => s + g.tools.length, 0);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
       <PageHero
@@ -230,36 +193,29 @@ export default function LaunchArchivePage() {
         size="md"
       />
 
-      <main style={{ flex: 1 }}>
+      <main className="flex-1">
         {/* ── Search + Filters ── */}
-        <section style={{ background: '#FFFFFF', padding: '24px 0', borderBottom: '1px solid #F1F5F9', position: 'sticky', top: 64, zIndex: 10 }}>
+        <section className="bg-white py-6 border-b border-slate-100 sticky top-16 z-10">
           <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div className="flex items-center gap-3 flex-wrap">
               {/* Search */}
-              <div style={{
-                display: 'flex', alignItems: 'center', flex: 1, minWidth: 200,
-                background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0', overflow: 'hidden',
-              }}>
-                <Search style={{ marginLeft: 12, width: 14, height: 14, color: '#94A3B8', flexShrink: 0 }} />
+              <div className="flex items-center flex-1 min-w-[200px] bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                <Search className="ml-3 w-3.5 h-3.5 text-slate-400 shrink-0" />
                 <input
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Search launches..."
-                  style={{ flex: 1, padding: '9px 12px', fontSize: 13, color: '#111827', background: 'transparent', border: 'none', outline: 'none' }}
+                  className="flex-1 px-3 py-2.5 text-sm text-slate-900 bg-transparent border-none outline-none placeholder:text-slate-400"
                 />
               </div>
 
               {/* Category filter */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Filter style={{ width: 14, height: 14, color: '#94A3B8' }} />
+              <div className="flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-slate-400" />
                 <select
                   value={category}
                   onChange={e => setCategory(e.target.value)}
-                  style={{
-                    padding: '9px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                    color: '#475569', background: '#F8FAFC', border: '1px solid #E2E8F0',
-                    cursor: 'pointer', outline: 'none',
-                  }}
+                  className="px-3 py-2.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200 cursor-pointer outline-none"
                 >
                   <option value="All">All Categories</option>
                   {categories.map(c => (
@@ -269,58 +225,45 @@ export default function LaunchArchivePage() {
               </div>
 
               {/* Results count */}
-              <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap' }}>
-                <span style={{ color: '#171717', fontWeight: 800 }}>{totalLaunches}</span> stacks across{' '}
-                <span style={{ color: '#171717', fontWeight: 800 }}>{monthGroups.length}</span> months
+              <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+                <span className="text-slate-900 font-extrabold">{totalLaunches}</span> stacks across{' '}
+                <span className="text-slate-900 font-extrabold">{monthGroups.length}</span> months
               </span>
             </div>
           </div>
         </section>
 
         {/* ── Timeline ── */}
-        <section style={{ padding: '32px 0 56px' }}>
+        <section className="py-8 pb-14">
           <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
             {loading ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="flex flex-col gap-4">
                 {[1, 2, 3].map(i => <MonthGroupSkeleton key={i} />)}
               </div>
             ) : monthGroups.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="flex flex-col gap-4">
                 {monthGroups.map(group => {
                   const isExpanded = visibleMonths.has(group.key);
                   return (
-                    <div key={group.key} style={{ background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
+                    <div key={group.key} className="bg-white border-[1.5px] border-slate-200 rounded-2xl overflow-hidden">
                       {/* Month header */}
                       <button
                         onClick={() => toggleMonth(group.key)}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                          padding: '18px 24px', background: 'transparent', border: 'none',
-                          cursor: 'pointer', transition: 'background 0.12s',
-                        }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FAFBFC'; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                        className="w-full flex items-center gap-3 px-4 sm:px-6 py-4 bg-transparent border-none cursor-pointer transition-colors hover:bg-slate-50/60"
                       >
-                        <Calendar style={{ width: 16, height: 16, color: '#F59E0B', flexShrink: 0 }} />
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 17, fontWeight: 900, color: '#111827', flex: 1, textAlign: 'left' }}>
+                        <Calendar className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span className="text-base sm:text-lg font-black text-slate-900 flex-1 text-left">
                           {group.label}
                         </span>
-                        <span style={{
-                          fontSize: 11, fontWeight: 700, color: '#D97706', background: '#FEF3C7',
-                          padding: '3px 10px', borderRadius: 6, border: '1px solid #FDE68A',
-                        }}>
+                        <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200">
                           {group.tools.length} {group.tools.length === 1 ? 'launch' : 'launches'}
                         </span>
-                        <ChevronDown style={{
-                          width: 16, height: 16, color: '#94A3B8', flexShrink: 0,
-                          transition: 'transform 0.2s',
-                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)',
-                        }} />
+                        <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                       </button>
 
                       {/* Tools in this month */}
                       {isExpanded && (
-                        <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div className="px-4 sm:px-5 pb-5 flex flex-col gap-2">
                           {group.tools.map(tool => (
                             <LaunchCard key={tool.slug} tool={tool} />
                           ))}
@@ -331,10 +274,10 @@ export default function LaunchArchivePage() {
                 })}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#FFFFFF', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-                <Archive style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#374151', margin: '0 0 6px' }}>No launches found</h3>
-                <p style={{ fontSize: 13, color: '#6B7280' }}>Try a different search or category.</p>
+              <div className="text-center py-16 px-5 bg-white rounded-2xl border border-slate-200">
+                <Archive className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-base font-extrabold text-slate-700 mb-1.5">No launches found</h3>
+                <p className="text-sm text-slate-500">Try a different search or category.</p>
               </div>
             )}
           </div>

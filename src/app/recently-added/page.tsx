@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
-import LogoWithFallback from '@/components/LogoWithFallback';
+import LogoWithFallback from "@/components/LogoWithFallback";
 import { useToolsData } from "@/hooks/useToolsData";
 import { CATEGORY_META } from "@/lib/categories";
 import { Rocket, Star, Shield, ChevronUp, PackageOpen, Sparkles } from "lucide-react";
@@ -36,7 +36,7 @@ function getRecentDate(tool: { launched_at: string; created_at: string }): strin
 
 function isNewLaunch(dateStr: string): boolean {
   const diffMs = Date.now() - new Date(dateStr).getTime();
-  return diffMs < 7 * 24 * 60 * 60 * 1000; // 7 days
+  return diffMs < 7 * 24 * 60 * 60 * 1000;
 }
 
 const SORT_OPTIONS = [
@@ -47,21 +47,21 @@ const SORT_OPTIONS = [
 
 function CardSkeleton() {
   return (
-    <div style={{ background: "#FFFFFF", borderRadius: "16px", border: "1px solid #E8ECF0", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "14px 14px 10px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
-        <div className="animate-pulse" style={{ width: "48px", height: "48px", borderRadius: "12px", background: "#F1F5F9", flexShrink: 0 }} />
-        <div style={{ flex: 1 }}>
-          <div className="animate-pulse" style={{ width: "60%", height: "16px", background: "#F1F5F9", borderRadius: "6px", marginBottom: "8px" }} />
-          <div className="animate-pulse" style={{ width: "40%", height: "12px", background: "#F8FAFC", borderRadius: "6px" }} />
+    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col">
+      <div className="p-3.5 pb-2.5 flex items-start gap-3">
+        <div className="animate-pulse w-12 h-12 rounded-xl bg-slate-100 shrink-0" />
+        <div className="flex-1">
+          <div className="animate-pulse w-3/5 h-4 bg-slate-100 rounded-md mb-2" />
+          <div className="animate-pulse w-2/5 h-3 bg-slate-50 rounded-md" />
         </div>
       </div>
-      <div style={{ padding: "0 14px 10px" }}>
-        <div className="animate-pulse" style={{ width: "100%", height: "12px", background: "#F8FAFC", borderRadius: "4px", marginBottom: "6px" }} />
-        <div className="animate-pulse" style={{ width: "75%", height: "12px", background: "#F8FAFC", borderRadius: "4px" }} />
+      <div className="px-3.5 pb-2.5">
+        <div className="animate-pulse w-full h-3 bg-slate-50 rounded mb-1.5" />
+        <div className="animate-pulse w-3/4 h-3 bg-slate-50 rounded" />
       </div>
-      <div style={{ marginTop: "auto", padding: "10px 14px", borderTop: "1px solid #F1F5F9", display: "flex", justifyContent: "space-between" }}>
-        <div className="animate-pulse" style={{ width: "60px", height: "14px", background: "#F8FAFC", borderRadius: "4px" }} />
-        <div className="animate-pulse" style={{ width: "50px", height: "14px", background: "#F8FAFC", borderRadius: "4px" }} />
+      <div className="mt-auto px-3.5 py-2.5 border-t border-slate-100 flex justify-between">
+        <div className="animate-pulse w-15 h-3.5 bg-slate-50 rounded" />
+        <div className="animate-pulse w-12 h-3.5 bg-slate-50 rounded" />
       </div>
     </div>
   );
@@ -76,7 +76,6 @@ export default function RecentlyLaunched() {
 
   const allCategories = ["All", ...CATEGORY_META.map((c) => c.name).filter((n) => n !== "All")];
 
-  // Recently launched = all stacks sorted by most recent activity (launched or added)
   const recentTools = useMemo(() => {
     let tools = [...allTools];
     if (category !== "All") tools = tools.filter((t) => t.category === category);
@@ -86,16 +85,18 @@ export default function RecentlyLaunched() {
         const dateB = Math.max(new Date(b.launched_at).getTime(), new Date(b.created_at).getTime());
         return dateB - dateA;
       });
+    } else if (sort === "most_lauded") {
+      tools.sort((a, b) => b.upvote_count - a.upvote_count);
+    } else if (sort === "top_rated") {
+      tools.sort((a, b) => b.average_rating - a.average_rating);
     }
-    else if (sort === "most_lauded") tools.sort((a, b) => b.upvote_count - a.upvote_count);
-    else if (sort === "top_rated") tools.sort((a, b) => b.average_rating - a.average_rating);
     return tools;
   }, [allTools, category, sort]);
 
   const visibleTools = recentTools.slice(0, visible);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FFFFFF", display: "flex", flexDirection: "column" }}>
+    <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
       <PageHero
@@ -108,37 +109,45 @@ export default function RecentlyLaunched() {
       />
 
       {/* Filter bar */}
-      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E8ECF0", position: "sticky", top: 64, zIndex: 20 }}>
-        <div className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "52px", gap: "12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "auto", flex: 1 }}>
-            <select value={category} onChange={(e) => { setCategory(e.target.value); setVisible(20); }} style={{ padding: "5px 10px", borderRadius: "8px", border: "1.5px solid #E8ECF0", fontSize: "12px", fontWeight: 600, color: "#374151", background: "#F9FAFB", cursor: "pointer", fontFamily: "inherit", outline: "none" }}>
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-20">
+        <div className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10 flex items-center justify-between h-13 gap-3">
+          <div className="flex items-center gap-2.5 overflow-auto flex-1">
+            <select
+              value={category}
+              onChange={(e) => { setCategory(e.target.value); setVisible(20); }}
+              className="px-2.5 py-1.5 rounded-lg border-[1.5px] border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 cursor-pointer outline-none"
+            >
               {allCategories.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            <select value={sort} onChange={(e) => { setSort(e.target.value); setVisible(20); }} style={{ padding: "5px 10px", borderRadius: "8px", border: "1.5px solid #E8ECF0", fontSize: "12px", fontWeight: 600, color: "#374151", background: "#F9FAFB", cursor: "pointer", fontFamily: "inherit", outline: "none" }}>
+            <select
+              value={sort}
+              onChange={(e) => { setSort(e.target.value); setVisible(20); }}
+              className="px-2.5 py-1.5 rounded-lg border-[1.5px] border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 cursor-pointer outline-none"
+            >
               {SORT_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
-            <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: 500, whiteSpace: "nowrap" }}>
-              <span style={{ color: "#171717", fontWeight: 800 }}>{recentTools.length}</span> stacks
+            <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+              <span className="text-slate-900 font-extrabold">{recentTools.length}</span> stacks
             </span>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10" style={{ paddingTop: "24px", paddingBottom: "48px", flex: 1 }}>
+      <div className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10 pt-6 pb-12 flex-1">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ gap: "20px" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)}
           </div>
         ) : recentTools.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0" }}>
-            <PackageOpen style={{ width: "48px", height: "48px", color: "#D1D5DB", margin: "0 auto 16px" }} />
-            <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#171717", marginBottom: "8px" }}>No stacks found</h3>
-            <p style={{ fontSize: "14px", color: "#9CA3AF" }}>Try adjusting your filters.</p>
+          <div className="text-center py-20">
+            <PackageOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-xl font-extrabold text-slate-900 mb-2">No stacks found</h3>
+            <p className="text-sm text-slate-400">Try adjusting your filters.</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ gap: "20px" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {visibleTools.map((tool) => {
                 const recentDate = getRecentDate(tool);
                 const isNew = isNewLaunch(recentDate);
@@ -146,49 +155,49 @@ export default function RecentlyLaunched() {
                   <div
                     key={tool.id}
                     onClick={() => router.push(`/tools/${tool.slug}`)}
-                    style={{ background: "#FFFFFF", borderRadius: "16px", border: "1px solid #E8ECF0", overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", transition: "transform 0.2s ease, box-shadow 0.2s ease", position: "relative" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)"; }}
+                    className="bg-white rounded-2xl border border-slate-200 overflow-hidden cursor-pointer flex flex-col shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-amber-200 relative"
                   >
-                    {/* New badge for stacks launched in the last 7 days */}
+                    {/* New badge */}
                     {isNew && (
-                      <div style={{ position: "absolute", top: "10px", right: "10px", display: "flex", alignItems: "center", gap: "3px", background: "#ECFDF5", border: "1px solid #A7F3D0", borderRadius: "6px", padding: "2px 8px", zIndex: 1 }}>
-                        <Sparkles style={{ width: "10px", height: "10px", color: "#059669" }} />
-                        <span style={{ fontSize: "10px", fontWeight: 700, color: "#059669", textTransform: "uppercase", letterSpacing: "0.05em" }}>New</span>
+                      <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5 z-[1]">
+                        <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">New</span>
                       </div>
                     )}
 
-                    <div style={{ padding: "14px 14px 10px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                      <div style={{ width: "48px", height: "48px", borderRadius: "12px", flexShrink: 0, border: "1px solid #E8ECF0", background: "#F8FAFC", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div className="p-3.5 pb-2.5 flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-xl shrink-0 border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
                         <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-9 h-9 object-contain" fallbackSize="text-lg" />
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "3px" }}>
-                          <span style={{ fontSize: "14px", fontWeight: 800, color: "#171717", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tool.name}</span>
-                          {tool.is_verified && <Shield style={{ width: "12px", height: "12px", color: "#22C55E" }} />}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-sm font-extrabold text-slate-900 truncate">{tool.name}</span>
+                          {tool.is_verified && <Shield className="w-3 h-3 text-emerald-500 shrink-0" />}
                         </div>
-                        <span style={{ fontSize: "11px", color: "#6B7280", fontWeight: 600, background: "#F3F4F6", padding: "2px 8px", borderRadius: "6px" }}>{tool.category}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded-md">{tool.category}</span>
                       </div>
                     </div>
-                    <div style={{ padding: "0 14px 10px" }}>
-                      <p style={{ fontSize: "13px", color: "#6B7280", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{tool.tagline}</p>
+
+                    <div className="px-3.5 pb-2.5">
+                      <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-2">{tool.tagline}</p>
                     </div>
-                    <div style={{ marginTop: "auto", padding: "10px 14px", borderTop: "1px solid #F1F5F9", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <ChevronUp style={{ width: "12px", height: "12px", color: "#F59E0B" }} />
-                          <span style={{ fontSize: "12px", fontWeight: 700, color: "#374151" }}>{tool.upvote_count}</span>
+
+                    <div className="mt-auto px-3.5 py-2.5 border-t border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <ChevronUp className="w-3 h-3 text-amber-500" />
+                          <span className="text-xs font-bold text-slate-700">{tool.upvote_count}</span>
                         </div>
                         {tool.average_rating > 0 && (
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                            <Star style={{ width: "12px", height: "12px", color: "#F59E0B", fill: "#F59E0B" }} />
-                            <span style={{ fontSize: "12px", fontWeight: 700, color: "#374151" }}>{tool.average_rating.toFixed(1)}</span>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                            <span className="text-xs font-bold text-slate-700">{tool.average_rating.toFixed(1)}</span>
                           </div>
                         )}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Rocket style={{ width: "12px", height: "12px", color: "#F59E0B" }} />
-                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#9CA3AF" }}>{timeAgo(recentDate)}</span>
+                      <div className="flex items-center gap-1">
+                        <Rocket className="w-3 h-3 text-amber-500" />
+                        <span className="text-[11px] font-semibold text-slate-400">{timeAgo(recentDate)}</span>
                       </div>
                     </div>
                   </div>
@@ -196,10 +205,10 @@ export default function RecentlyLaunched() {
               })}
             </div>
             {visible < recentTools.length && (
-              <div style={{ textAlign: "center", marginTop: "32px" }}>
-                <button onClick={() => setVisible((v) => v + 20)} style={{ padding: "10px 32px", borderRadius: "10px", border: "1.5px solid #E8ECF0", background: "#FFFFFF", fontSize: "13px", fontWeight: 700, color: "#374151", cursor: "pointer", transition: "border-color 0.15s, background 0.15s" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#F59E0B"; e.currentTarget.style.background = "#FFFBEB"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8ECF0"; e.currentTarget.style.background = "#FFFFFF"; }}
+              <div className="text-center mt-8">
+                <button
+                  onClick={() => setVisible((v) => v + 20)}
+                  className="px-8 py-2.5 rounded-lg border-[1.5px] border-slate-200 bg-white text-sm font-bold text-slate-700 cursor-pointer transition-all hover:border-amber-400 hover:bg-amber-50"
                 >
                   Load More
                 </button>

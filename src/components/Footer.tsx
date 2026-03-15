@@ -11,6 +11,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc/client";
+import LogoWithFallback from '@/components/LogoWithFallback';
 import {
   Twitter, Linkedin, Github, Mail, ArrowRight,
   Zap, CheckCircle2, Rss,
@@ -188,7 +189,7 @@ export default function Footer() {
   };
 
   return (
-    <footer style={{ background: "#0F172A", color: "#94A3B8", borderTop: "1px solid #1E293B" }}>
+    <footer className="bg-[#0F172A] text-slate-400 border-t border-slate-800">
 
       {/* ═══════════════════════════════════════════════════════
           TIER 1 — Logo + Social + Newsletter + 4 Menu Columns
@@ -199,18 +200,13 @@ export default function Footer() {
           {/* Brand + Newsletter column — spans 3 of 12 */}
           <div className="lg:col-span-3 flex flex-col gap-5">
             <Link href="/">
-              <img
+              <LogoWithFallback
                 src="/logo-dark-transparent.png"
                 alt="LaudStack"
                 className="h-9 sm:h-10 w-auto block"
-                onError={(e) => {
-                  const t = e.currentTarget;
-                  t.style.display = "none";
-                  const p = t.parentElement;
-                  if (p) {
-                    p.innerHTML = '<span style="font-size:22px;font-weight:900;color:#F59E0B;letter-spacing:-0.03em;font-family:Inter,sans-serif">LaudStack</span>';
-                  }
-                }}
+                fallbackElement={
+                  <span className="text-[22px] font-black text-amber-500 tracking-tight font-[Inter,sans-serif]">LaudStack</span>
+                }
               />
             </Link>
 

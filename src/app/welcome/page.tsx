@@ -1,6 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 
 // Welcome.tsx — Post-registration onboarding page

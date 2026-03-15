@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+
 
 /*
  * LaudStack — Deals Page
@@ -231,18 +231,18 @@ function DealLogo({ deal, size = 52 }: { deal: Deal & { _logoUrl?: string }; siz
       <img
         src={logoUrl}
         alt={deal.name}
-        className="rounded-2xl border border-black/10"
-        style={{ width: size, height: size, objectFit: 'cover', boxShadow: '0 2px 8px rgba(15,23,42,0.10)' }}
+        className="rounded-2xl border border-black/10 object-cover shadow-[0_2px_8px_rgba(15,23,42,0.10)]"
+        style={{ width: size, height: size }}
       />
     );
   }
   return (
     <div
-      className="rounded-2xl flex items-center justify-center font-black border border-black/10"
+      className="rounded-2xl flex items-center justify-center font-black border border-black/10 shrink-0 shadow-[0_2px_8px_rgba(15,23,42,0.10)]"
       style={{
-        width: size, height: size, flexShrink: 0,
+        width: size, height: size,
         background: deal.logoColor, color: deal.logoTextColor || '#fff',
-        fontSize: size * 0.38, boxShadow: '0 2px 8px rgba(15,23,42,0.10)',
+        fontSize: size * 0.38,
       }}
     >
       {deal.logo}
@@ -285,8 +285,7 @@ function DealOfDaySpotlight({ deal }: { deal: Deal }) {
       </div>
 
       {/* Spotlight card */}
-      <div className="bg-white border-2 border-amber-200 rounded-2xl overflow-hidden"
-           style={{ boxShadow: '0 4px 24px rgba(245,158,11,0.10)' }}>
+      <div className="bg-white border-2 border-amber-200 rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(245,158,11,0.10)]">
 
         {/* Top banner */}
         <div className="bg-amber-50 border-b border-amber-100 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
@@ -353,8 +352,8 @@ function DealOfDaySpotlight({ deal }: { deal: Deal }) {
                   </div>
                   <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${claimedPct}%`, background: urgentPct ? '#F87171' : claimedPct >= 60 ? '#FBBF24' : '#34D399' }}
+                      className={`h-full rounded-full transition-all ${urgentPct ? 'bg-red-400' : claimedPct >= 60 ? 'bg-amber-400' : 'bg-emerald-400'}`}
+                      style={{ width: `${claimedPct}%` }}
                     />
                   </div>
                   {urgentPct && (
@@ -393,12 +392,11 @@ function DealOfDaySpotlight({ deal }: { deal: Deal }) {
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Coupon code</p>
                     <button
                       onClick={handleCopy}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-dashed font-mono text-sm font-bold transition-all"
-                      style={{
-                        borderColor: copied ? '#86EFAC' : '#CBD5E1',
-                        background: copied ? '#F0FDF4' : '#fff',
-                        color: copied ? '#15803D' : '#334155',
-                      }}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-dashed font-mono text-sm font-bold transition-all ${
+                        copied
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                          : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                      }`}
                     >
                       <span>{deal.code}</span>
                       {copied
@@ -414,10 +412,7 @@ function DealOfDaySpotlight({ deal }: { deal: Deal }) {
                   href={deal.url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all"
-                  style={{ background: '#F59E0B', color: '#0A0A0A' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#FBBF24')}
-                  onMouseLeave={e => (e.currentTarget.style.background = '#F59E0B')}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all bg-amber-500 text-slate-900 hover:bg-amber-400"
                 >
                   Get This Deal
                   <ArrowUpRight className="w-4 h-4" />
@@ -437,7 +432,6 @@ function DealOfDaySpotlight({ deal }: { deal: Deal }) {
 function DealCard({ deal, featured }: { deal: Deal; featured?: boolean }) {
   const { isAuthenticated } = useAuth();
   const [copied, setCopied] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { total } = useCountdown(deal.expiresAt);
   const claimedPct = deal.maxClaims > 0 ? Math.min(100, Math.round((deal.claimed / deal.maxClaims) * 100)) : 0;
@@ -457,117 +451,91 @@ function DealCard({ deal, featured }: { deal: Deal; featured?: boolean }) {
     });
   };
 
-  // Badge styles
-  const badgeStyle: React.CSSProperties =
-    deal.type === 'lifetime'   ? { background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE' } :
-    deal.type === 'free-trial' ? { background: '#F0F9FF', color: '#0369A1', border: '1px solid #BAE6FD' } :
-    deal.type === 'exclusive'  ? { background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A' } :
-                                 { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' };
+  const badgeCls =
+    deal.type === 'lifetime'   ? 'bg-purple-50 text-purple-600 border border-purple-200' :
+    deal.type === 'free-trial' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
+    deal.type === 'exclusive'  ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                 'bg-emerald-50 text-emerald-700 border border-emerald-200';
 
-  const progressColor = claimedPct >= 90 ? '#F87171' : claimedPct >= 60 ? '#FBBF24' : '#34D399';
+  const progressColor = claimedPct >= 90 ? 'bg-red-400' : claimedPct >= 60 ? 'bg-amber-400' : 'bg-emerald-400';
+
+  const borderCls = isUrgent ? 'border-red-200' : featured ? 'border-amber-200' : 'border-gray-200 hover:border-slate-300';
+  const shadowCls = featured ? 'shadow-[0_4px_16px_rgba(245,158,11,0.10)]' : 'shadow-sm';
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: '#fff',
-        borderRadius: 18,
-        border: '1.5px solid',
-        borderColor: isUrgent ? '#FECACA' : featured ? '#FDE68A' : hovered ? '#CBD5E1' : '#E8EDF2',
-        boxShadow: hovered
-          ? '0 12px 36px rgba(15,23,42,0.10)'
-          : featured
-          ? '0 4px 16px rgba(245,158,11,0.10)'
-          : '0 1px 4px rgba(15,23,42,0.04)',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-      }}
+      className={`bg-white rounded-2xl border-[1.5px] ${borderCls} ${shadowCls} hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col h-full`}
     >
       {/* Urgency / featured banner */}
       {isUrgent && !isExpired && (
-        <div style={{ padding: '7px 18px', background: '#FFF1F2', borderBottom: '1px solid #FECDD3', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Flame style={{ width: 12, height: 12, color: '#F43F5E' }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#BE123C' }}>Ending soon — grab it before it&apos;s gone!</span>
+        <div className="px-4 py-1.5 bg-rose-50 border-b border-rose-200 flex items-center gap-1.5">
+          <Flame className="w-3 h-3 text-rose-500" />
+          <span className="text-[11px] font-bold text-rose-700">Ending soon — grab it before it&apos;s gone!</span>
         </div>
       )}
       {featured && !isUrgent && (
-        <div style={{ padding: '7px 18px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Star style={{ width: 11, height: 11, color: '#D97706', fill: '#D97706' }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#92400E' }}>Featured · Exclusive to LaudStack</span>
+        <div className="px-4 py-1.5 bg-amber-50 border-b border-amber-200 flex items-center gap-1.5">
+          <Star className="w-3 h-3 text-amber-600 fill-amber-600" />
+          <span className="text-[11px] font-bold text-amber-800">Featured · Exclusive to LaudStack</span>
         </div>
       )}
 
-      <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div className="p-5 flex-1 flex flex-col">
 
         {/* ── Header row ── */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
-          {/* Logo */}
+        <div className="flex items-start gap-3.5 mb-3.5">
           <DealLogo deal={deal as any} size={52} />
 
-          {/* Name + meta */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 2 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.015em' }}>{deal.name}</h3>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+              <h3 className="text-[15px] font-extrabold text-slate-900 tracking-tight">{deal.name}</h3>
               {deal.badge && (
-                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 100, ...badgeStyle }}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeCls}`}>
                   {deal.badge}
                 </span>
               )}
             </div>
-            <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 5px', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <p className="text-xs text-slate-500 mb-1 leading-snug truncate">
               {deal.tagline}
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0' }}>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-50 text-slate-500 border border-slate-200">
                 {deal.category}
               </span>
               {deal.rating > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Star style={{ width: 10, height: 10, fill: '#FBBF24', color: '#FBBF24' }} />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#374151' }}>{deal.rating.toFixed(1)}</span>
-                  <span style={{ fontSize: 10, color: '#94A3B8' }}>({deal.reviews.toLocaleString()})</span>
+                <div className="flex items-center gap-0.5">
+                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                  <span className="text-[11px] font-bold text-gray-700">{deal.rating.toFixed(1)}</span>
+                  <span className="text-[10px] text-slate-400">({deal.reviews.toLocaleString()})</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Discount badge */}
-          <div style={{
-            ...badgeStyle,
-            padding: '5px 10px', borderRadius: 10, fontWeight: 900, fontSize: 12,
-            flexShrink: 0, textAlign: 'center', lineHeight: 1.3,
-          }}>
+          <div className={`${badgeCls} px-2.5 py-1 rounded-lg font-black text-xs shrink-0 text-center leading-tight`}>
             {deal.discount}
           </div>
         </div>
 
         {/* ── Pricing row ── */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '11px 14px', background: '#F8FAFC', borderRadius: 12,
-          border: '1px solid #F1F5F9', marginBottom: 14,
-        }}>
+        <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-100 mb-3.5">
           <div>
             {deal.originalPrice && (
-              <div style={{ fontSize: 10, color: '#94A3B8', textDecoration: 'line-through', marginBottom: 1 }}>{deal.originalPrice}</div>
+              <div className="text-[10px] text-slate-400 line-through mb-px">{deal.originalPrice}</div>
             )}
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1 }}>{deal.dealPrice}</div>
+            <div className="text-xl font-black text-slate-900 tracking-tight leading-none">{deal.dealPrice}</div>
           </div>
           <CountdownPill expiresAt={deal.expiresAt} />
         </div>
 
         {/* ── Features ── */}
         {deal.features.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px 10px', marginBottom: 14 }}>
+          <div className="grid grid-cols-2 gap-x-2.5 gap-y-1 mb-3.5">
             {deal.features.map(f => (
-              <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <CheckCircle style={{ width: 12, height: 12, color: '#10B981', flexShrink: 0 }} />
-                <span style={{ fontSize: 11, color: '#475569', fontWeight: 500 }}>{f}</span>
+              <div key={f} className="flex items-center gap-1.5">
+                <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />
+                <span className="text-[11px] text-slate-500 font-medium">{f}</span>
               </div>
             ))}
           </div>
@@ -575,57 +543,44 @@ function DealCard({ deal, featured }: { deal: Deal; featured?: boolean }) {
 
         {/* ── Claim progress ── */}
         {deal.maxClaims > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-              <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>
+          <div className="mb-4">
+            <div className="flex justify-between mb-1">
+              <span className="text-[10px] text-slate-400 font-semibold">
                 {deal.claimed.toLocaleString()} / {deal.maxClaims.toLocaleString()} claimed
               </span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: claimedPct >= 90 ? '#F87171' : '#94A3B8' }}>{claimedPct}%</span>
+              <span className={`text-[10px] font-bold ${claimedPct >= 90 ? 'text-red-400' : 'text-slate-400'}`}>{claimedPct}%</span>
             </div>
-            <div style={{ height: 4, background: '#F1F5F9', borderRadius: 99, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${claimedPct}%`, background: progressColor, borderRadius: 99, transition: 'width 0.5s' }} />
+            <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className={`h-full ${progressColor} rounded-full transition-all duration-500`} style={{ width: `${claimedPct}%` }} />
             </div>
           </div>
         )}
 
         {/* ── Action row ── */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
-          {/* Copy code */}
+        <div className="flex gap-2 mt-auto">
           {deal.code ? (
             <button
               onClick={handleCopy}
-              style={{
-                flex: 1, padding: '9px 12px', borderRadius: 10, fontWeight: 700, fontSize: 11,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-                border: '1.5px dashed', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'monospace',
-                background: copied ? '#F0FDF4' : '#F8FAFC',
-                borderColor: copied ? '#BBF7D0' : '#CBD5E1',
-                color: copied ? '#15803D' : '#475569',
-              }}
+              className={`flex-1 py-2 px-3 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1.5 border-[1.5px] border-dashed cursor-pointer transition-all font-mono ${
+                copied
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                  : 'bg-slate-50 border-slate-300 text-slate-500 hover:border-slate-400'
+              }`}
             >
               {copied
-                ? <><Check style={{ width: 12, height: 12 }} /> Copied!</>
-                : <><Copy style={{ width: 12, height: 12 }} /> {deal.code}</>
+                ? <><Check className="w-3 h-3" /> Copied!</>
+                : <><Copy className="w-3 h-3" /> {deal.code}</>
               }
             </button>
           ) : (
-            <div style={{ flex: 1 }} />
+            <div className="flex-1" />
           )}
 
-          {/* Get deal */}
           <button
             onClick={() => window.open(deal.url || '#', '_blank', 'noopener,noreferrer')}
-            style={{
-              padding: '9px 16px', borderRadius: 10, fontWeight: 800, fontSize: 12,
-              display: 'flex', alignItems: 'center', gap: 4,
-              background: '#F59E0B', color: '#0A0A0A', border: 'none', cursor: 'pointer',
-              transition: 'all 0.15s', boxShadow: '0 2px 8px rgba(245,158,11,0.25)',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FBBF24'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F59E0B'; }}
+            className="py-2 px-4 rounded-lg font-extrabold text-xs flex items-center gap-1 bg-amber-500 text-slate-900 hover:bg-amber-400 transition-all shadow-[0_2px_8px_rgba(245,158,11,0.25)] shrink-0"
           >
-            Get Deal <ArrowUpRight style={{ width: 12, height: 12 }} />
+            Get Deal <ArrowUpRight className="w-3 h-3" />
           </button>
         </div>
       </div>
@@ -650,101 +605,104 @@ function LaunchDealModal({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
+  const inputCls = 'w-full pl-9 pr-3.5 py-2.5 rounded-lg border-[1.5px] border-slate-200 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-200 transition-colors';
+  const selectCls = 'w-full px-3.5 py-2.5 rounded-lg border-[1.5px] border-slate-200 text-sm text-slate-900 outline-none bg-white focus:border-amber-400 focus:ring-1 focus:ring-amber-200 transition-colors';
+
   return (
     <div
       ref={overlayRef}
       onClick={e => { if (e.target === overlayRef.current) onClose(); }}
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+      className="fixed inset-0 z-[9999] bg-slate-900/55 backdrop-blur-sm flex items-center justify-center p-5"
     >
-      <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 520, boxShadow: '0 24px 64px rgba(15,23,42,0.18)', overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div className="bg-white rounded-2xl w-full max-w-[520px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div style={{ padding: '18px 16px 14px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+        <div className="px-4 pt-4 pb-3.5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Gift style={{ width: 14, height: 14, color: '#D97706' }} />
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center">
+                <Gift className="w-3.5 h-3.5 text-amber-600" />
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Launch a Deal</span>
+              <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Launch a Deal</span>
             </div>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Share a deal with the community</h2>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">Share a deal with the community</h2>
           </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-            <X style={{ width: 15, height: 15, color: '#64748B' }} />
+          <button onClick={onClose} className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer shrink-0 hover:bg-slate-100 transition-colors">
+            <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
 
         {/* Step indicator */}
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #F8FAFC', display: 'flex', gap: 6 }}>
+        <div className="px-4 py-3 border-b border-slate-50 flex gap-1.5">
           {[1, 2].map(s => (
-            <div key={s} style={{ flex: 1, height: 3, borderRadius: 99, background: s <= step ? '#F59E0B' : '#E2E8F0', transition: 'background 0.2s' }} />
+            <div key={s} className={`flex-1 h-0.5 rounded-full transition-colors ${s <= step ? 'bg-amber-500' : 'bg-slate-200'}`} />
           ))}
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="p-4 flex flex-col gap-4">
             {step === 1 ? (
               <>
-                <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Tell us about the product and the deal you want to share.</p>
+                <p className="text-sm text-slate-500">Tell us about the product and the deal you want to share.</p>
                 {[
                   { key: 'toolName', label: 'Tool Name *', placeholder: 'e.g. Notion, Linear, Figma', icon: Building2, type: 'text', required: true },
                   { key: 'toolUrl',  label: 'Tool Website *', placeholder: 'https://yourtool.com', icon: Globe, type: 'url', required: true },
                 ].map(({ key, label, placeholder, icon: Icon, type, required }) => (
                   <div key={key}>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>{label}</label>
-                    <div style={{ position: 'relative' }}>
-                      <Icon style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">{label}</label>
+                    <div className="relative">
+                      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                       <input
                         required={required} type={type}
                         value={(form as any)[key]} onChange={e => update(key, e.target.value)}
                         placeholder={placeholder}
-                        style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                        className={inputCls}
                       />
                     </div>
                   </div>
                 ))}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Category *</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Category *</label>
                   <select value={form.category} onChange={e => update('category', e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
+                    className={selectCls}>
                     {TOOL_CATEGORIES.filter(c => c !== 'All Categories').map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </>
             ) : (
               <>
-                <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Now tell us the deal details and how to reach you.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <p className="text-sm text-slate-500">Now tell us the deal details and how to reach you.</p>
+                <div className="grid grid-cols-2 gap-3">
                   {[
                     { key: 'discount', label: 'Discount *', placeholder: '50% OFF', icon: Percent, required: true },
                     { key: 'code',     label: 'Coupon Code', placeholder: 'LAUDSTACK20', icon: Tag, required: false },
                   ].map(({ key, label, placeholder, icon: Icon, required }) => (
                     <div key={key}>
-                      <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>{label}</label>
-                      <div style={{ position: 'relative' }}>
-                        <Icon style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5">{label}</label>
+                      <div className="relative">
+                        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                         <input required={required} value={(form as any)[key]} onChange={e => update(key, e.target.value)} placeholder={placeholder}
-                          style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }} />
+                          className={inputCls} />
                       </div>
                     </div>
                   ))}
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Expiry Date *</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Expiry Date *</label>
                   <input required type="date" value={form.expiresAt} onChange={e => update('expiresAt', e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
+                    className={selectCls} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Description</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Description</label>
                   <textarea value={form.description} onChange={e => update('description', e.target.value)} rows={3}
                     placeholder="What makes this deal special?"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                    className="w-full px-3.5 py-2.5 rounded-lg border-[1.5px] border-slate-200 text-sm text-slate-900 outline-none resize-y focus:border-amber-400 focus:ring-1 focus:ring-amber-200 transition-colors" />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>Your Email *</label>
-                  <div style={{ position: 'relative' }}>
-                    <ExternalLink style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#94A3B8' }} />
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Your Email *</label>
+                  <div className="relative">
+                    <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                     <input required type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@company.com"
-                      style={{ width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box' }} />
+                      className={inputCls} />
                   </div>
                 </div>
               </>
@@ -752,22 +710,22 @@ function LaunchDealModal({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Footer */}
-          <div style={{ padding: '16px 28px', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+          <div className="px-4 sm:px-7 py-4 border-t border-slate-100 flex justify-between gap-3">
             {step === 2 && (
               <button type="button" onClick={() => setStep(1)}
-                style={{ padding: '10px 20px', borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 700, color: '#374151', cursor: 'pointer' }}>
+                className="px-5 py-2.5 rounded-lg border-[1.5px] border-slate-200 bg-white text-sm font-bold text-gray-700 cursor-pointer hover:bg-slate-50 transition-colors">
                 Back
               </button>
             )}
             {step === 1 ? (
               <button type="button" onClick={() => { if (!form.toolName || !form.toolUrl) { toast.error('Please fill in all required fields.'); return; } setStep(2); }}
-                style={{ marginLeft: 'auto', padding: '10px 24px', borderRadius: 10, background: '#F59E0B', border: 'none', fontSize: 13, fontWeight: 800, color: '#0A0A0A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                Next <ChevronRight style={{ width: 14, height: 14 }} />
+                className="ml-auto px-6 py-2.5 rounded-lg bg-amber-500 text-sm font-extrabold text-slate-900 cursor-pointer flex items-center gap-1.5 hover:bg-amber-400 transition-colors">
+                Next <ChevronRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button type="submit"
-                style={{ marginLeft: 'auto', padding: '10px 24px', borderRadius: 10, background: '#F59E0B', border: 'none', fontSize: 13, fontWeight: 800, color: '#0A0A0A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                Launch Deal <CheckCircle style={{ width: 14, height: 14 }} />
+                className="ml-auto px-6 py-2.5 rounded-lg bg-amber-500 text-sm font-extrabold text-slate-900 cursor-pointer flex items-center gap-1.5 hover:bg-amber-400 transition-colors">
+                Launch Deal <CheckCircle className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -792,8 +750,7 @@ export default function Deals() {
         const mapped = dbDeals.map((d, i) => mapDbDealToUiDeal(d, i));
         setAllDeals(mapped);
       })
-      .catch(err => {
-        console.error('[Deals] Failed to fetch deals:', err);
+      .catch(() => {
         toast.error('Failed to load deals');
       })
       .finally(() => setLoading(false));
@@ -921,7 +878,7 @@ export default function Deals() {
                 )}
 
                 {/* ── Filter bar ── */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
+                <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-sm">
                   <div className="flex flex-wrap gap-3 items-center">
 
                     {/* Deal type pills */}
@@ -1039,8 +996,7 @@ export default function Deals() {
               </div>
               <button
                 onClick={() => setShowSubmit(true)}
-                className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors flex items-center gap-2 shrink-0"
-                style={{ boxShadow: '0 2px 12px rgba(245,158,11,0.25)' }}
+                className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors flex items-center gap-2 shrink-0 shadow-[0_2px_12px_rgba(245,158,11,0.25)]"
               >
                 <Gift className="w-4 h-4" />
                 Launch a Deal

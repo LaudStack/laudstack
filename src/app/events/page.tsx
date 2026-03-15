@@ -128,7 +128,7 @@ const EVENT_TYPE_CONFIG: Record<EventType, { label: string; color: string; bg: s
 
 export default function Events() {
   const handleRegister = (title: string) => {
-    toast.success(`Registered for "${title}"! Check your email for confirmation.`);
+    toast.info(`Registration for "${title}" will open soon. Stay tuned!`);
   };
 
   return (
@@ -284,7 +284,7 @@ export default function Events() {
                     </div>
                     {event.recording ? (
                       <button
-                        onClick={() => toast.info('Recording coming soon!')}
+                        onClick={() => toast.info('Recording will be available soon.')}
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 hover:text-amber-500 transition-colors flex-shrink-0"
                       >
                         <Video className="w-3.5 h-3.5" />

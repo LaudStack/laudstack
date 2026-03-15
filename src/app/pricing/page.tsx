@@ -1,6 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 // LaudStack — Pricing Page
 // Users: 100% free. Founders: $49/month.

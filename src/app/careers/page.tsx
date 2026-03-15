@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+
 
 
 // LaudStack — Careers Page
@@ -179,17 +179,16 @@ export default function Careers() {
     ? OPEN_ROLES
     : OPEN_ROLES.filter(j => j.department === activeDept);
 
-  const LEVEL_COLORS: Record<string, { color: string; bg: string }> = {
-    Junior:  { color: '#059669', bg: '#ECFDF5' },
-    Mid:     { color: '#2563EB', bg: '#EFF6FF' },
-    Senior:  { color: '#7C3AED', bg: '#F5F3FF' },
-    Lead:    { color: '#D97706', bg: '#FFFBEB' },
+  const LEVEL_CLASSES: Record<string, string> = {
+    Junior:  'text-emerald-600 bg-emerald-50',
+    Mid:     'text-blue-600 bg-blue-50',
+    Senior:  'text-violet-600 bg-violet-50',
+    Lead:    'text-amber-600 bg-amber-50',
   };
-
-  const TYPE_COLORS: Record<string, { color: string; bg: string }> = {
-    'Full-time':  { color: '#0F172A', bg: '#F1F5F9' },
-    'Part-time':  { color: '#475569', bg: '#F8FAFC' },
-    'Contract':   { color: '#64748B', bg: '#F8FAFC' },
+  const TYPE_CLASSES: Record<string, string> = {
+    'Full-time':  'text-slate-900 bg-slate-100',
+    'Part-time':  'text-slate-600 bg-slate-50',
+    'Contract':   'text-slate-500 bg-slate-50',
   };
 
   return (
@@ -298,12 +297,11 @@ export default function Careers() {
                 <button
                   key={dept}
                   onClick={() => { setActiveDept(dept); setExpandedJob(null); }}
-                  className="text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all"
-                  style={{
-                    background: activeDept === dept ? '#FBBF24' : '#FFFFFF',
-                    borderColor: activeDept === dept ? '#FBBF24' : '#E2E8F0',
-                    color: activeDept === dept ? '#0F172A' : '#64748B',
-                  }}
+                  className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all ${
+                    activeDept === dept
+                      ? 'bg-amber-400 border-amber-400 text-slate-900'
+                      : 'bg-white border-gray-200 text-slate-500 hover:border-amber-300'
+                  }`}
                 >
                   {dept}
                 </button>
@@ -314,8 +312,8 @@ export default function Careers() {
             <div className="space-y-3">
               {filteredJobs.map(job => {
                 const isExpanded = expandedJob === job.id;
-                const levelCfg = LEVEL_COLORS[job.level];
-                const typeCfg = TYPE_COLORS[job.type];
+                const levelCls = LEVEL_CLASSES[job.level] ?? 'text-slate-600 bg-slate-100';
+                const typeCls = TYPE_CLASSES[job.type] ?? 'text-slate-600 bg-slate-100';
                 return (
                   <div
                     key={job.id}
@@ -333,14 +331,12 @@ export default function Careers() {
                         <div className="flex items-center gap-2 flex-wrap mb-1.5">
                           <span className="font-black text-slate-900 text-base">{job.title}</span>
                           <span
-                            className="text-xs font-bold px-2 py-0.5 rounded-full"
-                            style={{ color: levelCfg.color, background: levelCfg.bg }}
+                            className={`text-xs font-bold px-2 py-0.5 rounded-full ${levelCls}`}
                           >
                             {job.level}
                           </span>
                           <span
-                            className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                            style={{ color: typeCfg.color, background: typeCfg.bg }}
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${typeCls}`}
                           >
                             {job.type}
                           </span>
@@ -361,8 +357,7 @@ export default function Careers() {
                         </div>
                       </div>
                       <ChevronDown
-                        className="w-5 h-5 text-slate-300 flex-shrink-0 mt-1 transition-transform"
-                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                        className={`w-5 h-5 text-slate-300 flex-shrink-0 mt-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                       />
                     </button>
 
@@ -382,7 +377,7 @@ export default function Careers() {
                           </ul>
                         </div>
                         <button
-                          onClick={() => toast.success(`Application started for "${job.title}". Check your email for next steps.`)}
+                          onClick={() => toast.info(`Applications for "${job.title}" will open soon. Stay tuned!`)}
                           className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-2.5 rounded-xl transition-colors text-sm"
                         >
                           Apply for this role

@@ -5,7 +5,6 @@ import { dbToolToFrontend } from "@/lib/adapters";
 import type { Tool as DbTool } from "@/drizzle/schema";
 import DiscoveryClient from "../trending-ai-tools/client";
 
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = discoveryMetadata(
   "Top Rated AI Tools",

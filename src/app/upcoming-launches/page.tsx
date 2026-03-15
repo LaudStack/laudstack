@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
-import LogoWithFallback from '@/components/LogoWithFallback';
+import LogoWithFallback from "@/components/LogoWithFallback";
 import { CATEGORY_META } from "@/lib/categories";
 import {
   Clock, CalendarClock, Star, Shield, Flame, Rocket,
-  Bell, BellOff, ChevronRight, ArrowRight, ExternalLink,
-  Tag, Sparkles, TrendingUp, Filter
+  Bell, BellOff, ArrowRight,
+  Sparkles, Filter,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
@@ -30,7 +31,7 @@ interface UpcomingTool {
   isFeatured: boolean;
   averageRating: number;
   reviewCount: number;
-  upvoteCount: number;
+  laudCount: number;
   tags: string[];
   source: "tool" | "submission";
 }
@@ -62,39 +63,102 @@ function daysUntil(dateStr: string): number {
 
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-      <div
-        style={{
-          width: "32px",
-          height: "32px",
-          borderRadius: "6px",
-          background: "#F8FAFC",
-          border: "1px solid #E8ECF0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "13px",
-          fontWeight: 700,
-          color: "#171717",
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
+    <div className="flex flex-col items-center gap-0.5">
+      <div className="w-8 h-8 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center text-[13px] font-bold text-slate-900 tabular-nums">
         {String(value).padStart(2, "0")}
       </div>
-      <span style={{ fontSize: "9px", fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wide">
         {label}
       </span>
     </div>
   );
 }
 
+/* ─── Notify Dialog ────────────────────────────────────────────────────── */
+
+function NotifyDialog({
+  open,
+  onClose,
+  onSubmit,
+  submitting,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (email: string) => void;
+  submitting: boolean;
+}) {
+  const [email, setEmail] = useState("");
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+            <Bell className="w-5 h-5 text-amber-500" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Get Launch Notification</h3>
+            <p className="text-xs text-slate-500">We&apos;ll email you when this stack goes live.</p>
+          </div>
+        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!email.trim() || !email.includes("@")) {
+              toast.error("Please enter a valid email address.");
+              return;
+            }
+            onSubmit(email.trim());
+          }}
+        >
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-400 transition-colors mb-3"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-amber-500 text-sm font-bold text-white hover:bg-amber-600 transition-colors disabled:opacity-60"
+            >
+              {submitting ? "Subscribing..." : "Notify Me"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Upcoming Card ─────────────────────────────────────────────────────── */
 
-function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: string) => void }) {
+function UpcomingCard({
+  tool,
+  onNotify,
+  isNotified,
+}: {
+  tool: UpcomingTool;
+  onNotify: (id: string) => void;
+  isNotified: boolean;
+}) {
   const router = useRouter();
   const [countdown, setCountdown] = useState(getCountdown(tool.launchDate));
-  const [notified, setNotified] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => setCountdown(getCountdown(tool.launchDate)), 1000);
@@ -108,133 +172,34 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
     if (tool.slug) router.push(`/tools/${tool.slug}`);
   };
 
-  const handleNotify = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (submitting) return;
-
-    // If already notified, unsubscribe
-    if (notified) {
-      setNotified(false);
-      onNotify(tool.id);
-      toast.success("Notification removed");
-      return;
-    }
-
-    // Prompt for email
-    const email = window.prompt("Enter your email to get notified when this launches:");
-    if (!email || !email.includes("@")) {
-      if (email !== null) toast.error("Please enter a valid email address.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      // Extract numeric toolId from the id string (e.g., "tool-11" -> 11)
-      const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
-      const payload: Record<string, unknown> = { email };
-      if (tool.source === "tool") payload.toolId = numericId;
-      else payload.submissionId = numericId;
-
-      const res = await fetch("/api/launches/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setNotified(true);
-        onNotify(tool.id);
-        toast.success(data.message || "You'll be notified when this launches!");
-      } else {
-        toast.error(data.error || "Failed to subscribe.");
-      }
-    } catch {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div
       onClick={handleClick}
-      style={{
-        background: "#FFFFFF",
-        borderRadius: "14px",
-        border: isLive ? "1.5px solid #F59E0B" : "1px solid #E8ECF0",
-        overflow: "hidden",
-        cursor: tool.slug ? "pointer" : "default",
-        display: "flex",
-        flexDirection: "column",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.08)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
+      className={`bg-white rounded-[14px] overflow-hidden flex flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
+        isLive ? "border-[1.5px] border-amber-400" : "border border-slate-200"
+      } ${tool.slug ? "cursor-pointer" : "cursor-default"}`}
     >
       {/* Header row */}
-      <div style={{ padding: "16px 16px 12px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
+      <div className="p-4 pb-3 flex items-start gap-3">
         {/* Logo */}
-        <div
-          style={{
-            width: "48px",
-            height: "48px",
-            borderRadius: "12px",
-            flexShrink: 0,
-            border: "1px solid #E8ECF0",
-            background: "#F8FAFC",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div className="w-12 h-12 rounded-xl shrink-0 border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
           <LogoWithFallback src={tool.logo} alt={tool.name} className="w-9 h-9 object-contain" fallbackSize="text-lg" />
         </div>
 
         {/* Info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-            <span
-              style={{
-                fontSize: "15px",
-                fontWeight: 700,
-                color: "#171717",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-[15px] font-bold text-slate-900 truncate">
               {tool.name}
             </span>
-            {tool.isVerified && <Shield style={{ width: "13px", height: "13px", color: "#22C55E", flexShrink: 0 }} />}
-            {tool.isFeatured && <Sparkles style={{ width: "13px", height: "13px", color: "#F59E0B", flexShrink: 0 }} />}
+            {tool.isVerified && <Shield className="w-[13px] h-[13px] text-green-500 shrink-0" />}
+            {tool.isFeatured && <Sparkles className="w-[13px] h-[13px] text-amber-500 shrink-0" />}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "#6B7280",
-                background: "#F3F4F6",
-                padding: "2px 8px",
-                borderRadius: "6px",
-              }}
-            >
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
               {tool.category}
             </span>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "#9CA3AF",
-              }}
-            >
+            <span className="text-[11px] font-semibold text-gray-400">
               {tool.pricing}
             </span>
           </div>
@@ -242,121 +207,58 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
 
         {/* Status badge */}
         {isLive ? (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              padding: "3px 8px",
-              borderRadius: "6px",
-              background: "#FEF3C7",
-              border: "1px solid #FDE68A",
-              fontSize: "10px",
-              fontWeight: 700,
-              color: "#B45309",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#F59E0B", animation: "pulse 2s infinite" }} />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-700 uppercase tracking-wide shrink-0">
+            <span className="w-[5px] h-[5px] rounded-full bg-amber-500 animate-pulse" />
             LIVE
           </span>
         ) : (
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: 600,
-              color: "#3B82F6",
-              flexShrink: 0,
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className="text-[11px] font-semibold text-blue-500 shrink-0 whitespace-nowrap">
             {days === 0 ? "Today" : days === 1 ? "Tomorrow" : `${days}d`}
           </span>
         )}
       </div>
 
       {/* Tagline */}
-      <div style={{ padding: "0 16px 12px" }}>
-        <p
-          style={{
-            fontSize: "13px",
-            color: "#6B7280",
-            lineHeight: 1.5,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            margin: 0,
-          }}
-        >
+      <div className="px-4 pb-3">
+        <p className="text-[13px] text-gray-500 leading-relaxed line-clamp-2 m-0">
           {tool.tagline}
         </p>
       </div>
 
       {/* Countdown */}
       {!isLive && (
-        <div style={{ padding: "0 16px 12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", justifyContent: "center" }}>
+        <div className="px-4 pb-3">
+          <div className="flex items-center gap-1 justify-center">
             <CountdownUnit value={countdown.days} label="day" />
-            <span style={{ fontSize: "12px", color: "#D1D5DB", fontWeight: 600, paddingBottom: "14px" }}>:</span>
+            <span className="text-xs text-gray-300 font-semibold pb-3.5">:</span>
             <CountdownUnit value={countdown.hours} label="hr" />
-            <span style={{ fontSize: "12px", color: "#D1D5DB", fontWeight: 600, paddingBottom: "14px" }}>:</span>
+            <span className="text-xs text-gray-300 font-semibold pb-3.5">:</span>
             <CountdownUnit value={countdown.minutes} label="min" />
-            <span style={{ fontSize: "12px", color: "#D1D5DB", fontWeight: 600, paddingBottom: "14px" }}>:</span>
+            <span className="text-xs text-gray-300 font-semibold pb-3.5">:</span>
             <CountdownUnit value={countdown.seconds} label="sec" />
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <div
-        style={{
-          marginTop: "auto",
-          padding: "10px 16px",
-          borderTop: "1px solid #F1F5F9",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <CalendarClock style={{ width: "13px", height: "13px", color: "#9CA3AF" }} />
-          <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: 500 }}>{formatDate(tool.launchDate)}</span>
+      <div className="mt-auto px-4 py-2.5 border-t border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <CalendarClock className="w-[13px] h-[13px] text-gray-400" />
+          <span className="text-xs text-gray-400 font-medium">{formatDate(tool.launchDate)}</span>
         </div>
         <button
-          onClick={handleNotify}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            padding: "6px 14px",
-            borderRadius: "8px",
-            border: notified ? "1.5px solid #FDE68A" : "1.5px solid #F59E0B",
-            background: notified ? "#FFFBEB" : "#F59E0B",
-            fontSize: "12px",
-            fontWeight: 700,
-            color: notified ? "#B45309" : "#FFFFFF",
-            cursor: "pointer",
-            transition: "all 0.15s ease",
-            boxShadow: notified ? "none" : "0 1px 3px rgba(245,158,11,0.3)",
+          onClick={(e) => {
+            e.stopPropagation();
+            onNotify(tool.id);
           }}
-          onMouseEnter={(e) => {
-            if (!notified) {
-              e.currentTarget.style.background = "#D97706";
-              e.currentTarget.style.borderColor = "#D97706";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!notified) {
-              e.currentTarget.style.background = "#F59E0B";
-              e.currentTarget.style.borderColor = "#F59E0B";
-            }
-          }}
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            isNotified
+              ? "border-[1.5px] border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+              : "border-[1.5px] border-amber-500 bg-amber-500 text-white shadow-sm shadow-amber-500/30 hover:bg-amber-600 hover:border-amber-600"
+          }`}
         >
-          {notified ? <BellOff style={{ width: "13px", height: "13px" }} /> : <Bell style={{ width: "13px", height: "13px" }} />}
-          {submitting ? "..." : notified ? "Notified" : "Notify Me"}
+          {isNotified ? <BellOff className="w-[13px] h-[13px]" /> : <Bell className="w-[13px] h-[13px]" />}
+          {isNotified ? "Notified" : "Notify Me"}
         </button>
       </div>
     </div>
@@ -371,64 +273,33 @@ function RecentCard({ tool }: { tool: UpcomingTool }) {
   return (
     <div
       onClick={() => tool.slug && router.push(`/tools/${tool.slug}`)}
-      style={{
-        background: "#FFFFFF",
-        borderRadius: "12px",
-        border: "1px solid #E8ECF0",
-        padding: "14px",
-        cursor: tool.slug ? "pointer" : "default",
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        transition: "transform 0.15s ease, box-shadow 0.15s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-1px)";
-        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.06)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
+      className={`bg-white rounded-xl border border-slate-200 p-3.5 flex items-center gap-3 transition-all duration-150 hover:-translate-y-px hover:shadow-md ${
+        tool.slug ? "cursor-pointer" : "cursor-default"
+      }`}
     >
       {/* Logo */}
-      <div
-        style={{
-          width: "40px",
-          height: "40px",
-          borderRadius: "10px",
-          flexShrink: 0,
-          border: "1px solid #E8ECF0",
-          background: "#F8FAFC",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="w-10 h-10 rounded-[10px] shrink-0 border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
         <LogoWithFallback src={tool.logo} alt={tool.name} className="w-[30px] h-[30px] object-contain" fallbackSize="text-sm" />
       </div>
 
       {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
-          <span style={{ fontSize: "14px", fontWeight: 700, color: "#171717", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {tool.name}
-          </span>
-          {tool.isVerified && <Shield style={{ width: "12px", height: "12px", color: "#22C55E", flexShrink: 0 }} />}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="text-sm font-bold text-slate-900 truncate">{tool.name}</span>
+          {tool.isVerified && <Shield className="w-3 h-3 text-green-500 shrink-0" />}
         </div>
-        <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: 500 }}>{tool.category}</span>
+        <span className="text-xs text-gray-400 font-medium">{tool.category}</span>
       </div>
 
       {/* Rating + date */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", flexShrink: 0 }}>
+      <div className="flex flex-col items-end gap-0.5 shrink-0">
         {tool.averageRating > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-            <Star style={{ width: "11px", height: "11px", fill: "#FBBF24", color: "#FBBF24" }} />
-            <span style={{ fontSize: "12px", fontWeight: 700, color: "#171717" }}>{tool.averageRating.toFixed(1)}</span>
+          <div className="flex items-center gap-1">
+            <Star className="w-[11px] h-[11px] fill-amber-400 text-amber-400" />
+            <span className="text-xs font-bold text-slate-900">{tool.averageRating.toFixed(1)}</span>
           </div>
         )}
-        <span style={{ fontSize: "11px", color: "#9CA3AF" }}>{formatDate(tool.launchDate)}</span>
+        <span className="text-[11px] text-gray-400">{formatDate(tool.launchDate)}</span>
       </div>
     </div>
   );
@@ -438,10 +309,10 @@ function RecentCard({ tool }: { tool: UpcomingTool }) {
 
 function PageSkeleton() {
   return (
-    <div className="max-w-[1300px] mx-auto w-full px-3 sm:px-6 lg:px-10" style={{ paddingTop: "24px", paddingBottom: "48px" }}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "20px" }}>
+    <div className="max-w-[1300px] mx-auto w-full px-3 sm:px-6 lg:px-10 pt-6 pb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="animate-pulse" style={{ background: "#F3F4F6", borderRadius: "14px", height: "220px" }} />
+          <div key={i} className="animate-pulse bg-gray-100 rounded-[14px] h-[220px]" />
         ))}
       </div>
     </div>
@@ -452,11 +323,17 @@ function PageSkeleton() {
 
 export default function UpcomingLaunches() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [upcoming, setUpcoming] = useState<UpcomingTool[]>([]);
   const [recent, setRecent] = useState<UpcomingTool[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("All");
   const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
+
+  // Dialog state for email input
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogToolId, setDialogToolId] = useState<string | null>(null);
+  const [dialogSubmitting, setDialogSubmitting] = useState(false);
 
   const allCategories = ["All", ...CATEGORY_META.map((c) => c.name).filter((n) => n !== "All")];
 
@@ -464,21 +341,98 @@ export default function UpcomingLaunches() {
     fetch("/api/launches/upcoming")
       .then((r) => r.json())
       .then((data) => {
-        setUpcoming(data.upcoming ?? []);
-        setRecent(data.recent ?? []);
+        // Normalize field names: API may return upvoteCount, we use laudCount
+        const normalize = (items: any[]) =>
+          items.map((t: any) => ({
+            ...t,
+            laudCount: t.laudCount ?? t.upvoteCount ?? 0,
+          }));
+        setUpcoming(normalize(data.upcoming ?? []));
+        setRecent(normalize(data.recent ?? []));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const handleNotify = useCallback((id: string) => {
-    setNotifiedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
+  const handleNotify = useCallback(
+    async (id: string) => {
+      // If already notified, unsubscribe
+      if (notifiedIds.has(id)) {
+        setNotifiedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+        toast.success("Notification removed");
+        return;
+      }
+
+      // If authenticated, subscribe directly using session email
+      if (isAuthenticated) {
+        const tool = [...upcoming, ...recent].find((t) => t.id === id);
+        if (!tool) return;
+        try {
+          const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
+          const payload: Record<string, unknown> = {};
+          if (tool.source === "tool") payload.toolId = numericId;
+          else payload.submissionId = numericId;
+
+          const res = await fetch("/api/launches/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setNotifiedIds((prev) => new Set(prev).add(id));
+            toast.success(data.message || "You'll be notified when this launches!");
+          } else {
+            toast.error(data.error || "Failed to subscribe.");
+          }
+        } catch {
+          toast.error("Network error. Please try again.");
+        }
+        return;
+      }
+
+      // Not authenticated — show email dialog
+      setDialogToolId(id);
+      setDialogOpen(true);
+    },
+    [notifiedIds, isAuthenticated, upcoming, recent]
+  );
+
+  const handleDialogSubmit = async (email: string) => {
+    if (!dialogToolId) return;
+    setDialogSubmitting(true);
+    try {
+      const tool = [...upcoming, ...recent].find((t) => t.id === dialogToolId);
+      if (!tool) return;
+      const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
+      const payload: Record<string, unknown> = { email };
+      if (tool.source === "tool") payload.toolId = numericId;
+      else payload.submissionId = numericId;
+
+      const res = await fetch("/api/launches/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNotifiedIds((prev) => new Set(prev).add(dialogToolId));
+        toast.success(data.message || "You'll be notified when this launches!");
+        setDialogOpen(false);
+        setDialogToolId(null);
+      } else {
+        toast.error(data.error || "Failed to subscribe.");
+      }
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setDialogSubmitting(false);
+    }
+  };
 
   const filteredUpcoming = category === "All" ? upcoming : upcoming.filter((t) => t.category === category);
   const filteredRecent = category === "All" ? recent : recent.filter((t) => t.category === category);
@@ -487,7 +441,7 @@ export default function UpcomingLaunches() {
   const hasRecent = filteredRecent.length > 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F8FAFC", display: "flex", flexDirection: "column" }}>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
       <PageHero
@@ -500,28 +454,14 @@ export default function UpcomingLaunches() {
       />
 
       {/* Filter bar */}
-      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E8ECF0", position: "sticky", top: 64, zIndex: 20 }}>
-        <div
-          className="max-w-[1300px] mx-auto w-full px-3 sm:px-6 lg:px-10"
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "48px", gap: "12px" }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "auto", flex: 1 }}>
-            <Filter style={{ width: "14px", height: "14px", color: "#9CA3AF", flexShrink: 0 }} />
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-20">
+        <div className="max-w-[1300px] mx-auto w-full px-3 sm:px-6 lg:px-10 flex items-center justify-between h-12 gap-3">
+          <div className="flex items-center gap-2.5 overflow-auto flex-1">
+            <Filter className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              style={{
-                padding: "5px 10px",
-                borderRadius: "8px",
-                border: "1.5px solid #E8ECF0",
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#374151",
-                background: "#F9FAFB",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                outline: "none",
-              }}
+              className="px-2.5 py-1 rounded-lg border-[1.5px] border-slate-200 text-xs font-semibold text-gray-700 bg-gray-50 cursor-pointer outline-none focus:border-amber-400 transition-colors"
             >
               {allCategories.map((c) => (
                 <option key={c} value={c}>
@@ -529,12 +469,12 @@ export default function UpcomingLaunches() {
                 </option>
               ))}
             </select>
-            <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: 500, whiteSpace: "nowrap" }}>
-              <span style={{ color: "#171717", fontWeight: 700 }}>{filteredUpcoming.length}</span> upcoming
+            <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
+              <span className="text-slate-900 font-bold">{filteredUpcoming.length}</span> upcoming
               {hasRecent && (
                 <>
                   {" · "}
-                  <span style={{ color: "#171717", fontWeight: 700 }}>{filteredRecent.length}</span> recently launched
+                  <span className="text-slate-900 font-bold">{filteredRecent.length}</span> recently launched
                 </>
               )}
             </span>
@@ -543,55 +483,49 @@ export default function UpcomingLaunches() {
       </div>
 
       {/* Content */}
-      <div className="max-w-[1300px] mx-auto w-full px-3 sm:px-6 lg:px-10" style={{ paddingTop: "28px", paddingBottom: "56px", flex: 1 }}>
+      <div className="max-w-[1300px] mx-auto w-full px-3 sm:px-6 lg:px-10 pt-7 pb-14 flex-1">
         {loading ? (
           <PageSkeleton />
         ) : (
           <>
             {/* Upcoming Section */}
             {hasUpcoming && (
-              <section style={{ marginBottom: "48px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-                  <Rocket style={{ width: "16px", height: "16px", color: "#3B82F6" }} />
-                  <h2 style={{ fontSize: "18px", fontWeight: 800, color: "#171717", margin: 0 }}>Launching Soon</h2>
+              <section className="mb-12">
+                <div className="flex items-center gap-2 mb-5">
+                  <Rocket className="w-4 h-4 text-blue-500" />
+                  <h2 className="text-lg font-extrabold text-slate-900">Launching Soon</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "20px" }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredUpcoming.map((tool) => (
-                    <UpcomingCard key={tool.id} tool={tool} onNotify={handleNotify} />
+                    <UpcomingCard
+                      key={tool.id}
+                      tool={tool}
+                      onNotify={handleNotify}
+                      isNotified={notifiedIds.has(tool.id)}
+                    />
                   ))}
                 </div>
               </section>
             )}
 
-            {/* Recently Launched Section (always shown as fallback) */}
+            {/* Recently Launched Section */}
             {hasRecent && (
               <section>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <Flame style={{ width: "16px", height: "16px", color: "#F59E0B" }} />
-                    <h2 style={{ fontSize: "18px", fontWeight: 800, color: "#171717", margin: 0 }}>
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-amber-500" />
+                    <h2 className="text-lg font-extrabold text-slate-900">
                       {hasUpcoming ? "Recently Launched" : "Recently Launched Stacks"}
                     </h2>
                   </div>
                   <button
                     onClick={() => router.push("/recently-added")}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      color: "#F59E0B",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
+                    className="flex items-center gap-1 text-[13px] font-semibold text-amber-500 hover:text-amber-600 transition-colors"
                   >
-                    View all <ArrowRight style={{ width: "13px", height: "13px" }} />
+                    View all <ArrowRight className="w-[13px] h-[13px]" />
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "12px" }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredRecent.map((tool) => (
                     <RecentCard key={tool.id} tool={tool} />
                   ))}
@@ -601,29 +535,17 @@ export default function UpcomingLaunches() {
 
             {/* Empty state */}
             {!hasUpcoming && !hasRecent && (
-              <div style={{ textAlign: "center", padding: "80px 0" }}>
-                <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: "#EFF6FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-                  <Rocket style={{ width: "24px", height: "24px", color: "#3B82F6" }} />
+              <div className="text-center py-20">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                  <Rocket className="w-6 h-6 text-blue-500" />
                 </div>
-                <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#171717", marginBottom: "8px" }}>No launches scheduled yet</h3>
-                <p style={{ fontSize: "15px", color: "#6B7280", lineHeight: 1.6, maxWidth: "400px", margin: "0 auto 24px" }}>
+                <h3 className="text-xl font-extrabold text-slate-900 mb-2">No launches scheduled yet</h3>
+                <p className="text-[15px] text-gray-500 leading-relaxed max-w-[400px] mx-auto mb-6">
                   Founders are preparing their stacks. Check back soon or launch your own stack on LaudStack.
                 </p>
                 <button
                   onClick={() => router.push("/launchpad")}
-                  style={{
-                    padding: "10px 24px",
-                    borderRadius: "10px",
-                    background: "#F59E0B",
-                    color: "#fff",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "opacity 0.15s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                  className="px-6 py-2.5 rounded-[10px] bg-amber-500 text-white text-sm font-bold hover:bg-amber-600 transition-colors"
                 >
                   Launch Your Stack
                 </button>
@@ -632,42 +554,18 @@ export default function UpcomingLaunches() {
 
             {/* Bottom CTA */}
             {(hasUpcoming || hasRecent) && (
-              <div
-                style={{
-                  marginTop: "48px",
-                  padding: "32px",
-                  borderRadius: "16px",
-                  border: "1px solid #E8ECF0",
-                  background: "#FFFFFF",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#171717", marginBottom: "8px" }}>
+              <div className="mt-12 p-8 rounded-2xl border border-slate-200 bg-white text-center">
+                <h3 className="text-xl font-extrabold text-slate-900 mb-2">
                   Want your stack featured here?
                 </h3>
-                <p style={{ fontSize: "15px", color: "#6B7280", lineHeight: 1.6, maxWidth: "480px", margin: "0 auto 20px" }}>
+                <p className="text-[15px] text-gray-500 leading-relaxed max-w-[480px] mx-auto mb-5">
                   Submit your stack on LaunchPad and schedule your launch date. Get discovered by professionals before you even go live.
                 </p>
                 <button
                   onClick={() => router.push("/launchpad")}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "10px 24px",
-                    borderRadius: "10px",
-                    background: "#F59E0B",
-                    color: "#fff",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "opacity 0.15s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-[10px] bg-amber-500 text-white text-sm font-bold hover:bg-amber-600 transition-colors"
                 >
-                  <Rocket style={{ width: "15px", height: "15px" }} />
+                  <Rocket className="w-[15px] h-[15px]" />
                   Go to LaunchPad
                 </button>
               </div>
@@ -678,12 +576,16 @@ export default function UpcomingLaunches() {
 
       <Footer />
 
-      <style jsx global>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
+      {/* Notify email dialog */}
+      <NotifyDialog
+        open={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setDialogToolId(null);
+        }}
+        onSubmit={handleDialogSubmit}
+        submitting={dialogSubmitting}
+      />
     </div>
   );
 }

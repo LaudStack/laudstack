@@ -1,6 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 
 // Design: LaudStack dark-slate + amber accent. Shared legal page component.

@@ -28,27 +28,23 @@ import type { Tool } from '@/lib/types';
 
 function StarRow({ rating }: { rating: number }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map(i => (
         <Star
           key={i}
-          style={{
-            width: '14px', height: '14px',
-            fill: i <= Math.round(rating) ? '#F59E0B' : 'transparent',
-            color: i <= Math.round(rating) ? '#F59E0B' : '#CBD5E1',
-          }}
+          className={`w-3.5 h-3.5 ${i <= Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
         />
       ))}
-      <span style={{ fontSize: '14px', fontWeight: 800, color: '#171717', marginLeft: '4px' }}>{rating.toFixed(1)}</span>
+      <span className="text-sm font-extrabold text-slate-900 ml-1">{rating.toFixed(1)}</span>
     </div>
   );
 }
 
 function CheckCell({ val }: { val: boolean | null }) {
-  if (val === null) return <Minus style={{ width: '16px', height: '16px', color: '#CBD5E1' }} />;
+  if (val === null) return <Minus className="w-4 h-4 text-slate-300" />;
   return val
-    ? <CheckCircle2 style={{ width: '16px', height: '16px', color: '#22C55E' }} />
-    : <XCircle style={{ width: '16px', height: '16px', color: '#F87171' }} />;
+    ? <CheckCircle2 className="w-4 h-4 text-green-500" />
+    : <XCircle className="w-4 h-4 text-red-400" />;
 }
 
 // Derive feature support from product data
@@ -92,6 +88,12 @@ const SECTION_ROWS: { section: string; rows: { label: string; key: string }[] }[
     ],
   },
 ];
+
+const PRICING_CLASSES: Record<string, string> = {
+  Free:     'bg-green-50 text-green-700 border-green-200',
+  Freemium: 'bg-blue-50 text-blue-700 border-blue-200',
+  Paid:     'bg-slate-100 text-slate-700 border-slate-300',
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -141,7 +143,6 @@ export default function Compare() {
       });
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
-      // Fallback: show the URL in a toast
       toast.info('Share this link:', { description: url, duration: 8000 });
     });
   }
@@ -149,19 +150,22 @@ export default function Compare() {
   // ── Empty state ───────────────────────────────────────────────────────────
   if (selected.length < 2) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+      <div className="min-h-screen flex flex-col bg-slate-50">
         <Navbar />
-        <div style={{ height: '72px' }} />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '80px 24px', textAlign: 'center' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '20px', background: 'linear-gradient(135deg, #F59E0B22, #D9770622)', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <GitCompareArrows style={{ width: '32px', height: '32px', color: '#F59E0B' }} />
+        <div className="h-[72px]" />
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 px-6 py-20 text-center">
+          <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-amber-500/10 to-amber-600/10 border-[1.5px] border-amber-200 flex items-center justify-center">
+            <GitCompareArrows className="w-8 h-8 text-amber-500" />
           </div>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '28px', fontWeight: 900, color: '#171717', margin: 0, letterSpacing: '-0.03em' }}>No stacks selected</h1>
-          <p style={{ fontSize: '16px', color: '#64748B', margin: 0, maxWidth: '400px', lineHeight: 1.6 }}>
+          <h1 className="font-black text-[28px] text-slate-900 tracking-tight">No stacks selected</h1>
+          <p className="text-base text-slate-500 max-w-[400px] leading-relaxed">
             Select 2–3 products using the <strong>Compare</strong> button on any stack card, then click <strong>Compare Now</strong> in the tray.
           </p>
-          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '11px 22px', borderRadius: '10px', background: '#F59E0B', color: '#0A0A0A', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(245,158,11,0.3)' }}>
-            <ArrowLeft style={{ width: '14px', height: '14px' }} /> Browse Stacks
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[10px] bg-amber-500 text-slate-900 font-bold text-sm shadow-lg shadow-amber-500/30 hover:bg-amber-400 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Browse Stacks
           </Link>
         </div>
         <Footer />
@@ -185,19 +189,14 @@ export default function Compare() {
 
   function getCellValue(tool: typeof tools[0], key: string, featMap: Record<string, boolean>): React.ReactNode {
     switch (key) {
-      case 'category':       return <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{tool.category}</span>;
+      case 'category':       return <span className="text-[13px] font-semibold text-gray-700">{tool.category}</span>;
       case 'pricing_model': {
-        const colors: Record<string, { bg: string; color: string; border: string }> = {
-          Free:     { bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0' },
-          Freemium: { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
-          Paid:     { bg: '#F1F5F9', color: '#374151', border: '#CBD5E1' },
-        };
-        const c = colors[tool.pricing_model] || colors.Paid;
-        return <span style={{ fontSize: '12px', fontWeight: 700, padding: '3px 10px', borderRadius: '7px', background: c.bg, color: c.color, border: `1px solid ${c.border}` }}>{tool.pricing_model}</span>;
+        const cls = PRICING_CLASSES[tool.pricing_model] || PRICING_CLASSES.Paid;
+        return <span className={`text-xs font-bold px-2.5 py-0.5 rounded-lg border ${cls}`}>{tool.pricing_model}</span>;
       }
       case 'average_rating': return <StarRow rating={tool.average_rating} />;
-      case 'review_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717' }}>{tool.review_count.toLocaleString()}</span>;
-      case 'upvote_count':   return <span style={{ fontSize: '14px', fontWeight: 700, color: '#171717' }}>{tool.upvote_count.toLocaleString()}</span>;
+      case 'review_count':   return <span className="text-sm font-bold text-slate-900">{tool.review_count.toLocaleString()}</span>;
+      case 'upvote_count':   return <span className="text-sm font-bold text-slate-900">{tool.upvote_count.toLocaleString()}</span>;
       case 'feat_free':         return <CheckCell val={featMap['Free Plan Available']} />;
       case 'feat_api':          return <CheckCell val={featMap['API Access']} />;
       case 'feat_integrations': return <CheckCell val={featMap['Integrations']} />;
@@ -221,7 +220,7 @@ export default function Compare() {
   const gridCols = `220px repeat(${colCount}, 1fr)`;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC', paddingTop: '72px' }}>
+    <div className="min-h-screen flex flex-col bg-slate-50 pt-[72px]">
       <Navbar />
       <PageHero
         eyebrow="Side-by-side"
@@ -232,68 +231,63 @@ export default function Compare() {
         size="sm"
       >
         {/* Action row: share + back + shareable URL */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={handleShare}
-            style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 16px', borderRadius: '9px', border: copied ? '1.5px solid #BBF7D0' : '1.5px solid #E2E8F0', background: copied ? '#F0FDF4' : '#F8FAFC', color: copied ? '#15803D' : '#374151', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border-[1.5px] font-bold text-[13px] transition-all ${
+              copied
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-gray-200 bg-slate-50 text-gray-700 hover:border-gray-300'
+            }`}
           >
-            {copied ? <><Check style={{ width: '13px', height: '13px' }} /> Copied!</> : <><Share2 style={{ width: '13px', height: '13px' }} /> Share</>}
+            {copied ? <><Check className="w-3.5 h-3.5" /> Copied!</> : <><Share2 className="w-3.5 h-3.5" /> Share</>}
           </button>
           <button
             onClick={() => { clear(); router.push('/'); }}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '9px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', color: '#374151', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border-[1.5px] border-gray-200 bg-slate-50 text-gray-700 font-semibold text-[13px] hover:border-gray-300 transition-colors"
           >
-            <ArrowLeft style={{ width: '13px', height: '13px' }} /> Back
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '9px', maxWidth: '400px', overflow: 'hidden' }}>
-            <Link2 style={{ width: '13px', height: '13px', color: '#94A3B8', flexShrink: 0 }} />
-            <span style={{ fontSize: '11px', color: '#64748B', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>{buildShareUrl(tools)}</span>
+          <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-gray-200 rounded-lg max-w-[400px] overflow-hidden">
+            <Link2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            <span className="text-[11px] text-slate-500 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono">{buildShareUrl(tools)}</span>
           </div>
         </div>
       </PageHero>
 
       {/* ── Main content ── */}
-      <div className="max-w-[1200px] mx-auto" style={{ padding: '40px 40px 80px', width: '100%', boxSizing: 'border-box' }}>
+      <div className="max-w-[1200px] mx-auto w-full px-4 sm:px-10 pt-10 pb-20">
 
         {/* ── Tool header cards ── */}
-        <div
-            
-          style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '16px', marginBottom: '28px', alignItems: 'stretch' }}
-        >
+        <div className="grid gap-4 mb-7 items-stretch" style={{ gridTemplateColumns: gridCols }}>
           {/* Label column header */}
           <div />
 
           {tools.map((tool, i) => (
             <div
               key={tool.id}
-              style={{
-                background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0',
-                padding: '24px 20px', boxShadow: '0 1px 4px rgba(15,23,42,0.04)',
-                display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative',
-              }}
+              className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm flex flex-col gap-3 relative"
             >
               {/* Remove button */}
               <button
                 onClick={() => { remove(tool.id); if (selected.length <= 2) router.push('/'); }}
-                style={{ position: 'absolute', top: '12px', right: '12px', width: '26px', height: '26px', borderRadius: '7px', border: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', transition: 'all 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FEF2F2'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#FECACA'; (e.currentTarget as HTMLButtonElement).style.color = '#EF4444'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'; }}
+                className="absolute top-3 right-3 w-[26px] h-[26px] rounded-lg border border-gray-200 bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-all"
               >
                 ×
               </button>
 
               {/* Logo */}
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="w-14 h-14 rounded-[14px] border-[1.5px] border-gray-200 bg-slate-50 overflow-hidden flex items-center justify-center">
                 <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain" fallbackSize="text-[22px]" />
               </div>
 
               {/* Name + verified */}
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '17px', fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>{tool.name}</h2>
-                  {tool.is_verified && <ShieldCheck style={{ width: '14px', height: '14px', color: '#22C55E', flexShrink: 0 }} />}
+                <div className="flex items-center gap-1.5 mb-1">
+                  <h2 className="text-[17px] font-extrabold text-slate-900 tracking-tight">{tool.name}</h2>
+                  {tool.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
                 </div>
-                <p style={{ fontSize: '13px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>{tool.tagline}</p>
+                <p className="text-[13px] text-slate-500 leading-snug">{tool.tagline}</p>
               </div>
 
               {/* Rating */}
@@ -304,41 +298,38 @@ export default function Compare() {
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', background: i === 0 ? '#F59E0B' : '#F8FAFC', color: i === 0 ? '#0A0A0A' : '#374151', fontWeight: 700, fontSize: '13px', textDecoration: 'none', border: i === 0 ? 'none' : '1.5px solid #E2E8F0', boxShadow: i === 0 ? '0 4px 12px rgba(245,158,11,0.3)' : 'none', transition: 'all 0.15s', marginTop: 'auto' }}
-                onMouseEnter={e => { if (i !== 0) { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLAnchorElement).style.background = '#F1F5F9'; } }}
-                onMouseLeave={e => { if (i !== 0) { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLAnchorElement).style.background = '#F8FAFC'; } }}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] font-bold text-[13px] transition-all mt-auto ${
+                  i === 0
+                    ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/30 hover:bg-amber-400'
+                    : 'bg-slate-50 text-gray-700 border-[1.5px] border-gray-200 hover:border-gray-300 hover:bg-slate-100'
+                }`}
               >
-                Visit {tool.name} <ExternalLink style={{ width: '12px', height: '12px' }} />
+                Visit {tool.name} <ExternalLink className="w-3 h-3" />
               </a>
             </div>
           ))}
         </div>
 
         {/* ── Comparison table ── */}
-        {SECTION_ROWS.map((section, si) => (
+        {SECTION_ROWS.map((section) => (
           <div
             key={section.section}
-              
-            style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)', marginBottom: '20px' }}
+            className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-5"
           >
             {/* Section header */}
-            <div style={{ padding: '14px 24px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{section.section}</span>
+            <div className="px-6 py-3.5 bg-slate-50 border-b border-gray-200">
+              <span className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">{section.section}</span>
             </div>
 
             {/* Rows */}
             {section.rows.map((row, ri) => (
               <div
                 key={row.key}
-                style={{
-                  display: 'grid', gridTemplateColumns: gridCols, gap: '16px',
-                  padding: '14px 24px', alignItems: 'center',
-                  background: ri % 2 === 0 ? '#FFFFFF' : '#FAFAFA',
-                  borderBottom: ri < section.rows.length - 1 ? '1px solid #F1F5F9' : 'none',
-                }}
+                className={`grid gap-4 px-6 py-3.5 items-center ${ri % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${ri < section.rows.length - 1 ? 'border-b border-slate-100' : ''}`}
+                style={{ gridTemplateColumns: gridCols }}
               >
                 {/* Row label */}
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>{row.label}</div>
+                <div className="text-[13px] font-semibold text-slate-500">{row.label}</div>
 
                 {/* Tool values */}
                 {tools.map((tool, ti) => {
@@ -346,16 +337,12 @@ export default function Compare() {
                   return (
                     <div
                       key={tool.id}
-                      style={{
-                        display: 'flex', alignItems: 'center',
-                        padding: '6px 10px', borderRadius: '8px',
-                        background: winner ? '#F0FDF4' : 'transparent',
-                        border: winner ? '1px solid #BBF7D0' : '1px solid transparent',
-                        transition: 'all 0.15s',
-                      }}
+                      className={`flex items-center px-2.5 py-1.5 rounded-lg transition-all ${
+                        winner ? 'bg-green-50 border border-green-200' : 'border border-transparent'
+                      }`}
                     >
                       {getCellValue(tool, row.key, featureMaps[ti])}
-                      {winner && <span style={{ marginLeft: '6px', fontSize: '10px', fontWeight: 700, color: '#15803D', background: '#DCFCE7', padding: '1px 6px', borderRadius: '100px' }}>Best</span>}
+                      {winner && <span className="ml-1.5 text-[10px] font-bold text-green-700 bg-green-100 px-1.5 py-px rounded-full">Best</span>}
                     </div>
                   );
                 })}
@@ -365,19 +352,16 @@ export default function Compare() {
         ))}
 
         {/* ── Tags row ── */}
-        <div
-            
-          style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)', marginBottom: '20px' }}
-        >
-          <div style={{ padding: '14px 24px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tags</span>
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-5">
+          <div className="px-6 py-3.5 bg-slate-50 border-b border-gray-200">
+            <span className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Tags</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '16px', padding: '16px 24px', alignItems: 'start' }}>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>Keywords</div>
+          <div className="grid gap-4 px-6 py-4 items-start" style={{ gridTemplateColumns: gridCols }}>
+            <div className="text-[13px] font-semibold text-slate-500">Keywords</div>
             {tools.map(tool => (
-              <div key={tool.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <div key={tool.id} className="flex flex-wrap gap-1.5">
                 {tool.tags.slice(0, 6).map(tag => (
-                  <span key={tag} style={{ fontSize: '11px', fontWeight: 600, padding: '3px 9px', borderRadius: '7px', background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0' }}>#{tag}</span>
+                  <span key={tag} className="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-600 border border-gray-200">#{tag}</span>
                 ))}
               </div>
             ))}
@@ -385,59 +369,52 @@ export default function Compare() {
         </div>
 
         {/* ── Pricing comparison ── */}
-        <div
-            
-          style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(15,23,42,0.04)', marginBottom: '20px' }}
-        >
-          <div style={{ padding: '14px 24px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pricing</span>
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-5">
+          <div className="px-6 py-3.5 bg-slate-50 border-b border-gray-200">
+            <span className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Pricing</span>
           </div>
 
           {/* Tier rows */}
           {allTierNames.map((tierName, ri) => (
             <div
               key={tierName}
-              style={{
-                display: 'grid', gridTemplateColumns: gridCols, gap: '16px',
-                padding: '16px 24px', alignItems: 'start',
-                background: ri % 2 === 0 ? '#FFFFFF' : '#FAFAFA',
-                borderBottom: ri < allTierNames.length - 1 ? '1px solid #F1F5F9' : 'none',
-              }}
+              className={`grid gap-4 px-6 py-4 items-start ${ri % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${ri < allTierNames.length - 1 ? 'border-b border-slate-100' : ''}`}
+              style={{ gridTemplateColumns: gridCols }}
             >
               {/* Row label */}
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#374151', paddingTop: '4px' }}>{tierName}</div>
+              <div className="text-[13px] font-bold text-gray-700 pt-1">{tierName}</div>
 
               {/* Per-tool pricing cell */}
               {pricingExtras.map((extras, ti) => {
                 const tier = extras.pricing_tiers.find((t: { name: string }) => t.name === tierName);
                 if (!tier) {
                   return (
-                    <div key={tools[ti].id} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#CBD5E1' }}>
-                      <Minus style={{ width: '14px', height: '14px' }} />
-                      <span style={{ fontSize: '12px', color: '#CBD5E1' }}>Not available</span>
+                    <div key={tools[ti].id} className="flex items-center gap-1.5 text-slate-300">
+                      <Minus className="w-3.5 h-3.5" />
+                      <span className="text-xs text-slate-300">Not available</span>
                     </div>
                   );
                 }
                 return (
-                  <div key={tools[ti].id} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                      <span style={{ fontSize: '18px', fontWeight: 900, color: '#171717', letterSpacing: '-0.02em' }}>{tier.price}</span>
-                      {tier.period && <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>{tier.period}</span>}
+                  <div key={tools[ti].id} className="flex flex-col gap-1.5">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg font-black text-slate-900 tracking-tight">{tier.price}</span>
+                      {tier.period && <span className="text-[11px] text-slate-400 font-medium">{tier.period}</span>}
                       {tier.highlighted && (
-                        <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 7px', borderRadius: '100px', background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A', marginLeft: '4px' }}>Popular</span>
+                        <span className="text-[10px] font-bold px-1.5 py-px rounded-full bg-amber-50 text-amber-700 border border-amber-200 ml-1">Popular</span>
                       )}
                     </div>
-                    <p style={{ fontSize: '11px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>{tier.description}</p>
+                    <p className="text-[11px] text-slate-500 leading-snug">{tier.description}</p>
                     {tier.features && tier.features.length > 0 && (
-                      <ul style={{ margin: '4px 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      <ul className="mt-1 flex flex-col gap-0.5">
                         {tier.features.slice(0, 4).map((f: string, fi: number) => (
-                          <li key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: '5px', fontSize: '11px', color: '#374151' }}>
-                            <CheckCircle2 style={{ width: '11px', height: '11px', color: '#22C55E', flexShrink: 0, marginTop: '1px' }} />
+                          <li key={fi} className="flex items-start gap-1.5 text-[11px] text-gray-700">
+                            <CheckCircle2 className="w-[11px] h-[11px] text-green-500 flex-shrink-0 mt-px" />
                             {f}
                           </li>
                         ))}
                         {tier.features.length > 4 && (
-                          <li style={{ fontSize: '11px', color: '#94A3B8' }}>+{tier.features.length - 4} more features</li>
+                          <li className="text-[11px] text-slate-400">+{tier.features.length - 4} more features</li>
                         )}
                       </ul>
                     )}
@@ -448,29 +425,24 @@ export default function Compare() {
           ))}
 
           {/* Pricing disclaimer */}
-          <div style={{ padding: '12px 24px', background: '#F8FAFC', borderTop: '1px solid #F1F5F9' }}>
-            <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Pricing is indicative. Visit each product’s website for the latest plans and pricing.</p>
+          <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
+            <p className="text-[11px] text-slate-400">Pricing is indicative. Visit each product's website for the latest plans and pricing.</p>
           </div>
         </div>
 
         {/* ── Bottom CTA ── */}
-        <div
-            
-          style={{ background: '#171717', borderRadius: '16px', padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}
-        >
+        <div className="bg-slate-900 rounded-2xl px-8 py-7 flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <p style={{ fontSize: '16px', fontWeight: 800, color: '#F1F5F9', margin: '0 0 4px', fontFamily: "'Inter', sans-serif" }}>Ready to decide?</p>
-            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Visit each stack's page to read full reviews and make your choice.</p>
+            <p className="text-base font-extrabold text-slate-100 mb-1">Ready to decide?</p>
+            <p className="text-[13px] text-slate-500">Visit each stack's page to read full reviews and make your choice.</p>
           </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="flex gap-2.5 flex-wrap items-center">
             {/* Share button in CTA row */}
             <button
               onClick={handleShare}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', color: '#CBD5E1', fontWeight: 700, fontSize: '13px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(245,158,11,0.15)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(245,158,11,0.3)'; (e.currentTarget as HTMLButtonElement).style.color = '#F59E0B'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = '#CBD5E1'; }}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] bg-white/[0.08] text-slate-300 font-bold text-[13px] border border-white/10 hover:bg-amber-500/15 hover:border-amber-500/30 hover:text-amber-500 transition-all"
             >
-              <Share2 style={{ width: '13px', height: '13px' }} />
+              <Share2 className="w-3.5 h-3.5" />
               Share
             </button>
             {tools.map((tool, i) => (
@@ -479,9 +451,13 @@ export default function Compare() {
                 href={tool.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', background: i === 0 ? '#F59E0B' : 'rgba(255,255,255,0.08)', color: i === 0 ? '#0A0A0A' : '#CBD5E1', fontWeight: 700, fontSize: '13px', textDecoration: 'none', border: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.1)', transition: 'all 0.15s' }}
+                className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] font-bold text-[13px] transition-all ${
+                  i === 0
+                    ? 'bg-amber-500 text-slate-900 hover:bg-amber-400'
+                    : 'bg-white/[0.08] text-slate-300 border border-white/10 hover:bg-white/[0.12]'
+                }`}
               >
-                Visit {tool.name} <ExternalLink style={{ width: '12px', height: '12px' }} />
+                Visit {tool.name} <ExternalLink className="w-3 h-3" />
               </a>
             ))}
           </div>

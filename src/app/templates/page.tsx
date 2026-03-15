@@ -1,6 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 
 /*
@@ -1332,22 +1331,18 @@ export default function Templates() {
         size="md"
       >
         {/* Category pills inside hero */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
+        <div className="flex flex-wrap justify-center gap-2 mt-1">
           {CATEGORIES.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setSelectedCategory(id)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600,
-                cursor: 'pointer', transition: 'all 0.15s',
-                background: selectedCategory === id ? '#F59E0B' : '#fff',
-                color: selectedCategory === id ? '#fff' : '#374151',
-                border: selectedCategory === id ? '1px solid #F59E0B' : '1px solid #E5E7EB',
-                boxShadow: selectedCategory === id ? '0 2px 8px rgba(245,158,11,0.3)' : 'none',
-              }}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold cursor-pointer transition-all border ${
+                selectedCategory === id
+                  ? 'bg-amber-500 text-white border-amber-500 shadow-[0_2px_8px_rgba(245,158,11,0.3)]'
+                  : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+              }`}
             >
-              <Icon style={{ width: '13px', height: '13px' }} />
+              <Icon className="w-[13px] h-[13px]" />
               {label}
             </button>
           ))}

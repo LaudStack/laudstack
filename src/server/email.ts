@@ -762,3 +762,60 @@ export async function sendLaunchNotificationEmail(
     return false;
   }
 }
+
+
+// ─── Contact Form Notification ────────────────────────────────────────────────
+
+export async function sendContactFormEmail(data: {
+  name: string;
+  email: string;
+  topic: string;
+  message: string;
+}): Promise<boolean> {
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "hello@laudstack.com";
+  const topicLabels: Record<string, string> = {
+    general: "General Inquiry",
+    launch: "Launch / Update a Tool",
+    trust: "Report a Listing or Review",
+    partnership: "Partnership or Press",
+    support: "Account Support",
+  };
+  const topicLabel = topicLabels[data.topic] || data.topic;
+
+  try {
+    const resend = getResend();
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      replyTo: data.email,
+      subject: `[LaudStack Contact] ${topicLabel} — ${data.name}`,
+      html: emailShell(`
+        <div style="padding:32px 40px;">
+          <h1 style="font-size:20px;font-weight:800;color:#0F172A;margin:0 0 24px;">New Contact Form Submission</h1>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr>
+              <td style="padding:8px 0;font-size:13px;color:#64748B;font-weight:600;width:100px;vertical-align:top;">Name</td>
+              <td style="padding:8px 0;font-size:14px;color:#0F172A;font-weight:500;">${data.name}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;font-size:13px;color:#64748B;font-weight:600;vertical-align:top;">Email</td>
+              <td style="padding:8px 0;font-size:14px;color:#0F172A;font-weight:500;"><a href="mailto:${data.email}" style="color:#F59E0B;text-decoration:none;">${data.email}</a></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;font-size:13px;color:#64748B;font-weight:600;vertical-align:top;">Topic</td>
+              <td style="padding:8px 0;font-size:14px;color:#0F172A;font-weight:500;">${topicLabel}</td>
+            </tr>
+          </table>
+          <div style="margin-top:20px;padding:16px 20px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;">
+            <p style="font-size:13px;color:#64748B;font-weight:600;margin:0 0 8px;">Message</p>
+            <p style="font-size:14px;color:#0F172A;line-height:1.7;margin:0;white-space:pre-wrap;">${data.message}</p>
+          </div>
+        </div>
+      `),
+    });
+    return true;
+  } catch (err) {
+    console.error("[Contact Email Error]", err);
+    return false;
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+
 
 
 // LaudStack — Contact Page
@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { Mail, MessageSquare, Zap, Shield, Users, ChevronRight, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
@@ -52,14 +53,21 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  const contactMutation = trpc.contact.submit.useMutation({
+    onSuccess: () => {
+      setSubmitted(true);
+      toast.success('Message sent! We\'ll get back to you within 2 business days.');
+    },
+    onError: (err: any) => toast.error(err.message || 'Failed to send message. Please try again.'),
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) {
       toast.error('Please fill in all required fields.');
       return;
     }
-    setSubmitted(true);
-    toast.success('Message sent! We\'ll get back to you within 2 business days.');
+    contactMutation.mutate({ name, email, topic, message });
   };
 
   return (
@@ -157,10 +165,11 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors"
+                  disabled={contactMutation.isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors disabled:opacity-60"
                 >
-                  Send Message
-                  <ChevronRight className="w-4 h-4" />
+                  {contactMutation.isPending ? 'Sending...' : 'Send Message'}
+                  {!contactMutation.isPending && <ChevronRight className="w-4 h-4" />}
                 </button>
               </form>
             )}

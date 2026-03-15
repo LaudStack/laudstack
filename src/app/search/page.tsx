@@ -4,7 +4,7 @@
  * LaudStack SearchResults Page
  *
  * Design: "Warm Professional" — consistent with the rest of LaudStack
- * - Reads ?q= from URL via wouter's useSearch
+ * - Reads ?q= from URL
  * - Filters allTools by name, tagline, and tags (case-insensitive)
  * - Category filter pills + sort dropdown
  * - Polished empty state with suggestions
@@ -12,7 +12,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, X, ArrowRight, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -23,7 +23,7 @@ import { CATEGORY_META } from '@/lib/categories';
 
 const SORT_OPTIONS = [
   { value: 'relevance',      label: 'Most Relevant' },
-  { value: 'featured_first', label: '✦ Featured First' },
+  { value: 'featured_first', label: 'Featured First' },
   { value: 'rating',         label: 'Highest Rated' },
   { value: 'reviews',        label: 'Most Reviewed' },
   { value: 'newest',         label: 'Newest First' },
@@ -35,19 +35,34 @@ const SUGGESTED_SEARCHES = [
   'video editing', 'automation', 'CRM',
 ];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: (i: number = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.35, delay: i } }),
-};
-
 function highlight(text: string, query: string) {
   if (!query.trim()) return text;
   const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
   const parts = text.split(regex);
   return parts.map((part, i) =>
     regex.test(part)
-      ? <mark key={i} style={{ background: '#FEF3C7', color: '#92400E', borderRadius: '2px', padding: '0 1px' }}>{part}</mark>
+      ? <mark key={i} className="bg-amber-100 text-amber-800 rounded-sm px-px">{part}</mark>
       : part
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 animate-pulse">
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-12 h-12 rounded-xl bg-gray-200 flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-gray-200 rounded w-2/3" />
+          <div className="h-3 bg-gray-100 rounded w-full" />
+        </div>
+      </div>
+      <div className="h-3 bg-gray-100 rounded w-1/2 mb-3" />
+      <div className="flex gap-1.5">
+        <div className="h-5 bg-gray-100 rounded w-14" />
+        <div className="h-5 bg-gray-100 rounded w-14" />
+        <div className="h-5 bg-gray-100 rounded w-14" />
+      </div>
+    </div>
   );
 }
 
@@ -115,7 +130,7 @@ export default function SearchResults() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
 
       <PageHero
@@ -129,83 +144,72 @@ export default function SearchResults() {
         size="sm"
       >
         {/* Inline search bar */}
-        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.07)', border: '1.5px solid #E2E8F0', overflow: 'hidden', maxWidth: '680px' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#94A3B8' }} />
+        <div className="flex items-center bg-white rounded-xl shadow-md border-[1.5px] border-gray-200 overflow-hidden max-w-[680px]">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               placeholder="Search products by name, category, or tag..."
               autoFocus
-              style={{ width: '100%', paddingLeft: '46px', paddingRight: inputValue ? '40px' : '14px', height: '46px', fontSize: '14px', color: '#171717', background: 'transparent', border: 'none', outline: 'none' }}
+              className="w-full pl-11 pr-10 h-[46px] text-sm text-slate-900 bg-transparent border-none outline-none placeholder:text-slate-400"
             />
             {inputValue && (
-              <button onClick={clearSearch} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex', alignItems: 'center', padding: '4px' }}>
-                <X style={{ width: '14px', height: '14px' }} />
+              <button onClick={clearSearch} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
           <button
             onClick={handleSearch}
-            style={{ height: '46px', padding: '0 22px', fontWeight: 700, color: '#0A0A0A', fontSize: '13px', background: '#F59E0B', border: 'none', cursor: 'pointer', flexShrink: 0, transition: 'opacity 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            className="h-[46px] px-5 font-bold text-slate-900 text-[13px] bg-amber-500 hover:bg-amber-400 transition-colors flex-shrink-0"
           >Search</button>
         </div>
       </PageHero>
 
       {/* ── Filters bar ────────────────────────────────────────────────────── */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #F1F5F9', position: 'sticky', top: '72px', zIndex: 40 }}>
+      <div className="bg-white border-b border-slate-100 sticky top-[72px] z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto', padding: '12px 0', scrollbarWidth: 'none' }}>
+          <div className="flex items-center gap-2 overflow-x-auto py-3 scrollbar-none">
             {/* Category pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               {['All', ...CATEGORY_META.map(c => c.name)].map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCat(cat)}
-                  style={{
-                    padding: '5px 13px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
-                    border: '1px solid', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-                    background: selectedCat === cat ? '#171717' : '#fff',
-                    borderColor: selectedCat === cat ? '#171717' : '#E2E8F0',
-                    color: selectedCat === cat ? '#fff' : '#475569',
-                    boxShadow: selectedCat === cat ? '0 2px 8px rgba(15,23,42,0.15)' : 'none',
-                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border whitespace-nowrap transition-all ${
+                    selectedCat === cat
+                      ? 'bg-slate-900 border-slate-900 text-white shadow-md'
+                      : 'bg-white border-gray-200 text-slate-600 hover:border-gray-300'
+                  }`}
                 >{cat}</button>
               ))}
             </div>
 
             {/* Spacer */}
-            <div style={{ flex: 1 }} />
+            <div className="flex-1" />
 
             {/* Featured toggle */}
             <button
               onClick={() => setFeaturedOnly(f => !f)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                padding: '5px 12px', borderRadius: '8px', cursor: 'pointer',
-                fontSize: '12px', fontWeight: 700, transition: 'all 0.13s', fontFamily: 'inherit',
-                border: featuredOnly ? '1.5px solid #F59E0B' : '1px solid #E2E8F0',
-                background: featuredOnly ? '#FFF7ED' : '#fff',
-                color: featuredOnly ? '#B45309' : '#475569',
-                flexShrink: 0,
-              }}
-              onMouseEnter={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#FDE68A'; b.style.color = '#D97706'; b.style.background = '#FFFBEB'; } }}
-              onMouseLeave={e => { if (!featuredOnly) { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = '#E2E8F0'; b.style.color = '#475569'; b.style.background = '#fff'; } }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex-shrink-0 ${
+                featuredOnly
+                  ? 'border-[1.5px] border-amber-500 bg-orange-50 text-amber-700'
+                  : 'border border-gray-200 bg-white text-slate-600 hover:border-amber-200 hover:text-amber-600 hover:bg-amber-50'
+              }`}
             >
-              <Sparkles style={{ width: '11px', height: '11px' }} />
+              <Sparkles className="w-3 h-3" />
               Featured Only
             </button>
 
             {/* Sort */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              <SlidersHorizontal style={{ width: '14px', height: '14px', color: '#94A3B8' }} />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
-                style={{ fontSize: '13px', fontWeight: 600, color: '#475569', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '5px 10px', cursor: 'pointer', outline: 'none' }}
+                className="text-[13px] font-semibold text-slate-600 bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 cursor-pointer outline-none hover:border-gray-300 transition-colors"
               >
                 {SORT_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -219,111 +223,92 @@ export default function SearchResults() {
       {/* ── Results ────────────────────────────────────────────────────────── */}
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10 pb-16">
 
-        <>
-          {toolsLoading ? (
-            /* ── Loading state ──────────────────────────────────────── */
-            <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <div style={{ width: '48px', height: '48px', border: '3px solid #E2E8F0', borderTopColor: '#F59E0B', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }} />
-              <p style={{ fontSize: '15px', color: '#64748B', fontWeight: 500 }}>Loading products...</p>
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        {toolsLoading ? (
+          /* ── Loading skeleton ──────────────────────────────────── */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+          </div>
+
+        ) : !query ? (
+          /* ── No query: show suggestions ──────────────────────────────── */
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-[18px] bg-gradient-to-br from-amber-100 to-orange-200 flex items-center justify-center mx-auto mb-5">
+              <Search className="w-7 h-7 text-amber-600" />
+            </div>
+            <h2 className="text-[22px] font-extrabold text-slate-900 mb-2">Search LaudStack</h2>
+            <p className="text-[15px] text-slate-500 mb-7">Type a keyword above, or try one of these popular searches:</p>
+
+            <div className="flex flex-wrap gap-2.5 justify-center max-w-[560px] mx-auto">
+              {SUGGESTED_SEARCHES.map(term => (
+                <button
+                  key={term}
+                  onClick={() => handleSuggestion(term)}
+                  className="px-4 py-2 rounded-[10px] border border-gray-200 bg-white text-[13px] font-semibold text-slate-600 shadow-sm hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-all"
+                >{term}</button>
+              ))}
+            </div>
+          </div>
+
+        ) : results.length === 0 ? (
+          /* ── No results ──────────────────────────────────────────────── */
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-[18px] bg-slate-100 flex items-center justify-center mx-auto mb-5">
+              <Sparkles className="w-7 h-7 text-slate-400" />
+            </div>
+            <h2 className="text-[22px] font-extrabold text-slate-900 mb-2">No results for &ldquo;{query}&rdquo;</h2>
+            <p className="text-[15px] text-slate-500 mb-7">Try a different keyword, or browse by category below.</p>
+
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button
+                onClick={clearSearch}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-[10px] bg-slate-900 text-white text-[13px] font-bold hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" /> Clear search
+              </button>
+              <button
+                onClick={() => { setSelectedCat('All'); router.push('/'); }}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-[10px] bg-white text-slate-900 border border-gray-200 text-[13px] font-bold hover:border-amber-500 hover:text-amber-700 transition-all"
+              >
+                Browse all tools <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-          ) : !query ? (
-            /* ── No query: show suggestions ──────────────────────────────── */
-            <div key="empty-query"    >
-              <div style={{ textAlign: 'center', padding: '60px 0 40px' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'linear-gradient(135deg, #FEF3C7, #FED7AA)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                  <Search style={{ width: '28px', height: '28px', color: '#D97706' }} />
-                </div>
-                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#171717', margin: '0 0 8px', fontFamily: "'Inter', sans-serif" }}>Search LaudStack</h2>
-                <p style={{ fontSize: '15px', color: '#64748B', margin: '0 0 36px' }}>Find the best SaaS & AI stacks by name, category, or tag.</p>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', maxWidth: '560px', margin: '0 auto' }}>
-                  {SUGGESTED_SEARCHES.map(term => (
-                    <button
-                      key={term}
-                      onClick={() => handleSuggestion(term)}
-                      style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-                      onMouseEnter={e => { (e.currentTarget.style.borderColor = '#F59E0B'); (e.currentTarget.style.color = '#B45309'); (e.currentTarget.style.background = '#FFFBEB'); }}
-                      onMouseLeave={e => { (e.currentTarget.style.borderColor = '#E2E8F0'); (e.currentTarget.style.color = '#475569'); (e.currentTarget.style.background = '#fff'); }}
-                    >{term}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-          ) : results.length === 0 ? (
-            /* ── No results ──────────────────────────────────────────────── */
-            <div key="no-results"    >
-              <div style={{ textAlign: 'center', padding: '60px 0 40px' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                  <Sparkles style={{ width: '28px', height: '28px', color: '#94A3B8' }} />
-                </div>
-                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#171717', margin: '0 0 8px', fontFamily: "'Inter', sans-serif" }}>No results for "{query}"</h2>
-                <p style={{ fontSize: '15px', color: '#64748B', margin: '0 0 28px' }}>Try a different keyword, or browse by category below.</p>
-
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {/* Suggested searches */}
+            <div className="mt-10">
+              <p className="text-[13px] font-semibold text-slate-400 mb-3 uppercase tracking-wide">Try searching for</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {SUGGESTED_SEARCHES.map(term => (
                   <button
-                    onClick={clearSearch}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#171717', color: '#fff', border: 'none', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                  >
-                    <X style={{ width: '14px', height: '14px' }} /> Clear search
-                  </button>
-                  <button
-                    onClick={() => { setSelectedCat('All'); router.push('/'); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '10px', background: '#fff', color: '#171717', border: '1px solid #E2E8F0', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget.style.borderColor = '#F59E0B'); (e.currentTarget.style.color = '#B45309'); }}
-                    onMouseLeave={e => { (e.currentTarget.style.borderColor = '#E2E8F0'); (e.currentTarget.style.color = '#171717'); }}
-                  >
-                    Browse all tools <ArrowRight style={{ width: '14px', height: '14px' }} />
-                  </button>
-                </div>
-
-                {/* Suggested searches */}
-                <div style={{ marginTop: '40px' }}>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#94A3B8', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Try searching for</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-                    {SUGGESTED_SEARCHES.map(term => (
-                      <button
-                        key={term}
-                        onClick={() => handleSuggestion(term)}
-                        style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#fff', fontSize: '12px', fontWeight: 600, color: '#475569', cursor: 'pointer', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { (e.currentTarget.style.borderColor = '#F59E0B'); (e.currentTarget.style.color = '#B45309'); (e.currentTarget.style.background = '#FFFBEB'); }}
-                        onMouseLeave={e => { (e.currentTarget.style.borderColor = '#E2E8F0'); (e.currentTarget.style.color = '#475569'); (e.currentTarget.style.background = '#fff'); }}
-                      >{term}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          ) : (
-            /* ── Results grid ────────────────────────────────────────────── */
-            <div key={`results-${query}-${selectedCat}-${sortBy}`}    >
-              {/* Result count bar */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
-                  Showing <strong style={{ color: '#171717' }}>{results.length}</strong> product{results.length !== 1 ? 's' : ''}
-                  {selectedCat !== 'All' && <> in <strong style={{ color: '#171717' }}>{selectedCat}</strong></>}
-                </p>
-              </div>
-
-              {/* Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-                {results.map((tool, i) => (
-                  <div
-                    key={tool.id}
-                    
-                  >
-                    <ToolCard tool={tool} />
-                  </div>
+                    key={term}
+                    onClick={() => handleSuggestion(term)}
+                    className="px-3.5 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-slate-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-all"
+                  >{term}</button>
                 ))}
               </div>
             </div>
-          )}
-        </>
+          </div>
+
+        ) : (
+          /* ── Results grid ────────────────────────────────────────────── */
+          <div>
+            {/* Result count bar */}
+            <div className="flex items-center justify-between mb-5">
+              <p className="text-[13px] text-slate-500">
+                Showing <strong className="text-slate-900">{results.length}</strong> product{results.length !== 1 ? 's' : ''}
+                {selectedCat !== 'All' && <> in <strong className="text-slate-900">{selectedCat}</strong></>}
+              </p>
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {results.map((tool) => (
+                <div key={tool.id}>
+                  <ToolCard tool={tool} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <Footer />

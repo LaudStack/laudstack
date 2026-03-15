@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = 'force-dynamic';
 /*
  * LaudStack — User Dashboard / Panel
  * Design: Clean white sidebar layout, amber accents, data-rich profile view

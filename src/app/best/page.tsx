@@ -3,7 +3,6 @@ import { buildSEOMetadata } from "@/lib/seo-metadata";
 import { getAllBestToolsSlugs, getBestToolsData } from "@/app/actions/seo";
 import BestToolsIndexClient from "./index-client";
 
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildSEOMetadata({
   title: "Best AI & SaaS Tools Collections",

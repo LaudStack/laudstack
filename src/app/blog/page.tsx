@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+
 
 
 // Design: LaudStack dark-slate + amber accent. Blog index with featured hero and article grid.
@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import { Calendar, Clock, Tag, ArrowRight, User, BookOpen, TrendingUp, Lightbulb, Zap, Star } from 'lucide-react';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc/client';
 import { ARTICLES, CATEGORIES, formatDate } from '@/data/blogData';
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -24,6 +25,11 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
 
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [subEmail, setSubEmail] = useState('');
+  const subscribeMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess: () => { toast.success('Subscribed! Check your inbox.'); setSubEmail(''); },
+    onError: (err: any) => toast.error(err.message || 'Subscribe failed'),
+  });
 
   const filtered = activeCategory === 'All'
     ? ARTICLES
@@ -45,30 +51,26 @@ export default function Blog() {
         size="md"
       >
         {/* Article category quick-links */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0, minWidth: '180px' }}>
+        <div className="flex flex-col gap-1.5 shrink-0 min-w-[180px]">
           {CATEGORIES.filter(c => c !== 'All').map(cat => {
             const Icon = CATEGORY_ICONS[cat] || BookOpen;
             const count = ARTICLES.filter(a => a.category === cat).length;
+            const isActive = activeCategory === cat;
             return (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '7px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                  cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
-                  background: activeCategory === cat ? '#FFFBEB' : 'transparent',
-                  color: activeCategory === cat ? '#B45309' : '#374151',
-                  border: activeCategory === cat ? '1px solid #FDE68A' : '1px solid transparent',
-                }}
-                onMouseEnter={e => { if (activeCategory !== cat) { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.borderColor = '#E5E7EB'; } }}
-                onMouseLeave={e => { if (activeCategory !== cat) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; } }}
+                className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-[13px] font-semibold cursor-pointer transition-all text-left border ${
+                  isActive
+                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                    : 'bg-transparent text-slate-700 border-transparent hover:bg-slate-50 hover:border-slate-200'
+                }`}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                  <Icon style={{ width: '13px', height: '13px', opacity: 0.7 }} />
+                <span className="flex items-center gap-1.5">
+                  <Icon className="w-3.5 h-3.5 opacity-70" />
                   {cat}
                 </span>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', background: '#F3F4F6', padding: '1px 6px', borderRadius: '10px' }}>{count}</span>
+                <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-1.5 py-px rounded-full">{count}</span>
               </button>
             );
           })}
@@ -195,19 +197,26 @@ export default function Blog() {
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
             New tool reviews, comparison guides, and industry insights — delivered every Tuesday.
           </p>
-          <div className="flex items-center gap-3 max-w-sm mx-auto">
+          <form
+            onSubmit={(e) => { e.preventDefault(); const trimmed = subEmail.trim(); if (!trimmed) return; subscribeMutation.mutate({ email: trimmed, source: 'blog' }); }}
+            className="flex items-center gap-3 max-w-sm mx-auto"
+          >
             <input
               type="email"
+              value={subEmail}
+              onChange={e => setSubEmail(e.target.value)}
               placeholder="your@email.com"
               className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-gray-300 text-slate-900 text-sm placeholder-gray-400 focus:outline-none focus:border-amber-500"
+              required
             />
             <button
-              onClick={() => toast.success('Subscribed! Check your inbox.')}
-              className="px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-400 transition-colors whitespace-nowrap"
+              type="submit"
+              disabled={subscribeMutation.isPending}
+              className="px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-400 transition-colors whitespace-nowrap disabled:opacity-60"
             >
-              Subscribe
+              {subscribeMutation.isPending ? 'Subscribing...' : 'Subscribe'}
             </button>
-          </div>
+          </form>
         </div>
       </div>
 

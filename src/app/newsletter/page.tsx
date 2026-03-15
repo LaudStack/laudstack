@@ -1,6 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 
 // LaudStack — Newsletter Landing Page

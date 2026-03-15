@@ -1,8 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
-
 /*
  * LaudStack — FAQ
  *
@@ -19,6 +16,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -27,9 +25,9 @@ const FAQ_CATEGORIES = [
     id: 'general',
     label: 'General',
     icon: HelpCircle,
-    color: '#475569',
-    bg: '#F8FAFC',
-    border: '#E2E8F0',
+    twColor: 'text-slate-600',
+    twBg: 'bg-slate-50',
+    twBorder: 'border-slate-200',
     questions: [
       {
         q: 'What is LaudStack?',
@@ -57,9 +55,9 @@ const FAQ_CATEGORIES = [
     id: 'reviews',
     label: 'Reviews & Ratings',
     icon: Star,
-    color: '#D97706',
-    bg: '#FFFBEB',
-    border: '#FDE68A',
+    twColor: 'text-amber-600',
+    twBg: 'bg-amber-50',
+    twBorder: 'border-amber-200',
     questions: [
       {
         q: 'How does LaudStack verify reviews?',
@@ -91,9 +89,9 @@ const FAQ_CATEGORIES = [
     id: 'founders',
     label: 'For Founders',
     icon: Rocket,
-    color: '#D97706',
-    bg: '#FFFBEB',
-    border: '#FDE68A',
+    twColor: 'text-amber-600',
+    twBg: 'bg-amber-50',
+    twBorder: 'border-amber-200',
     questions: [
       {
         q: 'How do I launch my tool to LaudStack?',
@@ -125,9 +123,9 @@ const FAQ_CATEGORIES = [
     id: 'trust',
     label: 'Trust & Safety',
     icon: Shield,
-    color: '#15803D',
-    bg: '#F0FDF4',
-    border: '#BBF7D0',
+    twColor: 'text-emerald-700',
+    twBg: 'bg-emerald-50',
+    twBorder: 'border-emerald-200',
     questions: [
       {
         q: 'What is the LaudStack Trust Framework?',
@@ -151,9 +149,9 @@ const FAQ_CATEGORIES = [
     id: 'account',
     label: 'Account & Privacy',
     icon: Users,
-    color: '#1D4ED8',
-    bg: '#EFF6FF',
-    border: '#BFDBFE',
+    twColor: 'text-blue-700',
+    twBg: 'bg-blue-50',
+    twBorder: 'border-blue-200',
     questions: [
       {
         q: 'How do I create a LaudStack account?',
@@ -181,9 +179,9 @@ const FAQ_CATEGORIES = [
     id: 'billing',
     label: 'Billing & Plans',
     icon: CreditCard,
-    color: '#7E22CE',
-    bg: '#FAF5FF',
-    border: '#E9D5FF',
+    twColor: 'text-purple-700',
+    twBg: 'bg-purple-50',
+    twBorder: 'border-purple-200',
     questions: [
       {
         q: 'What plans does LaudStack offer?',
@@ -207,46 +205,34 @@ const FAQ_CATEGORIES = [
 
 // ─── Accordion item ───────────────────────────────────────────────────────────
 
-function AccordionItem({ q, a, isOpen, onToggle, accentColor }: {
+function AccordionItem({ q, a, isOpen, onToggle, twColor }: {
   q: string;
   a: string;
   isOpen: boolean;
   onToggle: () => void;
-  accentColor: string;
+  twColor: string;
 }) {
   return (
-    <div style={{
-      background: '#FFFFFF', border: `1.5px solid ${isOpen ? accentColor + '40' : '#E2E8F0'}`,
-      borderRadius: 12, overflow: 'hidden', transition: 'border-color 0.2s',
-      boxShadow: isOpen ? `0 4px 16px ${accentColor}12` : '0 1px 3px rgba(15,23,42,0.04)',
-    }}>
+    <div className={`bg-white border-[1.5px] rounded-xl overflow-hidden transition-colors ${
+      isOpen ? 'border-amber-200 shadow-md' : 'border-slate-200 shadow-sm'
+    }`}>
       <button
         onClick={onToggle}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          gap: 16, padding: '18px 22px', background: 'transparent', border: 'none',
-          cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
-        }}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 bg-transparent cursor-pointer text-left"
       >
-        <span style={{ fontSize: 15, fontWeight: 700, color: '#171717', lineHeight: 1.4, flex: 1 }}>{q}</span>
-        <div style={{
-          width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-          background: isOpen ? accentColor : '#F1F5F9',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'background 0.2s',
-        }}>
-          <ChevronDown style={{
-            width: 14, height: 14,
-            color: isOpen ? '#FFFFFF' : '#64748B',
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.25s',
-          }} />
+        <span className="text-[15px] font-bold text-slate-900 leading-snug flex-1">{q}</span>
+        <div className={`w-7 h-7 rounded-lg shrink-0 flex items-center justify-center transition-colors ${
+          isOpen ? 'bg-amber-500' : 'bg-slate-100'
+        }`}>
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
+            isOpen ? 'text-white rotate-180' : 'text-slate-500'
+          }`} />
         </div>
       </button>
       {isOpen && (
-        <div style={{ padding: '0 22px 20px' }}>
-          <div style={{ height: 1, background: '#F1F5F9', marginBottom: 16 }} />
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.75, margin: 0 }}>{a}</p>
+        <div className="px-5 pb-5">
+          <div className="h-px bg-slate-100 mb-4" />
+          <p className="text-sm text-slate-500 leading-7">{a}</p>
         </div>
       )}
     </div>
@@ -274,98 +260,85 @@ export default function FAQ() {
             item.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.a.toLowerCase().includes(searchQuery.toLowerCase())
           )
-          .map(item => ({ ...item, categoryLabel: cat.label, accentColor: cat.color }))
+          .map(item => ({ ...item, categoryLabel: cat.label, twColor: cat.twColor }))
       )
     : [];
 
   const totalQuestions = FAQ_CATEGORIES.reduce((s, c) => s + c.questions.length, 0);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
-      <div style={{ height: 72, flexShrink: 0 }} />
 
-      {/* ── Hero ── */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '56px 0 48px' }}>
-        <div className="max-w-[1300px] mx-auto px-6 lg:px-10" style={{ textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 14px', borderRadius: 100, background: '#EFF6FF', border: '1px solid #BFDBFE', marginBottom: 20 }}>
-            <HelpCircle style={{ width: 12, height: 12, color: '#1D4ED8' }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#1D4ED8', letterSpacing: '0.09em', textTransform: 'uppercase' }}>Help Centre</span>
-          </div>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 900, color: '#171717', letterSpacing: '-0.03em', margin: '0 0 14px', lineHeight: 1.1 }}>
-            Frequently Asked Questions
-          </h1>
-          <p style={{ fontSize: 17, color: '#64748B', maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.65 }}>
-            Everything you need to know about LaudStack — from how reviews work to launching your tool.
-          </p>
+      <PageHero
+        eyebrow="Help Centre"
+        title="Frequently Asked Questions"
+        subtitle="Everything you need to know about LaudStack — from how reviews work to launching your tool."
+        accent="amber"
+        layout="center"
+        size="md"
+      />
 
-          {/* Search */}
-          <div style={{ position: 'relative', maxWidth: 540, margin: '0 auto' }}>
-            <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#94A3B8' }} />
-            <input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder={`Search ${totalQuestions} questions...`}
-              style={{
-                width: '100%', paddingLeft: 48, paddingRight: 16, height: 52,
-                fontSize: 15, color: '#171717', background: '#FFFFFF',
-                border: '1.5px solid #E2E8F0', borderRadius: 14, outline: 'none',
-                boxShadow: '0 2px 8px rgba(15,23,42,0.06)', transition: 'border-color 0.15s',
-              }}
-              onFocus={e => (e.target.style.borderColor = '#F59E0B')}
-              onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
-            />
-          </div>
-
-          {/* Quick stats */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginTop: 28, flexWrap: 'wrap' }}>
-            {[
-              { icon: BookOpen, text: `${totalQuestions} questions answered` },
-              { icon: Zap, text: '6 topic categories' },
-              { icon: CheckCircle2, text: 'Updated weekly' },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#64748B', fontWeight: 600 }}>
-                <Icon style={{ width: 14, height: 14, color: '#F59E0B' }} />
-                {text}
-              </div>
-            ))}
-          </div>
+      {/* Search bar */}
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-10 -mt-6 mb-4 relative z-10">
+        <div className="relative max-w-xl mx-auto">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder={`Search ${totalQuestions} questions...`}
+            className="w-full pl-12 pr-4 h-13 text-[15px] text-slate-900 bg-white border-[1.5px] border-slate-200 rounded-2xl outline-none shadow-md focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+          />
         </div>
-      </section>
+
+        {/* Quick stats */}
+        <div className="flex items-center justify-center gap-6 mt-5 flex-wrap">
+          {[
+            { icon: BookOpen, text: `${totalQuestions} questions answered` },
+            { icon: Zap, text: '6 topic categories' },
+            { icon: CheckCircle2, text: 'Updated weekly' },
+          ].map(({ icon: Icon, text }) => (
+            <div key={text} className="flex items-center gap-2 text-sm text-slate-500 font-semibold">
+              <Icon className="w-3.5 h-3.5 text-amber-500" />
+              {text}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── Search results ── */}
       {searchQuery.trim() && (
-        <section style={{ padding: '40px 0', flex: 1 }}>
-          <div className="max-w-[1300px] mx-auto px-6 lg:px-10">
-            <p style={{ fontSize: 13, color: '#64748B', fontWeight: 600, marginBottom: 20 }}>
+        <section className="py-10 flex-1">
+          <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10">
+            <p className="text-sm text-slate-500 font-semibold mb-5">
               {searchResults.length === 0
                 ? `No results for "${searchQuery}"`
                 : `${searchResults.length} result${searchResults.length !== 1 ? 's' : ''} for "${searchQuery}"`}
             </p>
             {searchResults.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div className="flex flex-col gap-2.5">
                 {searchResults.map((item, i) => (
                   <div key={i}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>
+                    <p className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
                       {item.categoryLabel}
                     </p>
                     <AccordionItem
                       q={item.q} a={item.a}
                       isOpen={!!openItems[`search-${i}`]}
                       onToggle={() => toggleItem(`search-${i}`)}
-                      accentColor={item.accentColor}
+                      twColor={item.twColor}
                     />
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '48px 0', color: '#94A3B8' }}>
-                <HelpCircle style={{ width: 48, height: 48, margin: '0 auto 16px', opacity: 0.3 }} />
-                <p style={{ fontSize: 15, fontWeight: 600 }}>No questions match your search.</p>
-                <p style={{ fontSize: 13, marginTop: 8 }}>Try a different term or browse the categories below.</p>
+              <div className="text-center py-12 text-slate-400">
+                <HelpCircle className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p className="text-[15px] font-semibold">No questions match your search.</p>
+                <p className="text-sm mt-2">Try a different term or browse the categories below.</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  style={{ marginTop: 16, fontSize: 13, fontWeight: 700, color: '#F59E0B', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}
+                  className="mt-4 text-sm font-bold text-amber-600 hover:text-amber-500 underline underline-offset-2 bg-transparent border-none cursor-pointer"
                 >
                   Clear search
                 </button>
@@ -377,17 +350,17 @@ export default function FAQ() {
 
       {/* ── Category tabs + accordion ── */}
       {!searchQuery.trim() && (
-        <main style={{ flex: 1, padding: '40px 0 64px' }}>
-          <div className="max-w-[1300px] mx-auto px-6 lg:px-10">
-            <div className="grid grid-cols-1 lg:grid-cols-4" style={{ gap: 32 }}>
+        <main className="flex-1 py-10 pb-16">
+          <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
               {/* Sidebar nav */}
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  <p className="text-[11px] font-bold text-slate-400 tracking-widest uppercase mb-3">
                     Topics
                   </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div className="flex flex-col gap-1">
                     {FAQ_CATEGORIES.map(cat => {
                       const Icon = cat.icon;
                       const isActive = cat.id === activeCategory;
@@ -395,21 +368,15 @@ export default function FAQ() {
                         <button
                           key={cat.id}
                           onClick={() => setActiveCategory(cat.id)}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-                            fontSize: 13, fontWeight: 700, textAlign: 'left',
-                            border: isActive ? `1.5px solid ${cat.border}` : '1.5px solid transparent',
-                            background: isActive ? cat.bg : 'transparent',
-                            color: isActive ? cat.color : '#475569',
-                            transition: 'all 0.15s', fontFamily: 'inherit',
-                          }}
-                          onMouseEnter={e => { if (!isActive) { const b = e.currentTarget as HTMLButtonElement; b.style.background = '#F8FAFC'; b.style.color = '#171717'; } }}
-                          onMouseLeave={e => { if (!isActive) { const b = e.currentTarget as HTMLButtonElement; b.style.background = 'transparent'; b.style.color = '#475569'; } }}
+                          className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg cursor-pointer text-sm font-bold text-left transition-all border-[1.5px] ${
+                            isActive
+                              ? `${cat.twBg} ${cat.twBorder} ${cat.twColor}`
+                              : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                          }`}
                         >
-                          <Icon style={{ width: 15, height: 15, flexShrink: 0 }} />
-                          <span style={{ flex: 1 }}>{cat.label}</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: isActive ? cat.color : '#94A3B8' }}>
+                          <Icon className="w-4 h-4 shrink-0" />
+                          <span className="flex-1">{cat.label}</span>
+                          <span className={`text-[11px] font-bold ${isActive ? cat.twColor : 'text-slate-400'}`}>
                             {cat.questions.length}
                           </span>
                         </button>
@@ -418,17 +385,14 @@ export default function FAQ() {
                   </div>
 
                   {/* Still need help? */}
-                  <div style={{ marginTop: 28, padding: '18px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12 }}>
-                    <p style={{ fontSize: 13, fontWeight: 800, color: '#171717', margin: '0 0 6px' }}>Still have questions?</p>
-                    <p style={{ fontSize: 12, color: '#78350F', margin: '0 0 14px', lineHeight: 1.5 }}>Our support team typically responds within 4 hours.</p>
+                  <div className="mt-7 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <p className="text-sm font-extrabold text-slate-900 mb-1.5">Still have questions?</p>
+                    <p className="text-xs text-amber-900 mb-3.5 leading-relaxed">Our support team typically responds within 4 hours.</p>
                     <a
                       href="/contact"
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        fontSize: 12, fontWeight: 700, color: '#D97706', textDecoration: 'none',
-                      }}
+                      className="flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-500 no-underline"
                     >
-                      <Mail style={{ width: 13, height: 13 }} /> Contact Support <ArrowRight style={{ width: 11, height: 11 }} />
+                      <Mail className="w-3.5 h-3.5" /> Contact Support <ArrowRight className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
@@ -436,17 +400,17 @@ export default function FAQ() {
 
               {/* Accordion */}
               <div className="lg:col-span-3">
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 100, background: activeData.bg, border: `1px solid ${activeData.border}`, marginBottom: 12 }}>
-                    <activeData.icon style={{ width: 12, height: 12, color: activeData.color }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: activeData.color, letterSpacing: '0.09em', textTransform: 'uppercase' }}>{activeData.label}</span>
+                <div className="mb-6">
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full ${activeData.twBg} border ${activeData.twBorder} mb-3`}>
+                    <activeData.icon className={`w-3 h-3 ${activeData.twColor}`} />
+                    <span className={`text-[11px] font-bold ${activeData.twColor} tracking-wider uppercase`}>{activeData.label}</span>
                   </div>
-                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: 22, fontWeight: 800, color: '#171717', margin: 0, letterSpacing: '-0.02em' }}>
+                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
                     {activeData.questions.length} questions in this section
                   </h2>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div className="flex flex-col gap-2.5">
                   {activeData.questions.map((item, i) => {
                     const key = `${activeCategory}-${i}`;
                     return (
@@ -455,7 +419,7 @@ export default function FAQ() {
                         q={item.q} a={item.a}
                         isOpen={!!openItems[key]}
                         onToggle={() => toggleItem(key)}
-                        accentColor={activeData.color}
+                        twColor={activeData.twColor}
                       />
                     );
                   })}
@@ -467,45 +431,46 @@ export default function FAQ() {
       )}
 
       {/* ── Bottom CTA ── */}
-      <section style={{ background: '#FFFFFF', borderTop: '1px solid #E2E8F0', padding: '56px 0' }}>
-        <div className="max-w-[1300px] mx-auto px-6 lg:px-10">
-          <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: 20 }}>
+      <section className="bg-white border-t border-slate-200 py-14">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
                 icon: Mail, title: 'Contact Support', desc: 'Get personalised help from our team within 4 hours.',
-                cta: 'Send a Message', href: '/contact', color: '#1D4ED8', bg: '#EFF6FF', border: '#BFDBFE',
+                cta: 'Send a Message', href: '/contact',
+                cls: 'bg-blue-50 border-blue-200 hover:shadow-blue-200/40',
+                iconCls: 'text-blue-600 bg-white border-blue-200',
+                ctaCls: 'text-blue-600',
               },
               {
                 icon: BookOpen, title: 'Trust Framework', desc: 'Understand exactly how our reviews and rankings work.',
-                cta: 'Read the Framework', href: '/trust', color: '#15803D', bg: '#F0FDF4', border: '#BBF7D0',
+                cta: 'Read the Framework', href: '/trust',
+                cls: 'bg-emerald-50 border-emerald-200 hover:shadow-emerald-200/40',
+                iconCls: 'text-emerald-600 bg-white border-emerald-200',
+                ctaCls: 'text-emerald-600',
               },
               {
                 icon: Rocket, title: 'Launch Your Tool', desc: 'Founders can launch their tool for free via LaunchPad.',
-                cta: 'Go to LaunchPad', href: '/launchpad', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A',
+                cta: 'Go to LaunchPad', href: '/launchpad',
+                cls: 'bg-amber-50 border-amber-200 hover:shadow-amber-200/40',
+                iconCls: 'text-amber-600 bg-white border-amber-200',
+                ctaCls: 'text-amber-600',
               },
-            ].map(({ icon: Icon, title, desc, cta, href, color, bg, border }) => (
+            ].map(({ icon: Icon, title, desc, cta, href, cls, iconCls, ctaCls }) => (
               <a
                 key={title}
                 href={href}
-                style={{
-                  display: 'flex', flexDirection: 'column', gap: 12,
-                  padding: '24px', borderRadius: 16, border: `1.5px solid ${border}`,
-                  background: bg, textDecoration: 'none',
-                  transition: 'box-shadow 0.18s, transform 0.18s',
-                  boxShadow: `0 1px 4px ${color}12`,
-                }}
-                onMouseEnter={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.boxShadow = `0 8px 24px ${color}22`; a.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.boxShadow = `0 1px 4px ${color}12`; a.style.transform = 'translateY(0)'; }}
+                className={`flex flex-col gap-3 p-6 rounded-2xl border-[1.5px] no-underline transition-all duration-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 ${cls}`}
               >
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFFFFF', border: `1px solid ${border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon style={{ width: 20, height: 20, color }} />
+                <div className={`w-11 h-11 rounded-xl border flex items-center justify-center ${iconCls}`}>
+                  <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <p style={{ fontSize: 15, fontWeight: 800, color: '#171717', margin: '0 0 5px' }}>{title}</p>
-                  <p style={{ fontSize: 13, color: '#64748B', margin: 0, lineHeight: 1.55 }}>{desc}</p>
+                  <p className="text-[15px] font-extrabold text-slate-900 mb-1">{title}</p>
+                  <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 700, color, marginTop: 'auto' }}>
-                  {cta} <ArrowRight style={{ width: 12, height: 12 }} />
+                <div className={`flex items-center gap-1.5 text-sm font-bold mt-auto ${ctaCls}`}>
+                  {cta} <ArrowRight className="w-3 h-3" />
                 </div>
               </a>
             ))}

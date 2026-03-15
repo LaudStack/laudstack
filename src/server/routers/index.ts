@@ -11,7 +11,7 @@ import {
   getUserBySupabaseId,
   upsertUser,
 } from "../db";
-import { sendWelcomeEmail } from "../email";
+import { sendWelcomeEmail, sendContactFormEmail } from "../email";
 import { searchTools as typesenseSearch } from "../search";
 
 // ─── Newsletter router ────────────────────────────────────────────────────────
@@ -149,12 +149,34 @@ const authRouter = router({
     }),
 });
 
+// ─── Contact router ──────────────────────────────────────────────────────────
+
+const contactRouter = router({
+  submit: publicProcedure
+    .input(
+      z.object({
+        name: z.string().min(1, "Name is required").max(200),
+        email: z.string().email("Please enter a valid email"),
+        topic: z.string().max(40).default("general"),
+        message: z.string().min(1, "Message is required").max(5000),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const sent = await sendContactFormEmail(input);
+      if (!sent) {
+        throw new Error("Failed to send message. Please try again later.");
+      }
+      return { success: true };
+    }),
+});
+
 // ─── App router ───────────────────────────────────────────────────────────────
 
 export const appRouter = router({
   newsletter: newsletterRouter,
   tools: toolsRouter,
   auth: authRouter,
+  contact: contactRouter,
 });
 
 export type AppRouter = typeof appRouter;
