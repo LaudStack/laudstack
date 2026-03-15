@@ -446,9 +446,12 @@ export default function ToolDetail() {
     const result = await markReviewHelpful(parseInt(reviewId, 10));
     if (!result.success) {
       setHelpfulMap(m => ({ ...m, [reviewId]: false }));
-      toast.error('Failed to mark as helpful');
+      toast.error(result.error || 'Failed to mark as helpful');
     }
   };
+
+  // Check if the current user already has a review on this tool
+  const userHasReview = dbUser ? reviews.some(r => r.user_id === String(dbUser.id)) : false;
 
   const startEditReview = (review: Review) => {
     setEditingReview(review.id);
@@ -463,6 +466,10 @@ export default function ToolDetail() {
   const handleSaveEdit = async (reviewId: string) => {
     if (!editTitle.trim() || !editBody.trim()) {
       toast.error('Title and review body are required');
+      return;
+    }
+    if (editBody.trim().length < 30) {
+      toast.error('Review body must be at least 30 characters');
       return;
     }
     setSavingEdit(true);
@@ -910,12 +917,14 @@ export default function ToolDetail() {
                 <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
                   <div className="flex items-center justify-between gap-3 mb-6 sm:mb-7 flex-wrap">
                     <h2 className="text-base sm:text-lg font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em' }}>Ratings &amp; Reviews</h2>
-                    <button onClick={handleWriteReview}
-                      className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-[13px] border-none cursor-pointer transition-all hover:shadow-md whitespace-nowrap"
-                      style={{ boxShadow: '0 3px 10px rgba(245,158,11,0.25)' }}>
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
-                    </button>
+                    {!userHasReview && (
+                      <button onClick={handleWriteReview}
+                        className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-[13px] border-none cursor-pointer transition-all hover:shadow-md whitespace-nowrap"
+                        style={{ boxShadow: '0 3px 10px rgba(245,158,11,0.25)' }}>
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
+                      </button>
+                    )}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 items-center mb-7 sm:mb-8 p-5 sm:p-6 bg-slate-50 rounded-xl border border-slate-100">
                     <div className="text-center shrink-0">
@@ -1121,12 +1130,14 @@ export default function ToolDetail() {
                         <p className="text-sm font-bold text-gray-900 mb-0.5">Have experience with {tool.name}?</p>
                         <p className="text-[13px] text-slate-500 m-0">Share your honest review and help others make informed decisions.</p>
                       </div>
-                      <button onClick={handleWriteReview}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-[13px] border-none cursor-pointer transition-all hover:shadow-md whitespace-nowrap shrink-0"
-                        style={{ boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}>
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
-                      </button>
+                      {!userHasReview && (
+                        <button onClick={handleWriteReview}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-400 text-gray-900 font-bold text-[13px] border-none cursor-pointer transition-all hover:shadow-md whitespace-nowrap shrink-0"
+                          style={{ boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}>
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          {isAuthenticated ? 'Write a Review' : 'Sign In to Review'}
+                        </button>
+                      )}
                     </div>
                   )}
                 </section>

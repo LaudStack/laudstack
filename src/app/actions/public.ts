@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/server/db";
-import { tools, reviews, users, upvotes, savedTools, deals, reviewRateLimits } from "@/drizzle/schema";
+import { tools, reviews, users, upvotes, savedTools, deals, reviewRateLimits, reviewHelpfulVotes } from "@/drizzle/schema";
 import { eq, desc, asc, and, or, ilike, sql, count, avg, ne, gte } from "drizzle-orm";
 import { recalcAndPersistToolScore } from "@/lib/ranking";
 import { createClient } from "@/lib/supabase/server";
@@ -93,7 +93,11 @@ export async function getToolsListing(opts: {
 
 export async function getToolDetail(slug: string) {
   const tool = await db.query.tools.findFirst({
-    where: eq(tools.slug, slug),
+    where: and(
+      eq(tools.slug, slug),
+      eq(tools.status, "approved"),
+      eq(tools.isVisible, true),
+    ),
   });
 
   if (!tool) return null;
@@ -134,6 +138,7 @@ export async function getToolDetail(slug: string) {
   const relatedTools = await db.select().from(tools)
     .where(and(
       eq(tools.status, "approved"),
+      eq(tools.isVisible, true),
       eq(tools.category, tool.category),
       ne(tools.id, tool.id)
     ))
@@ -424,9 +429,13 @@ export async function submitReview(data: {
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Please sign in to submit a review" };
 
-  // 1. Duplicate protection: one review per user per stack
+  // 1. Duplicate protection: one review per user per stack (exclude admin-removed reviews)
   const existing = await db.query.reviews.findFirst({
-    where: and(eq(reviews.toolId, data.toolId), eq(reviews.userId, user.id)),
+    where: and(
+      eq(reviews.toolId, data.toolId),
+      eq(reviews.userId, user.id),
+      ne(reviews.status, "removed"),
+    ),
   });
   if (existing) return { success: false, error: "You have already reviewed this stack. You can edit your existing review instead." };
 
@@ -741,15 +750,45 @@ export async function getAllPublishedReviews(opts?: { limit?: number; offset?: n
   };
 }
 
-// ─── Mark Review Helpful (persisted) ────────────────────────────────────────
+// ─── Mark Review Helpful (auth + duplicate prevention) ──────────────────────
 export async function markReviewHelpful(reviewId: number) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "Please sign in to mark reviews as helpful" };
+
+    // Verify review exists and is published
+    const review = await db.query.reviews.findFirst({
+      where: and(eq(reviews.id, reviewId), eq(reviews.status, "published")),
+    });
+    if (!review) return { success: false, error: "Review not found" };
+
+    // Prevent self-voting
+    if (review.userId === user.id) return { success: false, error: "You cannot mark your own review as helpful" };
+
+    // Check for duplicate vote
+    const existingVote = await db.query.reviewHelpfulVotes.findFirst({
+      where: and(
+        eq(reviewHelpfulVotes.reviewId, reviewId),
+        eq(reviewHelpfulVotes.userId, user.id),
+      ),
+    });
+    if (existingVote) return { success: false, error: "You have already marked this review as helpful" };
+
+    // Record vote and increment count
+    await db.insert(reviewHelpfulVotes).values({
+      reviewId,
+      userId: user.id,
+    });
     await db
       .update(reviews)
       .set({ helpfulCount: sql`${reviews.helpfulCount} + 1` })
       .where(eq(reviews.id, reviewId));
     return { success: true };
-  } catch {
+  } catch (err: unknown) {
+    // Handle unique constraint violation (race condition)
+    if (err instanceof Error && err.message?.includes("unique")) {
+      return { success: false, error: "You have already marked this review as helpful" };
+    }
     return { success: false, error: "Failed to mark review as helpful" };
   }
 }

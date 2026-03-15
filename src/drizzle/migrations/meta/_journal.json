@@ -57,6 +57,13 @@
       "when": 1773550123927,
       "tag": "0007_flowery_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1773559728756,
+      "tag": "0008_square_george_stacy",
+      "breakpoints": true
     }
   ]
 }

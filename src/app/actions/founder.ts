@@ -29,7 +29,7 @@ export async function getFounderTools() {
     const founderTools = await db
       .select()
       .from(tools)
-      .where(eq(tools.submittedBy, user.id))
+      .where(or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id)))
       .orderBy(desc(tools.createdAt));
     return { success: true, tools: founderTools };
   } catch (e: unknown) {
@@ -46,7 +46,7 @@ export async function getFounderReviews() {
     const founderTools = await db
       .select({ id: tools.id, name: tools.name, slug: tools.slug, logoUrl: tools.logoUrl })
       .from(tools)
-      .where(eq(tools.submittedBy, user.id));
+      .where(or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id)));
 
     if (founderTools.length === 0) {
       return { success: true, reviews: [] };
@@ -114,7 +114,7 @@ export async function replyToReview(reviewId: number, reply: string) {
     if (!review) return { success: false, error: "Review not found" };
 
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, review.toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, review.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "You can only reply to reviews on your own tools" };
 
@@ -145,7 +145,7 @@ export async function deleteReviewReply(reviewId: number) {
     if (!review) return { success: false, error: "Review not found" };
 
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, review.toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, review.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "Unauthorized" };
 
@@ -179,7 +179,7 @@ export async function flagReview(reviewId: number, reason: string) {
 
     // Verify the review belongs to one of the founder's tools
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, review.toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, review.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "You can only flag reviews on your own stacks" };
 
@@ -209,7 +209,7 @@ export async function getFounderDeals() {
     const founderTools = await db
       .select({ id: tools.id, name: tools.name, slug: tools.slug, logoUrl: tools.logoUrl })
       .from(tools)
-      .where(eq(tools.submittedBy, user.id));
+      .where(or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id)));
 
     if (founderTools.length === 0) {
       return { success: true, deals: [], tools: [] };
@@ -255,7 +255,7 @@ export async function createFounderDeal(data: {
 
     // Verify the product belongs to this founder
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, data.toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, data.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "Tool not found or not owned by you" };
 
@@ -294,7 +294,7 @@ export async function toggleFounderDeal(dealId: number) {
 
     // Verify the deal's tool belongs to this founder
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, deal.toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, deal.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "Unauthorized" };
 
@@ -324,7 +324,7 @@ export async function deleteFounderDeal(dealId: number) {
     if (!deal) return { success: false, error: "Deal not found" };
 
     const tool = await db.query.tools.findFirst({
-      where: and(eq(tools.id, deal.toolId), eq(tools.submittedBy, user.id)),
+      where: and(eq(tools.id, deal.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),
     });
     if (!tool) return { success: false, error: "Unauthorized" };
 
@@ -345,7 +345,7 @@ export async function getFounderAnalytics() {
     const founderTools = await db
       .select()
       .from(tools)
-      .where(eq(tools.submittedBy, user.id));
+      .where(or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id)));
 
     if (founderTools.length === 0) {
       return {

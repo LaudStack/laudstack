@@ -150,7 +150,7 @@ function ReviewCard({ review }: { review: any }) {
     if (!result.success) {
       setVoted(false);
       setHelpful((h: number) => h - 1);
-      toast.error('Failed to mark as helpful');
+      toast.error(result.error || 'Failed to mark as helpful');
     }
   };
 

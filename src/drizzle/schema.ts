@@ -521,3 +521,19 @@ export const comments = pgTable("comments", {
 
 export type Comment = typeof comments.$inferSelect;
 export type InsertComment = typeof comments.$inferInsert;
+
+// ─── Review Helpful Votes ───────────────────────────────────────────────────
+// Tracks which users have voted a review as helpful — one vote per user per review.
+export const reviewHelpfulVotes = pgTable("review_helpful_votes", {
+  id: serial("id").primaryKey(),
+  reviewId: integer("review_id")
+    .notNull()
+    .references(() => reviews.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("review_helpful_votes_unique").on(table.reviewId, table.userId),
+  index("review_helpful_votes_review_idx").on(table.reviewId),
+]);
