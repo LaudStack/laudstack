@@ -18,7 +18,7 @@ import {
   TrendingUp, Users, Shield, Layers, ArrowRight,
   User, Settings, FileText, LogOut, PenSquare, Bookmark,
   Tag, Package, DollarSign, Crown, Bell, ChevronRight, Archive,
-  Clock, Calendar, Flame, Heart, Award, FolderOpen, Sparkles
+  Clock, Calendar, Flame, Heart, Award, FolderOpen, Sparkles, Compass
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useToolsData } from '@/hooks/useToolsData';
@@ -46,6 +46,7 @@ const NAV_ITEMS = [
       { icon: BarChart3,  label: 'Comparisons',        desc: 'Stack vs stack side-by-side',   href: '/comparisons' },
       { icon: Layers,     label: 'Alternatives',       desc: 'Find alternatives to any stack',  href: '/alternatives' },
       { icon: Sparkles,   label: 'Spotlight Picks',    desc: 'Editor-curated top stacks',         href: '/editors-picks' },
+      { icon: Compass,    label: 'Stack Finder',        desc: 'Find your perfect stack',             href: '/stack-finder' },
     ],
   },
   {
