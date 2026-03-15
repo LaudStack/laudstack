@@ -772,4 +772,13 @@
 - [x] N4: Add server-side rate limiting to newsletter.subscribe tRPC endpoint
 - [x] N5: Add input sanitization/trimming for firstName field in subscribe procedure
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit 1fc73f6)
+
+## Launching & Claiming System Audit (March 2026)
+- [x] L1: Fix reviewSubmission to set claimedBy and isVerified when approving a founder's submission
+- [x] L2: Fix UpcomingCard notify for submission-based items — pass submissionId instead of null toolId
+- [x] L3: Add "Launch Now" toggle to the launch form (launch immediately vs schedule future date)
+- [x] L4: Fix slug collision risk in reviewSubmission — append numeric suffix if slug already exists
+- [x] L5: Fix launchedAt for scheduled launches — use scheduledLaunchAt as launchedAt, cron preserves it
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub

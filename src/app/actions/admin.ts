@@ -282,10 +282,19 @@ export async function reviewSubmission(
 
       if (!existingTool) {
         // Create the tool from the submission
-        const slug = submission.name
+        let slug = submission.name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "");
+
+        // L4: Prevent slug collisions by appending a numeric suffix if needed
+        const [slugConflict] = await db.select({ id: tools.id })
+          .from(tools)
+          .where(eq(tools.slug, slug))
+          .limit(1);
+        if (slugConflict) {
+          slug = `${slug}-${Date.now().toString(36)}`;
+        }
 
         const now = new Date();
         const hasScheduledLaunch = submission.launchDate && new Date(submission.launchDate) > now;
@@ -301,11 +310,17 @@ export async function reviewSubmission(
           pricingModel: (submission.pricingModel as any) ?? "Freemium",
           tags: submission.tags ? JSON.parse(submission.tags) : [],
           submittedBy: submission.userId,
+          // L1: Auto-assign ownership and verification to the submitting founder
+          claimedBy: submission.userId,
+          claimedAt: now,
+          isVerified: true,
           status: "approved",
-          isVisible: true,
+          isVisible: hasScheduledLaunch ? false : true,
           // If founder set a future launch date, put it on the upcoming page
           scheduledLaunchAt: hasScheduledLaunch ? new Date(submission.launchDate!) : null,
-          launchedAt: hasScheduledLaunch ? now : now, // Will be updated by cron when it transitions
+          // L5: For scheduled launches, set launchedAt to the scheduled time (cron will clear scheduledLaunchAt)
+          // For immediate launches, set launchedAt to now
+          launchedAt: hasScheduledLaunch ? new Date(submission.launchDate!) : now,
           createdAt: now,
           updatedAt: now,
         });

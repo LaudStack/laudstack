@@ -103,6 +103,8 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
 
   const isLive = countdown.expired;
   const toolIdNum = item.id.startsWith('tool-') ? Number(item.id.replace('tool-', '')) : null;
+  // L2: Extract submissionId for submission-based upcoming items
+  const submissionIdNum = item.id.startsWith('sub-') ? Number(item.id.replace('sub-', '')) : null;
 
   const handleNotify = async () => {
     if (!showEmailInput) {
@@ -120,7 +122,7 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: notifyEmail,
-          toolId: toolIdNum,
+          ...(toolIdNum ? { toolId: toolIdNum } : { submissionId: submissionIdNum }),
         }),
       });
       const data = await res.json();

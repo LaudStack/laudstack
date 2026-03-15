@@ -323,7 +323,7 @@ function PageSkeleton() {
 
 export default function UpcomingLaunches() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [upcoming, setUpcoming] = useState<UpcomingTool[]>([]);
   const [recent, setRecent] = useState<UpcomingTool[]>([]);
   const [loading, setLoading] = useState(true);
@@ -373,7 +373,7 @@ export default function UpcomingLaunches() {
         if (!tool) return;
         try {
           const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
-          const payload: Record<string, unknown> = {};
+          const payload: Record<string, unknown> = { email: user?.email ?? '' };
           if (tool.source === "tool") payload.toolId = numericId;
           else payload.submissionId = numericId;
 

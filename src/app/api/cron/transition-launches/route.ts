@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
         await db
           .update(tools)
           .set({
-            launchedAt: now,
+            // L5: Use the scheduled launch time as the official launch timestamp
+            launchedAt: tool.scheduledLaunchAt ?? now,
             scheduledLaunchAt: null, // Clear to remove from upcoming page
             isVisible: true,
             updatedAt: now,

@@ -189,15 +189,64 @@ function StepToolInfo({ form, setForm }: { form: FormData; setForm: (f: FormData
           {form.description.length} chars {form.description.length < 100 ? `(${100 - form.description.length} more recommended)` : "✓"}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className={labelBase}>Scheduled Launch Date</label>
-          <input type="date" value={form.launchDate} onChange={e => f("launchDate", e.target.value)}
-            min={new Date().toISOString().split("T")[0]} className={inputBase} />
-          <div className="text-xs text-slate-400 mt-1">
-            Set a future date to appear on the <strong>Upcoming Launches</strong> page with a countdown timer. Leave blank to list immediately after admin review.
-          </div>
+      {/* L3: Launch timing — Launch Now vs Schedule */}
+      <div>
+        <label className={labelBase}>Launch Timing</label>
+        <div className="flex gap-3 mb-3">
+          <button
+            type="button"
+            onClick={() => f("launchDate", "")}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all ${
+              !form.launchDate
+                ? 'bg-amber-50 border-amber-400 text-amber-700 ring-2 ring-amber-100'
+                : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Launch Now
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!form.launchDate) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 7);
+                f("launchDate", tomorrow.toISOString().split("T")[0]);
+              }
+            }}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all ${
+              form.launchDate
+                ? 'bg-amber-50 border-amber-400 text-amber-700 ring-2 ring-amber-100'
+                : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Schedule Launch
+          </button>
         </div>
+        {!form.launchDate ? (
+          <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
+            <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <p className="text-xs text-green-700">Your stack will go live <strong>immediately after admin review</strong> (typically 1–2 business days).</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <input type="date" value={form.launchDate} onChange={e => f("launchDate", e.target.value)}
+              min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} className={inputBase} />
+            <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+              <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs text-blue-700">Your stack will appear on the <strong>Upcoming Launches</strong> page with a countdown timer. It will go live on <strong>{new Date(form.launchDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</strong>.</p>
+            </div>
+          </div>
+        )}
       </div>
       {form.logo && (
         <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
