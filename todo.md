@@ -781,4 +781,12 @@
 - [x] L4: Fix slug collision risk in reviewSubmission — append numeric suffix if slug already exists
 - [x] L5: Fix launchedAt for scheduled launches — use scheduledLaunchAt as launchedAt, cron preserves it
 - [x] Build verification (zero errors)
+- [x] Push to GitHub (commit bef79ba)
+
+## Notify Me Flow Update (March 2026)
+- [x] Remove email popup from /launches page UpcomingCard — one-click notify for auth users only
+- [x] Remove email dialog from /upcoming-launches page — one-click notify for auth users only
+- [x] Redirect unauthenticated users to login when clicking Notify Me
+- [x] Update notify API to support userId-based subscriptions (capture account details)
+- [x] Build verification (zero errors)
 - [ ] Push to GitHub

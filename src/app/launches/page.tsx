@@ -94,25 +94,19 @@ function useCountdown(targetDate: string) {
 
 // ─── Upcoming Launch Card (polished, compact countdown) ──────────────────────
 
-function UpcomingCard({ item }: { item: UpcomingItem }) {
+function UpcomingCard({ item, isAuthenticated }: { item: UpcomingItem; isAuthenticated: boolean }) {
   const countdown = useCountdown(item.launchDate);
-  const [notifyEmail, setNotifyEmail] = useState('');
-  const [showEmailInput, setShowEmailInput] = useState(false);
   const [notified, setNotified] = useState(false);
   const [notifying, setNotifying] = useState(false);
 
   const isLive = countdown.expired;
   const toolIdNum = item.id.startsWith('tool-') ? Number(item.id.replace('tool-', '')) : null;
-  // L2: Extract submissionId for submission-based upcoming items
   const submissionIdNum = item.id.startsWith('sub-') ? Number(item.id.replace('sub-', '')) : null;
 
   const handleNotify = async () => {
-    if (!showEmailInput) {
-      setShowEmailInput(true);
-      return;
-    }
-    if (!notifyEmail || !notifyEmail.includes('@')) {
-      toast.error('Please enter a valid email');
+    if (!isAuthenticated) {
+      // Redirect to login
+      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
     setNotifying(true);
@@ -120,15 +114,18 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
       const res = await fetch('/api/launches/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: notifyEmail,
-          ...(toolIdNum ? { toolId: toolIdNum } : { submissionId: submissionIdNum }),
-        }),
+        body: JSON.stringify(
+          toolIdNum ? { toolId: toolIdNum } : { submissionId: submissionIdNum }
+        ),
       });
       const data = await res.json();
-      if (data.success || data.message) {
+      if (res.status === 401) {
+        window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      if (data.success) {
         setNotified(true);
-        toast.success("You'll be notified when this launches!");
+        toast.success(data.message || "You'll be notified when this launches!");
       } else {
         toast.error(data.error || 'Failed to subscribe');
       }
@@ -210,31 +207,13 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
             <div className="flex-1 flex items-center justify-center gap-1.5 bg-amber-50 text-amber-600 text-xs font-bold px-3 py-2.5 rounded-lg border border-amber-200">
               <CheckCircle2 className="w-3.5 h-3.5" /> Subscribed
             </div>
-          ) : showEmailInput ? (
-            <div className="flex-1 flex gap-1.5">
-              <input
-                type="email"
-                value={notifyEmail}
-                onChange={e => setNotifyEmail(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleNotify()}
-                placeholder="your@email.com"
-                className="flex-1 text-xs px-2.5 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-amber-400 min-w-0"
-                autoFocus
-              />
-              <button
-                onClick={handleNotify}
-                disabled={notifying}
-                className="flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex-shrink-0"
-              >
-                {notifying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
-              </button>
-            </div>
           ) : (
             <button
               onClick={handleNotify}
+              disabled={notifying}
               className="flex-1 flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold px-3 py-2.5 rounded-lg transition-colors shadow-sm"
             >
-              <Bell className="w-3.5 h-3.5" /> Notify Me
+              {notifying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Bell className="w-3.5 h-3.5" /> Notify Me</>}
             </button>
           )}
         </div>
@@ -721,7 +700,7 @@ export default function Launches() {
                 ))
               ) : (
                 upcomingItems.slice(0, 4).map(item => (
-                  <UpcomingCard key={item.id} item={item} />
+                  <UpcomingCard key={item.id} item={item} isAuthenticated={isAuthenticated} />
                 ))
               )}
             </div>

@@ -74,77 +74,6 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
-/* ─── Notify Dialog ────────────────────────────────────────────────────── */
-
-function NotifyDialog({
-  open,
-  onClose,
-  onSubmit,
-  submitting,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (email: string) => void;
-  submitting: boolean;
-}) {
-  const [email, setEmail] = useState("");
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center">
-            <Bell className="w-5 h-5 text-amber-500" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900">Get Launch Notification</h3>
-            <p className="text-xs text-slate-500">We&apos;ll email you when this stack goes live.</p>
-          </div>
-        </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!email.trim() || !email.includes("@")) {
-              toast.error("Please enter a valid email address.");
-              return;
-            }
-            onSubmit(email.trim());
-          }}
-        >
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-400 transition-colors mb-3"
-            autoFocus
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-amber-500 text-sm font-bold text-white hover:bg-amber-600 transition-colors disabled:opacity-60"
-            >
-              {submitting ? "Subscribing..." : "Notify Me"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 /* ─── Upcoming Card ─────────────────────────────────────────────────────── */
 
@@ -323,17 +252,14 @@ function PageSkeleton() {
 
 export default function UpcomingLaunches() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [upcoming, setUpcoming] = useState<UpcomingTool[]>([]);
   const [recent, setRecent] = useState<UpcomingTool[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("All");
   const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
 
-  // Dialog state for email input
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogToolId, setDialogToolId] = useState<string | null>(null);
-  const [dialogSubmitting, setDialogSubmitting] = useState(false);
+
 
   const allCategories = ["All", ...CATEGORY_META.map((c) => c.name).filter((n) => n !== "All")];
 
@@ -367,72 +293,43 @@ export default function UpcomingLaunches() {
         return;
       }
 
-      // If authenticated, subscribe directly using session email
-      if (isAuthenticated) {
-        const tool = [...upcoming, ...recent].find((t) => t.id === id);
-        if (!tool) return;
-        try {
-          const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
-          const payload: Record<string, unknown> = { email: user?.email ?? '' };
-          if (tool.source === "tool") payload.toolId = numericId;
-          else payload.submissionId = numericId;
-
-          const res = await fetch("/api/launches/notify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          const data = await res.json();
-          if (res.ok) {
-            setNotifiedIds((prev) => new Set(prev).add(id));
-            toast.success(data.message || "You'll be notified when this launches!");
-          } else {
-            toast.error(data.error || "Failed to subscribe.");
-          }
-        } catch {
-          toast.error("Network error. Please try again.");
-        }
+      // Not authenticated — redirect to login
+      if (!isAuthenticated) {
+        window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
         return;
       }
 
-      // Not authenticated — show email dialog
-      setDialogToolId(id);
-      setDialogOpen(true);
+      // Authenticated — one-click subscribe (API uses session for email)
+      const tool = [...upcoming, ...recent].find((t) => t.id === id);
+      if (!tool) return;
+      try {
+        const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
+        const payload: Record<string, unknown> = {};
+        if (tool.source === "tool") payload.toolId = numericId;
+        else payload.submissionId = numericId;
+
+        const res = await fetch("/api/launches/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (res.status === 401) {
+          window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+          return;
+        }
+        if (data.success) {
+          setNotifiedIds((prev) => new Set(prev).add(id));
+          toast.success(data.message || "You'll be notified when this launches!");
+        } else {
+          toast.error(data.error || "Failed to subscribe.");
+        }
+      } catch {
+        toast.error("Network error. Please try again.");
+      }
     },
     [notifiedIds, isAuthenticated, upcoming, recent]
   );
-
-  const handleDialogSubmit = async (email: string) => {
-    if (!dialogToolId) return;
-    setDialogSubmitting(true);
-    try {
-      const tool = [...upcoming, ...recent].find((t) => t.id === dialogToolId);
-      if (!tool) return;
-      const numericId = parseInt(tool.id.replace(/^(tool|sub)-/, ""), 10);
-      const payload: Record<string, unknown> = { email };
-      if (tool.source === "tool") payload.toolId = numericId;
-      else payload.submissionId = numericId;
-
-      const res = await fetch("/api/launches/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setNotifiedIds((prev) => new Set(prev).add(dialogToolId));
-        toast.success(data.message || "You'll be notified when this launches!");
-        setDialogOpen(false);
-        setDialogToolId(null);
-      } else {
-        toast.error(data.error || "Failed to subscribe.");
-      }
-    } catch {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setDialogSubmitting(false);
-    }
-  };
 
   const filteredUpcoming = category === "All" ? upcoming : upcoming.filter((t) => t.category === category);
   const filteredRecent = category === "All" ? recent : recent.filter((t) => t.category === category);
@@ -576,16 +473,7 @@ export default function UpcomingLaunches() {
 
       <Footer />
 
-      {/* Notify email dialog */}
-      <NotifyDialog
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setDialogToolId(null);
-        }}
-        onSubmit={handleDialogSubmit}
-        submitting={dialogSubmitting}
-      />
+
     </div>
   );
 }
