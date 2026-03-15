@@ -92,6 +92,7 @@ function StarRating({ rating, count, size = "sm" }: { rating: number; count?: nu
 
 function ToolLogo({ tool, size = 48 }: { tool: Tool; size?: number }) {
   const radius = size >= 56 ? 16 : size >= 48 ? 14 : size >= 36 ? 10 : 8;
+  const [logoErr, setLogoErr] = useState(false);
   return (
     <div
       className="shrink-0 flex items-center justify-center overflow-hidden"
@@ -99,27 +100,32 @@ function ToolLogo({ tool, size = 48 }: { tool: Tool; size?: number }) {
         width: size,
         height: size,
         borderRadius: radius,
-        background: "#FFFFFF",
+        background: logoErr ? "#F1F5F9" : "#FFFFFF",
         border: "1.5px solid #E5E7EB",
-
       }}
     >
-      <img
-        src={tool.logo_url}
-        alt={tool.name}
-        loading="lazy"
-        className="w-full h-full object-cover"
-        style={{ borderRadius: radius - 1 }}
-        onError={(e) => {
-          const t = e.currentTarget;
-          t.style.display = "none";
-          const p = t.parentElement;
-          if (p) {
-            p.style.background = "#F1F5F9";
-            p.innerHTML = `<span style="font-size:${Math.round(size * 0.38)}px;font-weight:800;color:#64748B;font-family:system-ui;line-height:1">${tool.name.charAt(0)}</span>`;
-          }
-        }}
-      />
+      {logoErr ? (
+        <span
+          style={{
+            fontSize: Math.round(size * 0.38),
+            fontWeight: 800,
+            color: "#64748B",
+            fontFamily: "system-ui",
+            lineHeight: 1,
+          }}
+        >
+          {tool.name.charAt(0)}
+        </span>
+      ) : (
+        <img
+          src={tool.logo_url}
+          alt={tool.name}
+          loading="lazy"
+          className="w-full h-full object-cover"
+          style={{ borderRadius: radius - 1 }}
+          onError={() => setLogoErr(true)}
+        />
+      )}
     </div>
   );
 }
@@ -567,6 +573,7 @@ function FeaturedCard({ tool, rank, initialUpvoted = false }: ToolCardProps) {
     useUpvote(tool, initialUpvoted);
 
   const screenshotSrc = tool.screenshot_url || `https://api.microlink.io/?url=${encodeURIComponent(tool.website_url)}&screenshot=true&meta=false&embed=screenshot.url`;
+  const [screenshotErr, setScreenshotErr] = useState(false);
 
   // Only show max 2 badges below image to avoid clutter
   const visibleBadges = (tool.badges as BadgeType[]).filter(b => BADGE_CONFIG[b]).slice(0, 2);
@@ -644,28 +651,32 @@ function FeaturedCard({ tool, rank, initialUpvoted = false }: ToolCardProps) {
               background: '#F1F5F9',
             }}
           >
-            <img
-              src={screenshotSrc}
-              alt={`${tool.name} preview`}
-              className="absolute inset-0 w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-              style={{
-                objectFit: 'cover',
-                objectPosition: 'top center',
-                display: 'block',
-              }}
-              onError={(e) => {
-                const img = e.target as HTMLImageElement;
-                img.style.display = 'none';
-                const parent = img.parentElement;
-                if (parent && !parent.querySelector('.placeholder-fallback')) {
-                  const placeholder = document.createElement('div');
-                  placeholder.className = 'placeholder-fallback absolute inset-0 flex items-center justify-center';
-                  placeholder.style.background = '#F1F5F9';
-                  placeholder.innerHTML = `<div style="text-align:center"><div style="width:40px;height:40px;margin:0 auto 8px;border-radius:10px;background:#E2E8F0;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div><span style="font-size:11px;color:#94A3B8;font-weight:500">Preview unavailable</span></div>`;
-                  parent.appendChild(placeholder);
-                }
-              }}
-            />
+            {screenshotErr ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
+                <div className="text-center">
+                  <div className="w-10 h-10 mx-auto mb-2 rounded-[10px] bg-slate-200 flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <path d="m21 15-5-5L5 21"/>
+                    </svg>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-medium">Preview unavailable</span>
+                </div>
+              </div>
+            ) : (
+              <img
+                src={screenshotSrc}
+                alt={`${tool.name} preview`}
+                className="absolute inset-0 w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                style={{
+                  objectFit: 'cover',
+                  objectPosition: 'top center',
+                  display: 'block',
+                }}
+                onError={() => setScreenshotErr(true)}
+              />
+            )}
 
           </div>
         </div>

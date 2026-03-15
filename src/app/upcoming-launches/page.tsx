@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
+import LogoWithFallback from '@/components/LogoWithFallback';
 import { CATEGORY_META } from "@/lib/categories";
 import {
   Clock, CalendarClock, Star, Shield, Flame, Rocket,
@@ -193,16 +194,7 @@ function UpcomingCard({ tool, onNotify }: { tool: UpcomingTool; onNotify: (id: s
             justifyContent: "center",
           }}
         >
-          <img
-            src={tool.logo}
-            alt={tool.name}
-            style={{ width: "36px", height: "36px", objectFit: "contain" }}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              if (e.currentTarget.parentElement)
-                e.currentTarget.parentElement.innerHTML = `<span style="font-size:18px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-            }}
-          />
+          <LogoWithFallback src={tool.logo} alt={tool.name} className="w-9 h-9 object-contain" fallbackSize="text-lg" />
         </div>
 
         {/* Info */}
@@ -414,16 +406,7 @@ function RecentCard({ tool }: { tool: UpcomingTool }) {
           justifyContent: "center",
         }}
       >
-        <img
-          src={tool.logo}
-          alt={tool.name}
-          style={{ width: "30px", height: "30px", objectFit: "contain" }}
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-            if (e.currentTarget.parentElement)
-              e.currentTarget.parentElement.innerHTML = `<span style="font-size:14px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-          }}
-        />
+        <LogoWithFallback src={tool.logo} alt={tool.name} className="w-[30px] h-[30px] object-contain" fallbackSize="text-sm" />
       </div>
 
       {/* Info */}

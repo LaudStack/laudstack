@@ -8,6 +8,7 @@
  */
 
 import { X, GitCompareArrows, ArrowRight } from 'lucide-react';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCompare } from '@/contexts/CompareContext';
 
@@ -83,23 +84,8 @@ export default function CompareBar() {
                     borderRadius: '9px', padding: '5px 10px 5px 7px', flexShrink: 0,
                   }}
                 >
-                  <div style={{ width: '22px', height: '22px', borderRadius: '6px', overflow: 'hidden', background: '#171717', flexShrink: 0 }}>
-                    <img
-                      src={tool.logo_url}
-                      alt={tool.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                      onError={e => {
-                        const t = e.currentTarget;
-                        t.style.display = 'none';
-                        const p = t.parentElement;
-                        if (p) {
-                          p.style.display = 'flex';
-                          p.style.alignItems = 'center';
-                          p.style.justifyContent = 'center';
-                          p.innerHTML = `<span style="font-size:11px;font-weight:800;color:#94A3B8">${tool.name.charAt(0)}</span>`;
-                        }
-                      }}
-                    />
+                  <div style={{ width: '22px', height: '22px', borderRadius: '6px', overflow: 'hidden', background: '#171717', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain" fallbackSize="text-[11px]" />
                   </div>
                   <span style={{ fontSize: '12px', fontWeight: 700, color: '#E2E8F0', whiteSpace: 'nowrap' }}>{tool.name}</span>
                   <button

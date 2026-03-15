@@ -16,6 +16,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import {
   TrendingUp, TrendingDown, Minus, Trophy, Flame, Star, ArrowUpRight,
   ChevronRight, ChevronUp, Zap, Clock, Calendar, Medal, Crown, Award,
@@ -142,17 +143,7 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
         {/* Tool info row */}
         <div className="flex items-start gap-3 mb-3">
           <div className="w-12 h-12 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center flex-shrink-0">
-            <img
-              src={item.logo}
-              alt={item.name}
-              className="w-10 h-10 object-contain"
-              onError={e => {
-                const t = e.currentTarget;
-                t.style.display = 'none';
-                const p = t.parentElement;
-                if (p) p.innerHTML = `<span style="font-size:18px;font-weight:800;color:#64748B">${item.name.charAt(0)}</span>`;
-              }}
-            />
+            <LogoWithFallback src={item.logo} alt={item.name} className="w-10 h-10 object-contain" fallbackSize="text-lg" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
@@ -305,17 +296,7 @@ function TopThreeCard({
       <Link href={`/tools/${tool.slug}`}>
         <div className="flex items-center gap-3 mb-3">
           <div className="w-11 h-11 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center flex-shrink-0">
-            <img
-              src={tool.logo_url}
-              alt={tool.name}
-              className="w-9 h-9 object-contain"
-              onError={e => {
-                const t = e.currentTarget;
-                t.style.display = 'none';
-                const p = t.parentElement;
-                if (p) p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-              }}
-            />
+            <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-9 h-9 object-contain" fallbackSize="text-base" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
@@ -418,17 +399,7 @@ function LeaderboardRow({
       {/* Logo */}
       <Link href={`/tools/${tool.slug}`} className="flex-shrink-0">
         <div className="w-10 h-10 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
-          <img
-            src={tool.logo_url}
-            alt={tool.name}
-            className="w-8 h-8 object-contain"
-            onError={e => {
-              const t = e.currentTarget;
-              t.style.display = 'none';
-              const p = t.parentElement;
-              if (p) p.innerHTML = `<span style="font-size:14px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-            }}
-          />
+          <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-8 h-8 object-contain" fallbackSize="text-sm" />
         </div>
       </Link>
 

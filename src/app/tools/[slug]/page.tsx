@@ -171,6 +171,7 @@ function CopyLinkButton({ url }: { url: string }) {
 // ─── Alternative Product Card (responsive) ────────────────────────────────
 function AlternativeProductCard({ product, currentTool, rank }: { product: Tool; currentTool: Tool; rank: number }) {
   const router = useRouter();
+  const [logoErr, setLogoErr] = useState(false);
   return (
     <div
       onClick={() => router.push(`/tools/${product.slug}`)}
@@ -180,8 +181,12 @@ function AlternativeProductCard({ product, currentTool, rank }: { product: Tool;
       {/* Top: Logo + Name + Rating */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center">
-          <img src={product.logo_url} alt={product.name} className="w-full h-full object-contain"
-            onError={e => { const t = e.currentTarget; t.style.display = 'none'; const p = t.parentElement; if (p) { p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${product.name.charAt(0)}</span>`; } }} />
+          {logoErr ? (
+            <span className="text-base font-extrabold text-slate-500">{product.name.charAt(0)}</span>
+          ) : (
+            <img src={product.logo_url} alt={product.name} className="w-full h-full object-contain"
+              onError={() => setLogoErr(true)} />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
@@ -224,6 +229,8 @@ export default function ToolDetail() {
   const { isSaved, toggle: toggleSave } = useSavedTools();
 
   const [activeSection, setActiveSection] = useState('about');
+  const [heroLogoErr, setHeroLogoErr] = useState(false);
+  const [mediaErr, setMediaErr] = useState(false);
   const [upvoted, setUpvoted] = useState(false);
   const [laudCount, setLaudCount] = useState(0);
   const [laudCountInitialized, setLaudCountInitialized] = useState(false);
@@ -528,8 +535,12 @@ export default function ToolDetail() {
               {/* Logo */}
               <div className="w-[64px] h-[64px] sm:w-[80px] sm:h-[80px] rounded-2xl border-[1.5px] border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center"
                 style={{ boxShadow: '0 2px 16px rgba(15,23,42,0.06)' }}>
-                <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain p-2"
-                  onError={e => { const t = e.currentTarget; t.style.display = 'none'; const p = t.parentElement; if (p) { p.innerHTML = `<span style="font-size:32px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }} />
+                {heroLogoErr ? (
+                  <span className="text-3xl font-extrabold text-slate-500">{tool.name.charAt(0)}</span>
+                ) : (
+                  <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain p-2"
+                    onError={() => setHeroLogoErr(true)} />
+                )}
               </div>
 
               {/* Name + Tagline + Actions */}
@@ -726,9 +737,15 @@ export default function ToolDetail() {
               </div>
               {toolScreenshots.length > 0 ? (
                 <div className="relative bg-slate-100 aspect-video overflow-hidden">
-                  <img src={toolScreenshots[0]?.url} alt={toolScreenshots[0]?.caption}
-                    className="w-full h-full object-cover object-top"
-                    onError={e => { const img = e.currentTarget; img.style.display = 'none'; const parent = img.parentElement; if (parent) { parent.style.display = 'flex'; parent.style.alignItems = 'center'; parent.style.justifyContent = 'center'; parent.innerHTML = '<p style="color:#94A3B8;font-size:14px;font-weight:500">Media unavailable</p>'; } }} />
+                  {mediaErr ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <p className="text-slate-400 text-sm font-medium">Media unavailable</p>
+                    </div>
+                  ) : (
+                    <img src={toolScreenshots[0]?.url} alt={toolScreenshots[0]?.caption}
+                      className="w-full h-full object-cover object-top"
+                      onError={() => setMediaErr(true)} />
+                  )}
                 </div>
               ) : (
                 <div className="aspect-video flex items-center justify-center bg-slate-50">
@@ -1193,7 +1210,7 @@ export default function ToolDetail() {
                       <td className="py-3 px-4 sm:px-5">
                         <div className="flex items-center gap-2.5">
                           <img src={tool.logo_url} alt={tool.name} className="w-6 h-6 sm:w-7 sm:h-7 rounded-md object-contain border border-slate-200"
-                            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                            onError={e => { e.currentTarget.style.opacity = '0'; }} />
                           <span className="font-extrabold text-gray-900 text-sm">{tool.name}</span>
                           <span className="text-[10px] font-bold py-0.5 px-1.5 rounded bg-amber-400 text-gray-900">Current</span>
                         </div>
@@ -1215,7 +1232,7 @@ export default function ToolDetail() {
                         <td className="py-3 px-4 sm:px-5">
                           <Link href={`/tools/${alt.slug}`} className="flex items-center gap-2.5 no-underline">
                             <img src={alt.logo_url} alt={alt.name} className="w-6 h-6 sm:w-7 sm:h-7 rounded-md object-contain border border-slate-200"
-                              onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                              onError={e => { e.currentTarget.style.opacity = '0'; }} />
                             <span className="font-bold text-gray-900 text-sm">{alt.name}</span>
                             {alt.is_verified && <ShieldCheck className="w-3 h-3 text-emerald-500" />}
                           </Link>

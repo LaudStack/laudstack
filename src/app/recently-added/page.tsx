@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
+import LogoWithFallback from '@/components/LogoWithFallback';
 import { useToolsData } from "@/hooks/useToolsData";
 import { CATEGORY_META } from "@/lib/categories";
 import { Rocket, Star, Shield, ChevronUp, PackageOpen, Sparkles } from "lucide-react";
@@ -159,7 +160,7 @@ export default function RecentlyLaunched() {
 
                     <div style={{ padding: "14px 14px 10px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
                       <div style={{ width: "48px", height: "48px", borderRadius: "12px", flexShrink: 0, border: "1px solid #E8ECF0", background: "#F8FAFC", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src={tool.logo_url} alt={tool.name} style={{ width: "36px", height: "36px", objectFit: "contain" }} onError={(e) => { e.currentTarget.style.display = "none"; if (e.currentTarget.parentElement) e.currentTarget.parentElement.innerHTML = `<span style="font-size:18px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; }} />
+                        <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-9 h-9 object-contain" fallbackSize="text-lg" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "3px" }}>

@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import LogoWithFallback from '@/components/LogoWithFallback';
 import {
   Rocket, Shield, BarChart3, MessageSquare, Crown,
   Star, CheckCircle2, ArrowRight, ChevronDown,
@@ -611,20 +612,7 @@ export default function LaunchPad() {
                     className="bg-white border border-slate-200 rounded-xl p-4 cursor-pointer hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col items-center text-center"
                   >
                     <div className="w-12 h-12 rounded-xl border border-slate-100 bg-slate-50 overflow-hidden flex items-center justify-center mb-3">
-                      {tool.logo_url ? (
-                        <img
-                          src={tool.logo_url}
-                          alt={tool.name}
-                          className="w-9 h-9 object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                            if (e.currentTarget.parentElement)
-                              e.currentTarget.parentElement.innerHTML = `<span class="text-lg font-black text-slate-400">${tool.name.charAt(0)}</span>`;
-                          }}
-                        />
-                      ) : (
-                        <span className="text-lg font-black text-slate-400">{tool.name.charAt(0)}</span>
-                      )}
+                      <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-9 h-9 object-contain" fallbackSize="text-lg" />
                     </div>
                     <h4 className="text-[13px] font-bold text-slate-900 mb-0.5 truncate w-full">{tool.name}</h4>
                     <span className="text-[11px] text-slate-400 font-medium truncate w-full">{tool.category}</span>

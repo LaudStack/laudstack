@@ -11,6 +11,7 @@ import { useToolsData } from "@/hooks/useToolsData";
 import { CATEGORY_META } from "@/lib/categories";
 import type { Tool } from "@/lib/types";
 import { Heart, Star, Shield, Crown, ThumbsUp, MessageSquare, ChevronRight } from "lucide-react";
+import LogoWithFallback from '@/components/LogoWithFallback';
 
 function PodiumCard({ tool, rank }: { tool: Tool; rank: number }) {
   const router = useRouter();
@@ -140,7 +141,7 @@ export default function MostLauded() {
                 >
                   <span style={{ fontSize: "14px", fontWeight: 800, color: "#9CA3AF", width: "32px", textAlign: "center", flexShrink: 0 }}>#{i + 4}</span>
                   <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #E8ECF0", background: "#F8FAFC", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <img src={tool.logo_url} alt={tool.name} style={{ width: "28px", height: "28px", objectFit: "contain" }} onError={(e) => { e.currentTarget.style.display = "none"; if (e.currentTarget.parentElement) e.currentTarget.parentElement.innerHTML = `<span style="font-size:14px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; }} />
+                    <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-7 h-7 object-contain" fallbackSize="text-sm" />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>

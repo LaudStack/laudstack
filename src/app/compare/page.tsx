@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import {
   Star, ExternalLink, ShieldCheck, ArrowLeft, CheckCircle2,
   XCircle, GitCompareArrows, ChevronRight, Minus, Share2, Check, Link2
@@ -282,24 +283,8 @@ export default function Compare() {
               </button>
 
               {/* Logo */}
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', overflow: 'hidden' }}>
-                <img
-                  src={tool.logo_url}
-                  alt={tool.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                  onError={e => {
-                    const t = e.currentTarget;
-                    t.style.display = 'none';
-                    const p = t.parentElement;
-                    if (p) {
-                      p.style.background = '#F1F5F9';
-                      p.style.display = 'flex';
-                      p.style.alignItems = 'center';
-                      p.style.justifyContent = 'center';
-                      p.innerHTML = `<span style="font-size:22px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-                    }
-                  }}
-                />
+              <div style={{ width: '56px', height: '56px', borderRadius: '14px', border: '1.5px solid #E2E8F0', background: '#F8FAFC', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain" fallbackSize="text-[22px]" />
               </div>
 
               {/* Name + verified */}

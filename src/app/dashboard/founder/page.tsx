@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import {
   BarChart3, Star, MessageSquare, TrendingUp, Eye, ChevronRight,
   Settings, Zap, Bell, Shield, Edit3, ExternalLink, CheckCircle,
@@ -194,12 +195,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: Tab) => void }) {
             {tools.slice(0, 5).map((tool: any) => (
               <div key={tool.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
                 <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white overflow-hidden flex-shrink-0">
-                  {tool.logoUrl ? (
-                    <img src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1"
-                      onError={e => { const el = e.currentTarget; el.style.display = 'none'; const p = el.parentElement; if (p) p.innerHTML = `<span class="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">${tool.name[0]}</span>`; }} />
-                  ) : (
-                    <span className="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">{tool.name[0]}</span>
-                  )}
+                  <LogoWithFallback src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1" fallbackSize="text-sm" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-slate-900 font-bold text-sm truncate">{tool.name}</p>
@@ -368,12 +364,7 @@ function ToolsTab({ setActiveTab }: { setActiveTab: (tab: Tab) => void }) {
             {/* Tool header */}
             <div className="flex items-start gap-4 p-5">
               <div className="w-14 h-14 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex-shrink-0">
-                {tool.logoUrl ? (
-                  <img src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1"
-                    onError={e => { const el = e.currentTarget; el.style.display = 'none'; const p = el.parentElement; if (p) p.innerHTML = `<span class="w-full h-full flex items-center justify-center text-xl font-black text-slate-600">${tool.name[0]}</span>`; }} />
-                ) : (
-                  <span className="w-full h-full flex items-center justify-center text-xl font-black text-slate-600">{tool.name[0]}</span>
-                )}
+                <LogoWithFallback src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1" fallbackSize="text-xl" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
@@ -1701,12 +1692,7 @@ function LaudsTab() {
           {laudData.tools.sort((a: any, b: any) => b.laudCount - a.laudCount).map((tool: any) => (
             <div key={tool.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl">
               <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white overflow-hidden flex-shrink-0">
-                {tool.logoUrl ? (
-                  <img src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1"
-                    onError={e => { const el = e.currentTarget; el.style.display = 'none'; const p = el.parentElement; if (p) p.innerHTML = `<span class="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">${tool.name[0]}</span>`; }} />
-                ) : (
-                  <span className="w-full h-full flex items-center justify-center text-sm font-black text-slate-600">{tool.name[0]}</span>
-                )}
+                <LogoWithFallback src={tool.logoUrl} alt={tool.name} className="w-full h-full object-contain p-1" fallbackSize="text-sm" />
               </div>
               <div className="flex-1 min-w-0">
                 <Link href={`/tools/${tool.slug}`} className="text-sm font-bold text-slate-900 hover:text-amber-600 truncate block no-underline">

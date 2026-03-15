@@ -25,6 +25,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import ToolCard from '@/components/ToolCard';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import { useRouter } from 'next/navigation';
 import { CATEGORY_META } from '@/lib/categories';
 import { useToolsData } from '@/hooks/useToolsData';
@@ -324,13 +325,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-11 h-11 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shrink-0 flex items-center justify-center">
-                      {tool.logo_url ? (
-                        <img src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain"
-                          onError={e => { e.currentTarget.style.display = 'none'; const p = e.currentTarget.parentElement; if (p) { p.innerHTML = `<span style="font-size:16px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`; } }}
-                        />
-                      ) : (
-                        <span className="text-base font-extrabold text-gray-600">{tool.name.charAt(0)}</span>
-                      )}
+                      <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-full h-full object-contain" fallbackSize="text-base" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="text-gray-900 font-bold text-sm group-hover:text-amber-600 transition-colors truncate">{tool.name}</h3>
@@ -674,10 +669,8 @@ export default function Home() {
                                 : <span className="text-xs font-extrabold text-gray-400">{rank}</span>
                               }
                             </div>
-                            <div className="w-[34px] h-[34px] rounded-[10px] overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
-                              <img src={entry.logo_url} alt={entry.name} className="w-full h-full object-cover"
-                                onError={e => { e.currentTarget.style.display='none'; const p = e.currentTarget.parentElement; if(p){ p.style.display='flex'; p.style.alignItems='center'; p.style.justifyContent='center'; p.innerHTML=`<span style="font-size:16px;font-weight:800;color:#64748B">${entry.name.charAt(0)}</span>`; } }}
-                              />
+                            <div className="w-[34px] h-[34px] rounded-[10px] overflow-hidden bg-gray-100 shrink-0 border border-gray-200 flex items-center justify-center">
+                              <LogoWithFallback src={entry.logo_url} alt={entry.name} className="w-full h-full object-cover" fallbackSize="text-base" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-[13px] font-bold text-gray-900 truncate">{entry.name}</p>

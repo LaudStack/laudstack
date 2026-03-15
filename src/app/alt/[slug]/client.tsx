@@ -13,6 +13,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
+import LogoWithFallback from '@/components/LogoWithFallback';
 import SEOPageClient from "@/components/SEOPageClient";
 import { fetchAlternatives } from "@/app/actions/seo-fetchers";
 import type { Tool } from "@/lib/types";
@@ -51,16 +52,7 @@ function ToolOverviewCard({ tool }: { tool: Tool }) {
             justifyContent: "center",
           }}
         >
-          <img
-            src={tool.logo_url}
-            alt={tool.name}
-            style={{ width: "48px", height: "48px", objectFit: "contain" }}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              if (e.currentTarget.parentElement)
-                e.currentTarget.parentElement.innerHTML = `<span style="font-size:24px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-            }}
-          />
+          <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-12 h-12 object-contain" fallbackSize="text-2xl" />
         </div>
         <div style={{ flex: 1 }}>
           <div

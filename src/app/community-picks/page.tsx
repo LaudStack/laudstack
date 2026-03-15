@@ -13,6 +13,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import LogoWithFallback from '@/components/LogoWithFallback';
 import {
   ChevronUp, Users, Flame, Filter, Star, ExternalLink,
   ShieldCheck, TrendingUp, Award, Search, ArrowRight, Sparkles,
@@ -110,17 +111,7 @@ function CommunityPickCard({
         border: '1px solid #E2E8F0', background: '#F8FAFC',
         overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <img
-          src={tool.logo_url}
-          alt={tool.name}
-          style={{ width: 40, height: 40, objectFit: 'contain' }}
-          onError={e => {
-            const t = e.currentTarget;
-            t.style.display = 'none';
-            const p = t.parentElement;
-            if (p) p.innerHTML = `<span style="font-size:20px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-          }}
-        />
+        <LogoWithFallback src={tool.logo_url} alt={tool.name} className="w-10 h-10 object-contain" fallbackSize="text-xl" />
       </div>
 
       {/* Info */}
