@@ -134,9 +134,9 @@ export async function toggleLaud(toolId: number): Promise<{
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Please sign in to laud a stack" };
 
-  // Validate tool exists and is approved
+  // Validate tool exists and is approved or featured
   const tool = await db.query.tools.findFirst({
-    where: and(eq(tools.id, toolId), eq(tools.status, "approved")),
+    where: and(eq(tools.id, toolId), inArray(tools.status, ["approved", "featured"])),
     columns: { id: true, upvoteCount: true },
   });
   if (!tool) return { success: false, error: "Stack not found" };
@@ -562,7 +562,7 @@ export async function getAdminLaudStats() {
         upvoteCount: tools.upvoteCount,
       })
       .from(tools)
-      .where(eq(tools.status, "approved"))
+      .where(inArray(tools.status, ["approved", "featured"]))
       .orderBy(desc(tools.upvoteCount))
       .limit(10);
 
@@ -591,7 +591,7 @@ export async function getAdminLaudStats() {
 
 export async function getMostLaudedStacks(limit = 20) {
   return db.select().from(tools)
-    .where(and(eq(tools.status, "approved"), sql`${tools.upvoteCount} > 0`))
+    .where(and(inArray(tools.status, ["approved", "featured"]), sql`${tools.upvoteCount} > 0`))
     .orderBy(desc(tools.upvoteCount))
     .limit(limit);
 }
@@ -620,7 +620,7 @@ export async function getRecentlyLaudedStacks(limit = 20) {
   if (uniqueToolIds.length === 0) return [];
 
   const toolRows = await db.select().from(tools)
-    .where(and(eq(tools.status, "approved"), inArray(tools.id, uniqueToolIds)));
+    .where(and(inArray(tools.status, ["approved", "featured"]), inArray(tools.id, uniqueToolIds)));
 
   // Preserve the order from the recent lauds
   const toolMap = new Map(toolRows.map(t => [t.id, t]));

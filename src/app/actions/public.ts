@@ -283,7 +283,7 @@ export async function toggleUpvote(toolId: number) {
   // Delegate to the comprehensive laud engine
   const { toggleLaud } = await import("@/app/actions/laud");
   const result = await toggleLaud(toolId);
-  return { success: result.success, upvoted: result.lauded, error: result.error };
+  return { success: result.success, upvoted: result.lauded, newCount: result.newCount, error: result.error };
 }
 
 export async function toggleSaveTool(toolId: number) {

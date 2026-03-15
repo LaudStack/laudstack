@@ -23,7 +23,8 @@ import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
 import { editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
-import { toggleLaud, getUserLaudedToolIds } from '@/app/actions/laud';
+import { toggleLaud } from '@/app/actions/laud';
+import { useLaudedTools } from '@/hooks/useLaudedTools';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
@@ -263,12 +264,13 @@ export default function ToolDetail() {
   const { recordVisit: addRecentlyViewed } = useRecentlyViewed();
   const { isSelected: isComparing, toggle: compareToggle, canAdd: canCompare } = useCompare();
   const { isSaved, toggle: toggleSave } = useSavedTools();
+  const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
 
   const [selectedTab, setSelectedTab] = useState<'overview' | 'features' | 'pricing' | 'reviews' | 'team' | 'discussion' | 'alternatives'>('overview');
   const [mediaIndex, setMediaIndex] = useState(0);
   const [heroLogoErr, setHeroLogoErr] = useState(false);
   const [mediaErr, setMediaErr] = useState(false);
-  const [upvoted, setUpvoted] = useState(false);
+  // upvoted state is now derived from the global useLaudedTools hook
   const [laudCount, setLaudCount] = useState(0);
   const [laudCountInitialized, setLaudCountInitialized] = useState(false);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
@@ -369,23 +371,16 @@ export default function ToolDetail() {
     [slug, allTools]
   );
 
-  // Initialize laud count once tool data loads
+  // Initialize laud count once tool data loads (F2 fix: always initialize, even for 0)
   useEffect(() => {
-    if (!laudCountInitialized && toolUpvoteCount > 0) {
+    if (!laudCountInitialized) {
       setLaudCount(toolUpvoteCount);
       setLaudCountInitialized(true);
     }
   }, [slug, toolUpvoteCount, laudCountInitialized]);
 
-  // Initialize upvoted state from DB for authenticated users
-  useEffect(() => {
-    if (!isAuthenticated || !stableToolId) return;
-    const toolIdNum = parseInt(stableToolId, 10);
-    if (!Number.isFinite(toolIdNum)) return;
-    getUserLaudedToolIds().then(ids => {
-      setUpvoted(ids.includes(toolIdNum));
-    }).catch(() => {});
-  }, [isAuthenticated, stableToolId]);
+  // upvoted state is now derived from the global useLaudedTools hook
+  const upvoted = stableToolId ? isLauded(stableToolId) : false;
 
   // Reset mediaIndex when slug changes
   useEffect(() => { setMediaIndex(0); setMediaErr(false); setHeroLogoErr(false); }, [slug]);
@@ -435,20 +430,24 @@ export default function ToolDetail() {
 
   const handleUpvote = async () => {
     if (!isAuthenticated) { setAuthAction('upvote'); setShowAuthModal(true); return; }
-    const toolId = parseInt(tool.id, 10);
     const wasUpvoted = upvoted;
-    setUpvoted(!wasUpvoted);
+    // Optimistic count update (global hook handles the ID set)
     setLaudCount(c => wasUpvoted ? Math.max(0, c - 1) : c + 1);
     if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
-    const result = await toggleLaud(toolId);
-    if (!result.success) {
-      setUpvoted(wasUpvoted);
+    const result = await toggleLaudGlobal(tool.id);
+    if (result.requiresAuth) {
       setLaudCount(c => wasUpvoted ? c + 1 : Math.max(0, c - 1));
-      toast.error(result.error || 'Failed to laud');
-    } else {
-      if (result.newCount !== undefined) setLaudCount(result.newCount);
-      invalidateToolsCache();
+      setAuthAction('upvote'); setShowAuthModal(true);
+      return;
     }
+    if (result.newCount !== undefined) {
+      setLaudCount(result.newCount);
+    } else if (result.lauded === wasUpvoted) {
+      // Toggle failed — revert count
+      setLaudCount(c => wasUpvoted ? c + 1 : Math.max(0, c - 1));
+      toast.error('Failed to laud');
+    }
+    invalidateToolsCache();
   };
 
   const handleHelpful = async (reviewId: string) => {

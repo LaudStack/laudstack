@@ -15,7 +15,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
 import { CATEGORY_META as CATEGORIES } from '@/lib/categories';
-import { toggleUpvote } from '@/app/actions/public';
+import { useLaudedTools } from '@/hooks/useLaudedTools';
+import { useAuth } from '@/hooks/useAuth';
+import AuthGateModal from '@/components/AuthGateModal';
 import {
   Search, SlidersHorizontal, X, ChevronDown, ChevronUp,
   Grid3X3, List, ArrowUpDown, Sparkles, LayoutGrid,
@@ -306,22 +308,25 @@ function FilterChip({ label, color, onRemove }: { label: string; color: string; 
 function ToolGridCard({
   tool,
   index,
-  laudedIds,
+  isLaudedFn,
   onLaud,
   laudingId,
   hideCategory,
+  laudCountOverrides,
 }: {
   tool: Tool;
   index: number;
-  laudedIds: Set<string>;
+  isLaudedFn: (id: string | number) => boolean;
   onLaud: (toolId: number) => void;
   laudingId: number | null;
   hideCategory?: boolean;
+  laudCountOverrides: Record<string, number>;
 }) {
   const [logoError, setLogoError] = useState(false);
   const [screenshotError, setScreenshotError] = useState(false);
-  const isLauded = laudedIds.has(tool.id);
+  const isLauded = isLaudedFn(tool.id);
   const isLauding = laudingId === Number(tool.id);
+  const displayCount = tool.upvote_count + (laudCountOverrides[tool.id] ?? 0);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col group">
@@ -374,7 +379,7 @@ function ToolGridCard({
             <ChevronUp className={`w-3.5 h-3.5 ${isLauded ? 'text-amber-500' : 'text-slate-500'}`} />
           )}
           <span className="text-xs font-bold leading-none">
-            {tool.upvote_count > 999 ? `${(tool.upvote_count / 1000).toFixed(1)}k` : tool.upvote_count}
+            {displayCount > 999 ? `${(displayCount / 1000).toFixed(1)}k` : displayCount}
           </span>
         </button>
       </div>
@@ -442,18 +447,21 @@ function ToolGridCard({
 
 function ToolListRow({
   tool,
-  laudedIds,
+  isLaudedFn,
   onLaud,
   laudingId,
+  laudCountOverrides,
 }: {
   tool: Tool;
-  laudedIds: Set<string>;
+  isLaudedFn: (id: string | number) => boolean;
   onLaud: (toolId: number) => void;
   laudingId: number | null;
+  laudCountOverrides: Record<string, number>;
 }) {
   const [logoError, setLogoError] = useState(false);
-  const isLauded = laudedIds.has(tool.id);
+  const isLauded = isLaudedFn(tool.id);
   const isLauding = laudingId === Number(tool.id);
+  const displayCount = tool.upvote_count + (laudCountOverrides[tool.id] ?? 0);
 
   return (
     <div className="bg-white border border-slate-200/80 shadow-sm rounded-xl px-3 sm:px-5 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 hover:shadow-md hover:border-slate-300 transition-all">
@@ -473,7 +481,7 @@ function ToolListRow({
           <ChevronUp className={`w-3.5 h-3.5 ${isLauded ? 'text-amber-500' : 'text-slate-500'}`} />
         )}
         <span className="text-xs font-bold leading-none">
-          {tool.upvote_count > 999 ? `${(tool.upvote_count / 1000).toFixed(1)}k` : tool.upvote_count}
+          {displayCount > 999 ? `${(displayCount / 1000).toFixed(1)}k` : displayCount}
         </span>
       </button>
 
@@ -550,45 +558,63 @@ export default function AllTools() {
   const [catSearch, setCatSearch] = useState('');
   const [syncingFromUrl, setSyncingFromUrl] = useState(false);
   const [visibleCount, setVisibleCount] = useState(30);
-  const [laudedIds, setLaudedIds] = useState<Set<string>>(new Set());
+  const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
+  const { isAuthenticated } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [laudingId, setLaudingId] = useState<number | null>(null);
+  const [laudCountOverrides, setLaudCountOverrides] = useState<Record<string, number>>({});
 
-  /* ── Load user's lauded tool IDs ─────────────────────────────────────────── */
-  useEffect(() => {
-    import('@/app/actions/user').then(({ getUserUpvotes }) => {
-      getUserUpvotes().then(ids => {
-        if (Array.isArray(ids)) setLaudedIds(new Set(ids.map(String)));
-      }).catch(() => {});
-    });
-  }, []);
-
-  /* ── Laud handler ────────────────────────────────────────────────────────── */
+  /* ── Laud handler with auth gate and optimistic count ─────────────────────── */
   const handleLaud = useCallback(async (toolId: number) => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    const strId = String(toolId);
+    const wasLauded = isLauded(toolId);
     setLaudingId(toolId);
+
+    // Optimistic count update
+    setLaudCountOverrides(prev => ({
+      ...prev,
+      [strId]: (prev[strId] ?? 0) + (wasLauded ? -1 : 1),
+    }));
+    if (!wasLauded) toast.success('Lauded!');
+
     try {
-      const result = await toggleUpvote(toolId);
-      if (result.success) {
-        setLaudedIds(prev => {
-          const next = new Set(prev);
-          if (result.upvoted) {
-            next.add(String(toolId));
-            toast.success('Lauded!');
-          } else {
-            next.delete(String(toolId));
-            toast.success('Laud removed');
-          }
+      const result = await toggleLaudGlobal(toolId);
+      if (result.requiresAuth) {
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [strId]: (prev[strId] ?? 0) + (wasLauded ? 1 : -1),
+        }));
+        setShowAuthModal(true);
+      } else if (result.newCount !== undefined) {
+        invalidateToolsCache();
+        setLaudCountOverrides(prev => {
+          const next = { ...prev };
+          delete next[strId];
           return next;
         });
-        invalidateToolsCache();
+      } else if (result.lauded === wasLauded) {
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [strId]: (prev[strId] ?? 0) + (wasLauded ? 1 : -1),
+        }));
+        toast.error('Failed to laud');
       } else {
-        toast.error(result.error || 'Please sign in to laud');
+        invalidateToolsCache();
       }
     } catch {
-      toast.error('Please sign in to laud');
+      setLaudCountOverrides(prev => ({
+        ...prev,
+        [strId]: (prev[strId] ?? 0) + (wasLauded ? 1 : -1),
+      }));
+      toast.error('Failed to laud');
     } finally {
       setLaudingId(null);
     }
-  }, []);
+  }, [isAuthenticated, isLauded, toggleLaudGlobal]);
 
   /* ── URL sync: outbound ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -715,6 +741,7 @@ export default function AllTools() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
+      <AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action="upvote" />
       <Navbar />
 
       {/* ═══════════════════════════════════════════════════════════════════════
@@ -1093,10 +1120,11 @@ export default function AllTools() {
                       key={tool.id}
                       tool={tool}
                       index={i}
-                      laudedIds={laudedIds}
+                      isLaudedFn={isLauded}
                       onLaud={handleLaud}
                       laudingId={laudingId}
                       hideCategory={selectedCategories.length === 1}
+                      laudCountOverrides={laudCountOverrides}
                     />
                   ))}
                 </div>
@@ -1125,9 +1153,10 @@ export default function AllTools() {
                     <ToolListRow
                       key={tool.id}
                       tool={tool}
-                      laudedIds={laudedIds}
+                      isLaudedFn={isLauded}
                       onLaud={handleLaud}
                       laudingId={laudingId}
+                      laudCountOverrides={laudCountOverrides}
                     />
                   ))}
                 </div>

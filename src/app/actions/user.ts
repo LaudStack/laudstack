@@ -83,19 +83,6 @@ export async function updateFounderProfile(data: {
   }
 }
 
-// ─── Upvote (delegates to laud engine) ──────────────────────────────────────
-
-export async function toggleUpvote(toolId: number) {
-  const { toggleLaud } = await import("@/app/actions/laud");
-  const result = await toggleLaud(toolId);
-  return { upvoted: result.lauded ?? false };
-}
-
-export async function getUserUpvotes() {
-  const { getUserLaudedToolIds } = await import("@/app/actions/laud");
-  return getUserLaudedToolIds();
-}
-
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 
 export async function submitReview(data: {

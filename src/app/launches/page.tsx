@@ -24,7 +24,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
-import { toggleUpvote } from '@/app/actions/public';
+import { useLaudedTools } from '@/hooks/useLaudedTools';
+import { useAuth } from '@/hooks/useAuth';
+import AuthGateModal from '@/components/AuthGateModal';
 import type { Tool } from '@/lib/types';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -259,20 +261,23 @@ function RankChange({ change }: { change: number }) {
 function TopThreeCard({
   entry,
   position,
-  laudedIds,
+  isLaudedFn,
   onLaud,
   laudingId,
+  laudCountOverrides,
 }: {
   entry: RankedTool;
   position: 1 | 2 | 3;
-  laudedIds: Set<string>;
+  isLaudedFn: (id: string | number) => boolean;
   onLaud: (toolId: number) => void;
   laudingId: number | null;
+  laudCountOverrides: Record<string, number>;
 }) {
   const { tool, rank_change } = entry;
   const isFirst = position === 1;
-  const isLauded = laudedIds.has(tool.id);
+  const isLauded = isLaudedFn(tool.id);
   const isLauding = laudingId === Number(tool.id);
+  const displayCount = tool.upvote_count + (laudCountOverrides[tool.id] ?? 0);
 
   const borderCls = { 1: 'border-amber-300', 2: 'border-slate-300', 3: 'border-amber-400/40' };
   const rankCls = { 1: 'text-amber-500', 2: 'text-slate-500', 3: 'text-amber-700' };
@@ -312,7 +317,7 @@ function TopThreeCard({
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-amber-600 font-semibold">
             <ChevronUp className="w-3 h-3" />
-            {tool.upvote_count.toLocaleString()} lauds
+            {displayCount.toLocaleString()} lauds
           </span>
           <span className="flex items-center gap-1 text-slate-500">
             <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
@@ -335,7 +340,7 @@ function TopThreeCard({
           ) : (
             <ChevronUp className={`w-3 h-3 ${isLauded ? 'text-amber-500' : 'text-slate-500'}`} />
           )}
-          {tool.upvote_count}
+          {displayCount}
         </button>
       </div>
 
@@ -347,22 +352,25 @@ function TopThreeCard({
   );
 }
 
-// ─── Leaderboard Row ─────────────────────────────────────────────────────────
+// ─── Leaderboard Row ─────────────────────────────────────────────────────────────
 
 function LeaderboardRow({
   entry,
-  laudedIds,
+  isLaudedFn,
   onLaud,
   laudingId,
+  laudCountOverrides,
 }: {
   entry: RankedTool;
-  laudedIds: Set<string>;
+  isLaudedFn: (id: string | number) => boolean;
   onLaud: (toolId: number) => void;
   laudingId: number | null;
+  laudCountOverrides: Record<string, number>;
 }) {
   const { rank, tool, rank_change } = entry;
-  const isLauded = laudedIds.has(tool.id);
+  const isLauded = isLaudedFn(tool.id);
   const isLauding = laudingId === Number(tool.id);
+  const displayCount = tool.upvote_count + (laudCountOverrides[tool.id] ?? 0);
 
   return (
     <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3.5 hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0">
@@ -393,7 +401,7 @@ function LeaderboardRow({
         ) : (
           <ChevronUp className={`w-3 h-3 ${isLauded ? 'text-amber-500' : 'text-slate-500'}`} />
         )}
-        <span className="text-[10px] font-bold leading-none">{tool.upvote_count}</span>
+        <span className="text-[10px] font-bold leading-none">{displayCount}</span>
       </button>
 
       {/* Logo */}
@@ -427,7 +435,7 @@ function LeaderboardRow({
       {/* Total lauds */}
       <div className="hidden sm:flex items-center gap-1 flex-shrink-0 w-16 justify-end">
         <TrendingUp className="w-3 h-3 text-amber-500" />
-        <span className="text-amber-600 font-semibold text-xs">{tool.upvote_count.toLocaleString()}</span>
+        <span className="text-amber-600 font-semibold text-xs">{displayCount.toLocaleString()}</span>
       </div>
 
       {/* Arrow */}
@@ -515,8 +523,11 @@ export default function Launches() {
   const [period, setPeriod] = useState<Period>('week');
   const [upcomingItems, setUpcomingItems] = useState<UpcomingItem[]>([]);
   const [upcomingLoading, setUpcomingLoading] = useState(true);
-  const [laudedIds, setLaudedIds] = useState<Set<string>>(new Set());
+  const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
+  const { isAuthenticated } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [laudingId, setLaudingId] = useState<number | null>(null);
+  const [laudCountOverrides, setLaudCountOverrides] = useState<Record<string, number>>({});
 
   // Fetch upcoming launches from real API
   useEffect(() => {
@@ -529,42 +540,61 @@ export default function Launches() {
       .finally(() => setUpcomingLoading(false));
   }, []);
 
-  // Load user's lauded IDs
-  useEffect(() => {
-    import('@/app/actions/user').then(({ getUserUpvotes }) => {
-      getUserUpvotes().then(ids => {
-        if (Array.isArray(ids)) setLaudedIds(new Set(ids.map(String)));
-      }).catch(() => {});
-    });
-  }, []);
-
-  // Laud handler
+  // Laud handler with auth gate and optimistic count updates
   const handleLaud = useCallback(async (toolId: number) => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    const strId = String(toolId);
+    const wasLauded = isLauded(toolId);
     setLaudingId(toolId);
+
+    // Optimistic count update
+    setLaudCountOverrides(prev => ({
+      ...prev,
+      [strId]: (prev[strId] ?? 0) + (wasLauded ? -1 : 1),
+    }));
+    if (!wasLauded) toast.success('Lauded!');
+
     try {
-      const result = await toggleUpvote(toolId);
-      if (result.success) {
-        setLaudedIds(prev => {
-          const next = new Set(prev);
-          if (result.upvoted) {
-            next.add(String(toolId));
-            toast.success('Lauded!');
-          } else {
-            next.delete(String(toolId));
-            toast.success('Laud removed');
-          }
+      const result = await toggleLaudGlobal(toolId);
+      if (result.requiresAuth) {
+        // Revert optimistic count
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [strId]: (prev[strId] ?? 0) + (wasLauded ? 1 : -1),
+        }));
+        setShowAuthModal(true);
+      } else if (result.newCount !== undefined) {
+        // Reconcile with server count — clear override since we'll use the real count
+        invalidateToolsCache();
+        setLaudCountOverrides(prev => {
+          const next = { ...prev };
+          delete next[strId];
           return next;
         });
-        invalidateToolsCache();
+      } else if (result.lauded === wasLauded) {
+        // Toggle failed — revert
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [strId]: (prev[strId] ?? 0) + (wasLauded ? 1 : -1),
+        }));
+        toast.error('Failed to laud');
       } else {
-        toast.error(result.error || 'Please sign in to laud');
+        invalidateToolsCache();
       }
     } catch {
-      toast.error('Please sign in to laud');
+      // Revert on error
+      setLaudCountOverrides(prev => ({
+        ...prev,
+        [strId]: (prev[strId] ?? 0) + (wasLauded ? 1 : -1),
+      }));
+      toast.error('Failed to laud');
     } finally {
       setLaudingId(null);
     }
-  }, []);
+  }, [isAuthenticated, isLauded, toggleLaudGlobal]);
 
   // Ranked tools sorted by rank_score (real DB data)
   // Period filtering: for "today" and "week", boost recently launched tools;
@@ -619,6 +649,7 @@ export default function Launches() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+      <AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action="upvote" />
       <Navbar />
 
       <PageHero
@@ -708,9 +739,10 @@ export default function Launches() {
                   key={entry.tool.id}
                   entry={entry}
                   position={entry.rank as 1 | 2 | 3}
-                  laudedIds={laudedIds}
+                  isLaudedFn={isLauded}
                   onLaud={handleLaud}
                   laudingId={laudingId}
+                  laudCountOverrides={laudCountOverrides}
                 />
               ))}
             </div>
@@ -737,9 +769,10 @@ export default function Launches() {
               <LeaderboardRow
                 key={entry.tool.id}
                 entry={entry}
-                laudedIds={laudedIds}
+                isLaudedFn={isLauded}
                 onLaud={handleLaud}
                 laudingId={laudingId}
+                laudCountOverrides={laudCountOverrides}
               />
             ))
           ) : (

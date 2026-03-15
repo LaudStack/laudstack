@@ -27,9 +27,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Tool } from "@/lib/types";
-import { useAuth } from "@/hooks/useAuth";
-import { toggleLaud } from "@/app/actions/laud";
 import { useSavedTools } from "@/hooks/useSavedTools";
+import { useLaudedTools } from "@/hooks/useLaudedTools";
 import AuthGateModal from "@/components/AuthGateModal";
 
 // ─── Badge config ─────────────────────────────────────────────────────────────
@@ -254,34 +253,35 @@ interface ToolCardProps {
 
 // ─── Shared laud/save hooks ─────────────────────────────────────────────────
 
-function useUpvote(tool: Tool, initialUpvoted: boolean) {
-  const { isAuthenticated } = useAuth();
-  const [upvoted, setUpvoted] = useState(initialUpvoted);
+function useLaudGlobal(tool: Tool) {
+  const { isLauded, toggle } = useLaudedTools();
   const [upvoteCount, setUpvoteCount] = useState(tool.upvote_count);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const upvoted = isLauded(tool.id);
 
   const handleUpvote = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    const toolId = parseInt(tool.id, 10);
-    const wasUpvoted = upvoted;
-    setUpvoted(!wasUpvoted);
-    setUpvoteCount((c) => (wasUpvoted ? c - 1 : c + 1));
-    if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
-
     startTransition(async () => {
-      const result = await toggleLaud(toolId);
-      if (!result.success) {
-        setUpvoted(wasUpvoted);
-        setUpvoteCount((c) => (wasUpvoted ? c + 1 : c - 1));
-        toast.error(result.error || "Failed to laud");
-      } else if (result.newCount !== undefined) {
+      const wasUpvoted = upvoted;
+      // Optimistic count update (the global hook handles the ID set)
+      setUpvoteCount((c) => (wasUpvoted ? Math.max(0, c - 1) : c + 1));
+      if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
+
+      const result = await toggle(tool.id);
+      if (result.requiresAuth) {
+        // Revert optimistic count
+        setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+        setShowAuthModal(true);
+        return;
+      }
+      if (result.newCount !== undefined) {
         setUpvoteCount(result.newCount);
+      } else if (result.lauded === wasUpvoted) {
+        // Toggle failed silently — revert count
+        setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+        toast.error("Failed to laud");
       }
     });
   };
@@ -316,9 +316,9 @@ function useSaveGlobal(tool: Tool) {
 // ─── Compact Card ─────────────────────────────────────────────────────────────
 // Minimal row for leaderboards, sidebars, and small lists
 
-function CompactCard({ tool, rank, rankChange, initialUpvoted = false }: ToolCardProps) {
+function CompactCard({ tool, rank, rankChange }: ToolCardProps) {
   const { upvoted, upvoteCount, handleUpvote, isPending, showAuthModal, setShowAuthModal } =
-    useUpvote(tool, initialUpvoted);
+    useLaudGlobal(tool);
 
   return (
     <>
@@ -383,9 +383,9 @@ function CompactCard({ tool, rank, rankChange, initialUpvoted = false }: ToolCar
 // Large horizontal row card — the workhorse for browse, search, categories
 // Layout: [Logo 64px] [Name+✓ / ★Rating / Description 2 lines / 1 badge] [Upvote btn centered]
 
-function StandardCard({ tool, rank, initialUpvoted = false, hideCategory = false }: ToolCardProps) {
+function StandardCard({ tool, rank, hideCategory = false }: ToolCardProps) {
   const { upvoted, upvoteCount, handleUpvote, isPending: isPendingUpvote, showAuthModal: showUpvoteAuth, setShowAuthModal: setShowUpvoteAuth } =
-    useUpvote(tool, initialUpvoted);
+    useLaudGlobal(tool);
   const { saved, handleSave, isPending: isPendingSave, showAuthModal: showSaveAuth, setShowAuthModal: setShowSaveAuth } =
     useSaveGlobal(tool);
 
@@ -581,9 +581,9 @@ function StandardCard({ tool, rank, initialUpvoted = false, hideCategory = false
 // ─── Featured Card ──────────────────────────────────────────────────────────
 // Polished card with screenshot hero — for homepage featured/trending sections
 
-function FeaturedCard({ tool, rank, initialUpvoted = false }: ToolCardProps) {
+function FeaturedCard({ tool, rank }: ToolCardProps) {
   const { upvoted, upvoteCount, handleUpvote, isPending, showAuthModal, setShowAuthModal } =
-    useUpvote(tool, initialUpvoted);
+    useLaudGlobal(tool);
 
   const screenshotSrc = tool.screenshot_url || `https://api.microlink.io/?url=${encodeURIComponent(tool.website_url)}&screenshot=true&meta=false&embed=screenshot.url`;
   const [screenshotErr, setScreenshotErr] = useState(false);
