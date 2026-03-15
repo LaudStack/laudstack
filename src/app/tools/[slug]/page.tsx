@@ -528,7 +528,7 @@ export default function ToolDetail() {
           </div>
 
           {/* ── Hero Row ─────────────────────────────────────────────────── */}
-          <div className="py-5 sm:py-6">
+          <div className="py-4 sm:py-5">
 
             {/* Top row: Logo + Name + Tagline + Actions */}
             <div className="flex flex-col sm:flex-row gap-5 sm:gap-6">
@@ -549,38 +549,20 @@ export default function ToolDetail() {
 
                 {/* Left: Name + Tagline */}
                 <div className="flex-1 min-w-0">
-                  {/* Name */}
-                  <h1 className="text-2xl sm:text-[26px] lg:text-[30px] font-black text-slate-900 mb-1.5 sm:mb-2 leading-[1.15]" style={{ letterSpacing: '-0.02em' }}>
-                    {tool.name}
-                  </h1>
+                  {/* Name + inline verified badge */}
+                  <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                    <h1 className="text-xl sm:text-[22px] lg:text-[26px] font-black text-slate-900 leading-[1.15] m-0" style={{ letterSpacing: '-0.02em' }}>
+                      {tool.name}
+                    </h1>
+                    {tool.is_verified && (
+                      <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" aria-label="Verified" />
+                    )}
+                  </div>
 
                   {/* Tagline */}
                   <p className="text-[15px] sm:text-base text-slate-500 font-medium leading-relaxed max-w-[580px] m-0">
                     {tool.tagline}
                   </p>
-
-                  {/* Badges — below name and description, includes category */}
-                  <div className="flex flex-wrap items-center gap-2 mt-4">
-                    <Link href={`/tools?category=${encodeURIComponent(tool.category)}`}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-bold py-1 px-3 rounded-full bg-slate-100 text-slate-600 border border-slate-200 no-underline hover:border-amber-300 hover:text-amber-700 transition-colors">
-                      <Tag className="w-2.5 h-2.5" />
-                      {tool.category}
-                    </Link>
-                    {tool.is_verified && (
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold py-1 px-3 rounded-full bg-green-50 text-green-700 border border-green-200">
-                        <ShieldCheck className="w-3 h-3" /> Verified
-                      </span>
-                    )}
-                    {tool.badges.slice(0, 4).map(b => {
-                      const cfg = BADGE_CONFIG[b];
-                      if (!cfg) return null;
-                      return (
-                        <span key={b} className="inline-flex items-center text-[11px] font-bold py-1 px-3 rounded-full" style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
-                          {cfg.label}
-                        </span>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 {/* Right: Action buttons — stacks on mobile */}
@@ -589,33 +571,41 @@ export default function ToolDetail() {
                   {/* Primary CTA */}
                   <a href={tool.website_url} target="_blank" rel="noopener noreferrer"
                     onClick={() => trackOutboundClick('website')}
-                    className="flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-amber-400 text-gray-900 font-extrabold text-sm no-underline transition-all hover:bg-amber-500"
+                    className="flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl bg-amber-400 text-gray-900 font-extrabold text-sm no-underline transition-all hover:bg-amber-500"
                     style={{ boxShadow: '0 2px 10px rgba(245,158,11,0.25)' }}>
                     Visit Website <ExternalLink className="w-3.5 h-3.5" />
                   </a>
 
-                  {/* Secondary actions — horizontal row */}
-                  <div className="grid grid-cols-4 gap-1.5">
+                  {/* Laud + Review — prominent row */}
+                  <div className="grid grid-cols-2 gap-2">
                     <button onClick={handleUpvote}
-                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all"
+                      className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all border-none"
                       style={{
-                        border: upvoted ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
-                        background: upvoted ? '#FFFBEB' : '#FFFFFF',
-                        color: upvoted ? '#B45309' : '#475569',
+                        background: upvoted ? '#F59E0B' : '#1E293B',
+                        color: upvoted ? '#0A0A0A' : '#FFFFFF',
                       }}>
                       <ChevronUp className="w-4 h-4" />
-                      <span>{upvoted ? 'Lauded' : 'Laud'}</span>
+                      {upvoted ? 'Lauded' : 'Laud'}
                     </button>
 
+                    <button onClick={handleWriteReview}
+                      className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all border-none bg-slate-100 text-slate-700 hover:bg-slate-200">
+                      <MessageSquare className="w-4 h-4" />
+                      Review
+                    </button>
+                  </div>
+
+                  {/* Save + Compare — subtle secondary row */}
+                  <div className="grid grid-cols-2 gap-2">
                     <button onClick={() => { toggleSave(tool.id); toast.success(isSaved(tool.id) ? 'Removed from saved' : `Saved ${tool.name}!`); }}
-                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all"
+                      className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
                       style={{
                         border: isSaved(tool.id) ? '1.5px solid #F59E0B' : '1.5px solid #E2E8F0',
                         background: isSaved(tool.id) ? '#FFFBEB' : '#FFFFFF',
                         color: isSaved(tool.id) ? '#B45309' : '#475569',
                       }}>
-                      <Bookmark className="w-4 h-4" style={{ fill: isSaved(tool.id) ? '#F59E0B' : 'none' }} />
-                      <span>{isSaved(tool.id) ? 'Saved' : 'Save'}</span>
+                      <Bookmark className="w-3.5 h-3.5" style={{ fill: isSaved(tool.id) ? '#F59E0B' : 'none' }} />
+                      {isSaved(tool.id) ? 'Saved' : 'Save'}
                     </button>
 
                     <button onClick={() => {
@@ -623,36 +613,22 @@ export default function ToolDetail() {
                       compareToggle(tool);
                       if (!isComparing(tool.id)) toast.success(`${tool.name} added to comparison`);
                     }}
-                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all"
+                      className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
                       style={{
                         border: isComparing(tool.id) ? '1.5px solid #BFDBFE' : '1.5px solid #E2E8F0',
                         background: isComparing(tool.id) ? '#EFF6FF' : '#FFFFFF',
                         color: isComparing(tool.id) ? '#1D4ED8' : '#475569',
                       }}>
-                      <GitCompareArrows className="w-4 h-4" />
-                      <span>Compare</span>
+                      <GitCompareArrows className="w-3.5 h-3.5" />
+                      Compare
                     </button>
-
-                    <button onClick={handleWriteReview}
-                      className="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] font-bold cursor-pointer transition-all border-[1.5px] border-slate-200 bg-white text-slate-500 hover:border-amber-400 hover:text-amber-700">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>Review</span>
-                    </button>
-                  </div>
-
-                  {/* Website URL */}
-                  <div className="hidden sm:flex items-center gap-1.5 justify-center">
-                    <Globe className="w-3 h-3 text-slate-400 shrink-0" />
-                    <span className="text-[11px] text-slate-400 truncate max-w-[170px]">
-                      {tool.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Stats Strip — full width below hero row */}
-            <div className="mt-6 pt-6 border-t border-slate-100">
+            <div className="mt-4 pt-4 border-t border-slate-100">
               <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                 <div className="inline-flex items-stretch border border-slate-200 rounded-xl bg-slate-50 min-w-max">
                   {[
