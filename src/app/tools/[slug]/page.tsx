@@ -827,7 +827,13 @@ export default function ToolDetail() {
                       )}
                     </div>
                     <button
-                      onClick={() => setSelectedTab('discussion')}
+                      onClick={() => {
+                        setSelectedTab('discussion');
+                        // Scroll to the tab bar so the Discussion section is visible
+                        setTimeout(() => {
+                          document.getElementById('section-comments')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                      }}
                       className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 bg-transparent border-none cursor-pointer transition-colors"
                     >
                       {commentCount > 0 ? 'View all' : 'Start a discussion'} <ArrowRight className="w-3 h-3" />

@@ -519,6 +519,7 @@ export const comments = pgTable("comments", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("comments_tool_id_idx").on(table.toolId),
+  index("comments_parent_id_idx").on(table.parentCommentId),
 ]);
 
 export type Comment = typeof comments.$inferSelect;

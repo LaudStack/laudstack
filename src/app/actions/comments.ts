@@ -545,63 +545,23 @@ export async function deleteComment(
 
   const now = new Date();
 
-  // For top-level comments with replies: soft-delete but keep the row as placeholder
-  // For top-level comments without replies: soft-delete normally
-  // For replies: soft-delete normally
-  let deletedCount = 1;
+  // Soft-delete the comment (works for both top-level and replies).
+  // Top-level comments with active replies will show as "[deleted]" placeholder in the UI.
+  // Top-level comments without replies and all replies are hidden entirely.
+  await db
+    .update(comments)
+    .set({
+      isDeleted: true,
+      deletedAt: now,
+      updatedAt: now,
+    })
+    .where(eq(comments.id, commentId));
 
-  if (comment.parentCommentId === null) {
-    // Count active replies
-    const replyResult = await db
-      .select({ count: count() })
-      .from(comments)
-      .where(
-        and(
-          eq(comments.parentCommentId, commentId),
-          eq(comments.isDeleted, false)
-        )
-      );
-    const replyCount = replyResult[0]?.count ?? 0;
+  // If this was a reply, check if the parent is soft-deleted with no remaining active replies.
+  // If so, the parent is now an orphaned placeholder — the client will hide it automatically.
+  // We don't need to do anything server-side; the getCommentsByToolId query already filters these.
 
-    if (replyCount > 0) {
-      // Has replies — soft-delete only the parent, keep replies visible
-      // The parent will show as "[deleted]" placeholder in the UI
-      await db
-        .update(comments)
-        .set({
-          isDeleted: true,
-          deletedAt: now,
-          updatedAt: now,
-        })
-        .where(eq(comments.id, commentId));
-      // Don't cascade to replies — they stay visible
-      deletedCount = 1;
-    } else {
-      // No replies — soft-delete the parent
-      await db
-        .update(comments)
-        .set({
-          isDeleted: true,
-          deletedAt: now,
-          updatedAt: now,
-        })
-        .where(eq(comments.id, commentId));
-      deletedCount = 1;
-    }
-  } else {
-    // It's a reply — just soft-delete it
-    await db
-      .update(comments)
-      .set({
-        isDeleted: true,
-        deletedAt: now,
-        updatedAt: now,
-      })
-      .where(eq(comments.id, commentId));
-    deletedCount = 1;
-  }
-
-  return { success: true, deletedCount };
+  return { success: true, deletedCount: 1 };
 }
 
 // ─── Get comment count for a tool ─────────────────────────────────────────────

@@ -636,7 +636,7 @@ function CommentsSectionInner({
           filter: `tool_id=eq.${toolId}`,
         },
         (payload) => {
-          const newRecord = payload.new as { id?: number; is_deleted?: boolean } | undefined;
+          const newRecord = payload.new as { id?: number; is_deleted?: boolean; is_edited?: boolean; content?: string } | undefined;
           const oldRecord = payload.old as { id?: number } | undefined;
 
           if (payload.eventType === "INSERT" && newRecord?.id) {
@@ -645,10 +645,10 @@ function CommentsSectionInner({
               setNewRealtimeCount((c) => c + 1);
             }
           } else if (payload.eventType === "UPDATE") {
-            // If a comment was soft-deleted or edited, bump the refresh counter
+            // Handle soft-delete or edit from another user in real-time
             if (newRecord?.id && knownIdsRef.current.has(newRecord.id)) {
-              // If it was soft-deleted, update local state immediately
               if (newRecord.is_deleted) {
+                // Soft-deleted — show [deleted] placeholder immediately
                 setCommentsList((prev) =>
                   prev.map((c) => {
                     if (c.id === newRecord.id) {
@@ -674,6 +674,26 @@ function CommentsSectionInner({
                     };
                   })
                 );
+              } else if (newRecord.is_edited && newRecord.content) {
+                // Edited — update content in-place from the Realtime payload
+                const updatedContent = newRecord.content;
+                if (updatedContent) {
+                  setCommentsList((prev) =>
+                    prev.map((c) => {
+                      if (c.id === newRecord.id) {
+                        return { ...c, content: updatedContent, isEdited: true };
+                      }
+                      return {
+                        ...c,
+                        replies: c.replies.map((r) =>
+                          r.id === newRecord.id
+                            ? { ...r, content: updatedContent, isEdited: true }
+                            : r
+                        ),
+                      };
+                    })
+                  );
+                }
               }
             }
           } else if (payload.eventType === "DELETE" && oldRecord?.id) {
