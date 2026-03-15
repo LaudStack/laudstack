@@ -672,11 +672,12 @@ export default function ToolDetail() {
                   {/* Save + Compare */}
                   <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={() => {
-                        if (!isAuthenticated) { setAuthAction('save'); setShowAuthModal(true); return; }
-                        const wasSaved = isSaved(tool.id);
-                        toggleSave(tool.id);
-                        toast.success(wasSaved ? 'Removed from saved' : `Saved ${tool.name}!`);
+                      onClick={async () => {
+                        const result = await toggleSave(tool.id);
+                        if (result.requiresAuth) { setAuthAction('save'); setShowAuthModal(true); return; }
+                        if (result.saved !== undefined) {
+                          toast.success(result.saved ? `Saved ${tool.name}!` : 'Removed from saved');
+                        }
                       }}
                       className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
                       style={{

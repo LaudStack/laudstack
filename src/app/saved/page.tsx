@@ -5,11 +5,13 @@
  * Design: Clean white, consistent with the rest of the platform.
  * Shows all bookmarked tools in a responsive grid.
  * Empty state guides users back to browsing.
+ * Loading skeleton prevents flash of empty state.
  */
 
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { Bookmark, ArrowLeft, Search, Trash2, ChevronRight, ExternalLink } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Bookmark, ArrowLeft, Search, Trash2, ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import PageHero from '@/components/PageHero';
@@ -19,19 +21,29 @@ import { useSavedTools } from '@/hooks/useSavedTools';
 import { useToolsData } from '@/hooks/useToolsData';
 
 export default function Saved() {
-  const { tools: allTools, reviews: allReviews, loading: toolsLoading } = useToolsData();
-
+  const { tools: allTools, loading: toolsLoading } = useToolsData();
   const router = useRouter();
-  const { savedIds, isSaved, toggle, clear } = useSavedTools();
+  const { savedIds, clear, loading: savedLoading } = useSavedTools();
+  const [clearing, setClearing] = useState(false);
 
   // Resolve saved IDs to full tool objects (maintain save order — most recent first)
   const savedTools = savedIds
     .map(id => allTools.find(t => t.id === id))
     .filter(Boolean) as typeof allTools;
 
-  const handleClearAll = () => {
-    clear();
-    toast.success('All saved stacks cleared');
+  const isLoading = toolsLoading || savedLoading;
+
+  const handleClearAll = async () => {
+    if (!confirm('Remove all saved stacks? This cannot be undone.')) return;
+    setClearing(true);
+    try {
+      await clear();
+      toast.success('All saved stacks cleared');
+    } catch {
+      toast.error('Failed to clear saved stacks');
+    } finally {
+      setClearing(false);
+    }
   };
 
   return (
@@ -39,19 +51,26 @@ export default function Saved() {
       <Navbar />
       <PageHero
         eyebrow="Your Collection"
-        title={savedTools.length > 0 ? `Saved Stacks (${savedTools.length})` : 'Saved Stacks'}
-        subtitle="Tools you’ve bookmarked for quick access. Save any tool from the directory to build your personal stack."
+        title={!isLoading && savedTools.length > 0 ? `Saved Stacks (${savedTools.length})` : 'Saved Stacks'}
+        subtitle="Tools you've bookmarked for quick access. Save any tool from the directory to build your personal stack."
         accent="amber"
         layout="default"
         size="sm"
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {savedTools.length > 0 && (
+          {!isLoading && savedTools.length > 0 && (
             <button
               onClick={handleClearAll}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '9px', border: '1.5px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+              disabled={clearing}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
+                borderRadius: '9px', border: '1.5px solid #FECACA', background: '#FEF2F2',
+                color: '#DC2626', fontWeight: 600, fontSize: '13px',
+                cursor: clearing ? 'wait' : 'pointer', opacity: clearing ? 0.6 : 1,
+              }}
             >
-              <Trash2 style={{ width: '13px', height: '13px' }} /> Clear All
+              {clearing ? <Loader2 style={{ width: '13px', height: '13px' }} className="animate-spin" /> : <Trash2 style={{ width: '13px', height: '13px' }} />}
+              {clearing ? 'Clearing…' : 'Clear All'}
             </button>
           )}
           <button
@@ -66,10 +85,34 @@ export default function Saved() {
       {/* ── Content ── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 40px 80px', width: '100%', boxSizing: 'border-box', flex: 1 }}>
 
-        {savedTools.length === 0 ? (
+        {isLoading ? (
+          /* ── Loading skeleton ── */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <div style={{ width: 120, height: 16, borderRadius: 6, background: '#E2E8F0' }} />
+              <div style={{ width: 160, height: 12, borderRadius: 6, background: '#F1F5F9' }} />
+            </div>
+            {[1, 2, 3].map(i => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 16, padding: '20px',
+                  borderRadius: 16, border: '1px solid #E5E7EB', background: '#FFFFFF',
+                }}
+              >
+                <div style={{ width: 64, height: 64, borderRadius: 14, background: '#F1F5F9', flexShrink: 0 }} />
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ width: '40%', height: 18, borderRadius: 6, background: '#E2E8F0' }} />
+                  <div style={{ width: '25%', height: 12, borderRadius: 6, background: '#F1F5F9' }} />
+                  <div style={{ width: '80%', height: 12, borderRadius: 6, background: '#F1F5F9' }} />
+                </div>
+                <div style={{ width: 48, height: 56, borderRadius: 10, background: '#F1F5F9', flexShrink: 0 }} />
+              </div>
+            ))}
+          </div>
+        ) : savedTools.length === 0 ? (
           /* ── Empty state ── */
           <div
-              
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '80px 24px', textAlign: 'center' }}
           >
             <div style={{ width: '80px', height: '80px', borderRadius: '22px', background: 'linear-gradient(135deg, #FFF7ED, #FFFBEB)', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -98,29 +141,21 @@ export default function Saved() {
           </div>
         ) : (
           /* ── Tool grid ── */
-          <>
-            <div
-                
-              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-            >
-              {/* Summary bar */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
-                  <strong style={{ color: '#171717' }}>{savedTools.length}</strong> tool{savedTools.length !== 1 ? 's' : ''} saved
-                </p>
-                <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>Sorted by most recently saved</p>
-              </div>
-
-              {savedTools.map((tool, i) => (
-                <div
-                  key={tool.id}
-                  
-                >
-                  <ToolCard tool={tool} />
-                </div>
-              ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Summary bar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
+                <strong style={{ color: '#171717' }}>{savedTools.length}</strong> tool{savedTools.length !== 1 ? 's' : ''} saved
+              </p>
+              <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>Sorted by most recently saved</p>
             </div>
-          </>
+
+            {savedTools.map((tool) => (
+              <div key={tool.id}>
+                <ToolCard tool={tool} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

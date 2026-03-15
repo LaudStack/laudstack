@@ -287,8 +287,21 @@ export async function toggleUpvote(toolId: number) {
 }
 
 export async function toggleSaveTool(toolId: number) {
+  // F12: Input validation
+  if (!toolId || !Number.isFinite(toolId) || toolId <= 0) {
+    return { success: false, error: "Invalid tool ID" };
+  }
+
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Please sign in to save tools" };
+
+  // F4: Verify tool exists and is approved/visible
+  const [tool] = await db.select({ id: tools.id, status: tools.status })
+    .from(tools)
+    .where(eq(tools.id, toolId))
+    .limit(1);
+  if (!tool) return { success: false, error: "Tool not found" };
+  if (tool.status !== "approved" && tool.status !== "featured") return { success: false, error: "Tool is not available" };
 
   const existing = await db.query.savedTools.findFirst({
     where: and(eq(savedTools.toolId, toolId), eq(savedTools.userId, user.id)),
@@ -296,9 +309,27 @@ export async function toggleSaveTool(toolId: number) {
 
   if (existing) {
     await db.delete(savedTools).where(eq(savedTools.id, existing.id));
+    // F5: Decrement saveCount on the tool
+    await db.update(tools)
+      .set({ saveCount: sql`GREATEST(${tools.saveCount} - 1, 0)` })
+      .where(eq(tools.id, toolId));
     return { success: true, saved: false };
   } else {
-    await db.insert(savedTools).values({ toolId, userId: user.id });
+    // F1: Use ON CONFLICT to prevent duplicates (belt-and-suspenders with the unique constraint)
+    try {
+      await db.insert(savedTools).values({ toolId, userId: user.id });
+    } catch (err: unknown) {
+      // If unique constraint violation, treat as already saved
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("duplicate") || msg.includes("unique") || msg.includes("23505")) {
+        return { success: true, saved: true };
+      }
+      throw err;
+    }
+    // F5: Increment saveCount on the tool
+    await db.update(tools)
+      .set({ saveCount: sql`${tools.saveCount} + 1` })
+      .where(eq(tools.id, toolId));
     return { success: true, saved: true };
   }
 }
@@ -342,6 +373,30 @@ export async function getUserSavedToolIds() {
     .where(eq(savedTools.userId, user.id));
 
   return rows.map(r => r.toolId);
+}
+
+export async function clearAllSavedTools() {
+  const user = await getCurrentUser();
+  if (!user) return { success: false, error: "Please sign in" };
+
+  // Get all saved tool IDs to decrement their saveCount
+  const rows = await db.select({ toolId: savedTools.toolId })
+    .from(savedTools)
+    .where(eq(savedTools.userId, user.id));
+
+  if (rows.length === 0) return { success: true, cleared: 0 };
+
+  // Delete all saved entries for this user
+  await db.delete(savedTools).where(eq(savedTools.userId, user.id));
+
+  // Decrement saveCount for each tool
+  for (const row of rows) {
+    await db.update(tools)
+      .set({ saveCount: sql`GREATEST(${tools.saveCount} - 1, 0)` })
+      .where(eq(tools.id, row.toolId));
+  }
+
+  return { success: true, cleared: rows.length };
 }
 
 // ─── Anti-Fraud Helpers ──────────────────────────────────────────────────────

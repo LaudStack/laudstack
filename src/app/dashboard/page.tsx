@@ -708,7 +708,7 @@ function SavedTab() {
                     <Link href={`/tools/${tool.slug}`} className="text-slate-900 font-bold text-sm hover:text-amber-600 transition-colors truncate">
                       {tool.name}
                     </Link>
-                    <button onClick={() => toggle(tool.id)} className="flex-shrink-0 p-1 text-amber-400 hover:text-slate-400 transition-colors" title="Remove from saved">
+                    <button onClick={async () => { const r = await toggle(tool.id); if (r.saved === false) toast.success('Removed from saved'); }} className="flex-shrink-0 p-1 text-amber-400 hover:text-slate-400 transition-colors" title="Remove from saved">
                       <Bookmark className="w-4 h-4 fill-current" />
                     </button>
                   </div>

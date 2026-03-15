@@ -3,7 +3,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { db, getUserBySupabaseId } from "@/server/db";
-import { users, tools, reviews, upvotes, savedTools, deals } from "@/drizzle/schema";
+import { users, tools, reviews, upvotes, deals } from "@/drizzle/schema";
 import type { User } from "@/drizzle/schema";
 import { eq, and, sql, count } from "drizzle-orm";
 import { sendWelcomeEmail } from "@/server/email";
@@ -94,31 +94,6 @@ export async function toggleUpvote(toolId: number) {
 export async function getUserUpvotes() {
   const { getUserLaudedToolIds } = await import("@/app/actions/laud");
   return getUserLaudedToolIds();
-}
-
-// ─── Save Tool ────────────────────────────────────────────────────────────────
-
-export async function toggleSaveTool(toolId: number) {
-  const user = await requireAuth();
-  
-  const existing = await db.select().from(savedTools)
-    .where(and(eq(savedTools.toolId, toolId), eq(savedTools.userId, user.id)))
-    .limit(1);
-  
-  if (existing.length > 0) {
-    await db.delete(savedTools).where(eq(savedTools.id, existing[0].id));
-    return { saved: false };
-  } else {
-    await db.insert(savedTools).values({ toolId, userId: user.id });
-    return { saved: true };
-  }
-}
-
-export async function getUserSavedTools() {
-  const user = await requireAuth();
-  const rows = await db.select({ toolId: savedTools.toolId }).from(savedTools)
-    .where(eq(savedTools.userId, user.id));
-  return rows.map(r => r.toolId);
 }
 
 // ─── Reviews ──────────────────────────────────────────────────────────────────

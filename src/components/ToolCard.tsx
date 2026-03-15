@@ -28,8 +28,8 @@ import {
 import { toast } from "sonner";
 import type { Tool } from "@/lib/types";
 import { useAuth } from "@/hooks/useAuth";
-import { toggleSaveTool } from "@/app/actions/public";
 import { toggleLaud } from "@/app/actions/laud";
+import { useSavedTools } from "@/hooks/useSavedTools";
 import AuthGateModal from "@/components/AuthGateModal";
 
 // ─── Badge config ─────────────────────────────────────────────────────────────
@@ -246,6 +246,7 @@ interface ToolCardProps {
   compact?: boolean;
   featured?: boolean;
   initialUpvoted?: boolean;
+  /** @deprecated No longer used — save state comes from useSavedTools global hook */
   initialSaved?: boolean;
   showScreenshot?: boolean;
   hideCategory?: boolean; // hide category pill when user already selected a category
@@ -288,29 +289,23 @@ function useUpvote(tool: Tool, initialUpvoted: boolean) {
   return { upvoted, upvoteCount, handleUpvote, isPending, showAuthModal, setShowAuthModal };
 }
 
-function useSave(tool: Tool, initialSaved: boolean) {
-  const { isAuthenticated } = useAuth();
-  const [saved, setSaved] = useState(initialSaved);
+function useSaveGlobal(tool: Tool) {
+  const { isSaved, toggle } = useSavedTools();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const saved = isSaved(tool.id);
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    const toolId = parseInt(tool.id, 10);
-    const wasSaved = saved;
-    setSaved(!wasSaved);
-    toast.success(wasSaved ? "Removed from saved" : `${tool.name} saved!`);
-
     startTransition(async () => {
-      const result = await toggleSaveTool(toolId);
-      if (!result.success) {
-        setSaved(wasSaved);
-        toast.error(result.error || "Failed to save");
+      const result = await toggle(tool.id);
+      if (result.requiresAuth) {
+        setShowAuthModal(true);
+        return;
+      }
+      if (result.saved !== undefined) {
+        toast.success(result.saved ? `${tool.name} saved!` : "Removed from saved");
       }
     });
   };
@@ -388,11 +383,11 @@ function CompactCard({ tool, rank, rankChange, initialUpvoted = false }: ToolCar
 // Large horizontal row card — the workhorse for browse, search, categories
 // Layout: [Logo 64px] [Name+✓ / ★Rating / Description 2 lines / 1 badge] [Upvote btn centered]
 
-function StandardCard({ tool, rank, initialUpvoted = false, initialSaved = false, hideCategory = false }: ToolCardProps) {
+function StandardCard({ tool, rank, initialUpvoted = false, hideCategory = false }: ToolCardProps) {
   const { upvoted, upvoteCount, handleUpvote, isPending: isPendingUpvote, showAuthModal: showUpvoteAuth, setShowAuthModal: setShowUpvoteAuth } =
     useUpvote(tool, initialUpvoted);
   const { saved, handleSave, isPending: isPendingSave, showAuthModal: showSaveAuth, setShowAuthModal: setShowSaveAuth } =
-    useSave(tool, initialSaved);
+    useSaveGlobal(tool);
 
   // Only show 1 badge max to keep it clean
   const visibleBadges = (tool.badges as BadgeType[]).filter(b => BADGE_CONFIG[b]).slice(0, 1);
@@ -551,14 +546,32 @@ function StandardCard({ tool, rank, initialUpvoted = false, initialSaved = false
           </button>
         </div>
 
-        {/* Mobile upvote — top right */}
-        <div className="sm:hidden shrink-0 self-start mt-0.5">
+        {/* Mobile: upvote + save — top right */}
+        <div className="sm:hidden shrink-0 self-start mt-0.5 flex flex-col items-center gap-1.5">
           <UpvoteButton
             count={upvoteCount}
             active={upvoted}
             onClick={handleUpvote}
             pending={isPendingUpvote}
           />
+          <button
+            onClick={handleSave}
+            disabled={isPendingSave}
+            className="flex items-center justify-center transition-all"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              border: "1.5px solid",
+              background: saved ? "#DBEAFE" : "#FAFAFA",
+              borderColor: saved ? "#93C5FD" : "#E5E7EB",
+              color: saved ? "#1D4ED8" : "#9CA3AF",
+              cursor: isPendingSave ? "wait" : "pointer",
+              opacity: isPendingSave ? 0.6 : 1,
+            }}
+          >
+            <Bookmark style={{ width: 12, height: 12 }} fill={saved ? "#1D4ED8" : "none"} />
+          </button>
         </div>
       </Link>
     </>
