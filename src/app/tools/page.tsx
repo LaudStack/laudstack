@@ -117,7 +117,7 @@ function parseParams(params: URLSearchParams) {
   };
 }
 
-/* ── Collapsible filter section ─────────────────────────────────────────────── */
+/* ── Collapsible filter section (accordion) ────────────────────────────────── */
 
 function FilterSection({
   title,
@@ -135,36 +135,68 @@ function FilterSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 overflow-hidden shadow-sm">
+    <div
+      className={`rounded-xl border overflow-hidden transition-all duration-200 ${
+        expanded
+          ? 'bg-white border-slate-200 shadow-sm'
+          : 'bg-white/60 border-slate-200/60 hover:bg-white hover:border-slate-200 hover:shadow-sm'
+      }`}
+    >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 bg-transparent border-none cursor-pointer transition-colors hover:bg-slate-50/80 group"
+        className="w-full flex items-center justify-between px-4 py-3.5 bg-transparent border-none cursor-pointer transition-colors group"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
-            <Icon className="w-3.5 h-3.5 text-slate-500" />
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 ${
+              expanded
+                ? 'bg-amber-50 border border-amber-200/60'
+                : 'bg-slate-50 border border-slate-100 group-hover:bg-slate-100'
+            }`}
+          >
+            <Icon
+              className={`w-3.5 h-3.5 transition-colors duration-200 ${
+                expanded ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-500'
+              }`}
+            />
           </div>
-          <span className="text-[13px] font-bold text-slate-800 tracking-tight">{title}</span>
+          <span
+            className={`text-[13px] font-bold tracking-tight transition-colors duration-200 ${
+              expanded ? 'text-slate-900' : 'text-slate-600 group-hover:text-slate-800'
+            }`}
+          >
+            {title}
+          </span>
           {count !== undefined && count > 0 && (
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 border border-amber-200/60 px-1.5 py-px rounded-full min-w-[18px] text-center">
+            <span className="text-[10px] font-bold text-white bg-amber-500 px-1.5 py-px rounded-full min-w-[18px] text-center shadow-sm shadow-amber-500/20">
               {count}
             </span>
           )}
         </div>
-        <div className="w-6 h-6 rounded-md flex items-center justify-center transition-colors group-hover:bg-slate-100">
-          {expanded
-            ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
-            : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-          }
+        <div
+          className={`w-6 h-6 rounded-md flex items-center justify-center transition-all duration-200 ${
+            expanded ? 'bg-amber-50 rotate-180' : 'group-hover:bg-slate-100'
+          }`}
+        >
+          <ChevronDown
+            className={`w-3.5 h-3.5 transition-colors duration-200 ${
+              expanded ? 'text-amber-500' : 'text-slate-400'
+            }`}
+          />
         </div>
       </button>
-      {expanded && (
-        <div className="px-3 pb-3 max-h-[280px] overflow-y-auto border-t border-slate-100/80">
-          <div className="pt-2 flex flex-col gap-0.5">
-            {children}
+      <div
+        className="grid transition-all duration-200 ease-in-out"
+        style={{ gridTemplateRows: expanded ? '1fr' : '0fr' }}
+      >
+        <div className="overflow-hidden">
+          <div className="px-3 pb-3 max-h-[300px] overflow-y-auto border-t border-slate-100/80">
+            <div className="pt-2 flex flex-col gap-0.5">
+              {children}
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -514,10 +546,11 @@ export default function AllTools() {
   const [activeBadge, setActiveBadge] = useState(initialParams.badge);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [catExpanded, setCatExpanded] = useState(true);
-  const [pricingExpanded, setPricingExpanded] = useState(true);
-  const [ratingExpanded, setRatingExpanded] = useState(true);
-  const [badgeExpanded, setBadgeExpanded] = useState(true);
+  const [openSection, setOpenSection] = useState<string | null>('category');
+  const toggleSection = useCallback((id: string) => {
+    setOpenSection(prev => prev === id ? null : id);
+  }, []);
+  const [catSearch, setCatSearch] = useState('');
   const [syncingFromUrl, setSyncingFromUrl] = useState(false);
   const [visibleCount, setVisibleCount] = useState(30);
   const [laudedIds, setLaudedIds] = useState<Set<string>>(new Set());
@@ -855,27 +888,45 @@ export default function AllTools() {
                 <FilterSection
                   title="Category"
                   icon={LayoutGrid}
-                  expanded={catExpanded}
-                  onToggle={() => setCatExpanded(v => !v)}
+                  expanded={openSection === 'category'}
+                  onToggle={() => toggleSection('category')}
                   count={selectedCategories.length || undefined}
                 >
-                  {categoryNames.map(cat => (
-                    <FilterCheckbox
-                      key={cat}
-                      label={cat}
-                      checked={selectedCategories.includes(cat)}
-                      onChange={() => toggleCategory(cat)}
-                      count={catCounts[cat] || 0}
-                    />
-                  ))}
+                  <div className="mb-1.5">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+                      <input
+                        type="text"
+                        value={catSearch}
+                        onChange={e => setCatSearch(e.target.value)}
+                        placeholder="Search categories..."
+                        className="w-full pl-7 pr-2 py-[6px] text-[12px] text-slate-700 bg-slate-50 border border-slate-200/80 rounded-lg outline-none placeholder:text-slate-400 focus:border-amber-300 focus:ring-1 focus:ring-amber-200 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  {categoryNames
+                    .filter(cat => !catSearch.trim() || cat.toLowerCase().includes(catSearch.toLowerCase()))
+                    .map(cat => (
+                      <FilterCheckbox
+                        key={cat}
+                        label={cat}
+                        checked={selectedCategories.includes(cat)}
+                        onChange={() => toggleCategory(cat)}
+                        count={catCounts[cat] || 0}
+                      />
+                    ))
+                  }
+                  {catSearch.trim() && categoryNames.filter(cat => cat.toLowerCase().includes(catSearch.toLowerCase())).length === 0 && (
+                    <p className="text-[11px] text-slate-400 text-center py-2">No matching categories</p>
+                  )}
                 </FilterSection>
 
                 {/* Pricing */}
                 <FilterSection
                   title="Pricing"
                   icon={Tag}
-                  expanded={pricingExpanded}
-                  onToggle={() => setPricingExpanded(v => !v)}
+                  expanded={openSection === 'pricing'}
+                  onToggle={() => toggleSection('pricing')}
                   count={selectedPricing.length || undefined}
                 >
                   {PRICING_OPTIONS.map(p => (
@@ -892,8 +943,8 @@ export default function AllTools() {
                 <FilterSection
                   title="Badges"
                   icon={Sparkles}
-                  expanded={badgeExpanded}
-                  onToggle={() => setBadgeExpanded(v => !v)}
+                  expanded={openSection === 'badges'}
+                  onToggle={() => toggleSection('badges')}
                   count={activeBadge ? 1 : undefined}
                 >
                   <FilterRadio
@@ -918,8 +969,8 @@ export default function AllTools() {
                 <FilterSection
                   title="Min Rating"
                   icon={Star}
-                  expanded={ratingExpanded}
-                  onToggle={() => setRatingExpanded(v => !v)}
+                  expanded={openSection === 'rating'}
+                  onToggle={() => toggleSection('rating')}
                   count={minRating > 0 ? 1 : undefined}
                 >
                   {RATING_OPTIONS.map(r => (
