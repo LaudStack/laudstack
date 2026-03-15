@@ -294,7 +294,6 @@ export default function AlternativesPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
-      <div className="h-[72px] shrink-0" />
 
       {/* ── Hero (matches /categories hero pattern) ── */}
       <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">

@@ -1,10 +1,8 @@
 "use client";
-
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Award } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PageHero from "@/components/PageHero";
 
 interface Collection {
   slug: string;
@@ -19,109 +17,71 @@ export default function BestToolsIndexClient({
   collections: Collection[];
 }) {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#F8FAFC",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
-      <PageHero
-        eyebrow="Curated Collections"
-        title="Best AI & SaaS Tools"
-        subtitle="Browse curated collections of the best tools for every use case, ranked by community reviews and Laud votes."
-        accent="amber"
-        layout="default"
-        size="sm"
-      />
 
-      <div
-        className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10"
-        style={{ paddingTop: "32px", paddingBottom: "64px", flex: 1 }}
-      >
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-          style={{ gap: "20px" }}
-        >
+      {/* ══════════ UNIFIED HERO — matches /categories pattern ══════════ */}
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 mb-5">
+            <Link
+              href="/"
+              className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors"
+            >
+              Home
+            </Link>
+            <span className="text-[11px] text-slate-300">/</span>
+            <span className="text-xs text-slate-500 font-semibold">
+              Best Stacks
+            </span>
+          </nav>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-6 flex-wrap mb-2">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <Award className="w-3 h-3" />
+                  Curated Collections
+                </span>
+              </div>
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
+                Best AI &amp; SaaS Tools
+              </h1>
+              <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed max-w-xl">
+                Browse curated collections of the best tools for every use case,
+                ranked by community reviews and Laud votes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ COLLECTION GRID ══════════ */}
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 py-8 sm:py-10 flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {collections.map((c) => (
             <Link
               key={c.slug}
               href={`/best/${c.slug}`}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                padding: "24px",
-                background: "#FFFFFF",
-                borderRadius: "16px",
-                border: "1px solid #E8ECF0",
-                textDecoration: "none",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              }}
+              className="flex flex-col p-6 bg-white rounded-2xl border border-slate-200 no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-amber-300 group"
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginBottom: "10px",
-                }}
-              >
-                <Sparkles
-                  style={{ width: "16px", height: "16px", color: "#F59E0B" }}
-                />
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    color: "#B45309",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
+              <div className="flex items-center gap-2 mb-2.5">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">
                   {c.count} tools
                 </span>
               </div>
-              <h3
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 800,
-                  color: "#171717",
-                  marginBottom: "6px",
-                  lineHeight: 1.3,
-                }}
-              >
+              <h3 className="text-base font-extrabold text-gray-900 mb-1.5 leading-snug">
                 {c.title}
               </h3>
-              <p
-                style={{
-                  fontSize: "13px",
-                  color: "#6B7280",
-                  lineHeight: 1.5,
-                  flex: 1,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
+              <p className="text-[13px] text-gray-500 leading-snug flex-1 line-clamp-2">
                 {c.description}
               </p>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  marginTop: "14px",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  color: "#D97706",
-                }}
-              >
+              <div className="flex items-center gap-1 mt-3.5 text-[13px] font-bold text-amber-600 group-hover:text-amber-700 transition-colors">
                 Browse collection
-                <ArrowRight style={{ width: "13px", height: "13px" }} />
+                <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </Link>
           ))}

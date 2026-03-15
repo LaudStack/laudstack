@@ -2,10 +2,12 @@
 /**
  * SEOPageShell — Shared layout for all programmatic SEO pages.
  *
- * Provides: Navbar + PageHero + filter bar + tool grid + pagination + internal links + Footer
+ * Provides: Navbar + unified hero (breadcrumb inside) + filter bar + tool grid
+ *           + pagination + internal links + Footer
+ *
  * All SEO pages compose this shell with their specific data.
  */
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,10 +17,11 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PageHero from "@/components/PageHero";
+import LogoWithFallback from "@/components/LogoWithFallback";
 import type { Tool } from "@/lib/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -30,7 +33,7 @@ interface InternalLink {
 }
 
 interface SEOPageShellProps {
-  /** PageHero props */
+  /** Hero props */
   eyebrow: string;
   title: string;
   subtitle: string;
@@ -51,7 +54,7 @@ interface SEOPageShellProps {
   relatedLinksTitle?: string;
   /** Breadcrumbs */
   breadcrumbs?: { label: string; href?: string }[];
-  /** Optional intro text for SEO */
+  /** Optional intro text for SEO (rendered as subtitle, not a separate section) */
   introText?: string;
   /** Optional children below the tool grid */
   children?: React.ReactNode;
@@ -72,255 +75,75 @@ function SEOToolCard({ tool }: { tool: Tool }) {
   return (
     <div
       onClick={() => router.push(`/tools/${tool.slug}`)}
-      style={{
-        background: "#FFFFFF",
-        borderRadius: "16px",
-        border: "1px solid #E8ECF0",
-        overflow: "hidden",
-        cursor: "pointer",
-        display: "flex",
-        flexDirection: "column",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
-      }}
+      className="bg-white rounded-2xl border border-slate-200 overflow-hidden cursor-pointer flex flex-col shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
     >
       {/* Header */}
-      <div
-        style={{
-          padding: "14px 14px 10px",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "12px",
-        }}
-      >
-        <div
-          style={{
-            width: "48px",
-            height: "48px",
-            borderRadius: "12px",
-            flexShrink: 0,
-            border: "1px solid #E8ECF0",
-            background: "#F8FAFC",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <img
+      <div className="p-3.5 pb-2.5 flex items-start gap-3">
+        <div className="w-12 h-12 rounded-xl shrink-0 border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+          <LogoWithFallback
             src={tool.logo_url}
             alt={tool.name}
-            style={{ width: "36px", height: "36px", objectFit: "contain" }}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              if (e.currentTarget.parentElement)
-                e.currentTarget.parentElement.innerHTML = `<span style="font-size:18px;font-weight:800;color:#64748B">${tool.name.charAt(0)}</span>`;
-            }}
+            className="w-9 h-9 object-contain"
+            fallbackSize="text-lg"
           />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              marginBottom: "3px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: 800,
-                color: "#171717",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-sm font-extrabold text-gray-900 truncate">
               {tool.name}
             </span>
             {tool.is_verified && (
-              <Shield
-                style={{ width: "12px", height: "12px", color: "#22C55E" }}
-              />
+              <Shield className="w-3 h-3 text-green-500 shrink-0" />
             )}
           </div>
-          <span
-            style={{
-              fontSize: "11px",
-              color: "#6B7280",
-              fontWeight: 600,
-              background: "#F3F4F6",
-              padding: "2px 8px",
-              borderRadius: "6px",
-            }}
-          >
+          <span className="text-[11px] text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
             {tool.category}
           </span>
         </div>
       </div>
 
       {/* Tagline */}
-      <div style={{ padding: "0 14px 10px" }}>
-        <p
-          style={{
-            fontSize: "13px",
-            color: "#6B7280",
-            lineHeight: 1.5,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
+      <div className="px-3.5 pb-2.5">
+        <p className="text-[13px] text-gray-500 leading-snug line-clamp-2">
           {tool.tagline}
         </p>
       </div>
 
       {/* Footer */}
-      <div
-        style={{
-          marginTop: "auto",
-          padding: "10px 14px",
-          borderTop: "1px solid #F1F5F9",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="mt-auto px-3.5 py-2.5 border-t border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-3">
           {/* Rating */}
-          <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-            <Star
-              style={{
-                width: "12px",
-                height: "12px",
-                fill: "#F59E0B",
-                color: "#F59E0B",
-              }}
-            />
-            <span
-              style={{ fontSize: "12px", fontWeight: 700, color: "#171717" }}
-            >
+          <div className="flex items-center gap-1">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+            <span className="text-xs font-bold text-gray-900">
               {tool.average_rating > 0
                 ? tool.average_rating.toFixed(1)
                 : "N/A"}
             </span>
             {tool.review_count > 0 && (
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "#9CA3AF",
-                  fontWeight: 500,
-                }}
-              >
+              <span className="text-[11px] text-gray-400 font-medium">
                 ({tool.review_count})
               </span>
             )}
           </div>
           {/* Pricing */}
           <span
-            style={{
-              fontSize: "11px",
-              fontWeight: 600,
-              color: tool.pricing_model === "Free" ? "#15803D" : "#475569",
-              background:
-                tool.pricing_model === "Free" ? "#F0FDF4" : "#F8FAFC",
-              padding: "2px 8px",
-              borderRadius: "6px",
-              border: `1px solid ${tool.pricing_model === "Free" ? "#BBF7D0" : "#E8ECF0"}`,
-            }}
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+              tool.pricing_model === "Free"
+                ? "text-green-700 bg-green-50 border-green-200"
+                : "text-slate-600 bg-slate-50 border-slate-200"
+            }`}
           >
             {tool.pricing_model}
           </span>
         </div>
         {/* Lauds */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "3px",
-            color: "#6B7280",
-          }}
-        >
-          <ChevronUp style={{ width: "14px", height: "14px" }} />
-          <span style={{ fontSize: "12px", fontWeight: 700 }}>
-            {tool.upvote_count}
-          </span>
+        <div className="flex items-center gap-0.5 text-gray-500">
+          <ChevronUp className="w-3.5 h-3.5" />
+          <span className="text-xs font-bold">{tool.upvote_count}</span>
         </div>
       </div>
     </div>
-  );
-}
-
-// ─── Breadcrumbs ──────────────────────────────────────────────────────────────
-
-function Breadcrumbs({
-  items,
-}: {
-  items: { label: string; href?: string }[];
-}) {
-  return (
-    <nav
-      aria-label="Breadcrumb"
-      style={{
-        padding: "12px 0",
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        flexWrap: "wrap",
-      }}
-    >
-      <Link
-        href="/"
-        style={{
-          fontSize: "13px",
-          color: "#6B7280",
-          textDecoration: "none",
-          fontWeight: 500,
-        }}
-      >
-        Home
-      </Link>
-      {items.map((item, i) => (
-        <span key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <ChevronRight
-            style={{ width: "12px", height: "12px", color: "#CBD5E1" }}
-          />
-          {item.href ? (
-            <Link
-              href={item.href}
-              style={{
-                fontSize: "13px",
-                color: "#6B7280",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              {item.label}
-            </Link>
-          ) : (
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#171717",
-                fontWeight: 600,
-              }}
-            >
-              {item.label}
-            </span>
-          )}
-        </span>
-      ))}
-    </nav>
   );
 }
 
@@ -351,39 +174,23 @@ function Pagination({
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "6px",
-        padding: "32px 0",
-      }}
-    >
+    <div className="flex items-center justify-center gap-1.5 py-8">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        style={{
-          padding: "6px 10px",
-          borderRadius: "8px",
-          border: "1px solid #E8ECF0",
-          background: currentPage === 1 ? "#F9FAFB" : "#FFFFFF",
-          color: currentPage === 1 ? "#CBD5E1" : "#374151",
-          cursor: currentPage === 1 ? "default" : "pointer",
-          fontSize: "13px",
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          gap: "4px",
-        }}
+        className={`px-2.5 py-1.5 rounded-lg border text-[13px] font-semibold flex items-center gap-1 transition-colors ${
+          currentPage === 1
+            ? "border-slate-200 bg-slate-50 text-slate-300 cursor-default"
+            : "border-slate-200 bg-white text-slate-700 cursor-pointer hover:border-slate-300"
+        }`}
       >
-        <ChevronLeft style={{ width: "14px", height: "14px" }} /> Prev
+        <ChevronLeft className="w-3.5 h-3.5" /> Prev
       </button>
       {pages.map((p, i) =>
         p === "..." ? (
           <span
             key={`dots-${i}`}
-            style={{ padding: "0 4px", color: "#9CA3AF", fontSize: "13px" }}
+            className="px-1 text-gray-400 text-[13px]"
           >
             ...
           </span>
@@ -391,23 +198,11 @@ function Pagination({
           <button
             key={p}
             onClick={() => onPageChange(p)}
-            style={{
-              width: "34px",
-              height: "34px",
-              borderRadius: "8px",
-              border:
-                p === currentPage
-                  ? "1.5px solid #F59E0B"
-                  : "1px solid #E8ECF0",
-              background: p === currentPage ? "#FFFBEB" : "#FFFFFF",
-              color: p === currentPage ? "#B45309" : "#374151",
-              fontWeight: p === currentPage ? 800 : 600,
-              fontSize: "13px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className={`w-[34px] h-[34px] rounded-lg text-[13px] flex items-center justify-center cursor-pointer transition-colors ${
+              p === currentPage
+                ? "border-[1.5px] border-amber-400 bg-amber-50 text-amber-800 font-extrabold"
+                : "border border-slate-200 bg-white text-slate-700 font-semibold hover:border-slate-300"
+            }`}
           >
             {p}
           </button>
@@ -416,21 +211,13 @@ function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        style={{
-          padding: "6px 10px",
-          borderRadius: "8px",
-          border: "1px solid #E8ECF0",
-          background: currentPage === totalPages ? "#F9FAFB" : "#FFFFFF",
-          color: currentPage === totalPages ? "#CBD5E1" : "#374151",
-          cursor: currentPage === totalPages ? "default" : "pointer",
-          fontSize: "13px",
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          gap: "4px",
-        }}
+        className={`px-2.5 py-1.5 rounded-lg border text-[13px] font-semibold flex items-center gap-1 transition-colors ${
+          currentPage === totalPages
+            ? "border-slate-200 bg-slate-50 text-slate-300 cursor-default"
+            : "border-slate-200 bg-white text-slate-700 cursor-pointer hover:border-slate-300"
+        }`}
       >
-        Next <ChevronRight style={{ width: "14px", height: "14px" }} />
+        Next <ChevronRight className="w-3.5 h-3.5" />
       </button>
     </div>
   );
@@ -447,76 +234,29 @@ function RelatedLinksSection({
 }) {
   if (links.length === 0) return null;
   return (
-    <section
-      style={{
-        background: "#F8FAFC",
-        borderTop: "1px solid #E8ECF0",
-        padding: "40px 0",
-      }}
-    >
-      <div className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10">
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: 800,
-            color: "#171717",
-            marginBottom: "20px",
-            letterSpacing: "-0.01em",
-          }}
-        >
+    <section className="bg-slate-50 border-t border-slate-200 py-10">
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6">
+        <h2 className="text-xl font-extrabold text-gray-900 mb-5 tracking-tight">
           {title}
         </h2>
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-          style={{ gap: "12px" }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 16px",
-                background: "#FFFFFF",
-                borderRadius: "10px",
-                border: "1px solid #E8ECF0",
-                textDecoration: "none",
-                transition: "border-color 0.15s",
-              }}
+              className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-xl border border-slate-200 no-underline transition-colors hover:border-amber-300 group"
             >
               <div>
-                <span
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    color: "#171717",
-                  }}
-                >
+                <span className="text-[13px] font-bold text-gray-900 group-hover:text-amber-700 transition-colors">
                   {link.label}
                 </span>
                 {link.description && (
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "#9CA3AF",
-                      margin: "2px 0 0",
-                      lineHeight: 1.4,
-                    }}
-                  >
+                  <p className="text-xs text-gray-400 mt-0.5 leading-snug">
                     {link.description}
                   </p>
                 )}
               </div>
-              <ArrowRight
-                style={{
-                  width: "14px",
-                  height: "14px",
-                  color: "#CBD5E1",
-                  flexShrink: 0,
-                }}
-              />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0 group-hover:text-amber-500 transition-colors" />
             </Link>
           ))}
         </div>
@@ -554,96 +294,72 @@ export default function SEOPageShell({
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#F8FAFC",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
-      {/* Breadcrumbs */}
-      {breadcrumbs.length > 0 && (
-        <div
-          className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10"
-          style={{ paddingTop: "80px" }}
-        >
-          <Breadcrumbs items={breadcrumbs} />
+      {/* ══════════ UNIFIED HERO — breadcrumb inside, matches /categories pattern ══════════ */}
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+          {/* Breadcrumb */}
+          {breadcrumbs.length > 0 && (
+            <nav className="flex items-center gap-1.5 mb-5" aria-label="Breadcrumb">
+              <Link
+                href="/"
+                className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors"
+              >
+                Home
+              </Link>
+              {breadcrumbs.map((item, i) => (
+                <span key={i} className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-slate-300">/</span>
+                  {item.href ? (
+                    <Link
+                      href={item.href}
+                      className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-slate-500 font-semibold">
+                      {item.label}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </nav>
+          )}
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-6 flex-wrap mb-2">
+            <div>
+              {/* Eyebrow badge */}
+              {eyebrow && (
+                <div className="flex items-center gap-2.5 mb-2">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3" />
+                    {eyebrow}
+                  </span>
+                </div>
+              )}
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
+                {title}
+              </h1>
+              <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed max-w-xl">
+                {subtitle}
+              </p>
+            </div>
+          </div>
         </div>
-      )}
+      </section>
 
-      <PageHero
-        eyebrow={eyebrow}
-        title={title}
-        subtitle={subtitle}
-        accent={accent}
-        layout="default"
-        size="sm"
-      />
-
-      {/* Intro text for SEO */}
-      {introText && (
-        <div className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10">
-          <p
-            style={{
-              fontSize: "15px",
-              color: "#475569",
-              lineHeight: 1.7,
-              maxWidth: "800px",
-              padding: "0 0 24px",
-            }}
-          >
-            {introText}
-          </p>
-        </div>
-      )}
-
-      {/* Filter bar */}
-      <div
-        style={{
-          background: "#FFFFFF",
-          borderBottom: "1px solid #E8ECF0",
-          position: "sticky",
-          top: 64,
-          zIndex: 20,
-        }}
-      >
-        <div
-          className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            height: "52px",
-            gap: "12px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              overflow: "auto",
-              flex: 1,
-            }}
-          >
+      {/* ══════════ FILTER BAR ══════════ */}
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-20">
+        <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 flex items-center justify-between h-[52px] gap-3">
+          <div className="flex items-center gap-2.5 overflow-auto flex-1">
             <select
               value={sort}
               onChange={(e) => handleSortChange(e.target.value)}
-              style={{
-                padding: "5px 10px",
-                borderRadius: "8px",
-                border: "1.5px solid #E8ECF0",
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#374151",
-                background: "#F9FAFB",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                outline: "none",
-              }}
+              className="py-1.5 px-2.5 rounded-lg border-[1.5px] border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 cursor-pointer font-[inherit] outline-none hover:border-slate-300 transition-colors"
             >
               {sortOptions.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -651,15 +367,8 @@ export default function SEOPageShell({
                 </option>
               ))}
             </select>
-            <span
-              style={{
-                fontSize: "12px",
-                color: "#9CA3AF",
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span style={{ color: "#171717", fontWeight: 800 }}>
+            <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
+              <span className="text-gray-900 font-extrabold">
                 {totalCount}
               </span>{" "}
               tools
@@ -668,33 +377,20 @@ export default function SEOPageShell({
         </div>
       </div>
 
-      {/* Tool Grid */}
-      <div
-        className="max-w-[1280px] mx-auto w-full px-3 sm:px-6 lg:px-10"
-        style={{ paddingTop: "24px", paddingBottom: "16px", flex: 1 }}
-      >
+      {/* ══════════ TOOL GRID ══════════ */}
+      <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 pt-6 pb-4 flex-1">
         {tools.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>📦</div>
-            <h3
-              style={{
-                fontSize: "20px",
-                fontWeight: 800,
-                color: "#171717",
-                marginBottom: "8px",
-              }}
-            >
+          <div className="text-center py-20">
+            <div className="text-5xl mb-4">📦</div>
+            <h3 className="text-xl font-extrabold text-gray-900 mb-2">
               No tools found
             </h3>
-            <p style={{ fontSize: "14px", color: "#9CA3AF" }}>
+            <p className="text-sm text-gray-400">
               Check back soon as new tools are added regularly.
             </p>
           </div>
         ) : (
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            style={{ gap: "20px" }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {tools.map((tool) => (
               <SEOToolCard key={tool.id} tool={tool} />
             ))}

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
-import PageHero from '@/components/PageHero';
+
 import Footer from '@/components/Footer';
 import { useCompare } from '@/contexts/CompareContext';
 import { useToolsData } from '@/hooks/useToolsData';
@@ -220,18 +220,41 @@ export default function Compare() {
   const gridCols = `220px repeat(${colCount}, 1fr)`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 pt-[72px]">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
-      <PageHero
-        eyebrow="Side-by-side"
-        title="Stack Comparison"
-        subtitle={`Comparing ${tools.length} stack${tools.length !== 1 ? 's' : ''} — ratings, features, pricing, and more.`}
-        accent="amber"
-        layout="default"
-        size="sm"
-      >
-        {/* Action row: share + back + shareable URL */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+
+      {/* ══════════ UNIFIED HERO — matches /categories pattern ══════════ */}
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 mb-5">
+            <Link href="/" className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors">Home</Link>
+            <span className="text-[11px] text-slate-300">/</span>
+            <Link href="/comparisons" className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors">Comparisons</Link>
+            <span className="text-[11px] text-slate-300">/</span>
+            <span className="text-xs text-slate-500 font-semibold">Compare</span>
+          </nav>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-6 flex-wrap mb-2">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <GitCompareArrows className="w-3 h-3" />
+                  Side by Side
+                </span>
+              </div>
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
+                Stack Comparison
+              </h1>
+              <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed max-w-xl">
+                {`Comparing ${tools.length} stack${tools.length !== 1 ? 's' : ''} — ratings, features, pricing, and more.`}
+              </p>
+            </div>
+          </div>
+
+          {/* Action row: share + back + shareable URL */}
+          <div className="flex items-center gap-2.5 flex-wrap mt-3">
           <button
             onClick={handleShare}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border-[1.5px] font-bold text-[13px] transition-all ${
@@ -252,8 +275,9 @@ export default function Compare() {
             <Link2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
             <span className="text-[11px] text-slate-500 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono">{buildShareUrl(tools)}</span>
           </div>
+          </div>
         </div>
-      </PageHero>
+      </section>
 
       {/* ── Main content ── */}
       <div className="max-w-[1200px] mx-auto w-full px-4 sm:px-10 pt-10 pb-20">
