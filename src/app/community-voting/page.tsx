@@ -351,7 +351,8 @@ export default function CommunityVotingPage() {
         (t) =>
           t.name.toLowerCase().includes(q) ||
           t.tagline.toLowerCase().includes(q) ||
-          t.category.toLowerCase().includes(q)
+          t.category.toLowerCase().includes(q) ||
+          (t.tags ?? []).some(tag => tag.toLowerCase().includes(q))
       );
     }
 

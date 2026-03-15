@@ -141,7 +141,7 @@ export default function LaunchArchivePage() {
     let filtered = category === 'All' ? allTools : allTools.filter(t => t.category === category);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(t => t.name.toLowerCase().includes(q) || t.tagline.toLowerCase().includes(q));
+      filtered = filtered.filter(t => t.name.toLowerCase().includes(q) || t.tagline.toLowerCase().includes(q) || (t.tags ?? []).some(tag => tag.toLowerCase().includes(q)));
     }
 
     const sorted = [...filtered].sort((a, b) => new Date(b.launched_at).getTime() - new Date(a.launched_at).getTime());

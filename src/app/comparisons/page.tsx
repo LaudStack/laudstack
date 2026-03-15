@@ -129,7 +129,8 @@ function StackPicker({
       .filter(
         (t) =>
           t.name.toLowerCase().includes(q) ||
-          t.tagline.toLowerCase().includes(q)
+          t.tagline.toLowerCase().includes(q) ||
+          (t.tags ?? []).some(tag => tag.toLowerCase().includes(q))
       )
       .slice(0, 6);
   }, [allTools, query]);

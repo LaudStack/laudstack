@@ -188,6 +188,7 @@ export async function searchToolsAction(query: string, opts: {
       ilike(tools.name, `%${query}%`),
       ilike(tools.tagline, `%${query}%`),
       ilike(tools.description, `%${query}%`),
+      sql`${tools.tags}::text ILIKE ${'%' + query + '%'}`,
     )!,
   ];
 

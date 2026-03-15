@@ -248,7 +248,8 @@ export default function AlternativesPage() {
       .filter(
         (t) =>
           t.name.toLowerCase().includes(q) ||
-          t.tagline.toLowerCase().includes(q)
+          t.tagline.toLowerCase().includes(q) ||
+          (t.tags ?? []).some(tag => tag.toLowerCase().includes(q))
       )
       .slice(0, 8);
   }, [allTools, searchQuery]);
