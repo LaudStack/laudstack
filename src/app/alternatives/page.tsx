@@ -14,7 +14,6 @@ import {
   ChevronRight,
   Sparkles,
   X,
-  Home,
   ArrowRight,
   Repeat2,
   ShieldCheck,
@@ -297,73 +296,63 @@ export default function AlternativesPage() {
       <Navbar />
       <div className="h-[72px] shrink-0" />
 
-      {/* ── Hero ── */}
-      <section className="bg-white border-b border-slate-200 pt-[84px] pb-7">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ── Hero (matches /categories hero pattern) ── */}
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1.5 text-[12px] text-slate-400 mb-4">
+          <nav className="flex items-center gap-1.5 mb-5">
             <Link
               href="/"
-              className="hover:text-amber-600 transition-colors flex items-center gap-1"
+              className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors"
             >
-              <Home className="w-3 h-3" /> Home
+              Home
             </Link>
-            <span>/</span>
-            <span className="text-slate-600 font-medium">Alternatives</span>
+            <span className="text-[11px] text-slate-300">/</span>
+            <span className="text-xs text-slate-500 font-semibold">
+              Alternatives
+            </span>
           </nav>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start justify-between gap-6 flex-wrap mb-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 mb-3">
-                <Repeat2 className="w-3 h-3 text-amber-600" />
-                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <Repeat2 className="w-3 h-3" />
                   Alternatives
                 </span>
               </div>
-              <h1 className="font-['Inter',sans-serif] text-[clamp(24px,3vw,30px)] font-black tracking-tight text-gray-900 m-0 leading-tight">
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
                 Find the Best Alternatives
               </h1>
-              <p className="text-[14px] text-slate-500 mt-2 max-w-[480px]">
+              <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed">
                 Search for any AI or SaaS stack and discover top-rated
                 alternatives. Compare features, pricing, and reviews.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <main className="flex-1">
-        {/* ── Search Section ── */}
-        <section className="bg-white py-8 sm:py-10 border-b border-slate-100">
-          <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-[680px] mx-auto relative">
-              <label className="text-[12px] font-bold text-slate-500 mb-2 block">
-                Search for a stack to find alternatives
-              </label>
-              <div className="flex items-center bg-white rounded-xl border-[1.5px] border-slate-200 overflow-hidden shadow-sm focus-within:border-amber-300 focus-within:ring-2 focus-within:ring-amber-100 transition-all">
-                <Search className="ml-4 w-[16px] h-[16px] text-slate-400 shrink-0" />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setSearchOpen(true);
-                  }}
-                  onFocus={() => setSearchOpen(true)}
-                  onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
-                  placeholder="e.g. ChatGPT, Notion, Figma..."
-                  className="flex-1 px-3 py-3.5 text-[15px] text-slate-900 bg-transparent border-none outline-none placeholder:text-slate-400"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                    }}
-                    className="px-3 py-3.5 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+            {/* Search bar (inside hero, right side) */}
+            <div className="relative w-full max-w-[340px]">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchOpen(true);
+                }}
+                onFocus={() => setSearchOpen(true)}
+                onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
+                placeholder="Search stacks..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-[10px] py-[11px] pl-10 pr-9 text-[13px] text-slate-900 outline-none transition-colors focus:border-amber-400 placeholder:text-slate-400"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-slate-400 flex p-0 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
 
               {/* Search results dropdown */}
               {searchOpen &&
@@ -392,7 +381,10 @@ export default function AlternativesPage() {
                 )}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
+
+      <main className="flex-1">
 
         {/* ── Selected Stack + Alternatives ── */}
         {selectedProduct && (

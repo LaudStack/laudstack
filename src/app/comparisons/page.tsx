@@ -16,7 +16,6 @@ import {
   ChevronRight,
   Sparkles,
   X,
-  Home,
 } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -309,33 +308,35 @@ export default function ComparisonsPage() {
       <Navbar />
       <div className="h-[72px] shrink-0" />
 
-      {/* ── Hero (matches /tools hero pattern) ── */}
-      <section className="bg-white border-b border-slate-200 pt-[84px] pb-7">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ── Hero (matches /categories hero pattern) ── */}
+      <section className="bg-white border-b border-gray-200 pt-[84px] pb-6">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1.5 text-[12px] text-slate-400 mb-4">
+          <nav className="flex items-center gap-1.5 mb-5">
             <Link
               href="/"
-              className="hover:text-amber-600 transition-colors flex items-center gap-1"
+              className="text-xs text-slate-400 no-underline font-medium hover:text-slate-600 transition-colors"
             >
-              <Home className="w-3 h-3" /> Home
+              Home
             </Link>
-            <span>/</span>
-            <span className="text-slate-600 font-medium">Comparisons</span>
+            <span className="text-[11px] text-slate-300">/</span>
+            <span className="text-xs text-slate-500 font-semibold">
+              Comparisons
+            </span>
           </nav>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start justify-between gap-6 flex-wrap mb-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 mb-3">
-                <GitCompareArrows className="w-3 h-3 text-amber-600" />
-                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <GitCompareArrows className="w-3 h-3" />
                   Side by Side
                 </span>
               </div>
-              <h1 className="font-['Inter',sans-serif] text-[clamp(24px,3vw,30px)] font-black tracking-tight text-gray-900 m-0 leading-tight">
+              <h1 className="font-['Inter',system-ui,sans-serif] text-[clamp(24px,3vw,30px)] font-black text-gray-900 tracking-tight leading-tight m-0">
                 Compare Stacks Head to Head
               </h1>
-              <p className="text-[14px] text-slate-500 mt-2 max-w-[480px]">
+              <p className="text-[15px] text-slate-500 font-normal mt-2 leading-relaxed">
                 Put any two AI or SaaS stacks side by side. Compare features,
                 ratings, and reviews to make the right choice.
               </p>
