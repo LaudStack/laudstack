@@ -1,12 +1,18 @@
-/*
+/**
  * WriteReviewModal — LaudStack
  * Design: Clean white modal, enterprise-grade
- * Features: Interactive 5-star hover rating, title, body, pros/cons, submit
+ * Features: Interactive 5-star hover rating, structured review prompts,
+ *           pros/cons, submit with combined display
+ *
+ * Structured prompts replace the blank text box:
+ * - "What problem does this solve?"
+ * - "Who is it best for?"
+ * - "Any downsides?"
  */
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, X, CheckCircle2, Plus, Trash2 } from 'lucide-react';
+import { Star, X, CheckCircle2, Plus, Trash2, HelpCircle, Users, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -24,30 +30,68 @@ const RATING_LABELS: Record<number, string> = {
   5: 'Excellent',
 };
 
+const STRUCTURED_PROMPTS = [
+  {
+    key: 'problemSolved',
+    icon: HelpCircle,
+    label: 'What problem does this solve?',
+    placeholder: 'e.g., "It automates our content workflow and saves 10+ hours per week."',
+    iconColor: '#3B82F6',
+    iconBg: '#EFF6FF',
+    required: true,
+  },
+  {
+    key: 'bestFor',
+    icon: Users,
+    label: 'Who is it best for?',
+    placeholder: 'e.g., "Marketing teams at startups and mid-size companies."',
+    iconColor: '#22C55E',
+    iconBg: '#F0FDF4',
+    required: true,
+  },
+  {
+    key: 'downsides',
+    icon: AlertTriangle,
+    label: 'Any downsides?',
+    placeholder: 'e.g., "Steep learning curve for advanced features. Pricing jumps at higher tiers."',
+    iconColor: '#F59E0B',
+    iconBg: '#FFFBEB',
+    required: false,
+  },
+];
+
 export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: Props) {
-  const [rating, setRating]       = useState(0);
-  const [hovered, setHovered]     = useState(0);
-  const [title, setTitle]         = useState('');
-  const [body, setBody]           = useState('');
-  const [pros, setPros]           = useState<string[]>(['']);
-  const [cons, setCons]           = useState<string[]>(['']);
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [title, setTitle] = useState('');
+  const [structuredAnswers, setStructuredAnswers] = useState<Record<string, string>>({
+    problemSolved: '',
+    bestFor: '',
+    downsides: '',
+  });
+  const [pros, setPros] = useState<string[]>(['']);
+  const [cons, setCons] = useState<string[]>(['']);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const displayRating = hovered || rating;
 
-  const addPro  = () => pros.length  < 5 && setPros([...pros, '']);
-  const addCon  = () => cons.length  < 5 && setCons([...cons, '']);
+  const addPro = () => pros.length < 5 && setPros([...pros, '']);
+  const addCon = () => cons.length < 5 && setCons([...cons, '']);
   const removePro = (i: number) => setPros(pros.filter((_, idx) => idx !== i));
   const removeCon = (i: number) => setCons(cons.filter((_, idx) => idx !== i));
   const updatePro = (i: number, v: string) => setPros(pros.map((p, idx) => idx === i ? v : p));
   const updateCon = (i: number, v: string) => setCons(cons.map((c, idx) => idx === i ? v : c));
 
+  const updateStructured = (key: string, value: string) => {
+    setStructuredAnswers(prev => ({ ...prev, [key]: value }));
+  };
+
   const handleClose = () => {
     onClose();
-    // Reset after animation
     setTimeout(() => {
-      setRating(0); setHovered(0); setTitle(''); setBody('');
+      setRating(0); setHovered(0); setTitle('');
+      setStructuredAnswers({ problemSolved: '', bestFor: '', downsides: '' });
       setPros(['']); setCons(['']); setSubmitted(false);
     }, 300);
   };
@@ -55,13 +99,36 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
   const handleSubmit = () => {
     if (!rating) { toast.error('Please select a star rating'); return; }
     if (!title.trim()) { toast.error('Please add a review title'); return; }
-    if (body.trim().length < 30) { toast.error('Review body must be at least 30 characters'); return; }
+    if (!structuredAnswers.problemSolved.trim()) {
+      toast.error('Please describe what problem this tool solves');
+      return;
+    }
+    if (!structuredAnswers.bestFor.trim()) {
+      toast.error('Please describe who this tool is best for');
+      return;
+    }
     setSubmitting(true);
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
     }, 1200);
   };
+
+  const inputStyle = (focusColor: string = '#F59E0B') => ({
+    width: '100%' as const,
+    padding: '10px 14px',
+    borderRadius: '10px',
+    border: '1.5px solid #E2E8F0',
+    fontSize: '14px',
+    color: '#171717',
+    outline: 'none' as const,
+    transition: 'border-color 0.15s',
+    boxSizing: 'border-box' as const,
+    fontFamily: 'inherit',
+    lineHeight: 1.6,
+    resize: 'vertical' as const,
+    minHeight: '72px',
+  });
 
   return (
     <AnimatePresence>
@@ -85,7 +152,7 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
             transition={{ duration: 0.2 }}
             style={{
-              width: '100%', maxWidth: '600px', maxHeight: '90vh',
+              width: '100%', maxWidth: '620px', maxHeight: '90vh',
               background: '#fff', borderRadius: '20px',
               boxShadow: '0 24px 80px rgba(0,0,0,0.18)',
               overflow: 'hidden', display: 'flex', flexDirection: 'column',
@@ -116,7 +183,6 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
             {/* ── Body ── */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
               {submitted ? (
-                /* ── Success State ── */
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -203,30 +269,37 @@ export default function WriteReviewModal({ open, onClose, toolName, toolLogo }: 
                     <div style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'right', marginTop: '4px' }}>{title.length}/100</div>
                   </div>
 
-                  {/* ── Review Body ── */}
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '8px' }}>
-                      Your Review <span style={{ color: '#EF4444' }}>*</span>
-                    </label>
-                    <textarea
-                      value={body}
-                      onChange={e => setBody(e.target.value)}
-                      placeholder="Share your honest experience — what problem did it solve? How does it compare to alternatives? Who would you recommend it to?"
-                      rows={4}
-                      style={{
-                        width: '100%', padding: '10px 14px', borderRadius: '10px',
-                        border: '1.5px solid #E2E8F0', fontSize: '14px', color: '#171717',
-                        outline: 'none', resize: 'vertical', transition: 'border-color 0.15s',
-                        boxSizing: 'border-box', lineHeight: 1.6, fontFamily: 'inherit',
-                        minHeight: '100px',
-                      }}
-                      onFocus={e => (e.currentTarget.style.borderColor = '#F59E0B')}
-                      onBlur={e => (e.currentTarget.style.borderColor = '#E2E8F0')}
-                    />
-                    <div style={{ fontSize: '11px', color: body.length < 30 ? '#EF4444' : '#94A3B8', textAlign: 'right', marginTop: '4px' }}>
-                      {body.length} chars {body.length < 30 ? `(${30 - body.length} more needed)` : '✓'}
-                    </div>
-                  </div>
+                  {/* ── Structured Prompts ── */}
+                  {STRUCTURED_PROMPTS.map(prompt => {
+                    const PromptIcon = prompt.icon;
+                    return (
+                      <div key={prompt.key}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <div style={{
+                            width: '24px', height: '24px', borderRadius: '6px',
+                            background: prompt.iconBg,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                          }}>
+                            <PromptIcon style={{ width: '13px', height: '13px', color: prompt.iconColor }} />
+                          </div>
+                          <label style={{ fontSize: '13px', fontWeight: 700, color: '#374151' }}>
+                            {prompt.label}
+                            {prompt.required && <span style={{ color: '#EF4444', marginLeft: '4px' }}>*</span>}
+                          </label>
+                        </div>
+                        <textarea
+                          value={structuredAnswers[prompt.key] || ''}
+                          onChange={e => updateStructured(prompt.key, e.target.value)}
+                          placeholder={prompt.placeholder}
+                          rows={2}
+                          style={inputStyle(prompt.iconColor)}
+                          onFocus={e => (e.currentTarget.style.borderColor = prompt.iconColor)}
+                          onBlur={e => (e.currentTarget.style.borderColor = '#E2E8F0')}
+                        />
+                      </div>
+                    );
+                  })}
 
                   {/* ── Pros ── */}
                   <div>

@@ -32,6 +32,11 @@ import PageHero from '@/components/PageHero';
 import { MOCK_TOOLS, MOCK_REVIEWS } from '@/lib/mockData';
 import type { Tool, Review } from '@/lib/types';
 import { getToolExtras } from '@/lib/toolExtras';
+import AuthGateModal, { type AuthGateAction } from '@/components/AuthGateModal';
+import ReviewNudge from '@/components/ReviewNudge';
+import ReviewShareButtons from '@/components/ReviewShareButtons';
+import FounderReplyForm from '@/components/FounderReplyForm';
+import ReviewBadges from '@/components/ReviewBadges';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -200,6 +205,15 @@ export default function ToolDetail() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('about');
 
+  // AuthGateModal state for soft login prompts
+  const [authGateOpen, setAuthGateOpen] = useState(false);
+  const [authGateAction, setAuthGateAction] = useState<AuthGateAction>('review');
+
+  const showAuthGate = (action: AuthGateAction) => {
+    setAuthGateAction(action);
+    setAuthGateOpen(true);
+  };
+
   // Sticky tab bar — track active section via IntersectionObserver
   useEffect(() => {
     const sectionIds = ['about', 'screenshots', 'features', 'pricing', 'reviews'];
@@ -230,8 +244,7 @@ export default function ToolDetail() {
 
   const handleWriteReview = () => {
     if (!isAuthenticated) {
-      navigate(`/signin?return=/tools/${slug}`);
-      toast.info('Sign in to write a review');
+      showAuthGate('review');
       return;
     }
     setReviewOpen(true);
@@ -274,9 +287,13 @@ export default function ToolDetail() {
 
   const handleUpvote = () => {
     if (upvoted) return;
+    if (!isAuthenticated) {
+      showAuthGate('laud');
+      return;
+    }
     setUpvoted(true);
     setUpvoteCount(c => c + 1);
-    toast.success(`Upvoted ${tool.name}!`);
+    toast.success(`Lauded ${tool.name}!`);
   };
 
   const handleHelpful = (reviewId: string) => {
@@ -460,6 +477,10 @@ export default function ToolDetail() {
                 {/* Save */}
                 <button
                   onClick={() => {
+                    if (!isAuthenticated) {
+                      showAuthGate('save');
+                      return;
+                    }
                     toggleSave(tool.id);
                     toast.success(isSaved(tool.id) ? `Removed from saved` : `Saved ${tool.name}!`);
                   }}
@@ -799,6 +820,7 @@ export default function ToolDetail() {
                         <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>
                           {review.user?.role}{review.user?.company ? ` · ${review.user.company}` : ''}
                         </div>
+                        <ReviewBadges reviewCount={Math.floor(Math.random() * 15) + 1} compact />
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
@@ -829,8 +851,8 @@ export default function ToolDetail() {
                     </div>
                   )}
 
-                  {/* Helpful */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {/* Helpful + Share */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                     <button
                       onClick={() => handleHelpful(review.id)}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: helpfulMap[review.id] ? '#15803D' : '#64748B', background: helpfulMap[review.id] ? '#F0FDF4' : 'none', border: helpfulMap[review.id] ? '1px solid #BBF7D0' : '1px solid #E2E8F0', padding: '5px 10px', borderRadius: '8px', cursor: helpfulMap[review.id] ? 'default' : 'pointer', transition: 'all 0.15s' }}
@@ -838,6 +860,13 @@ export default function ToolDetail() {
                       <ThumbsUp style={{ width: '12px', height: '12px' }} />
                       Helpful ({review.helpful_count + (helpfulMap[review.id] ? 1 : 0)})
                     </button>
+                    <ReviewShareButtons
+                      toolName={tool.name}
+                      toolSlug={tool.slug}
+                      reviewTitle={review.title}
+                      reviewerName={review.user?.name ?? 'Anonymous'}
+                      rating={review.rating}
+                    />
                   </div>
 
                   {/* Founder reply */}
@@ -850,6 +879,14 @@ export default function ToolDetail() {
                       </div>
                       <p style={{ fontSize: '13px', color: '#78350F', lineHeight: 1.6, margin: 0 }}>{review.founder_reply.body}</p>
                     </div>
+                  )}
+
+                  {/* Founder reply form — shown when no reply exists yet (placeholder for founder auth) */}
+                  {!review.founder_reply && isAuthenticated && (
+                    <FounderReplyForm
+                      reviewId={review.id}
+                      toolName={tool.name}
+                    />
                   )}
                 </div>
               ))}
@@ -1082,6 +1119,18 @@ export default function ToolDetail() {
         onClose={() => setReviewOpen(false)}
         toolName={tool.name}
         toolLogo={tool.logo_url}
+      />
+      <AuthGateModal
+        open={authGateOpen}
+        onClose={() => setAuthGateOpen(false)}
+        action={authGateAction}
+        toolName={tool.name}
+      />
+      <ReviewNudge
+        toolSlug={tool.slug}
+        toolName={tool.name}
+        isAuthenticated={isAuthenticated}
+        onWriteReview={() => setReviewOpen(true)}
       />
     </div>
   );

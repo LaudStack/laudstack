@@ -47,6 +47,7 @@ import Events from './pages/Events';
 import Sitemap from './pages/Sitemap';
 import Careers from './pages/Careers';
 import Categories from './pages/Categories';
+import BestInCategory from './pages/BestInCategory';
 import ScrollToTop from './components/ScrollToTop';
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -93,6 +94,7 @@ function Router() {
         <Route path="/sitemap" component={Sitemap} />
         <Route path="/careers" component={Careers} />
         <Route path="/categories" component={Categories} />
+        <Route path="/best/:categorySlug" component={BestInCategory} />
         <Route path="/privacy" component={Legal} />
         <Route path="/terms" component={Legal} />
         <Route path="/cookies" component={Legal} />

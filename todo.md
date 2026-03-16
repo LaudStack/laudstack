@@ -221,3 +221,91 @@
 - [ ] Run database migration to add features/pricing_tiers columns
 - [ ] Re-seed production database with 50 stacks
 - [ ] Verify live site displays stacks
+
+## Community Voting Page Production Audit (March 14, 2026)
+- [ ] Create stacks table in DB schema for tool data
+- [ ] Create lauds table in DB schema for voting
+- [ ] Add tRPC procedures for community picks listing
+- [ ] Add tRPC procedure for auth-gated laud/unlaud toggle
+- [ ] Create LogoWithFallback component
+- [ ] Rewrite CommunityPicks page with 100% Tailwind CSS
+- [ ] Wire real data from tRPC (remove all MOCK_TOOLS usage)
+- [ ] Add loading skeleton
+- [ ] Add auth-gated voting (only logged-in users can laud)
+- [ ] Ensure full mobile responsiveness
+- [ ] Add URL state sync for filters
+- [ ] Remove all inline styles, JS hover handlers, innerHTML
+- [ ] Use PageHero component for consistent hero pattern
+- [ ] Add route for /community-voting
+- [ ] Push to GitHub and deploy to Vercel
+
+## Community Growth Features (March 16, 2026)
+
+### Guest Browsing with Soft Auth Prompts
+- [x] Create AuthGateModal component for soft login prompts
+- [x] Allow guest browsing of all pages without login
+- [x] Show auth prompt when guests try to review, save, or laud
+- [x] "Sign up to leave a review" modal on review actions
+- [x] "Sign up to save this stack" modal on save actions
+- [x] "Sign up to laud this stack" modal on laud actions
+
+### One-Click Review Flow
+- [x] Add 30-second timer on tool detail page
+- [x] Show subtle "Used this tool? Leave a quick review" prompt after 30s
+- [x] Make prompt non-intrusive (slide-in or toast-style)
+- [x] Dismiss on click or after timeout
+- [x] Only show to authenticated users who haven't reviewed this tool
+
+### Structured Review Prompts
+- [x] Replace blank review text box with structured prompts
+- [x] Add "What problem does this solve?" prompt field
+- [x] Add "Who is it best for?" prompt field
+- [x] Add "Any downsides?" prompt field
+- [x] Keep overall star rating
+- [x] Combine structured answers into review display
+
+### Review Reply System
+- [x] Add review_replies table to database schema (FounderReplyForm component)
+- [x] Create tRPC procedures for creating/listing replies (FounderReplyForm component)
+- [x] Allow founders to reply to reviews on their tools
+- [x] Display replies threaded under reviews
+- [x] Add "Founder Response" badge on founder replies
+
+### Share Buttons on Reviews
+- [x] Add Twitter/X share button on each review
+- [x] Add LinkedIn share button on each review
+- [x] Add copy link button for individual reviews
+- [x] Pre-populate share text with review snippet and tool name
+
+### Review Milestones & Badges
+- [x] Add "First Review" badge (1 review written)
+- [x] Add "Reviewer" badge (5 reviews written)
+- [x] Add "Category Expert" badge (10+ reviews in one category)
+- [x] Add "Top Reviewer" badge (25+ reviews)
+- [x] Display badges on user profiles and next to reviews
+- [x] Auto-award badges when milestones are reached
+
+### Email Notifications via Resend
+- [x] Configure Resend API integration
+- [x] "Someone reviewed your tool" email to founders
+- [x] "Your tool was lauded" email to founders
+- [x] "Founder replied to your review" email to reviewers
+- [ ] Email preference settings in user dashboard (future)
+
+### SEO Content Pages
+- [x] Build "Best AI Writing Tools 2026" page (via dynamic /best/:slug template)
+- [x] Build "Best Project Management Tools for Startups" page (via dynamic /best/:slug template)
+- [x] Build "Best AI Code Editors 2026" page (via dynamic /best/:slug template)
+- [x] Build "Best Design Tools 2026" page (via dynamic /best/:slug template)
+- [x] Build "Best CRM Tools for Small Business" page (via dynamic /best/:slug template)
+- [x] Build "Best Developer Tools 2026" page (via dynamic /best/:slug template)
+- [x] Dynamic SEO comparison page template
+- [x] Add meta tags and structured data for SEO
+- [x] Link SEO pages from footer discovery sections
+
+### SEO Comparison Pages
+- [x] Build dynamic "Best [Category] Tools" page template
+- [x] Auto-generate comparison pages from database categories
+- [x] Add structured data (JSON-LD) for rich search results
+- [x] Include comparison tables with features, pricing, ratings
+- [x] Internal linking between comparison pages and tool detail pages

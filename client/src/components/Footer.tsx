@@ -33,9 +33,9 @@ const FOOTER_SECTIONS = [
       { label: 'All Products', href: '/tools', live: true },
       { label: 'Top Rated', href: '/top-rated', live: true },
       { label: 'Categories', href: '/categories', live: true },
-      { label: 'Deals & Offers', href: '/deals', live: true },
-      { label: 'Templates', href: '/templates', live: true },
-      { label: 'Compare Products', href: '/compare', live: false },
+      { label: 'Best AI Writing', href: '/best/ai-writing', live: true },
+      { label: 'Best AI Code', href: '/best/ai-code', live: true },
+      { label: 'Best CRM', href: '/best/crm', live: true },
     ],
   },
   {
