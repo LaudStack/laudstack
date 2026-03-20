@@ -106,7 +106,7 @@ const QUICK_STATS = [
 
 export default function LaunchGuidePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       {/* Hero */}
       <section className="bg-gradient-to-b from-slate-50 to-white border-b border-slate-200 pt-[60px] lg:pt-[64px]">
         <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">

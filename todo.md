@@ -2274,8 +2274,9 @@
 - [ ] Push to GitHub
 
 ## Footer & Page Layout Fixes
-- [ ] Audit all footer links — identify which pages lack Navbar/Footer wrapper
-- [ ] Remove/hide founder-only links from footer for non-logged-in users
-- [ ] Wrap all public pages in proper Navbar/Footer layout
-- [ ] Review footer menu structure — ensure it reflects platform positioning
+- [x] Audit all footer links — identified 4 resource pages missing Navbar/Footer (SEO pages already wrapped via SEOPageShell)
+- [x] Verified For Founders links are appropriate (marketing content, auth-gated where needed) — no hiding needed
+- [x] Created resources/layout.tsx to wrap all resource pages with Navbar/Footer
+- [x] Removed redundant min-h-screen from resource pages
+- [x] Footer menu structure reviewed — reflects platform positioning correctly
 - [ ] Push to GitHub
