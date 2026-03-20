@@ -2202,3 +2202,10 @@
 - [x] Ensure LinkedIn OAuth signup creates DB user and redirects to onboarding
 - [x] Ensure email/password signup is frictionless with no verification blocking
 - [x] Build, test, push to GitHub
+
+## Login Page UI Polish
+- [x] Remove Google login button
+- [x] Make LinkedIn button slightly smaller with full LinkedIn logo
+- [x] Change divider text "or" to "Or Continue with"
+- [ ] Verify LinkedIn login on live site
+- [ ] Push to GitHub
