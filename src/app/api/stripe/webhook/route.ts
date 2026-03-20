@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
             session.id,
             (session.payment_intent as string) || ""
           );
-          console.log(
+          console.info(
             `[Stripe] Promotion ${promotionId} activated (type: ${metadata.promotion_type}, entity: ${metadata.entity_id})`
           );
         } catch (err) {
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
           await db.update(users)
             .set({ creatorOnboardingStripeSessionId: session.id })
             .where(eq(users.id, userId));
-          console.log(`[Stripe] Creator onboarding payment completed for user ${userId}`);
+          console.info(`[Stripe] Creator onboarding payment completed for user ${userId}`);
         } catch (err) {
           console.error(`[Stripe] Failed to update creator onboarding for user ${userId}:`, err);
         }
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
               payout: creatorPayout,
             });
 
-            console.log(
+            console.info(
               `[Stripe] Marketplace purchase: product ${productId}, buyer ${buyerId}, amount $${(amountTotal / 100).toFixed(2)}, fee $${(platformFee / 100).toFixed(2)}`
             );
           }
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
             })
             .where(eq(marketplaceProducts.id, productId));
 
-          console.log(
+          console.info(
             `[Stripe] Marketplace boost: product ${productId}, plan ${plan}, expires ${boostExpiresAt.toISOString()}`
           );
         } catch (err) {
@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
           })
           .where(eq(deals.id, dealId));
 
-        console.log(
+        console.info(
           `[Stripe] Deal ${dealId} upgraded to ${planDetails.placement} (plan: ${plan}) until ${placementExpiresAt.toISOString()}`
         );
         break;
@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
           .set({ isFeatured: true, updatedAt: new Date() })
           .where(eq(tools.id, toolId));
 
-        console.log(
+        console.info(
           `[Stripe] Tool ${toolId} marked as featured until ${expiresAt}`
         );
       }
@@ -265,7 +265,7 @@ export async function POST(req: NextRequest) {
             })
             .where(eq(users.id, parseInt(userId)));
 
-          console.log(`[Stripe] Connect account ${account.id} fully onboarded for user ${userId}`);
+          console.info(`[Stripe] Connect account ${account.id} fully onboarded for user ${userId}`);
         } catch (err) {
           console.error(`[Stripe] Failed to update Connect status for user ${userId}:`, err);
         }

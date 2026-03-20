@@ -50,7 +50,7 @@ export async function notifyStackFollowersAboutDeal({
       await db.insert(notifications).values(batch);
     }
 
-    console.log(
+    console.info(
       `[notifyStackFollowers] Notified ${followers.length} followers about deal "${dealTitle}" on ${toolName}`
     );
   } catch (error) {

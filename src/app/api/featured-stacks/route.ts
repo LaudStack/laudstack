@@ -213,6 +213,10 @@ export async function GET(request: NextRequest) {
       stacks,
       source: "promotions",
       totalFeatured: featuredToolIds.length,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
     });
   } catch (error) {
     console.error("[featured-stacks] Error:", error);

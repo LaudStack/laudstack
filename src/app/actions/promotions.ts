@@ -262,7 +262,7 @@ export async function activatePromotion(
 
   if (!promo) throw new Error(`Promotion ${promotionId} not found`);
   if (promo.status !== "pending_payment") {
-    console.log(`[Promotions] Promotion ${promotionId} already processed (status: ${promo.status})`);
+    console.warn(`[Promotions] Promotion ${promotionId} already processed (status: ${promo.status})`);
     return promo;
   }
 

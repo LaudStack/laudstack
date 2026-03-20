@@ -303,3 +303,165 @@ CREATE POLICY "review_helpful_votes_auth_select"
 -- FROM pg_policies
 -- WHERE schemaname = 'public'
 -- ORDER BY tablename, policyname;
+
+-- ============================================================================
+-- ADDENDUM: Enable RLS on tables added after initial schema
+-- These tables were found to have RLS disabled in the live Supabase project.
+-- All mutations go through server-side Drizzle (postgres role, bypasses RLS).
+-- PostgREST direct access is locked down here.
+-- ============================================================================
+
+-- notifications: private per-user, no public access
+ALTER TABLE "notifications" ENABLE ROW LEVEL SECURITY;
+
+-- stack_follows / user_follows: public read is acceptable (follow counts shown on profiles)
+ALTER TABLE "stack_follows" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "user_follows" ENABLE ROW LEVEL SECURITY;
+
+-- marketplace tables: public read for approved/active listings only
+ALTER TABLE "marketplace_products" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "marketplace_orders" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "marketplace_reviews" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "marketplace_offers" ENABLE ROW LEVEL SECURITY;
+
+-- promotion tables: public read for active promotions only
+ALTER TABLE "promotions" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "promotion_pricing" ENABLE ROW LEVEL SECURITY;
+
+-- admin/internal tables: NO public access
+ALTER TABLE "email_templates" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "deal_of_day_slots" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "admin_invites" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "cron_job_runs" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "admin_audit_log" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ranking_weights" ENABLE ROW LEVEL SECURITY;
+
+-- ============================================================================
+-- RLS POLICIES for newly protected tables
+-- ============================================================================
+
+-- NOTIFICATIONS: private per-user
+-- No policy = DENY ALL for anon and authenticated via PostgREST.
+-- Server actions use postgres role (bypasses RLS) to read/write.
+
+-- STACK_FOLLOWS: public read (follow counts are public)
+CREATE POLICY "stack_follows_anon_select"
+  ON "stack_follows" FOR SELECT
+  TO anon
+  USING (true);
+
+CREATE POLICY "stack_follows_auth_select"
+  ON "stack_follows" FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- USER_FOLLOWS: public read (follow counts are public)
+CREATE POLICY "user_follows_anon_select"
+  ON "user_follows" FOR SELECT
+  TO anon
+  USING (true);
+
+CREATE POLICY "user_follows_auth_select"
+  ON "user_follows" FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- MARKETPLACE_PRODUCTS: public read for approved, active products only
+CREATE POLICY "marketplace_products_anon_select"
+  ON "marketplace_products" FOR SELECT
+  TO anon
+  USING (status = 'approved' AND is_active = true);
+
+CREATE POLICY "marketplace_products_auth_select"
+  ON "marketplace_products" FOR SELECT
+  TO authenticated
+  USING (status = 'approved' AND is_active = true);
+
+-- MARKETPLACE_ORDERS: no public access (sensitive purchase data)
+-- No policy = DENY ALL via PostgREST. Server actions handle all order operations.
+
+-- MARKETPLACE_REVIEWS: public read for approved reviews only
+CREATE POLICY "marketplace_reviews_anon_select"
+  ON "marketplace_reviews" FOR SELECT
+  TO anon
+  USING (status = 'approved');
+
+CREATE POLICY "marketplace_reviews_auth_select"
+  ON "marketplace_reviews" FOR SELECT
+  TO authenticated
+  USING (status = 'approved');
+
+-- MARKETPLACE_OFFERS: no public access (contains pricing/negotiation data)
+-- No policy = DENY ALL via PostgREST.
+
+-- PROMOTIONS: public read for active, approved promotions
+CREATE POLICY "promotions_anon_select"
+  ON "promotions" FOR SELECT
+  TO anon
+  USING (status = 'active');
+
+CREATE POLICY "promotions_auth_select"
+  ON "promotions" FOR SELECT
+  TO authenticated
+  USING (status = 'active');
+
+-- PROMOTION_PRICING: public read (pricing tiers are public info)
+CREATE POLICY "promotion_pricing_anon_select"
+  ON "promotion_pricing" FOR SELECT
+  TO anon
+  USING (is_active = true);
+
+CREATE POLICY "promotion_pricing_auth_select"
+  ON "promotion_pricing" FOR SELECT
+  TO authenticated
+  USING (is_active = true);
+
+-- EMAIL_TEMPLATES: admin-only, no public access
+-- No policy = DENY ALL via PostgREST.
+
+-- DEAL_OF_DAY_SLOTS: public read (deal of the day is shown publicly)
+CREATE POLICY "deal_of_day_slots_anon_select"
+  ON "deal_of_day_slots" FOR SELECT
+  TO anon
+  USING (true);
+
+CREATE POLICY "deal_of_day_slots_auth_select"
+  ON "deal_of_day_slots" FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- ADMIN_INVITES: CRITICAL — contains invite tokens. No public access.
+-- No policy = DENY ALL via PostgREST.
+
+-- CRON_JOB_RUNS: internal telemetry. No public access.
+-- No policy = DENY ALL via PostgREST.
+
+-- ADMIN_AUDIT_LOG: admin-only. No public access.
+-- No policy = DENY ALL via PostgREST.
+
+-- RANKING_WEIGHTS: public read (weights are not sensitive)
+CREATE POLICY "ranking_weights_anon_select"
+  ON "ranking_weights" FOR SELECT
+  TO anon
+  USING (true);
+
+CREATE POLICY "ranking_weights_auth_select"
+  ON "ranking_weights" FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- ============================================================================
+-- STORAGE: avatars bucket policies
+-- ============================================================================
+-- The avatars bucket was found to have NO storage policies (public read/write).
+-- Apply these via the Supabase Storage dashboard or SQL editor.
+-- ============================================================================
+-- Allow anyone to read avatar images (public profile pictures)
+-- INSERT INTO storage.policies (name, bucket_id, operation, definition)
+-- VALUES
+--   ('avatars_public_read', 'avatars', 'SELECT', 'true'),
+--   ('avatars_auth_insert', 'avatars', 'INSERT', 'auth.uid() IS NOT NULL'),
+--   ('avatars_owner_update', 'avatars', 'UPDATE', 'auth.uid()::text = (storage.foldername(name))[1]'),
+--   ('avatars_owner_delete', 'avatars', 'DELETE', 'auth.uid()::text = (storage.foldername(name))[1]');
+-- NOTE: Apply storage policies via the Supabase dashboard > Storage > Policies
+-- as the SQL syntax varies by Supabase version.

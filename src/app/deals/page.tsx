@@ -886,7 +886,9 @@ export default function Deals() {
     if (!isAuthenticated) return;
     getUserClaimedDealIds()
       .then(ids => setClaimedDealIds(new Set(ids.map(String))))
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to fetch claimed deals:", err);
+      });
   }, [isAuthenticated]);
 
   // Handle claim action

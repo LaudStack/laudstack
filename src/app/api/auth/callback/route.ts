@@ -37,12 +37,11 @@ export async function GET(request: NextRequest) {
   // ─── Exchange code for session ───────────────────────────────────────
   const cookieStore = await cookies();
 
-  // Log available cookies for debugging (names only, not values)
+  // Check for code verifier cookie (PKCE flow)
   const allCookies = cookieStore.getAll();
   const cookieNames = allCookies.map(c => c.name);
-  const hasCodeVerifier = cookieNames.some(n => n.includes("code-verifier") || n.includes("code_verifier"));
-  console.log("[Auth Callback] Available cookies:", cookieNames.join(", "));
-  console.log("[Auth Callback] Has code verifier cookie:", hasCodeVerifier);
+  const _hasCodeVerifier = cookieNames.some(n => n.includes("code-verifier") || n.includes("code_verifier"));
+  void _hasCodeVerifier; // retained for debugging context in error messages below
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -101,9 +100,7 @@ export async function GET(request: NextRequest) {
   const meta = user.user_metadata ?? {};
   const identities = user.identities ?? [];
 
-  console.log("[Auth Callback] User authenticated:", user.id, user.email);
-  console.log("[Auth Callback] Provider:", identities[0]?.provider ?? "unknown");
-  console.log("[Auth Callback] User metadata keys:", Object.keys(meta).join(", "));
+  // Debug logging removed for production
 
   // Determine login method
   const provider = identities[0]?.provider ?? "email";
@@ -158,7 +155,7 @@ export async function GET(request: NextRequest) {
       emailVerified: user.email_confirmed_at != null,
     });
 
-    console.log("[Auth Callback] User upserted:", dbUser?.id, "onboardingCompleted:", dbUser?.onboardingCompleted);
+
 
     // Redirect staff/admin users to admin panel — they should never see user-facing dashboard
     if (dbUser && isStaffRole(dbUser.role)) {
@@ -168,11 +165,11 @@ export async function GET(request: NextRequest) {
     // Redirect new users to onboarding — but NOT if they're resetting their password
     const isPasswordReset = next.startsWith("/auth/reset-password");
     if (dbUser && !dbUser.onboardingCompleted && !isPasswordReset) {
-      console.log("[Auth Callback] New user — redirecting to onboarding");
+
       return NextResponse.redirect(`${origin}/onboarding`);
     }
 
-    console.log("[Auth Callback] Existing user — redirecting to:", next);
+
     return NextResponse.redirect(`${origin}${next}`);
   } catch (dbError) {
     console.error("[Auth Callback] Database upsert failed:", dbError);

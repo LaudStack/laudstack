@@ -58,7 +58,6 @@ export default function AdminGate() {
       const verifyRes = await fetch("/api/auth/verify-admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ supabaseId: signedInUser.id }),
       });
 
       const verifyData = await verifyRes.json();

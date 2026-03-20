@@ -10,7 +10,11 @@ export async function GET(request: NextRequest) {
   // Verify cron secret
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    console.error("[Cron] CRON_SECRET is not set — refusing to run");
+    return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
+  }
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -39,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await res.json();
-    console.log("[Cron] Rankings recalculated:", data);
+    console.info("[Cron] Rankings recalculated:", data);
     return NextResponse.json(data);
   } catch (error) {
     console.error("[Cron] Ranking recalculation error:", error);

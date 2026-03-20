@@ -77,6 +77,10 @@ export async function GET() {
       reviews: frontendReviews,
       totalReviews: totalReviewCount[0].count,
       totalUsers: totalUserCount[0].count,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
     });
   } catch (error) {
     console.error("[homepage API] Error:", error instanceof Error ? error.message : error);

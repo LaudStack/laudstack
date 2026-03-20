@@ -140,7 +140,7 @@ function ReviewCard({ review }: { review: any }) {
     'bg-rose-100 text-rose-700',
     'bg-cyan-100 text-cyan-700',
   ];
-  const colorIdx = (review.user?.id?.charCodeAt?.(1) ?? 0) % avatarColors.length;
+  const colorIdx = (String(review.user?.id || '').charCodeAt(1) || 0) % avatarColors.length;
 
   const handleHelpful = async () => {
     if (voted) return;

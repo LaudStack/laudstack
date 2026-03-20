@@ -3,31 +3,31 @@ import { db } from "@/server/db";
 import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { isStaffRole } from "@/lib/permissions";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 /**
  * POST /api/auth/verify-admin
- * After client-side Supabase sign-in, verify the user has a staff role.
- * Accepts the Supabase user ID from the client (already authenticated).
- * Returns authorized: true for any staff role.
+ * Verifies the user has a staff role using the server-side Supabase session.
+ * Ignores any client-provided IDs for security.
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { supabaseId } = body;
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!supabaseId || typeof supabaseId !== "string") {
+    if (!user) {
       return NextResponse.json(
-        { authorized: false, error: "Invalid request" },
-        { status: 400 }
+        { authorized: false, error: "Unauthorized" },
+        { status: 401 }
       );
     }
 
     const [dbUser] = await db
       .select({ role: users.role, id: users.id })
       .from(users)
-      .where(eq(users.supabaseId, supabaseId))
+      .where(eq(users.supabaseId, user.id))
       .limit(1);
 
     if (!dbUser) {

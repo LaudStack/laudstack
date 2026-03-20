@@ -178,10 +178,15 @@ export default function MarketplaceBrowsePage() {
 
   // Fetch featured products once
   useEffect(() => {
-    getFeaturedProducts(4).then(res => {
-      if (res.success) setFeatured(res.products || []);
-      setFeaturedLoading(false);
-    });
+    getFeaturedProducts(4)
+      .then(res => {
+        if (res.success) setFeatured(res.products || []);
+        setFeaturedLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch featured products", err);
+        setFeaturedLoading(false);
+      });
   }, []);
 
   // Fetch products when filters change

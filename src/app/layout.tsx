@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 
-export const dynamic = 'force-dynamic';
+// Removed global force-dynamic to allow static rendering for public pages
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";

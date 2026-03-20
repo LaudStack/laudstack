@@ -53,7 +53,11 @@ export async function GET() {
       badges: t.badges,
     }));
 
-    return NextResponse.json({ tools: normalized });
+    return NextResponse.json({ tools: normalized }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    });
   } catch (error) {
     console.error("Featured tools error:", error);
     return NextResponse.json({ tools: [] });

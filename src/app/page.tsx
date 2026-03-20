@@ -55,7 +55,7 @@ const CURATED_COLLECTIONS = [
     title: 'Best Developer Tools',
     description: 'IDEs, CI/CD, APIs, and platforms that help developers ship faster.',
     stackCount: 18,
-    href: '/c/developer-tools-tools',
+    href: '/c/developer-tools',
   },
   {
     image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663413324407/3XGasP8CcX57JRU5Ai2Hv7/collection-marketing-tools-ZXLo9gmgJFe2bBGMeJBP7e.webp',
@@ -125,8 +125,8 @@ function ToolCard({ tool, isSponsored = false }: { tool: any; isSponsored?: bool
         {/* Left: Logo */}
         <div className="shrink-0">
           <LogoWithFallback
-            url={tool.logo_url}
-            name={tool.name}
+            src={tool.logo_url}
+            alt={tool.name}
             size={40}
             className="rounded-lg"
           />

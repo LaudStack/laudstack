@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     isAuthorized =
       authHeader === cronSecret || authHeader === `Bearer ${cronSecret}`;
   }
+  // Note: if cronSecret is not set, only Supabase session auth is accepted (Method 2 below)
 
   // Method 2: Supabase session (for admin UI calls)
   if (!isAuthorized) {

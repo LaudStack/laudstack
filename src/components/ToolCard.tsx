@@ -268,32 +268,35 @@ function useLaudGlobal(tool: Tool) {
   const handleUpvote = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    startTransition(async () => {
-      const wasUpvoted = upvoted;
-      // Optimistic count update (the global hook handles the ID set)
-      setUpvoteCount((c) => (wasUpvoted ? Math.max(0, c - 1) : c + 1));
-      if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
+    startTransition(() => {
+      const run = async () => {
+        const wasUpvoted = upvoted;
+        // Optimistic count update (the global hook handles the ID set)
+        setUpvoteCount((c) => (wasUpvoted ? Math.max(0, c - 1) : c + 1));
+        if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
 
-      try {
-        const result = await toggle(tool.id);
-        if (result.requiresAuth) {
-          // Revert optimistic count
+        try {
+          const result = await toggle(tool.id);
+          if (result.requiresAuth) {
+            // Revert optimistic count
+            setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+            setShowAuthModal(true);
+            return;
+          }
+          if (result.newCount !== undefined) {
+            setUpvoteCount(result.newCount);
+          } else if (result.lauded === wasUpvoted) {
+            // Toggle failed silently — revert count
+            setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+            toast.error("Failed to laud");
+          }
+        } catch {
+          // Revert optimistic count on error
           setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
-          setShowAuthModal(true);
-          return;
+          toast.error("Something went wrong. Please try again.");
         }
-        if (result.newCount !== undefined) {
-          setUpvoteCount(result.newCount);
-        } else if (result.lauded === wasUpvoted) {
-          // Toggle failed silently — revert count
-          setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
-          toast.error("Failed to laud");
-        }
-      } catch {
-        // Revert optimistic count on error
-        setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
-        toast.error("Something went wrong. Please try again.");
-      }
+      };
+      run().catch(console.error);
     });
   };
 
@@ -309,19 +312,22 @@ function useSaveGlobal(tool: Tool) {
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    startTransition(async () => {
-      try {
-        const result = await toggle(tool.id);
-        if (result.requiresAuth) {
-          setShowAuthModal(true);
-          return;
+    startTransition(() => {
+      const run = async () => {
+        try {
+          const result = await toggle(tool.id);
+          if (result.requiresAuth) {
+            setShowAuthModal(true);
+            return;
+          }
+          if (result.saved !== undefined) {
+            toast.success(result.saved ? `${tool.name} saved!` : "Removed from saved");
+          }
+        } catch {
+          toast.error("Something went wrong. Please try again.");
         }
-        if (result.saved !== undefined) {
-          toast.success(result.saved ? `${tool.name} saved!` : "Removed from saved");
-        }
-      } catch {
-        toast.error("Something went wrong. Please try again.");
-      }
+      };
+      run().catch(console.error);
     });
   };
 

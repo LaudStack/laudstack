@@ -11,13 +11,18 @@ import { and, inArray, lt } from "drizzle-orm";
  * Should be called periodically (e.g., every hour via Vercel Cron).
  */
 export async function GET(req: NextRequest) {
+  // Verify cron secret for security
+  const authHeader = req.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    console.error("[Cron] CRON_SECRET is not set — refusing to run");
+    return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
+  }
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    // Verify cron secret for security
-    const authHeader = req.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     const now = new Date();
     const result = await db.update(marketplaceOffers)
@@ -30,7 +35,7 @@ export async function GET(req: NextRequest) {
       )
       .returning({ id: marketplaceOffers.id });
 
-    console.log(`[Cron] Expired ${result.length} marketplace offers`);
+    console.info(`[Cron] Expired ${result.length} marketplace offers`);
 
     return NextResponse.json({ expired: result.length });
   } catch (error) {

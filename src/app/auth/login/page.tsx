@@ -139,7 +139,6 @@ function AuthForm() {
             const roleRes = await fetch('/api/auth/check-role', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ supabaseId: supaUser.id }),
             });
             const roleData = await roleRes.json();
             if (roleData.isStaff) {

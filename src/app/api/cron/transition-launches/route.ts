@@ -19,7 +19,11 @@ export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    console.error("[Cron] CRON_SECRET is not set — refusing to run");
+    return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
+  }
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -57,7 +61,7 @@ export async function GET(request: NextRequest) {
           })
           .where(eq(tools.id, tool.id));
         transitioned++;
-        console.log(`[cron] Transitioned tool: ${tool.name} (${tool.slug})`);
+        console.info(`[cron] Transitioned tool: ${tool.name} (${tool.slug})`);
       } catch (err) {
         console.error(`[cron] Failed to transition tool ${tool.id}:`, err);
       }
