@@ -1,4 +1,3 @@
-"use client";
 
 /*
  * LaudStack Homepage — 100% Aggregator X Template Match
@@ -102,99 +101,34 @@ const CURATED_COLLECTIONS = [
   },
 ];
 
-const SIDEBAR_CATEGORIES = [
-  { name: 'AI Productivity', icon: Briefcase, desc: 'Automate workflows and boost output' },
-  { name: 'Design', icon: Palette, desc: 'Creative and visual design tools' },
-  { name: 'Developer Tools', icon: Code, desc: 'Build and ship software faster' },
-  { name: 'Marketing', icon: BarChart3, desc: 'Grow your audience and revenue' },
-];
-
-const CATEGORY_COLORS: Record<string, { dot: string; text: string }> = {
-  'AI Productivity': { dot: '#D97706', text: '#92400E' },
-  'AI Writing': { dot: '#D97706', text: '#92400E' },
-  'AI Image': { dot: '#EF4444', text: '#DC2626' },
-  'AI Video': { dot: '#8B5CF6', text: '#7C3AED' },
-  'AI Audio': { dot: '#EC4899', text: '#DB2777' },
-  'AI Code': { dot: '#0C1830', text: '#1E3A5F' },
-  'AI Analytics': { dot: '#16A34A', text: '#15803D' },
-  'Design': { dot: '#EF4444', text: '#DC2626' },
-  'Marketing': { dot: '#D97706', text: '#92400E' },
-  'Developer Tools': { dot: '#0C1830', text: '#1E3A5F' },
-  'Project Management': { dot: '#D97706', text: '#92400E' },
-  'Customer Support': { dot: '#16A34A', text: '#15803D' },
-  'CRM': { dot: '#16A34A', text: '#15803D' },
-  'Sales': { dot: '#D97706', text: '#92400E' },
-  'HR & Recruiting': { dot: '#8B5CF6', text: '#7C3AED' },
-  'Finance': { dot: '#16A34A', text: '#15803D' },
-  'Security': { dot: '#EF4444', text: '#DC2626' },
-  'E-commerce': { dot: '#D97706', text: '#92400E' },
-  'Education': { dot: '#8B5CF6', text: '#7C3AED' },
-};
-
-function getCatColor(cat: string) {
-  return CATEGORY_COLORS[cat] || { dot: '#94A3B8', text: '#475569' };
-}
-
-// ─── Shared card shadow ───
-const cardShadow = 'rgba(36, 65, 122, 0.08) 0px 0px 2px 0px, rgba(36, 65, 122, 0.08) 0px 2px 6px 0px';
-
-// ─── Product Card Component (used for both Spotlight and Latest) ───
-function ProductCard({
-  tool,
-  variant,
-}: {
-  tool: {
-    id: string;
-    name: string;
-    slug: string;
-    description: string;
-    category: string;
-    logo_url: string;
-    website_url: string;
-    review_count?: number;
-    upvote_count?: number;
-    isSponsored?: boolean;
+// ─── Tool card component ────────────────────────────────────────────────────
+function ToolCard({ tool, isSponsored = false }: { tool: any; isSponsored?: boolean }) {
+  const categoryColors: { [key: string]: { dot: string; text: string; bg: string } } = {
+    'AI & Automation': { dot: '#D97706', text: '#B45309', bg: '#FFFBEB' },
+    'Developer Tools': { dot: '#3B82F6', text: '#1E40AF', bg: '#EFF6FF' },
+    'Design & Creative': { dot: '#EC4899', text: '#BE185D', bg: '#FCE7F3' },
+    'Marketing & Analytics': { dot: '#10B981', text: '#065F46', bg: '#ECFDF5' },
+    'Productivity': { dot: '#8B5CF6', text: '#5B21B6', bg: '#F5F3FF' },
+    'Sales & CRM': { dot: '#F59E0B', text: '#92400E', bg: '#FFFBEB' },
+    'Finance & Accounting': { dot: '#06B6D4', text: '#164E63', bg: '#ECFDFD' },
+    'HR & People': { dot: '#EF4444', text: '#7F1D1D', bg: '#FEE2E2' },
   };
-  variant: 'featured' | 'latest';
-}) {
-  const catColor = getCatColor(tool.category);
-  const isFeatured = variant === 'featured';
-  const isSponsored = tool.isSponsored ?? false;
+
+  const catColor = categoryColors[tool.category] || { dot: '#6B7280', text: '#374151', bg: '#F3F4F6' };
 
   return (
-    <div
-      className="p-4 lg:p-[28px_40px]"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr auto',
-        gap: '12px 24px',
-        alignItems: 'center',
-        background: isFeatured ? '#FFFBEB' : '#FFFFFF',
-        borderRadius: '18px',
-        border: `1px solid ${isFeatured ? '#FBBF24' : '#ECF2FF'}`,
-        boxShadow: cardShadow,
-        transition: 'border-color 0.15s',
-        cursor: 'pointer',
-      }}
-      onMouseEnter={e => {
-        if (!isFeatured) (e.currentTarget as HTMLDivElement).style.borderColor = '#D6E2FF';
-      }}
-      onMouseLeave={e => {
-        if (!isFeatured) (e.currentTarget as HTMLDivElement).style.borderColor = '#ECF2FF';
-      }}
-    >
-      {/* Left: logo + content — clickable link to tool page */}
-      <Link href={`/tools/${tool.slug}`} className="flex items-center gap-3 lg:gap-5 no-underline" style={{ minWidth: 0 }}>
-        {/* Logo — 56x56 on mobile, 80x80 on desktop */}
-        <div
-          className="shrink-0 rounded-xl lg:rounded-2xl overflow-hidden flex items-center justify-center w-14 h-14 lg:w-20 lg:h-20"
-          style={{ background: '#ECF2FF' }}
-        >
+    <Link href={`/tools/${tool.slug}`} style={{ textDecoration: 'none' }}>
+      <div
+        className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-lg transition-all hover:bg-slate-50"
+        style={{ cursor: 'pointer' }}
+      >
+        {/* Left: Logo */}
+        <div className="shrink-0">
           <LogoWithFallback
-            src={tool.logo_url}
-            alt={tool.name}
-            size={56}
-            className="rounded-xl object-contain w-10 h-10 lg:w-14 lg:h-14"
+            url={tool.logo_url}
+            name={tool.name}
+            size={40}
+            className="rounded-lg"
           />
         </div>
 
@@ -232,7 +166,7 @@ function ProductCard({
             <span className="text-[12px] lg:text-[14px]" style={{ fontWeight: 500, color: catColor.text }}>{tool.category}</span>
           </div>
         </div>
-      </Link>
+      </div>
 
       {/* Right: Comment + Laud buttons */}
       <div className="flex items-center gap-1.5 lg:gap-2 shrink-0">
@@ -312,7 +246,7 @@ function ProductCard({
           </div>
         </button>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -401,29 +335,37 @@ export default function Home() {
               borderRadius: '24px',
             }}
           >
-            {/* Polished vertical stripes decoration — Flippa-style */}
+            {/* Premium sleek decorative elements */}
             <div className="hidden lg:block">
-              {/* Vertical stripes across the background */}
-              <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
-                {/* Left side stripes */}
-                <div className="absolute" style={{ left: '5%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '8%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '12%', top: '0', width: '3px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '16%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '20%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                
-                {/* Center stripes */}
-                <div className="absolute" style={{ left: '35%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '50%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '65%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-                
-                {/* Right side stripes */}
-                <div className="absolute" style={{ right: '20%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '16%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '12%', top: '0', width: '3px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '8%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '5%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-              </div>
+              {/* Soft gradient glow accents — premium amber/gold tint */}
+              <div className="absolute" style={{ top: '-5%', left: '8%', width: '320px', height: '320px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(217,183,11,0.18) 0%, rgba(217,183,11,0.06) 45%, transparent 100%)', filter: 'blur(45px)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ bottom: '-12%', right: '10%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(217,183,11,0.14) 0%, rgba(217,183,11,0.04) 55%, transparent 100%)', filter: 'blur(55px)', pointerEvents: 'none' }} />
+              
+              {/* Geometric accent lines — premium thin gradient strokes */}
+              <div className="absolute" style={{ top: '12%', left: '6%', width: '140px', height: '1.5px', background: 'linear-gradient(90deg, rgba(217,183,11,0.2) 0%, rgba(217,183,11,0.05) 100%)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ top: '38%', right: '10%', width: '120px', height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(217,183,11,0.14) 100%)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ bottom: '28%', left: '12%', width: '160px', height: '1.5px', background: 'linear-gradient(90deg, rgba(217,183,11,0.16) 0%, rgba(217,183,11,0.02) 100%)', pointerEvents: 'none' }} />
+              
+              {/* Subtle circular accents with soft borders and inner glow */}
+              <div className="absolute" style={{ top: '18%', right: '18%', width: '70px', height: '70px', borderRadius: '50%', border: '1.5px solid rgba(217,183,11,0.15)', background: 'rgba(217,183,11,0.04)', boxShadow: 'inset 0 0 25px rgba(217,183,11,0.12), 0 0 30px rgba(217,183,11,0.08)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ bottom: '32%', left: '8%', width: '50px', height: '50px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 15px rgba(217,183,11,0.06)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ top: '55%', right: '3%', width: '95px', height: '95px', borderRadius: '50%', border: '1.5px solid rgba(217,183,11,0.12)', background: 'rgba(217,183,11,0.05)', boxShadow: 'inset 0 0 20px rgba(217,183,11,0.1)', pointerEvents: 'none' }} />
+              
+              {/* Vertical accent stripes — refined with gradient flow */}
+              <div className="absolute" style={{ left: '10%', top: '0', width: '2.5px', height: '100%', background: 'linear-gradient(180deg, rgba(217,183,11,0.16) 0%, rgba(217,183,11,0.04) 40%, rgba(217,183,11,0.1) 100%)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ left: '26%', top: '0', width: '1px', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.06) 100%)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ left: '50%', top: '0', width: '2px', height: '100%', background: 'linear-gradient(180deg, rgba(217,183,11,0.14) 0%, rgba(217,183,11,0.03) 45%, rgba(217,183,11,0.12) 100%)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ right: '26%', top: '0', width: '1px', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.08) 100%)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ right: '10%', top: '0', width: '2.5px', height: '100%', background: 'linear-gradient(180deg, rgba(217,183,11,0.1) 0%, rgba(217,183,11,0.04) 40%, rgba(217,183,11,0.14) 100%)', pointerEvents: 'none' }} />
+              
+              {/* Diagonal accent elements for depth and sophistication */}
+              <div className="absolute" style={{ top: '8%', left: '4%', width: '170px', height: '1.5px', background: 'linear-gradient(45deg, rgba(217,183,11,0.12) 0%, transparent 100%)', transform: 'rotate(-18deg)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ bottom: '18%', right: '6%', width: '140px', height: '1px', background: 'linear-gradient(45deg, transparent 0%, rgba(217,183,11,0.1) 100%)', transform: 'rotate(22deg)', pointerEvents: 'none' }} />
+              
+              {/* Premium accent dots with glow */}
+              <div className="absolute" style={{ top: '6%', left: '5%', width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(217,183,11,0.3)', boxShadow: '0 0 16px rgba(217,183,11,0.35)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ bottom: '10%', right: '9%', width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.18)', boxShadow: '0 0 10px rgba(217,183,11,0.15)', pointerEvents: 'none' }} />
+              <div className="absolute" style={{ top: '45%', right: '15%', width: '2px', height: '2px', borderRadius: '50%', background: 'rgba(217,183,11,0.25)', boxShadow: '0 0 8px rgba(217,183,11,0.2)', pointerEvents: 'none' }} />
             </div>
 
             {/* Centered content — single column, no side cards */}
@@ -491,7 +433,7 @@ export default function Home() {
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(81, 120, 255, 0.3)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.background = '#B45309';
+                    e.currentTarget.style.background = '#D97706';
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = 'none';
                   }}
@@ -499,905 +441,209 @@ export default function Home() {
                   Search
                 </button>
               </div>
-
-
             </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          1b. MOBILE CATEGORY PILLS — Capterra-style horizontal scroll
+          2. FEATURED & LATEST — Two-column grid
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="block lg:hidden pb-6 -mt-4">
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 16px' }}>
-          <h3 className="text-[15px] font-bold mb-3" style={{ color: '#0C1830' }}>Explore categories</h3>
-          <div className="flex gap-2.5 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-            {[
-              { name: 'AI Productivity', icon: Briefcase, href: '/c/ai-productivity-tools' },
-              { name: 'Developer Tools', icon: Code, href: '/c/developer-tools-tools' },
-              { name: 'Marketing', icon: BarChart3, href: '/c/marketing-tools' },
-              { name: 'Design', icon: Palette, href: '/c/design-tools' },
-              { name: 'CRM', icon: Star, href: '/c/crm-tools' },
-              { name: 'Analytics', icon: TrendingUp, href: '/c/ai-analytics-tools' },
-            ].map(cat => (
-              <Link
-                key={cat.name}
-                href={cat.href}
-                className="flex items-center gap-2 shrink-0"
-                style={{
-                  padding: '10px 16px',
-                  borderRadius: '12px',
-                  border: '1.5px solid #E2E8F0',
-                  background: '#FFFFFF',
-                  textDecoration: 'none',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: '#334155',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <cat.icon className="w-4 h-4" style={{ color: '#D97706' }} />
-                {cat.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          2 + 3. SPOTLIGHT + LATEST STACKS with STICKY SIDEBAR
-          Template: Featured + Latest share the same section with a sticky sidebar
-          Main column + 312px sidebar, sidebar sticky top 24px
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section className="pb-12 lg:pb-[120px]">
+      <section style={{ background: '#FFFFFF', paddingBottom: '120px' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 312px',
-              gap: '28px',
-            }}
-            className="max-lg:!grid-cols-1"
-          >
-            {/* ── Main column: Spotlight + Latest ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px 28px', maxWidth: '100%' }}>
+            {/* FEATURED — Left column */}
             <div>
-              {/* Featured Stacks (real promoted/admin-featured stacks) */}
-              <h2 className="text-[22px] lg:text-[30px]" style={{ fontWeight: 700, color: '#0C1830', marginBottom: '16px' }}>
-                Featured stacks
-              </h2>
-              <div className="flex flex-col" style={{ gap: '12px', marginBottom: '40px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0C1830', margin: 0 }}>Featured</h2>
+                <Link href="/editors-picks" style={{ fontSize: '12px', fontWeight: 500, color: '#D97706', textDecoration: 'none' }}>
+                  View all →
+                </Link>
+              </div>
+
+              {/* Featured stacks — vertical stack */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {featuredLoading ? (
-                  // Skeleton loading state
-                  Array.from({ length: 3 }).map((_, i) => (
+                  <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>Loading...</div>
+                ) : featuredStacks.length > 0 ? (
+                  featuredStacks.map(tool => (
                     <div
-                      key={i}
-                      className="animate-pulse p-4 lg:p-[28px_40px]"
+                      key={tool.id}
                       style={{
+                        padding: '28px 40px',
                         borderRadius: '18px',
-                        border: '1px solid #FBBF24',
                         background: '#FFFBEB',
-                        boxShadow: cardShadow,
+                        border: '1px solid #FBBF24',
+                        boxShadow: 'rgba(36, 65, 122, 0.08) 0px 0px 2px, rgba(36, 65, 122, 0.08) 0px 2px 6px',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr auto',
+                        gap: '24px',
+                        alignItems: 'center',
                       }}
                     >
-                      <div className="flex items-center gap-4">
-                        <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#FDE68A', flexShrink: 0 }} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ width: '60%', height: '18px', borderRadius: '6px', background: '#FDE68A', marginBottom: '8px' }} />
-                          <div style={{ width: '90%', height: '14px', borderRadius: '4px', background: '#FEF3C7' }} />
-                        </div>
-                      </div>
+                      <ToolCard tool={tool} isSponsored={tool.isSponsored} />
                     </div>
                   ))
                 ) : (
-                  featuredStacks.map((tool) => (
-                    <ProductCard key={tool.id} tool={tool} variant="featured" />
-                  ))
+                  <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>No featured stacks</div>
                 )}
               </div>
-
-              {/* Latest Stacks */}
-              <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
-                <h2 className="text-[22px] lg:text-[30px]" style={{ fontWeight: 700, color: '#0C1830', margin: 0 }}>
-                  Latest stacks
-                </h2>
-                <Link
-                  href="/categories"
-                  className="flex items-center gap-1.5 hidden sm:flex"
-                  style={{
-                    background: 'transparent',
-                    color: '#0C1830',
-                    border: '1px solid #0C1830',
-                    borderRadius: '48px',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    padding: '14px 20px',
-                    textDecoration: 'none',
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#0C1830'; e.currentTarget.style.color = '#FFFFFF'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#0C1830'; }}
-                >
-                  Browse all stacks
-                </Link>
-              </div>
-
-              <div className="flex flex-col" style={{ gap: '12px' }}>
-                {visibleLatest.map((tool) => (
-                  <ProductCard key={tool.id} tool={tool} variant="latest" />
-                ))}
-              </div>
-
-              {/* View all Stacks button */}
-              <div className="flex justify-center" style={{ marginTop: '28px' }}>
-                <Link
-                  href="/categories"
-                  className="flex items-center gap-2"
-                  style={{
-                    background: '#D97706',
-                    color: '#FFFFFF',
-                    border: '1px solid #D97706',
-                    borderRadius: '96px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    padding: '14px 28px',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = '#B45309';
-                    e.currentTarget.style.borderColor = '#D97706';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(81, 120, 255, 0.3)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = '#B45309';
-                    e.currentTarget.style.borderColor = '#D97706';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  View all Stacks <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
             </div>
 
-            {/* ── Sidebar: sticky on desktop, inline on mobile ── */}
-            <div className="block">
-              <div className="lg:sticky lg:top-[152px]">
-
-                {/* ═══════════════════════════════════════════
-                    1. TOP RATED — Polished Leaderboard Card
-                    ═══════════════════════════════════════════ */}
-                <div
-                  style={{
-                    borderRadius: '18px',
-                    border: '1.5px solid #D6E2FF',
-                    overflow: 'hidden',
-                    marginBottom: '20px',
-                    background: '#FFFFFF',
-                    boxShadow: '0 2px 8px rgba(36, 65, 122, 0.10), 0 0 0 1px rgba(81, 120, 255, 0.04)',
-                  }}
-                >
-                  {/* Header with icon */}
-                  <div
-                    className="flex items-center justify-between"
-                    style={{
-                      padding: '16px 18px',
-                      borderBottom: '1.5px solid #D6E2FF',
-                      background: '#ECF2FF',
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className="flex items-center justify-center"
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '10px',
-                          background: 'linear-gradient(135deg, #FBBF24 0%, #D97706 100%)',
-                        }}
-                      >
-                        <Trophy className="w-4 h-4" style={{ color: '#FFFFFF' }} />
-                      </div>
-                      <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0C1830', margin: 0, letterSpacing: '-0.01em' }}>
-                        Top Rated
-                      </h3>
-                    </div>
-                    <Link
-                      href="/top-rated"
-                      style={{
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        color: '#0C1830',
-                        textDecoration: 'none',
-                        transition: 'opacity 0.15s',
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                    >
-                      View all
-                    </Link>
-                  </div>
-
-                  {/* Leaderboard entries */}
-                  {(leaderboard.length > 0 ? leaderboard.slice(0, 5) : allTools.slice(0, 5)).map((entry, i) => {
-                    const item = 'tool_id' in entry
-                      ? entry
-                      : { tool_id: entry.id, name: entry.name, slug: entry.slug, logo_url: entry.logo_url, average_rating: entry.average_rating ?? 0, review_count: entry.review_count ?? 0 };
-                    const rank = i + 1;
-                    const isLast = i === Math.min((leaderboard.length > 0 ? leaderboard.length : allTools.length), 5) - 1;
-
-                    // Medal colors for top 3
-                    const medalColors: Record<number, { bg: string; text: string; border: string }> = {
-                      1: { bg: '#FEF3C7', text: '#D97706', border: '#FDE68A' },
-                      2: { bg: '#F1F5F9', text: '#475569', border: '#E2E8F0' },
-                      3: { bg: '#FFFBEB', text: '#92400E', border: '#FFFBEB' },
-                    };
-                    const medal = medalColors[rank];
-
-                    return (
-                      <Link
-                        key={item.tool_id}
-                        href={`/tools/${item.slug}`}
-                        className="flex items-center gap-3"
-                        style={{
-                          padding: '12px 18px',
-                          textDecoration: 'none',
-                          borderBottom: isLast ? 'none' : '1px solid #F1F5F9',
-                          transition: 'background 0.2s',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#F5F8FF')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        {/* Rank badge */}
-                        <span
-                          style={{
-                            width: '22px',
-                            height: '22px',
-                            borderRadius: '7px',
-                            background: medal ? medal.bg : '#F8FAFC',
-                            color: medal ? medal.text : '#64748B',
-                            border: `1px solid ${medal ? medal.border : '#E2E8F0'}`,
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            lineHeight: 1,
-                          }}
-                        >
-                          {rank}
-                        </span>
-
-                        {/* Logo */}
-                        <div
-                          className="shrink-0 rounded-[10px] overflow-hidden flex items-center justify-center"
-                          style={{
-                            width: '34px',
-                            height: '34px',
-                            background: '#F1F5F9',
-                            border: '1px solid #E2E8F0',
-                          }}
-                        >
-                          <LogoWithFallback
-                            src={item.logo_url}
-                            alt={item.name}
-                            size={24}
-                            className="rounded-lg object-contain"
-                          />
-                        </div>
-
-                        {/* Name + rating row */}
-                        <div className="flex-1 min-w-0">
-                          <p className="line-clamp-1" style={{ fontSize: '13px', fontWeight: 600, color: '#0C1830', margin: 0, lineHeight: '18px' }}>
-                            {item.name}
-                          </p>
-                          <div className="flex items-center gap-1" style={{ marginTop: '3px' }}>
-                            <div className="flex items-center">
-                              {[1,2,3,4,5].map(s => (
-                                <Star
-                                  key={s}
-                                  className="w-2.5 h-2.5"
-                                  style={{
-                                    color: s <= Math.round(item.average_rating) ? '#FBBF24' : '#E2E8F0',
-                                    fill: s <= Math.round(item.average_rating) ? '#FBBF24' : '#E2E8F0',
-                                  }}
-                                />
-                              ))}
-                            </div>
-                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', marginLeft: '2px' }}>
-                              {item.average_rating.toFixed(1)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Review count pill */}
-                        <span
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            color: '#64748B',
-                            background: '#F1F5F9',
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            flexShrink: 0,
-                            lineHeight: '16px',
-                          }}
-                        >
-                          {item.review_count}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* ═══════════════════════════════════════════
-                    2. LAUNCH CTA — Dark Premium Card (hidden on mobile)
-                    ═══════════════════════════════════════════ */}
-                <div
-                  className="hidden lg:block"
-                  style={{
-                    borderRadius: '18px',
-                    padding: '32px 24px',
-                    marginBottom: '20px',
-                    background: '#1E3A5F',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* Decorative glow */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '-40px',
-                      right: '-40px',
-                      width: '160px',
-                      height: '160px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
-                      pointerEvents: 'none',
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-30px',
-                      left: '-20px',
-                      width: '120px',
-                      height: '120px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, rgba(217,119,6,0.15) 0%, transparent 70%)',
-                      pointerEvents: 'none',
-                    }}
-                  />
-
-                  {/* Content */}
-                  <div style={{ position: 'relative', zIndex: 1 }}>
-                    {/* Icon row */}
-                    <div className="flex items-center gap-3" style={{ marginBottom: '20px' }}>
-                      <div
-                        className="flex items-center justify-center"
-                        style={{
-                          width: '44px',
-                          height: '44px',
-                          borderRadius: '12px',
-                          background: '#D97706',
-                        }}
-                      >
-                        <Rocket className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#FBBF24', margin: 0, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
-                          For Founders
-                        </p>
-                      </div>
-                    </div>
-
-                    <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px', lineHeight: '28px', letterSpacing: '-0.01em' }}>
-                      Launch your stack
-                    </h3>
-                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: '20px', margin: '0 0 24px' }}>
-                      Get discovered by thousands of builders. Collect verified reviews and climb the rankings.
-                    </p>
-
-                    {/* Stats row */}
-                    <div className="flex items-center gap-4" style={{ marginBottom: '24px' }}>
-                      <div className="flex items-center gap-1.5">
-                        <Star className="w-3.5 h-3.5" style={{ color: '#FBBF24', fill: '#FBBF24' }} />
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>Free to list</span>
-                      </div>
-                      <div style={{ width: '1px', height: '14px', background: 'rgba(255,255,255,0.2)' }} />
-                      <div className="flex items-center gap-1.5">
-                        <TrendingUp className="w-3.5 h-3.5" style={{ color: '#16A34A' }} />
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>Verified in 24h</span>
-                      </div>
-                    </div>
-
-                    <Link
-                      href="/launchpad"
-                      className="flex items-center justify-center gap-2"
-                      style={{
-                        width: '100%',
-                        background: '#D97706',
-                        color: '#FFFFFF',
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        padding: '13px 24px',
-                        textDecoration: 'none',
-                        transition: 'all 0.2s',
-                        border: 'none',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.background = '#D97706';
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(217, 119, 6, 0.35)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.background = '#D97706';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      Launch now <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-
-
-
-                {/* ═══════════════════════════════════════════
-                    3. NEWSLETTER — Clean Subscription Card
-                    ═══════════════════════════════════════════ */}
-                <div
-                  style={{
-                    borderRadius: '18px',
-                    border: '1.5px solid #D6E2FF',
-                    overflow: 'hidden',
-                    background: '#FFFFFF',
-                    boxShadow: '0 2px 8px rgba(36, 65, 122, 0.10), 0 0 0 1px rgba(81, 120, 255, 0.04)',
-                  }}
-                >
-                  {/* Header band */}
-                  <div
-                    style={{
-                      padding: '16px 18px',
-                      borderBottom: '1.5px solid #D6E2FF',
-                      background: '#ECF2FF',
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className="flex items-center justify-center"
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '10px',
-                          background: '#0C1830',
-                        }}
-                      >
-                        <Mail className="w-4 h-4" style={{ color: '#FFFFFF' }} />
-                      </div>
-                      <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0C1830', margin: 0, letterSpacing: '-0.01em' }}>
-                        Weekly Picks
-                      </h3>
-                    </div>
-                  </div>
-
-                  {/* Body */}
-                  <div style={{ padding: '18px' }}>
-                    <p style={{ fontSize: '13px', color: '#475569', lineHeight: '20px', margin: '0 0 16px' }}>
-                      The best new SaaS and AI stacks, handpicked by our editors. Every Thursday.
-                    </p>
-
-                    {/* Email input — full width stacked */}
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                      <input
-                        type="email"
-                        value={newsletterEmail}
-                        onChange={e => setNewsletterEmail(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && handleNewsletterSubscribe()}
-                        placeholder="you@company.com"
-                        style={{
-                          width: '100%',
-                          padding: '11px 14px',
-                          borderRadius: '10px',
-                          border: '1.5px solid #E2E8F0',
-                          fontSize: '13px',
-                          color: '#0C1830',
-                          background: '#FFFFFF',
-                          outline: 'none',
-                          transition: 'border-color 0.2s',
-                          boxSizing: 'border-box' as const,
-                        }}
-                        onFocus={e => (e.currentTarget.style.borderColor = '#D97706')}
-                        onBlur={e => (e.currentTarget.style.borderColor = '#E2E8F0')}
-                        disabled={subscribeMutation.isPending}
-                      />
-                      <button
-                        onClick={handleNewsletterSubscribe}
-                        disabled={subscribeMutation.isPending}
-                        className="flex items-center justify-center gap-2"
-                        style={{
-                          width: '100%',
-                          padding: '11px 14px',
-                          borderRadius: '10px',
-                          background: '#0C1830',
-                          color: '#FFFFFF',
-                          fontSize: '13px',
-                          fontWeight: 700,
-                          border: 'none',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                        }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.background = '#1E293B';
-                          e.currentTarget.style.transform = 'translateY(-1px)';
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.background = '#0C1830';
-                          e.currentTarget.style.transform = 'translateY(0)';
-                        }}
-                      >
-                        {subscribeMutation.isPending ? 'Subscribing...' : 'Subscribe'}
-                        {!subscribeMutation.isPending && <Sparkles className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-
-                    {/* Trust line */}
-                    <p style={{ fontSize: '11px', color: '#94A3B8', marginTop: '12px', margin: '12px 0 0', lineHeight: '16px', textAlign: 'center' as const }}>
-                      Join our weekly digest. Unsubscribe anytime.
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          4. DUAL CTA CARDS — Polished modern design
-          Light: Launch your Stack | Dark: Write a Review
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section className="pb-12 lg:pb-[120px]">
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-7"
-          >
-            {/* Launch CTA — Light card */}
-            <div
-              className="relative overflow-hidden group p-7 lg:p-12"
-              style={{
-                background: '#ECF2FF',
-                borderRadius: '24px',
-                border: '1px solid #D6E2FF',
-                transition: 'box-shadow 0.3s, transform 0.3s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(81, 120, 255, 0.12)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {/* Decorative elements */}
-              <div className="absolute" style={{ top: '-80px', right: '-80px', width: '280px', height: '280px', borderRadius: '50%', background: '#D97706', opacity: 0.05 }} />
-              <div className="absolute" style={{ bottom: '-40px', left: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: '#D97706', opacity: 0.04 }} />
-
-              <div className="relative z-10">
-                {/* Label */}
-                <div className="flex items-center gap-2" style={{ marginBottom: '24px' }}>
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '14px',
-                      background: '#D97706',
-                    }}
-                  >
-                    <Rocket className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#0C1830', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
-                    For Founders
-                  </span>
-                </div>
-
-                <h3 className="text-[20px] lg:text-[26px]" style={{ fontWeight: 800, color: '#0C1830', margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: '1.25' }}>
-                  Launch your Stack
-                </h3>
-                <p className="text-[13px] lg:text-[15px]" style={{ color: '#475569', lineHeight: '22px', margin: '0 0 20px', maxWidth: '380px' }}>
-                  Get your product discovered by thousands of builders and buyers. Collect verified reviews and climb the rankings.
-                </p>
-
-                {/* Stats row */}
-                <div className="flex items-center gap-4" style={{ marginBottom: '28px' }}>
-                  <div className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5" style={{ color: '#FBBF24', fill: '#FBBF24' }} />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Free to list</span>
-                  </div>
-                  <div style={{ width: '1px', height: '16px', background: '#CBD5E1' }} />
-                  <div className="flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5" style={{ color: '#16A34A' }} />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Verified in 24h</span>
-                  </div>
-                </div>
-
-                <Link
-                  href="/launchpad"
-                  className="inline-flex items-center gap-2"
-                  style={{
-                    background: '#0C1830',
-                    color: '#FFFFFF',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    padding: '14px 28px',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = '#1E293B';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(12, 24, 48, 0.25)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = '#0C1830';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  Launch now <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Review CTA — Navy card */}
-            <div
-              className="relative overflow-hidden group p-7 lg:p-12"
-              style={{
-                background: '#1E3A5F',
-                borderRadius: '24px',
-                border: '1px solid rgba(30, 58, 95, 0.3)',
-                transition: 'box-shadow 0.3s, transform 0.3s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(30, 58, 95, 0.25)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {/* Decorative elements */}
-              <div className="absolute" style={{ top: '-80px', right: '-80px', width: '280px', height: '280px', borderRadius: '50%', background: '#D97706', opacity: 0.1 }} />
-              <div className="absolute" style={{ bottom: '-60px', left: '-30px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(253,181,42,0.08)', pointerEvents: 'none' }} />
-
-              <div className="relative z-10">
-                {/* Label */}
-                <div className="flex items-center gap-2" style={{ marginBottom: '24px' }}>
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '14px',
-                      background: '#D97706',
-                    }}
-                  >
-                    <PenLine className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#FBBF24', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
-                    For Users
-                  </span>
-                </div>
-                <h3 className="text-[20px] lg:text-[26px]" style={{ fontWeight: 800, color: '#FFFFFF', margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: '1.25' }}>
-                  Write a Review
-                </h3>
-                <p className="text-[13px] lg:text-[15px]" style={{ color: 'rgba(255,255,255,0.8)', lineHeight: '22px', margin: '0 0 20px', maxWidth: '380px' }}>
-                  Share your honest experience with the stacks you use. Help the community make better decisions and earn reviewer badges.
-                </p>
-
-                {/* Stats row */}
-                <div className="flex items-center gap-4" style={{ marginBottom: '28px' }}>
-                  <div className="flex items-center gap-1.5">
-                    <MessageSquarePlus className="w-3.5 h-3.5" style={{ color: '#D97706' }} />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>Write reviews</span>
-                  </div>
-                  <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.2)' }} />
-                  <div className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5" style={{ color: '#FBBF24', fill: '#FBBF24' }} />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>Earn badges</span>
-                  </div>
-                </div>
-
-                <Link
-                  href="/categories"
-                  className="inline-flex items-center gap-2"
-                  style={{
-                    background: '#D97706',
-                    color: '#FFFFFF',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    padding: '14px 28px',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                    border: 'none',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = '#B45309';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(217, 119, 6, 0.35)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = '#B45309';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  Write a review <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          5. COLLECTIONS CURATED BY OUR TEAM — Horizontal scroll
-          8 cards with custom images, side-scroll effect
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-12 lg:py-[120px]" style={{ background: '#F8FAFC' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
-          {/* Header row */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'space-between',
-              marginBottom: '40px',
-              gap: '16px',
-              flexWrap: 'wrap' as const,
-            }}
-          >
+            {/* LATEST — Right column */}
             <div>
-              <h2 className="text-[22px] lg:text-[30px]" style={{ fontWeight: 800, color: '#0C1830', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
-                Collections curated by our team
-              </h2>
-              <p className="text-[13px] lg:text-[15px] hidden sm:block" style={{ color: '#475569', lineHeight: '24px', margin: 0 }}>
-                Hand-picked Best SaaS Tools lists to help you find the right stack for every use case.
-              </p>
-            </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0C1830', margin: 0 }}>Latest Launches</h2>
+                <Link href="/launches" style={{ fontSize: '12px', fontWeight: 500, color: '#D97706', textDecoration: 'none' }}>
+                  View all →
+                </Link>
+              </div>
 
-            {/* Scroll controls */}
-            <div className="flex items-center gap-2">
+              {/* Latest stacks — vertical stack */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {toolsLoading ? (
+                  <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>Loading...</div>
+                ) : visibleLatest.length > 0 ? (
+                  visibleLatest.slice(0, 5).map(tool => (
+                    <div
+                      key={tool.id}
+                      style={{
+                        padding: '28px 40px',
+                        borderRadius: '18px',
+                        background: '#FFFFFF',
+                        border: '1px solid #ECF2FF',
+                        boxShadow: 'rgba(36, 65, 122, 0.08) 0px 0px 2px, rgba(36, 65, 122, 0.08) 0px 2px 6px',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr auto',
+                        gap: '24px',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <ToolCard tool={tool} />
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>No recent launches</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          3. COLLECTIONS — 3-column carousel
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section style={{ background: '#FFFFFF', paddingBottom: '120px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0C1830', margin: 0 }}>Collections curated by our team</h2>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={() => scrollCollections('left')}
-                className="flex items-center justify-center"
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  background: '#FFFFFF',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '8px',
                   border: '1px solid #E2E8F0',
+                  background: '#FFFFFF',
                   cursor: 'pointer',
-                  transition: 'all 0.15s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#0C1830'; e.currentTarget.style.borderColor = '#0C1830'; (e.currentTarget.firstChild as SVGElement).style.color = '#FFFFFF'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.borderColor = '#E2E8F0'; (e.currentTarget.firstChild as SVGElement).style.color = '#0C1830'; }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = '#D97706';
+                  e.currentTarget.style.background = '#FFFBEB';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = '#E2E8F0';
+                  e.currentTarget.style.background = '#FFFFFF';
+                }}
               >
-                <ChevronLeft className="w-5 h-5" style={{ color: '#0C1830', transition: 'color 0.15s' }} />
+                <ChevronLeft style={{ width: '20px', height: '20px', color: '#0C1830' }} />
               </button>
               <button
                 onClick={() => scrollCollections('right')}
-                className="flex items-center justify-center"
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  background: '#0C1830',
-                  border: '1px solid #0C1830',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '8px',
+                  border: '1px solid #E2E8F0',
+                  background: '#FFFFFF',
                   cursor: 'pointer',
-                  transition: 'all 0.15s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#1E293B'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#0C1830'; }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = '#D97706';
+                  e.currentTarget.style.background = '#FFFBEB';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = '#E2E8F0';
+                  e.currentTarget.style.background = '#FFFFFF';
+                }}
               >
-                <ChevronRight className="w-5 h-5" style={{ color: '#FFFFFF' }} />
+                <ChevronRight style={{ width: '20px', height: '20px', color: '#0C1830' }} />
               </button>
             </div>
           </div>
 
-          {/* Scrollable cards row */}
-          <div className="relative">
-            <div
-              ref={collectionsScrollRef}
-              className="flex gap-6 overflow-x-auto pb-4"
-              style={{ scrollbarWidth: 'none', scrollBehavior: 'smooth' }}
-            >
-              {CURATED_COLLECTIONS.map((col, i) => (
-                <Link
-                  key={i}
-                  href={col.href}
-                  className="group shrink-0 w-[260px] lg:w-[320px]"
+          {/* Collections carousel */}
+          <div
+            ref={collectionsScrollRef}
+            style={{
+              display: 'flex',
+              gap: '28px',
+              overflowX: 'auto',
+              scrollBehavior: 'smooth',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+            className="no-scrollbar"
+          >
+            {CURATED_COLLECTIONS.map(collection => (
+              <Link key={collection.href} href={collection.href} style={{ textDecoration: 'none', minWidth: '387px' }}>
+                <div
                   style={{
-                    background: '#FFFFFF',
-                    borderRadius: '20px',
-                    border: '1px solid #ECF2FF',
+                    borderRadius: '24px',
                     overflow: 'hidden',
-                    textDecoration: 'none',
-                    transition: 'box-shadow 0.25s, transform 0.25s',
+                    height: '421px',
+                    background: '#F8FAFC',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    boxShadow: 'rgba(36, 65, 122, 0.08) 0px 0px 2px, rgba(36, 65, 122, 0.08) 0px 2px 6px',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(36, 65, 122, 0.12)';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = 'rgba(36, 65, 122, 0.15) 0px 8px 16px';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'rgba(36, 65, 122, 0.08) 0px 0px 2px, rgba(36, 65, 122, 0.08) 0px 2px 6px';
                   }}
                 >
-                  {/* Image */}
-                  <div
-                    className="h-[150px] lg:h-[200px]"
-                    style={{
-                      overflow: 'hidden',
-                      position: 'relative',
-                    }}
-                  >
-                    <img
-                      src={col.image}
-                      alt={col.title}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.4s',
-                      }}
-                      className="group-hover:scale-105"
-                    />
-                    {/* Gradient overlay */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: '60px',
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.15), transparent)',
-                        pointerEvents: 'none',
-                      }}
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div style={{ padding: '22px 24px' }}>
-                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0C1830', margin: '0 0 6px', lineHeight: '24px' }}>
-                      {col.title}
+                  <img src={collection.image} alt={collection.title} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                  <div style={{ padding: '24px' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0C1830', margin: '0 0 8px', lineHeight: 1.3 }}>
+                      {collection.title}
                     </h3>
-                    <p style={{ fontSize: '13px', color: '#475569', lineHeight: '20px', margin: '0 0 16px' }}>
-                      {col.description}
+                    <p style={{ fontSize: '13px', color: '#475569', margin: '0 0 16px', lineHeight: 1.5 }}>
+                      {collection.description}
                     </p>
-                    <div className="flex items-center justify-between">
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8' }}>
-                        {col.stackCount} stacks
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#D97706' }}>
+                        {collection.stackCount} stacks
                       </span>
-                      <span className="inline-flex items-center gap-1 group-hover:gap-2 transition-all" style={{ fontSize: '13px', fontWeight: 600, color: '#0C1830' }}>
-                        Browse <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
+                      <ArrowRight style={{ width: '16px', height: '16px', color: '#D97706' }} />
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
