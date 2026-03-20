@@ -2296,5 +2296,10 @@
 - [x] Push all changes to GitHub
 
 ## Vercel Deployment Fix
-- [ ] Diagnose and fix Vercel build failures
-- [ ] Push fixes and confirm deployment goes live
+- [x] Diagnose and fix Vercel build failures (CheckCircle import, _document.tsx)
+- [x] Push fixes and confirm deployment goes live
+
+## Homepage Hero Enhancement
+- [x] Enhance hero background with darker color (matching secondary navbar)
+- [x] Replace decorative circles with polished stripes/lines (Flippa-style)
+- [ ] Push to GitHub and verify deployment

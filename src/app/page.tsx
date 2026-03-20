@@ -397,51 +397,47 @@ export default function Home() {
           <div
             className="relative overflow-hidden px-5 py-10 lg:px-11 lg:py-[72px]"
             style={{
-              background: '#ECF2FF',
+              background: '#1E3A5F',
               borderRadius: '24px',
             }}
           >
-            {/* Subtle dot pattern — blends into background */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: 'radial-gradient(circle, rgba(81,120,255,0.06) 1px, transparent 1px)',
-                backgroundSize: '28px 28px',
-                pointerEvents: 'none',
-              }}
-            />
-
-            {/* Soft ambient circles — no borders, just tinted fills that blend */}
+            {/* Polished vertical stripes decoration — Flippa-style */}
             <div className="hidden lg:block">
-              <div className="absolute" style={{ top: '20px', left: '40px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(81,120,255,0.06)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ top: '60%', left: '8%', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(81,120,255,0.04)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ top: '10px', right: '60px', width: '90px', height: '90px', borderRadius: '50%', background: 'rgba(81,120,255,0.05)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ bottom: '20px', right: '5%', width: '140px', height: '140px', borderRadius: '50%', background: 'rgba(81,120,255,0.04)', pointerEvents: 'none' }} />
-              {/* Small accent dots */}
-              <div className="absolute" style={{ top: '30%', left: '18%', width: '8px', height: '8px', borderRadius: '50%', background: 'rgba(81,120,255,0.15)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ top: '25%', right: '15%', width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(81,120,255,0.12)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ bottom: '30%', left: '12%', width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(81,120,255,0.18)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ bottom: '25%', right: '20%', width: '7px', height: '7px', borderRadius: '50%', background: 'rgba(81,120,255,0.1)', pointerEvents: 'none' }} />
-              {/* Thin geometric lines */}
-              <div className="absolute" style={{ top: '45%', left: '5%', width: '60px', height: '1px', background: 'rgba(81,120,255,0.08)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ top: '35%', right: '6%', width: '50px', height: '1px', background: 'rgba(81,120,255,0.08)', transform: 'rotate(20deg)', pointerEvents: 'none' }} />
-              {/* Soft ring outlines */}
-              <div className="absolute" style={{ bottom: '15%', left: '22%', width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid rgba(81,120,255,0.08)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ top: '20%', right: '22%', width: '24px', height: '24px', borderRadius: '50%', border: '1.5px solid rgba(81,120,255,0.06)', pointerEvents: 'none' }} />
+              {/* Vertical stripes across the background */}
+              <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+                {/* Left side stripes */}
+                <div className="absolute" style={{ left: '5%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ left: '8%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ left: '12%', top: '0', width: '3px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ left: '16%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ left: '20%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+                
+                {/* Center stripes */}
+                <div className="absolute" style={{ left: '35%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ left: '50%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ left: '65%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+                
+                {/* Right side stripes */}
+                <div className="absolute" style={{ right: '20%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ right: '16%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ right: '12%', top: '0', width: '3px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ right: '8%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+                <div className="absolute" style={{ right: '5%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
+              </div>
             </div>
 
             {/* Centered content — single column, no side cards */}
             <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
               <h1
                 className="text-[26px] sm:text-[40px] lg:text-[48px] font-extrabold leading-[1.1] tracking-tight mb-3 lg:mb-5"
-                style={{ color: '#0C1830', letterSpacing: '-0.02em', textAlign: 'center' }}
+                style={{ color: '#FFFFFF', letterSpacing: '-0.02em', textAlign: 'center' }}
               >
                 Discover, Review &amp; Launch<br />
                 <span style={{ color: '#D97706' }}>SaaS &amp; AI Tools</span>
               </h1>
               <p
                 className="text-[14px] sm:text-[16px] leading-relaxed max-w-[520px] mx-auto hidden sm:block"
-                style={{ color: '#475569', textAlign: 'center' }}
+                style={{ color: '#E2E8F0', textAlign: 'center' }}
               >
                 Where founders launch stacks, the community gives lauds, and builders discover the best tools and deals.
               </p>
@@ -470,9 +466,10 @@ export default function Home() {
                     outline: 'none',
                     background: 'transparent',
                     fontSize: '14px',
-                    color: '#0C1830',
+                    color: '#1E3A5F',
                     minWidth: 0,
                   }}
+                  className="placeholder-slate-400"
                 />
                 <button
                   onClick={handleSearch}
