@@ -370,7 +370,6 @@ export default function Navbar() {
                                   <button
                                     key={item.label}
                                     onPointerDown={e => e.preventDefault()}
-                                    onPointerDown={e => e.preventDefault()}
                                     onClick={() => { router.push(item.href); setAvatarOpen(false); }}
                                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                     style={{ fontSize: '14px', color: '#334155' }}
@@ -383,7 +382,6 @@ export default function Navbar() {
                                 ))}
                                 {isVerifiedFounder && (
                                   <button
-                                    onPointerDown={e => e.preventDefault()}
                                     onPointerDown={e => e.preventDefault()}
                                     onClick={() => { router.push('/dashboard/founder'); setAvatarOpen(false); }}
                                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
