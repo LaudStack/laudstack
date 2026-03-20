@@ -161,14 +161,9 @@ export function useAuth(): AuthState & {
       },
     });
 
-    // CRITICAL: Sign out immediately after signup to prevent premature auto-login.
-    // Supabase may auto-confirm the email and create a session instantly (depending
-    // on project settings). We need the user to complete our custom OTP verification
-    // first, so we destroy the session here. The user will be properly signed in
-    // after OTP verification succeeds.
-    if (!error && data?.user?.id) {
-      await supabase.auth.signOut();
-    }
+    // No longer sign out after signup — email verification is not required
+    // for basic account creation. The session persists so the user can
+    // immediately access the platform.
 
     return { error: error?.message ?? null, supabaseId: data?.user?.id };
   };

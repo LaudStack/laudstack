@@ -4,7 +4,7 @@
 // LaudStack — Claim Your Stack Page
 // Design: Dark editorial, amber accents, trust-forward verification flow
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Shield, CheckCircle, Building2, Mail, Globe, FileText,
@@ -20,6 +20,7 @@ import { useToolsData } from '@/hooks/useToolsData';
 import { useAuth } from '@/hooks/useAuth';
 import { claimExistingTool } from '@/app/actions/founder';
 import { requestFounderUpgrade } from '@/app/actions/public';
+import EmailVerificationModal from '@/components/EmailVerificationModal';
 import type { Tool } from '@/lib/types';
 
 type Step = 'search' | 'verify' | 'details' | 'submitted';
@@ -40,6 +41,7 @@ export default function ClaimTool() {
 
   const [step, setStep] = useState<Step>('search');
   const [showAuthGate, setShowAuthGate] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
@@ -87,6 +89,11 @@ export default function ClaimTool() {
         message: `${founderRole} — ${founderName} (${founderEmail})${founderBio ? '\n' + founderBio : ''}`,
       });
       if (!claimResult.success) {
+        if (claimResult.error === 'EMAIL_NOT_VERIFIED') {
+          setShowVerifyModal(true);
+          setSubmitting(false);
+          return;
+        }
         toast.error(claimResult.error || 'Failed to submit claim');
         setSubmitting(false);
         return;
@@ -109,6 +116,17 @@ export default function ClaimTool() {
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <Navbar />
       <AuthGateModal open={showAuthGate} onClose={() => setShowAuthGate(false)} action="claim" />
+      <EmailVerificationModal
+        open={showVerifyModal}
+        onClose={() => setShowVerifyModal(false)}
+        onVerified={() => {
+          setShowVerifyModal(false);
+          // Retry the submission after verification
+          const form = document.querySelector('form');
+          if (form) form.requestSubmit();
+        }}
+        actionLabel="claim a stack"
+      />
       <div className="flex-1">
         <PageHero
         breadcrumbs={[{ label: 'Claim Your Stack' }]}

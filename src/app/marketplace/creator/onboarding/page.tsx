@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDbUser } from "@/hooks/useDbUser";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EmailVerificationModal from "@/components/EmailVerificationModal";
 
 type Step = "intro" | "payment" | "stripe-connect" | "complete";
 
@@ -28,6 +29,7 @@ export default function CreatorOnboardingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
   const { dbUser, loading: dbLoading } = useDbUser();
 
   const stepParam = searchParams?.get("step") as Step | null;
@@ -113,6 +115,11 @@ export default function CreatorOnboardingPage() {
     try {
       const res = await fetch("/api/stripe/marketplace-onboarding", { method: "POST" });
       const data = await res.json();
+      if (data.error === "EMAIL_NOT_VERIFIED") {
+        setShowVerifyModal(true);
+        setIsProcessing(false);
+        return;
+      }
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -177,6 +184,15 @@ export default function CreatorOnboardingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
+      <EmailVerificationModal
+        open={showVerifyModal}
+        onClose={() => setShowVerifyModal(false)}
+        onVerified={() => {
+          setShowVerifyModal(false);
+          handlePayOnboardingFee();
+        }}
+        actionLabel="become a marketplace creator"
+      />
       <div style={{ height: "72px", flexShrink: 0 }} />
 
       <div className="flex-1 py-10 px-6 lg:px-10">

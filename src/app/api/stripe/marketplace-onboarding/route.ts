@@ -25,6 +25,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Require email verification for becoming a marketplace creator
+    if (!dbUser.emailVerified) {
+      return NextResponse.json({ error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to become a marketplace creator." }, { status: 403 });
+    }
+
     // Check if already a creator
     if (dbUser.isMarketplaceCreator) {
       return NextResponse.json({ error: "Already a marketplace creator" }, { status: 400 });

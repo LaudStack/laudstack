@@ -2165,3 +2165,18 @@
 - [x] Stack profile: show follower count in hero
 - [x] Stack profile: make tabs slightly bigger and more visible
 - [x] Build, test, push to GitHub, verify Vercel deployment
+
+## Progressive Email Verification — Remove from Signup, Add to Sensitive Actions
+- [x] Remove email verification requirement from basic signup flow
+- [x] Allow users to sign up, log in, and access normal user panel without email verification
+- [x] Simplify signup flow - no verification code dependency during registration
+- [x] Implement action-based verification guards for sensitive operations
+- [x] Add verification status check at point of sensitive action attempt
+- [x] Create verification prompt UI for when verification is required
+- [x] Audit and fix email verification system (resend code, expiry, token validation, email delivery)
+- [x] Update route protection to not block unverified users from normal features
+- [x] Update backend auth logic for progressive verification model
+- [x] Update frontend auth flow - signup, login, session, redirects, onboarding
+- [x] Test full signup/login flow works without verification
+- [x] Test sensitive actions properly require verification
+- [x] Push to GitHub

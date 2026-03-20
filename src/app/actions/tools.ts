@@ -40,6 +40,11 @@ export async function submitTool(
       return { success: false, error: "You must be signed in to launch a product." };
     }
 
+    // Require email verification for launching a stack
+    if (!dbUser.emailVerified) {
+      return { success: false, error: "EMAIL_NOT_VERIFIED" };
+    }
+
     // Validate required fields
     if (!input.name?.trim()) return { success: false, error: "Tool name is required." };
     if (!input.tagline?.trim()) return { success: false, error: "Tagline is required." };

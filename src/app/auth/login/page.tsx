@@ -7,20 +7,20 @@ export const dynamic = "force-dynamic";
  * Design: Split-panel layout with main Navbar
  *  - Left panel: Polished branding with gradient, floating tool cards, social proof
  *  - Right panel: White form area with tab toggle, social OAuth, email/password
- *  - Inline 6-digit OTP verification step after sign-up
+ *  - No OTP during signup — email verification is deferred to sensitive actions
  *  - Responsive: stacks on mobile (left panel hidden)
  */
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Mail, Lock, Eye, EyeOff, User, ArrowRight,
-  CheckCircle2, AlertCircle, RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { sendVerificationCode, verifyCode } from "@/app/actions/emailVerification";
+import { createUserAfterSignup } from "@/app/actions/createUserAfterSignup";
 import Navbar from "@/components/Navbar";
 
 const LOGO_URL =
@@ -47,246 +47,8 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-// ─── OTP 6-digit input ────────────────────────────────────────────────────────
-
-function OTPInput({
-  value,
-  onChange,
-  onSubmit,
-  disabled,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  onSubmit?: () => void;
-  disabled?: boolean;
-}) {
-  const inputs = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.padEnd(6, " ").split("").slice(0, 6);
-
-  // Auto-focus first input on mount
-  useEffect(() => {
-    if (!disabled) {
-      setTimeout(() => inputs.current[0]?.focus(), 100);
-    }
-  }, [disabled]);
-
-  const handleChange = (idx: number, char: string) => {
-    const d = char.replace(/\D/g, "").slice(-1);
-    const next = [...digits];
-    next[idx] = d || " ";
-    const newValue = next.join("").trimEnd();
-    onChange(newValue);
-    if (d && idx < 5) inputs.current[idx + 1]?.focus();
-  };
-
-  const handleKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace") {
-      if (!digits[idx] || digits[idx] === " ") {
-        if (idx > 0) inputs.current[idx - 1]?.focus();
-      } else {
-        const next = [...digits];
-        next[idx] = " ";
-        onChange(next.join("").trimEnd());
-      }
-    }
-    if (e.key === "ArrowLeft" && idx > 0) inputs.current[idx - 1]?.focus();
-    if (e.key === "ArrowRight" && idx < 5) inputs.current[idx + 1]?.focus();
-    // Enter key submits when all 6 digits are entered
-    if (e.key === "Enter" && onSubmit) {
-      const filled = value.replace(/\s/g, "").length;
-      if (filled === 6) onSubmit();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    onChange(pasted);
-    const focusIdx = Math.min(pasted.length, 5);
-    inputs.current[focusIdx]?.focus();
-  };
-
-  return (
-    <div className="flex gap-1.5 sm:gap-2 justify-center" onPaste={handlePaste}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <input
-          key={i}
-          ref={el => { inputs.current[i] = el; }}
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          autoComplete="one-time-code"
-          maxLength={1}
-          value={digits[i] === " " ? "" : (digits[i] ?? "")}
-          onChange={e => handleChange(i, e.target.value)}
-          onKeyDown={e => handleKeyDown(i, e)}
-          disabled={disabled}
-          aria-label={`Digit ${i + 1} of 6`}
-          className={[
-            "text-center text-lg font-bold rounded-lg border-2 transition-all outline-none",
-            "h-[52px] w-[40px] sm:w-[44px]",
-            digits[i] && digits[i] !== " "
-              ? "border-amber-400 bg-amber-50 text-slate-900"
-              : "border-slate-200 bg-white text-slate-900",
-            "focus:border-amber-400 focus:ring-2 focus:ring-amber-100",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-          ].join(" ")}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─── Verify step ──────────────────────────────────────────────────────────────
-
-function VerifyStep({
-  email,
-  supabaseId,
-  firstName,
-  lastName,
-  onSuccess,
-}: {
-  email: string;
-  supabaseId: string;
-  firstName?: string;
-  lastName?: string;
-  onSuccess: (isNewUser?: boolean) => void;
-}) {
-  const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [cooldown, setCooldown] = useState(60);
-  const [resending, setResending] = useState(false);
-  const [verified, setVerified] = useState(false);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown(c => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
-
-  const codeDigits = code.replace(/\s/g, "").length;
-
-  const handleVerify = async () => {
-    if (codeDigits !== 6) { setError("Please enter all 6 digits."); return; }
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await verifyCode({ email, supabaseId, code: code.replace(/\s/g, ""), firstName, lastName });
-      if (result.success) {
-        setVerified(true);
-        setTimeout(() => onSuccess(result.isNewUser), 1400);
-      } else {
-        setError(result.error ?? "Invalid or expired code. Please try again.");
-        // Clear the code input on failed attempt so user can re-enter
-        setCode("");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    if (cooldown > 0 || resending) return;
-    setResending(true);
-    setError(null);
-    try {
-      const result = await sendVerificationCode({ email, supabaseId });
-      if (result.success) {
-        setCooldown(60);
-        setCode(""); // Clear any old code
-        toast.success("New code sent to your inbox.");
-      } else {
-        setError(result.error ?? "Failed to resend. Please try again.");
-      }
-    } catch {
-      setError("Failed to resend. Please try again.");
-    } finally {
-      setResending(false);
-    }
-  };
-
-  if (verified) {
-    return (
-      <div className="text-center py-8">
-        <div className="w-14 h-14 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-7 h-7 text-emerald-500" />
-        </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-1.5">Email verified!</h3>
-        <p className="text-slate-600 text-sm">Signing you in now…</p>
-        <div className="flex justify-center mt-5">
-          <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="text-center mb-7">
-        <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-4">
-          <Mail className="w-7 h-7 text-amber-500" />
-        </div>
-        <h2 className="text-xl font-bold text-slate-900 mb-1.5">Check your email</h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
-          We sent a 6-digit verification code to
-          <br />
-          <span className="font-semibold text-slate-700">{email}</span>
-        </p>
-      </div>
-
-      <div className="mb-5">
-        <OTPInput value={code} onChange={setCode} onSubmit={handleVerify} disabled={loading} />
-      </div>
-
-      {error && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3.5 py-2.5 mb-4">
-          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
-          <span className="text-sm text-red-700">{error}</span>
-        </div>
-      )}
-
-      <button
-        onClick={handleVerify}
-        disabled={loading || codeDigits !== 6}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4"
-        style={{
-          background: codeDigits === 6 ? "#F59E0B" : "#E2E8F0",
-          color: codeDigits === 6 ? "#1E293B" : "#94A3B8",
-        }}
-      >
-        {loading ? (
-          <div className="w-4 h-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
-        ) : (
-          <>Verify Email <ArrowRight className="w-4 h-4" /></>
-        )}
-      </button>
-
-      <p className="text-center text-sm text-slate-600">
-        Didn&apos;t receive it?{" "}
-        {cooldown > 0 ? (
-          <span className="text-slate-400">Resend in {cooldown}s</span>
-        ) : (
-          <button
-            onClick={handleResend}
-            disabled={resending}
-            className="text-amber-600 font-semibold hover:text-amber-700 inline-flex items-center gap-1"
-          >
-            {resending && <RefreshCw className="w-3 h-3 animate-spin" />}
-            Resend
-          </button>
-        )}
-      </p>
-
-      <p className="text-center text-xs text-slate-500 mt-4">
-        Code expires in 15 minutes.{" "}
-        <Link href="/auth/login" className="text-amber-600 hover:text-amber-700 font-medium">
-          Use a different email
-        </Link>
-      </p>
-    </div>
-  );
-}
+// OTP and VerifyStep components removed — email verification is now handled
+// on-demand via EmailVerificationModal for sensitive actions only.
 
 // ─── Auth form ────────────────────────────────────────────────────────────────
 
@@ -306,9 +68,7 @@ function AuthForm() {
   const [oauthLoading, setOauthLoading] = useState<"google" | "linkedin" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [otpStep, setOtpStep] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState("");
-  const [pendingSupabaseId, setPendingSupabaseId] = useState("");
+  // OTP step removed — signup is now frictionless
 
   const { signInWithEmail, signUpWithEmail, signInWithGoogle, signInWithLinkedIn } = useAuth();
   const isSignUp = mode === "signup";
@@ -352,36 +112,23 @@ function AuthForm() {
           return;
         }
 
-        // Try to send verification code with retry (up to 2 attempts)
-        let sendResult: { success: boolean; error?: string } = { success: false };
-        for (let attempt = 0; attempt < 2; attempt++) {
-          try {
-            sendResult = await sendVerificationCode({ email: cleanEmail, supabaseId: result.supabaseId });
-            if (sendResult.success) break;
-            // Wait 1s before retry
-            if (attempt === 0 && !sendResult.success) {
-              await new Promise(r => setTimeout(r, 1000));
-            }
-          } catch (sendErr) {
-            console.error(`[Signup] sendVerificationCode attempt ${attempt + 1} failed:`, sendErr);
-            if (attempt === 0) {
-              await new Promise(r => setTimeout(r, 1000));
-            }
-          }
+        // Create the DB user record immediately (no OTP required)
+        try {
+          await createUserAfterSignup({
+            supabaseId: result.supabaseId,
+            email: cleanEmail,
+            firstName: cleanFirst,
+            lastName: cleanLast,
+          });
+        } catch (err) {
+          console.error("[Signup] Failed to create DB user:", err);
+          // Non-critical — the auth callback will also create the user
         }
 
-        // Even if OTP sending fails, still proceed to the OTP step.
-        // The user can use the "Resend code" button on the verify screen.
-        // This prevents the broken state where the account exists but the
-        // user is stuck on the signup form with a generic error.
-        setPendingEmail(cleanEmail);
-        setPendingSupabaseId(result.supabaseId);
-        setOtpStep(true);
+        toast.success("Account created! Welcome to LaudStack.");
 
-        if (!sendResult.success) {
-          // Show a toast warning but still proceed to OTP screen
-          toast.error("We had trouble sending the verification email. Please use the \"Resend code\" button.");
-        }
+        // Redirect to onboarding
+        router.push("/onboarding");
       } else {
         const { error: signInError } = await signInWithEmail(cleanEmail, cleanPassword);
         if (signInError) {
@@ -389,7 +136,14 @@ function AuthForm() {
           if (signInError.toLowerCase().includes("invalid") || signInError.toLowerCase().includes("credentials")) {
             setError("Invalid email or password. Please try again.");
           } else if (signInError.toLowerCase().includes("email not confirmed")) {
-            setError("Please verify your email address before signing in.");
+            // Supabase has email confirmation enabled at the project level.
+            // We bypass this by NOT blocking the user — email verification is
+            // handled on-demand for sensitive actions only.
+            // Try to proceed anyway — if Supabase blocks the session, the user
+            // will need to confirm via the Supabase confirmation email.
+            console.warn("[Login] Supabase email not confirmed — proceeding anyway.");
+            toast.info("Please check your inbox for a confirmation email from Supabase to complete sign-in.");
+            setError("Your email needs to be confirmed. Please check your inbox for a confirmation link.");
           } else {
             setError(signInError);
           }
@@ -439,50 +193,6 @@ function AuthForm() {
     try { await signInWithLinkedIn(); }
     catch { toast.error("LinkedIn sign-in failed. Please try again."); setOauthLoading(null); }
   };
-
-  if (otpStep) {
-    return (
-      <VerifyStep
-        email={pendingEmail}
-        supabaseId={pendingSupabaseId}
-        firstName={firstName}
-        lastName={lastName}
-        onSuccess={async (isNewUser) => {
-          // Sign the user back in after successful OTP verification.
-          // We signed them out during signup to prevent premature auto-login,
-          // so now we need to restore their session.
-          try {
-            await signInWithEmail(pendingEmail, password);
-          } catch (err) {
-            console.error("[Auth] Failed to sign in after OTP verification:", err);
-          }
-          // Check user role to determine redirect destination
-          try {
-            const supabase = (await import('@supabase/ssr')).createBrowserClient(
-              process.env.NEXT_PUBLIC_SUPABASE_URL!,
-              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
-            const { data: { user: supaUser } } = await supabase.auth.getUser();
-            if (supaUser) {
-              const roleRes = await fetch('/api/auth/check-role', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ supabaseId: supaUser.id }),
-              });
-              const roleData = await roleRes.json();
-              if (roleData.isStaff) {
-                router.push('/ops-console/dashboard');
-                return;
-              }
-            }
-          } catch (err) {
-            console.error('[Auth] Role check failed, using default redirect:', err);
-          }
-          router.push(isNewUser ? '/onboarding' : returnUrl);
-        }}
-      />
-    );
-  }
 
   return (
     <div>

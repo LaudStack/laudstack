@@ -572,6 +572,11 @@ export async function claimExistingTool(toolId: number, data: {
     const dbUser = await requireAuth().catch(() => null);
     if (!dbUser) return { success: false, error: "Please sign in to claim a tool" };
 
+    // Require email verification for claiming a stack
+    if (!dbUser.emailVerified) {
+      return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to claim a stack." };
+    }
+
     // Check if tool exists
     const tool = await db.query.tools.findFirst({
       where: eq(tools.id, toolId),

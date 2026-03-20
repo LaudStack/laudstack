@@ -53,6 +53,11 @@ export async function submitTool(formData: ToolFormData): Promise<SubmitToolResu
     return { success: false, error: "You must be signed in to submit a product." };
   }
 
+  // 2. Require email verification for launching a stack
+  if (!dbUser.emailVerified) {
+    return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to launch a stack." } as any;
+  }
+
   // 3. Validate required fields server-side
   if (!formData.name?.trim()) return { success: false, error: "Tool name is required." };
   if (!formData.tagline?.trim()) return { success: false, error: "Tagline is required." };

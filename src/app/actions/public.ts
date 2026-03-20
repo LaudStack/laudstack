@@ -656,6 +656,11 @@ export async function requestFounderUpgrade(data: {
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
+  // Require email verification for founder upgrade
+  if (!user.emailVerified) {
+    return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to apply for founder status." };
+  }
+
   if (user.founderStatus === "verified") {
     return { success: false, error: "You are already a verified founder" };
   }

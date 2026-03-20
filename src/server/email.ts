@@ -280,8 +280,8 @@ export async function sendVerificationEmail(
       Verify your email address
     </h1>
     <p style="font-size:15px;color:#64748B;text-align:center;margin:0 0 32px;line-height:1.7;">
-      Enter the 6-digit code below to complete your<br />
-      <strong style="color:#0F172A;">LaudStack</strong> account setup.
+      Enter the 6-digit code below to verify your<br />
+      <strong style="color:#0F172A;">LaudStack</strong> email address.
     </p>
 
     <!-- OTP Code Block -->
@@ -317,7 +317,7 @@ export async function sendVerificationEmail(
             </td></tr></table>
           </td>
           <td style="padding:6px 0;padding-left:10px;">
-            <span style="font-size:14px;color:#475569;line-height:1.5;">Return to the LaudStack sign-up page</span>
+            <span style="font-size:14px;color:#475569;line-height:1.5;">Return to the LaudStack verification prompt</span>
           </td>
         </tr>
         <tr>
@@ -337,7 +337,7 @@ export async function sendVerificationEmail(
             </td></tr></table>
           </td>
           <td style="padding:6px 0;padding-left:10px;">
-            <span style="font-size:14px;color:#475569;line-height:1.5;">Your account will be instantly activated</span>
+            <span style="font-size:14px;color:#475569;line-height:1.5;">Your email will be verified and you can continue</span>
           </td>
         </tr>
       </table>
@@ -355,7 +355,7 @@ export async function sendVerificationEmail(
               <td>
                 <p style="font-size:12px;color:#1E40AF;margin:0;line-height:1.7;">
                   <strong>Security notice:</strong> LaudStack will never ask for your password via email.
-                  If you did not create a LaudStack account, you can safely ignore this email.
+                  If you did not request this code, you can safely ignore this email.
                 </p>
               </td>
             </tr>

@@ -30,6 +30,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useDbUser } from "@/hooks/useDbUser";
 import { submitTool, type ToolFormData } from "@/app/actions/submitTool";
+import EmailVerificationModal from "@/components/EmailVerificationModal";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -665,6 +666,7 @@ export default function LaunchPage() {
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   const { dbUser } = useDbUser();
 
@@ -756,7 +758,9 @@ export default function LaunchPage() {
       const result = await submitTool(form as ToolFormData);
       if (result.success) {
         setSubmitted(true);
-        toast.success("Submission received! We'll review your Stack within 24–48 hours.");
+        toast.success("Submission received! We'll review your Stack within 24\u201348 hours.");
+      } else if ((result as any).error === "EMAIL_NOT_VERIFIED") {
+        setShowVerifyModal(true);
       } else {
         toast.error(result.error || "Submission failed. Please try again.");
       }
@@ -772,6 +776,16 @@ export default function LaunchPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+      <EmailVerificationModal
+        open={showVerifyModal}
+        onClose={() => setShowVerifyModal(false)}
+        onVerified={() => {
+          setShowVerifyModal(false);
+          // Retry submission after verification
+          handleSubmit();
+        }}
+        actionLabel="launch a stack"
+      />
       <div className="h-[60px] lg:h-[64px]" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-16">
