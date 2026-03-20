@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS "ev_email_supabase_idx" ON "email_verifications" USING btree ("email","supabase_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "ev_expires_at_idx" ON "email_verifications" USING btree ("expires_at");

@@ -1,0 +1,31 @@
+{
+  "framework": "nextjs",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm run build",
+  "crons": [
+    {
+      "path": "/api/cron/recalculate-rankings",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/expire-placements",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/transition-launches",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/send-launch-notifications",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/admin-daily-digest",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/expire-offers",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}

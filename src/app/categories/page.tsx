@@ -1,0 +1,345 @@
+"use client";
+/*
+ * Categories Page — LaudStack
+ *
+ * Design: Matches /tools hero pattern (left-aligned, breadcrumb, same font scale).
+ * Cards: Modern glass-style with icon, count, description, top tools, and hover lift.
+ * Layout: Hero → Grid → CTA → Footer
+ */
+
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import LogoWithFallback from "@/components/LogoWithFallback";
+import {
+  ArrowRight,
+  Search,
+  Layers,
+  Rocket,
+  LayoutGrid,
+  X,
+} from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+import PageHero from "@/components/PageHero";
+import { CATEGORY_META } from "@/lib/categories";
+import { useToolsData } from "@/hooks/useToolsData";
+import type { Tool } from "@/lib/types";
+
+// ─── Accent colors per category ─────────────────────────────────────────────
+const ACCENTS: Record<string, { color: string; light: string; border: string }> = {
+  "AI Productivity":    { color: "#5178FF", light: "#F5F8FF", border: "#D6E2FF" },
+  "AI Writing":         { color: "#5178FF", light: "#ECF2FF", border: "#D6E2FF" },
+  "AI Image":           { color: "#EF4444", light: "#FEF2F2", border: "#FEE2E2" },
+  "AI Video":           { color: "#EF4444", light: "#FEF2F2", border: "#FEE2E2" },
+  "AI Audio":           { color: "#16A34A", light: "#F0FDF4", border: "#DCFCE7" },
+  "AI Code":            { color: "#16A34A", light: "#F0FDF4", border: "#DCFCE7" },
+  "AI Analytics":       { color: "#5178FF", light: "#ECF2FF", border: "#D6E2FF" },
+  "Design":             { color: "#EF4444", light: "#FEF2F2", border: "#FEE2E2" },
+  "Marketing":          { color: "#92400E", light: "#FFFBEB", border: "#FFFBEB" },
+  "Developer Tools":    { color: "#475569", light: "#F8FAFC", border: "#CBD5E1" },
+  "Project Management": { color: "#5178FF", light: "#ECF2FF", border: "#D6E2FF" },
+  "Customer Support":   { color: "#16A34A", light: "#F0FDF4", border: "#DCFCE7" },
+  "CRM":                { color: "#D97706", light: "#FFFBEB", border: "#FDE68A" },
+  "Sales":              { color: "#5178FF", light: "#F5F8FF", border: "#D6E2FF" },
+  "HR & Recruiting":    { color: "#5178FF", light: "#ECF2FF", border: "#D6E2FF" },
+  "Finance":            { color: "#16A34A", light: "#F0FDF4", border: "#DCFCE7" },
+  "Security":           { color: "#EF4444", light: "#FEF2F2", border: "#FEE2E2" },
+  "E-commerce":         { color: "#5178FF", light: "#F5F8FF", border: "#D6E2FF" },
+  "Education":          { color: "#5178FF", light: "#ECF2FF", border: "#D6E2FF" },
+  "Other":              { color: "#475569", light: "#F8FAFC", border: "#CBD5E1" },
+};
+const FALLBACK = { color: "#475569", light: "#F8FAFC", border: "#CBD5E1" };
+
+// ─── Category Card ──────────────────────────────────────────────────────────
+function CategoryCard({
+  cat,
+  tools,
+}: {
+  cat: { name: string; icon: string; description: string };
+  tools: Tool[];
+}) {
+  const router = useRouter();
+  const a = ACCENTS[cat.name] || FALLBACK;
+
+  const topTools = useMemo(
+    () =>
+      tools
+        .filter((t) => t.category === cat.name)
+        .sort((x, y) => (y.average_rating ?? 0) - (x.average_rating ?? 0))
+        .slice(0, 3),
+    [tools, cat.name]
+  );
+
+  const count = tools.filter((t) => t.category === cat.name).length;
+
+  return (
+    <button
+      onClick={() =>
+        router.push(`/c/${cat.name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-tools`)
+      }
+      className="group relative flex flex-col bg-slate-50 rounded-2xl border border-slate-200/80 shadow-sm text-left w-full transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 overflow-hidden"
+    >
+      {/* Top accent bar */}
+      <div
+        className="h-[3px] w-full transition-opacity duration-200 opacity-30 group-hover:opacity-100"
+        style={{ background: a.color }}
+      />
+
+      <div className="flex-1 p-5 sm:p-6 flex flex-col min-w-0">
+        {/* Row 1: Icon + Name + Arrow */}
+        <div className="flex items-start gap-3.5 mb-3.5">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] shrink-0 transition-all duration-200 group-hover:shadow-lg group-hover:scale-105"
+            style={{
+              background: a.light,
+              border: `1.5px solid ${a.border}`,
+            }}
+          >
+            {cat.icon}
+          </div>
+          <div className="flex-1 min-w-0 pt-0.5">
+            <h3 className="text-[15px] font-black text-slate-900 tracking-tight leading-snug truncate group-hover:text-slate-800">
+              {cat.name}
+            </h3>
+            <span
+              className="text-[13px] font-bold tabular-nums"
+              style={{ color: a.color }}
+            >
+              {count}{" "}
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                {count === 1 ? "stack" : "stacks"}
+              </span>
+            </span>
+          </div>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-slate-50 border border-slate-200 transition-all duration-200 group-hover:bg-amber-50 group-hover:border-amber-200 mt-0.5">
+            <ArrowRight className="w-3.5 h-3.5 text-slate-300 transition-all duration-200 group-hover:text-amber-600 group-hover:translate-x-0.5" />
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="text-[13px] text-slate-600 font-medium leading-relaxed line-clamp-2 mb-5">
+          {cat.description}
+        </p>
+
+        {/* Top tools row */}
+        <div className="mt-auto">
+          {topTools.length > 0 ? (
+            <div className="flex items-center gap-2.5 pt-4 border-t border-slate-200">
+              <div className="flex items-center">
+                {topTools.map((tool, i) => (
+                  <div
+                    key={tool.id}
+                    className="w-7 h-7 rounded-lg overflow-hidden border-2 border-white bg-slate-100 shrink-0 shadow-sm"
+                    style={{
+                      marginLeft: i === 0 ? 0 : -6,
+                      zIndex: topTools.length - i,
+                    }}
+                  >
+                    <LogoWithFallback
+                      src={tool.logo_url}
+                      alt={tool.name}
+                      className="w-full h-full object-cover"
+                      fallbackSize="text-xs"
+                    />
+                  </div>
+                ))}
+              </div>
+              <span className="text-[11px] text-slate-500 font-medium truncate">
+                {topTools.map((t) => t.name).join(", ")}
+              </span>
+            </div>
+          ) : (
+            count === 0 && (
+              <div className="flex items-center gap-2 pt-4 border-t border-slate-200">
+                <div className="w-7 h-7 rounded-lg bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center">
+                  <LayoutGrid className="w-3 h-3 text-slate-300" />
+                </div>
+                <span className="text-[11px] text-slate-500 font-medium">
+                  No stacks yet
+                </span>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// ─── Skeleton Card ──────────────────────────────────────────────────────────
+function SkeletonCard() {
+  return (
+    <div className="flex flex-col bg-slate-50 rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+      <div className="h-[3px] w-full bg-slate-100 animate-pulse" />
+      <div className="flex-1 p-5 sm:p-6">
+        <div className="flex items-start gap-3.5 mb-3.5">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 animate-pulse shrink-0" />
+          <div className="flex-1 pt-0.5">
+            <div className="h-4 w-28 bg-slate-100 rounded-md animate-pulse mb-2" />
+            <div className="h-3 w-16 bg-slate-100 rounded-md animate-pulse" />
+          </div>
+          <div className="w-8 h-8 rounded-lg bg-slate-50 animate-pulse shrink-0" />
+        </div>
+        <div className="h-3 w-full bg-slate-50 rounded animate-pulse mb-1.5" />
+        <div className="h-3 w-3/4 bg-slate-50 rounded animate-pulse mb-5" />
+        <div className="pt-4 border-t border-slate-200 flex items-center gap-2">
+          <div className="flex">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-7 h-7 rounded-lg bg-slate-100 animate-pulse border-2 border-white shadow-sm"
+                style={{ marginLeft: i === 0 ? 0 : -6 }}
+              />
+            ))}
+          </div>
+          <div className="h-3 w-24 bg-slate-50 rounded animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CATEGORIES PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function CategoriesPage() {
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+  const { tools, loading } = useToolsData();
+
+  const allCats = useMemo(
+    () => CATEGORY_META.filter((c) => c.name !== "All"),
+    []
+  );
+  const filtered = useMemo(
+    () =>
+      search.trim()
+        ? allCats.filter(
+            (c) =>
+              c.name.toLowerCase().includes(search.toLowerCase()) ||
+              c.description.toLowerCase().includes(search.toLowerCase())
+          )
+        : allCats,
+    [allCats, search]
+  );
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+
+      <PageHero
+        breadcrumbs={[{ label: 'Categories' }]}
+        eyebrow="Browse Categories"
+        title="All Categories"
+        subtitle={`Explore ${allCats.length} curated categories spanning AI, SaaS, developer tools, and more.`}
+        accent="amber"
+        layout="centered"
+        size="md"
+      >
+        {/* Search bar */}
+        <div className="relative w-full max-w-[340px]">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-white border border-slate-200 rounded-[10px] py-[11px] pl-10 pr-9 text-[13px] text-slate-900 outline-none transition-colors focus:border-amber-400 placeholder:text-slate-500"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-slate-500 flex p-0 hover:text-slate-600"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </PageHero>
+
+      {/* ══════════ CATEGORY GRID + Sidebar ══════════ */}
+      <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8">
+      <section className="py-8 sm:py-10 lg:py-12">
+        <div>
+          {/* Section label */}
+          {filtered.length > 0 && (
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                {search.trim()
+                  ? `${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
+                  : `${allCats.length} Categories`}
+              </span>
+              <div className="flex-1 h-px bg-slate-200/60" />
+            </div>
+          )}
+
+          {/* Loading skeleton */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          )}
+
+          {/* Category cards */}
+          {!loading && filtered.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filtered.map((cat) => (
+                <CategoryCard key={cat.name} cat={cat} tools={tools} />
+              ))}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && filtered.length === 0 && (
+            <div className="py-20 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <Search className="w-6 h-6 text-slate-300" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-700 mb-2">
+                No categories found
+              </h3>
+              <p className="text-sm text-slate-500 mb-5">
+                Try a different search term or browse all categories.
+              </p>
+              <button
+                onClick={() => setSearch("")}
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-5 py-2.5 cursor-pointer transition-all hover:bg-amber-100"
+              >
+                Clear Search
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+      </div>
+
+      {/* ══════════ CTA ══════════ */}
+      <section className="border-t border-slate-200/60 py-12 sm:py-14 bg-slate-50">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 text-center">
+          <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
+            <Rocket className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2.5">
+            Don&apos;t see your stack?
+          </h2>
+          <p className="text-sm text-slate-500 font-medium mb-6 max-w-md mx-auto">
+            Launch your AI or SaaS stack on LaudStack. Free to list — reviewed
+            within 48 hours.
+          </p>
+          <button
+            onClick={() => router.push("/launchpad")}
+            className="inline-flex items-center gap-2 text-sm font-bold text-white bg-amber-500 rounded-xl px-7 py-3 cursor-pointer transition-all hover:bg-amber-600 shadow-sm hover:shadow-md"
+          >
+            Go to LaunchPad <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+}

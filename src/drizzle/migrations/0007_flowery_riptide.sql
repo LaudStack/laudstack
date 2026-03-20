@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "comments_tool_id_idx" ON "comments" USING btree ("tool_id");

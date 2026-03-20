@@ -1,0 +1,277 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 26 83.3% 14.1%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 38 92% 50%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 26 83.3% 14.1%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 38 92% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+  html {
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+    width: 100%;
+    min-width: 0;
+    position: relative;
+  }
+  /* Enhanced typography: ensure readable contrast globally */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0C1830;
+  }
+  p, span, li, td, th, label, a {
+    color: inherit;
+  }
+  img, video, svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Prevent horizontal overflow on mobile */
+@layer base {
+  main, section, article, header, footer, nav, aside, div.min-h-screen {
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+}
+
+/* Aggressive mobile overflow prevention */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    width: 100% !important;
+  }
+  /* Prevent fixed/absolute elements from expanding the viewport */
+  .fixed, [style*="position: fixed"], [style*="position:fixed"] {
+    max-width: 100vw;
+  }
+  /* Prevent iOS zoom on input focus (font-size < 16px triggers zoom) */
+  input[type="text"],
+  input[type="email"],
+  input[type="search"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 640px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+}
+
+/* ── Enhanced Typography & Contrast ── */
+@layer utilities {
+  .text-readable {
+    color: #475569; /* slate-600 — minimum for body text on white */
+  }
+  .text-readable-muted {
+    color: #64748B; /* slate-500 — minimum for secondary text on white */
+  }
+}
+
+/* Section headers: ensure bold and visible */
+.section-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  color: #0C1830;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Hero titles: ensure maximum boldness */
+.hero-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900 !important;
+  color: #0C1830;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+/* ── Card & Modal Polish ── */
+/* Ensure cards have proper shadow depth and border definition */
+@layer components {
+  .card-elevated {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card-elevated:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* Modal/dialog backdrop and container polish */
+[role="dialog"],
+[data-radix-popper-content-wrapper] {
+  --tw-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 12px 48px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Mobile Typography Scaling ── */
+@media (max-width: 640px) {
+  /* Ensure body text stays readable on small screens */
+  body {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  /* Scale down oversized headings gracefully */
+  h1 { font-size: clamp(24px, 7vw, 42px) !important; }
+  h2 { font-size: clamp(20px, 5.5vw, 32px) !important; }
+  h3 { font-size: clamp(17px, 4.5vw, 24px) !important; }
+}
+
+/* ── Mobile Card & Modal Enhancements ── */
+@media (max-width: 640px) {
+  /* Cards: ensure consistent padding and no overflow */
+  .card-elevated {
+    border-radius: 12px;
+    padding: 12px;
+  }
+  /* Modals: full-width on small screens with safe area padding */
+  [role="dialog"] > div,
+  [data-radix-popper-content-wrapper] > div {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px auto;
+  }
+  /* Ensure modal text is readable */
+  [role="dialog"] p,
+  [role="dialog"] span,
+  [role="dialog"] label {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  /* Improve table readability on mobile */
+  table {
+    font-size: 13px;
+  }
+  th, td {
+    padding: 8px 10px;
+  }
+}
+
+/* ── Contrast Enforcement ── */
+/* Ensure minimum contrast for common text patterns on white backgrounds */
+@layer base {
+  /* Body text minimum: slate-600 (#475569) */
+  .text-gray-500, .text-slate-500 {
+    color: #64748B; /* Ensure minimum WCAG AA contrast */
+  }
+}
+
+/* ── Focus Visible Styles ── */
+@layer base {
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid #F59E0B;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ── Mobile-specific pill and badge sizing ── */
+@media (max-width: 640px) {
+  /* Ensure pills/badges don't get too small */
+  [class*="rounded-full"][class*="px-"] {
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
