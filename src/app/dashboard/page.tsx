@@ -15,7 +15,8 @@ import {
   Globe, Twitter, Linkedin, Github, ArrowRight, BarChart3,
   ThumbsUp, Flag, RefreshCw, Info, Check, X, Rocket,
   Tag, Copy, Calendar,
-  Sparkles, ChevronLeft, Loader2, Users, BellRing, UserMinus
+  Sparkles, ChevronLeft, Loader2, Users, BellRing, UserMinus,
+  Briefcase, Building2, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -256,6 +257,28 @@ function ProfileTab({
           </div>
           <h2 className="text-slate-900 font-black text-xl">{displayName}</h2>
           {headline && <p className="text-amber-600 text-sm font-semibold mt-0.5">{headline}</p>}
+          {/* Job title & company */}
+          {(dbUser?.jobTitle || dbUser?.company) && (
+            <div className="flex items-center gap-3 mt-1.5 text-sm text-slate-600">
+              {dbUser?.jobTitle && (
+                <span className="flex items-center gap-1">
+                  <Briefcase className="w-3.5 h-3.5" /> {dbUser.jobTitle}
+                </span>
+              )}
+              {dbUser?.company && (
+                <span className="flex items-center gap-1">
+                  <Building2 className="w-3.5 h-3.5" /> {dbUser.company}
+                </span>
+              )}
+            </div>
+          )}
+          {/* Location */}
+          {(dbUser?.city || dbUser?.state || dbUser?.country) && (
+            <div className="flex items-center gap-1 mt-1 text-sm text-slate-500">
+              <MapPin className="w-3.5 h-3.5" />
+              {[dbUser.city, dbUser.state, dbUser.country].filter(Boolean).join(', ')}
+            </div>
+          )}
           {bio && <p className="text-slate-500 text-sm mt-1 leading-relaxed">{bio}</p>}
           <div className="flex items-center gap-4 mt-3 flex-wrap">
             {website && (
@@ -1072,64 +1095,88 @@ function NotificationsTab() {
         </div>
       )}
 
-      {/* Notification preferences */}
-      <div className="bg-gradient-to-br from-white to-amber-50/30 border border-slate-200 rounded-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-4 sm:px-6 py-4">
-          <h4 className="text-white font-bold text-sm flex items-center gap-2">
-            <Bell className="w-4 h-4" />
-            Notification Preferences
-          </h4>
-          <p className="text-amber-100 text-xs mt-0.5">Choose what updates you want to receive</p>
-        </div>
-        <div className="p-4 space-y-2">
-          {[
-            { label: 'Founder replies to my reviews', desc: 'Get notified when founders respond', icon: MessageSquare, defaultOn: true },
-            { label: 'Saved tools go trending', desc: 'Know when your saved tools gain traction', icon: TrendingUp, defaultOn: true },
-            { label: 'New deals on saved products', desc: 'Never miss a deal on tools you love', icon: Tag, defaultOn: true },
-            { label: 'Weekly digest email', desc: 'A curated summary every week', icon: Mail, defaultOn: true },
-          ].map(({ label, desc, icon: Icon, defaultOn }) => (
-            <NotifToggle key={label} label={label} desc={desc} icon={Icon} defaultOn={defaultOn} />
-          ))}
-        </div>
-      </div>
+      {/* Notification preferences — persisted to DB */}
+      <NotificationPreferences />
     </div>
   );
 }
 
-function NotifToggle({ label, desc, icon: Icon, defaultOn }: { label: string; desc: string; icon: React.ElementType; defaultOn: boolean }) {
-  const [on, setOn] = useState(defaultOn);
+function NotificationPreferences() {
+  const { dbUser } = useDbUser();
+  const [emailNotifs, setEmailNotifs] = useState(dbUser?.emailNotifications ?? true);
+  const [reviewAlerts, setReviewAlerts] = useState(dbUser?.reviewAlerts ?? true);
+  const [weeklyReport, setWeeklyReport] = useState(dbUser?.weeklyReport ?? true);
+
+  useEffect(() => {
+    if (dbUser) {
+      setEmailNotifs(dbUser.emailNotifications ?? true);
+      setReviewAlerts(dbUser.reviewAlerts ?? true);
+      setWeeklyReport(dbUser.weeklyReport ?? true);
+    }
+  }, [dbUser]);
+
+  const prefs = [
+    { label: 'Email notifications', desc: 'Receive updates and digests via email', icon: Mail, state: emailNotifs, setState: setEmailNotifs, dbKey: 'emailNotifications' as const },
+    { label: 'Review alerts', desc: 'Get notified when founders respond to your reviews', icon: MessageSquare, state: reviewAlerts, setState: setReviewAlerts, dbKey: 'reviewAlerts' as const },
+    { label: 'Weekly digest', desc: 'A curated summary of platform activity every week', icon: Tag, state: weeklyReport, setState: setWeeklyReport, dbKey: 'weeklyReport' as const },
+  ];
+
   return (
-    <div
-      className={`flex items-center justify-between gap-4 p-3.5 rounded-xl border transition-all duration-200 ${
-        on
-          ? 'bg-amber-50/60 border-amber-200/80 shadow-sm'
-          : 'bg-slate-50/50 border-slate-200/60 hover:bg-slate-50'
-      }`}
-    >
-      <div className="flex items-center gap-3 min-w-0">
-        <div className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
-          on ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400'
-        }`}>
-          <Icon className="w-4 h-4" />
-        </div>
-        <div className="min-w-0">
-          <p className={`text-sm font-semibold transition-colors ${on ? 'text-slate-900' : 'text-slate-600'}`}>{label}</p>
-          <p className="text-xs text-slate-600 mt-0.5 truncate">{desc}</p>
-        </div>
+    <div className="bg-gradient-to-br from-white to-amber-50/30 border border-slate-200 rounded-2xl overflow-hidden">
+      <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-4 sm:px-6 py-4">
+        <h4 className="text-white font-bold text-sm flex items-center gap-2">
+          <Bell className="w-4 h-4" />
+          Notification Preferences
+        </h4>
+        <p className="text-amber-100 text-xs mt-0.5">Choose what updates you want to receive</p>
       </div>
-      <button
-        onClick={() => { setOn(v => !v); toast.success(`${label} ${!on ? 'enabled' : 'disabled'}`); }}
-        className={`relative flex-shrink-0 w-12 h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 ${
-          on ? 'bg-gradient-to-r from-amber-400 to-amber-500 shadow-inner' : 'bg-slate-300'
-        }`}
-        role="switch"
-        aria-checked={on}
-        aria-label={label}
-      >
-        <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${
-          on ? 'left-6 shadow-amber-200' : 'left-1'
-        }`} />
-      </button>
+      <div className="p-4 space-y-2">
+        {prefs.map(({ label, desc, icon: Icon, state, setState, dbKey }) => (
+          <div
+            key={label}
+            className={`flex items-center justify-between gap-4 p-3.5 rounded-xl border transition-all duration-200 ${
+              state
+                ? 'bg-amber-50/60 border-amber-200/80 shadow-sm'
+                : 'bg-slate-50/50 border-slate-200/60 hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+                state ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400'
+              }`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className={`text-sm font-semibold transition-colors ${state ? 'text-slate-900' : 'text-slate-600'}`}>{label}</p>
+                <p className="text-xs text-slate-600 mt-0.5 truncate">{desc}</p>
+              </div>
+            </div>
+            <button
+              onClick={async () => {
+                const newVal = !state;
+                setState(newVal);
+                try {
+                  await updateProfile({ [dbKey]: newVal });
+                  toast.success(`${label} ${newVal ? 'enabled' : 'disabled'}`);
+                } catch {
+                  setState(state);
+                  toast.error(`Failed to update ${label.toLowerCase()}`);
+                }
+              }}
+              className={`relative flex-shrink-0 w-12 h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 ${
+                state ? 'bg-gradient-to-r from-amber-400 to-amber-500 shadow-inner' : 'bg-slate-300'
+              }`}
+              role="switch"
+              aria-checked={state}
+              aria-label={label}
+            >
+              <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${
+                state ? 'left-6 shadow-amber-200' : 'left-1'
+              }`} />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1155,6 +1202,11 @@ function SettingsTab({
   const [editWebsite, setEditWebsite] = useState(dbUser?.website || '');
   const [editTwitter, setEditTwitter] = useState(dbUser?.twitterHandle || '');
   const [editLinkedin, setEditLinkedin] = useState(dbUser?.linkedinUrl || '');
+  const [editJobTitle, setEditJobTitle] = useState(dbUser?.jobTitle || '');
+  const [editCompany, setEditCompany] = useState(dbUser?.company || '');
+  const [editCity, setEditCity] = useState(dbUser?.city || '');
+  const [editState, setEditState] = useState(dbUser?.state || '');
+  const [editCountry, setEditCountry] = useState(dbUser?.country || '');
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(dbUser?.avatarUrl || '');
   const [uploading, setUploading] = useState(false);
@@ -1171,8 +1223,13 @@ function SettingsTab({
   const [publicProfile, setPublicProfile] = useState(dbUser?.publicProfile ?? true);
   const [showReviews, setShowReviews] = useState(dbUser?.showReviewsPublicly ?? true);
   const [emailNotifs, setEmailNotifs] = useState(dbUser?.emailNotifications ?? true);
+  const [reviewAlerts, setReviewAlerts] = useState(dbUser?.reviewAlerts ?? true);
+  const [weeklyReport, setWeeklyReport] = useState(dbUser?.weeklyReport ?? true);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Determine if user signed up via OAuth (hide password section for OAuth users)
+  const isOAuthUser = dbUser?.loginMethod === 'linkedin' || dbUser?.loginMethod === 'google';
 
   // Sync state when dbUser changes
   useEffect(() => {
@@ -1184,10 +1241,17 @@ function SettingsTab({
       setEditWebsite(dbUser.website || '');
       setEditTwitter(dbUser.twitterHandle || '');
       setEditLinkedin(dbUser.linkedinUrl || '');
+      setEditJobTitle(dbUser.jobTitle || '');
+      setEditCompany(dbUser.company || '');
+      setEditCity(dbUser.city || '');
+      setEditState(dbUser.state || '');
+      setEditCountry(dbUser.country || '');
       setAvatarUrl(dbUser.avatarUrl || '');
       setPublicProfile(dbUser.publicProfile ?? true);
       setShowReviews(dbUser.showReviewsPublicly ?? true);
       setEmailNotifs(dbUser.emailNotifications ?? true);
+      setReviewAlerts(dbUser.reviewAlerts ?? true);
+      setWeeklyReport(dbUser.weeklyReport ?? true);
     }
   }, [dbUser]);
 
@@ -1231,6 +1295,11 @@ function SettingsTab({
         twitterHandle: editTwitter,
         linkedinUrl: editLinkedin || undefined,
         avatarUrl: avatarUrl || undefined,
+        jobTitle: editJobTitle || undefined,
+        company: editCompany || undefined,
+        city: editCity || undefined,
+        state: editState || undefined,
+        country: editCountry || undefined,
       });
       onProfileSaved();
       toast.success('Profile updated successfully');
@@ -1326,6 +1395,56 @@ function SettingsTab({
               />
             </div>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                <Briefcase className="w-3 h-3" /> Job Title
+              </label>
+              <input
+                type="text" value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)}
+                placeholder="e.g. Senior Product Manager"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                <Building2 className="w-3 h-3" /> Company
+              </label>
+              <input
+                type="text" value={editCompany} onChange={e => setEditCompany(e.target.value)}
+                placeholder="e.g. Acme Corp"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> City
+              </label>
+              <input
+                type="text" value={editCity} onChange={e => setEditCity(e.target.value)}
+                placeholder="e.g. San Francisco"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">State / Province</label>
+              <input
+                type="text" value={editState} onChange={e => setEditState(e.target.value)}
+                placeholder="e.g. California"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Country</label>
+              <input
+                type="text" value={editCountry} onChange={e => setEditCountry(e.target.value)}
+                placeholder="e.g. United States"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+          </div>
           <div>
             <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Bio</label>
             <textarea
@@ -1388,7 +1507,14 @@ function SettingsTab({
                 {dbUser?.founderPlanActive ? 'Founder Plan ($49/mo)' : 'Free Account'}
               </p>
             </div>
-
+          </div>
+          <div className="flex items-center justify-between py-2 border-b border-slate-100">
+            <div>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Login Method</p>
+              <p className="text-sm text-slate-900 font-medium mt-0.5 capitalize">
+                {dbUser?.loginMethod === 'linkedin' ? 'LinkedIn' : dbUser?.loginMethod === 'google' ? 'Google' : dbUser?.loginMethod || 'Email'}
+              </p>
+            </div>
           </div>
           <div className="flex items-center justify-between py-2">
             <div>
@@ -1415,6 +1541,8 @@ function SettingsTab({
             { label: 'Public profile', desc: 'Allow others to view your profile page', icon: Globe, state: publicProfile, setState: setPublicProfile, dbKey: 'publicProfile' as const },
             { label: 'Show my reviews publicly', desc: 'Display your reviews on tool pages', icon: Eye, state: showReviews, setState: setShowReviews, dbKey: 'showReviewsPublicly' as const },
             { label: 'Email notifications', desc: 'Receive updates and digests via email', icon: Mail, state: emailNotifs, setState: setEmailNotifs, dbKey: 'emailNotifications' as const },
+            { label: 'Review alerts', desc: 'Get notified when someone replies to your reviews', icon: BellRing, state: reviewAlerts, setState: setReviewAlerts, dbKey: 'reviewAlerts' as const },
+            { label: 'Weekly report', desc: 'Receive a weekly summary of platform activity', icon: BarChart3, state: weeklyReport, setState: setWeeklyReport, dbKey: 'weeklyReport' as const },
           ].map(({ label, desc, icon: Icon, state, setState, dbKey }) => (
             <div
               key={label}
@@ -1463,43 +1591,74 @@ function SettingsTab({
         </div>
       </div>
 
-      {/* Password change */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-        <h3 className="text-slate-900 font-bold text-base mb-4 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-amber-500" />
-          Change Password
-        </h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Current Password</label>
-            <div className="relative">
-              <input type={showPw ? 'text' : 'password'} value={currentPw} onChange={e => setCurrentPw(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all pr-10 bg-slate-50 focus:bg-white"
-              />
-              <button onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600">
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+      {/* Password change — hidden for OAuth users */}
+      {!isOAuthUser && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <h3 className="text-slate-900 font-bold text-base mb-4 flex items-center gap-2">
+            <Lock className="w-4 h-4 text-amber-500" />
+            Change Password
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Current Password</label>
+              <div className="relative">
+                <input type={showPw ? 'text' : 'password'} value={currentPw} onChange={e => setCurrentPw(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all pr-10 bg-slate-50 focus:bg-white"
+                />
+                <button onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600">
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">New Password</label>
+              <input type={showPw ? 'text' : 'password'} value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 characters"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Confirm New Password</label>
+              <input type={showPw ? 'text' : 'password'} value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
+              />
+            </div>
+            <button onClick={handlePasswordUpdate} disabled={savingPw}
+              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-60 text-slate-900 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
+            >
+              {savingPw ? <><RefreshCw className="w-4 h-4 animate-spin" /> Updating…</> : <><Save className="w-4 h-4" /> Update Password</>}
+            </button>
           </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">New Password</label>
-            <input type={showPw ? 'text' : 'password'} value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 characters"
-              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Confirm New Password</label>
-            <input type={showPw ? 'text' : 'password'} value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-slate-50 focus:bg-white"
-            />
-          </div>
-          <button onClick={handlePasswordUpdate} disabled={savingPw}
-            className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-60 text-slate-900 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
-          >
-            {savingPw ? <><RefreshCw className="w-4 h-4 animate-spin" /> Updating…</> : <><Save className="w-4 h-4" /> Update Password</>}
-          </button>
         </div>
-      </div>
+      )}
+
+      {/* Connected accounts — show for OAuth users */}
+      {isOAuthUser && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <h3 className="text-slate-900 font-bold text-base mb-4 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-amber-500" />
+            Connected Accounts
+          </h3>
+          <div className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+            {dbUser?.loginMethod === 'linkedin' ? (
+              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+                <Linkedin className="w-4 h-4 text-white" />
+              </div>
+            ) : (
+              <div className="w-9 h-9 rounded-lg bg-red-500 flex items-center justify-center">
+                <Globe className="w-4 h-4 text-white" />
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-semibold text-slate-900 capitalize">{dbUser?.loginMethod || 'OAuth'}</p>
+              <p className="text-xs text-slate-500">Connected &middot; {user?.email}</p>
+            </div>
+            <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+              <CheckCircle className="w-3 h-3" /> Active
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-3">You signed in with {dbUser?.loginMethod || 'an external provider'}. Password management is handled by your identity provider.</p>
+        </div>
+      )}
 
 
       {/* Danger zone */}

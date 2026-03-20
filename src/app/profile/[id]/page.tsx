@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-  User, Star, Bookmark, Globe, Twitter, Linkedin,
+  User, Star, Bookmark, Globe, Twitter, Linkedin, MapPin,
   ChevronLeft, Rocket, CheckCircle, Award, Calendar,
   ExternalLink, MessageSquare, ArrowRight, Zap, BookmarkCheck,
   Briefcase, Building2, Shield, Users, UserPlus, UserMinus, ChevronDown, ChevronUp
@@ -234,6 +234,14 @@ export default function PublicProfile() {
               </div>
             )}
 
+            {/* Location */}
+            {(u.city || u.state || u.country) && (
+              <div className="flex items-center gap-1 mt-1.5 text-sm text-slate-500">
+                <MapPin className="w-3.5 h-3.5" />
+                {[u.city, u.state, u.country].filter(Boolean).join(', ')}
+              </div>
+            )}
+
             {u.bio && <p className="text-slate-600 text-sm mt-3 leading-relaxed max-w-xl">{u.bio}</p>}
 
             {/* Follow button + counts */}
@@ -335,6 +343,11 @@ export default function PublicProfile() {
               {u.twitterHandle && (
                 <a href={`https://twitter.com/${u.twitterHandle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-amber-600 transition-colors">
                   <Twitter className="w-4 h-4" /> {u.twitterHandle}
+                </a>
+              )}
+              {u.linkedinUrl && (
+                <a href={u.linkedinUrl.startsWith('http') ? u.linkedinUrl : `https://${u.linkedinUrl}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-amber-600 transition-colors">
+                  <Linkedin className="w-4 h-4" /> LinkedIn
                 </a>
               )}
               {memberSince && (

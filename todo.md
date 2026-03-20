@@ -2215,4 +2215,24 @@
 - [x] Audit LinkedIn OAuth callback to extract full user data (name, photo, email)
 - [x] Ensure LinkedIn user data populates user profile fully
 - [x] Ensure first-time LinkedIn users redirect to onboarding
+- [x] Push to GitHub
+
+## User Profile Settings & Panel Enhancement — Full Wiring Audit
+- [x] Audit all user dashboard tabs (Profile, Reviews, Saved, Deals, Templates, Notifications, Settings)
+- [x] Audit all founder dashboard tabs (Overview, Tools, Reviews, Deals, Analytics, Promote, Settings)
+- [x] Enhance User Profile Settings: edit first name, last name, avatar upload, bio, social links
+- [x] Ensure avatar upload works end-to-end (S3 storage + DB save + UI display)
+- [x] Wire all user dashboard tabs to real backend data (no mock/placeholder data)
+- [x] Wire all founder dashboard tabs to real backend data
+- [x] Fix any broken or disconnected UI components across user panels
+- [x] Ensure all forms submit correctly and show proper feedback (loading, success, error)
+- [x] Ensure all navigation within panels works correctly
+- [x] Polish UI consistency across all panel pages
+- [x] Settings Tab: Added job title, company, city/state/country fields
+- [x] Settings Tab: Hide password section for OAuth users, show Connected Accounts instead
+- [x] Account Info: Show login method (LinkedIn/Google/Email)
+- [x] Privacy Settings: Added review alerts and weekly report toggles (persisted to DB)
+- [x] Notification Preferences: Replaced local-only toggles with DB-persisted preferences
+- [x] Profile Tab: Display job title, company, and location
+- [x] Public Profile: Added linkedinUrl, city/state/country to API response and display
 - [ ] Push to GitHub

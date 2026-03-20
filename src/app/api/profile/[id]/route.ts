@@ -32,11 +32,15 @@ export async function GET(
         headline: users.headline,
         website: users.website,
         twitterHandle: users.twitterHandle,
+        linkedinUrl: users.linkedinUrl,
         founderStatus: users.founderStatus,
         createdAt: users.createdAt,
         role: users.role,
         jobTitle: users.jobTitle,
         company: users.company,
+        city: users.city,
+        state: users.state,
+        country: users.country,
       })
       .from(users)
       .where(eq(users.id, userId))
@@ -180,11 +184,15 @@ export async function GET(
         headline: user.headline,
         website: user.website,
         twitterHandle: user.twitterHandle,
+        linkedinUrl: user.linkedinUrl,
         founderStatus: user.founderStatus,
         role: user.role,
         memberSince: user.createdAt,
         jobTitle: user.jobTitle,
         company: user.company,
+        city: user.city,
+        state: user.state,
+        country: user.country,
       },
       stats: {
         reviewCount,
