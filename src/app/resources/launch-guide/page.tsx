@@ -97,12 +97,6 @@ const LAUNCH_STEPS = [
   },
 ];
 
-const QUICK_STATS = [
-  { value: "42+", label: "Verified stacks listed" },
-  { value: "15", label: "Stack categories" },
-  { value: "Free", label: "To list your stack" },
-  { value: "100%", label: "Verified reviews" },
-];
 
 export default function LaunchGuidePage() {
   return (
@@ -129,19 +123,6 @@ export default function LaunchGuidePage() {
         </div>
       </section>
 
-      {/* Quick Stats */}
-      <section className="border-b border-slate-200">
-        <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-            {QUICK_STATS.map(({ value, label }) => (
-              <div key={label}>
-                <div className="text-2xl sm:text-3xl font-black text-slate-900">{value}</div>
-                <div className="text-xs sm:text-sm text-slate-500 mt-1">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Launch Steps */}
       <section className="max-w-[900px] mx-auto px-4 sm:px-6 py-12 sm:py-16">

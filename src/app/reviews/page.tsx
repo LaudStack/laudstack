@@ -378,46 +378,7 @@ export default function ReviewsPage() {
         size="md"
       />
 
-      {/* ══════════════════════════════════════════════════════
-          HERO — ROW 2: Stats & Rating Distribution
-      ══════════════════════════════════════════════════════ */}
-      <section className="bg-white border-b border-slate-200">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-8">
-            {/* Quick stats */}
-            <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
-              {[
-                { label: 'Total Reviews', value: totalReviews.toLocaleString() },
-                { label: 'Avg Rating', value: avgRating },
-                { label: 'Verified', value: `${totalReviews > 0 ? Math.round((verifiedCount / totalReviews) * 100) : 0}%` },
-              ].map(({ label, value }) => (
-                <div key={label} className="text-center bg-slate-50 border border-slate-200 rounded-xl px-4 sm:px-5 py-3 min-w-[90px]">
-                  <div className="text-base sm:text-lg font-black text-slate-900 tracking-tight">{value}</div>
-                  <div className="text-[11px] text-slate-500 font-semibold mt-0.5">{label}</div>
-                </div>
-              ))}
-            </div>
 
-            {/* Rating distribution bar chart */}
-            <div className="flex flex-col gap-1.5 min-w-[200px] max-w-[260px] w-full">
-              {[5, 4, 3, 2, 1].map(star => {
-                const count = allReviews.filter(r => r.rating === star).length;
-                const pct = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
-                return (
-                  <div key={star} className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-slate-500 w-3.5 text-right">{star}</span>
-                    <span className="text-[11px] text-amber-500">★</span>
-                    <div className="flex-1 h-[6px] bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: star >= 4 ? '#F59E0B' : star === 3 ? '#D97706' : '#EF4444' }} />
-                    </div>
-                    <span className="text-[11px] text-slate-500 w-7 text-right">{pct}%</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Main content */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">

@@ -11,12 +11,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 
-const STATS = [
-  { value: '42+',     label: 'Verified Stacks' },
-  { value: '15',      label: 'Stack Categories' },
-  { value: '100%',    label: 'Verified Reviews' },
-  { value: 'Free',    label: 'To List Your Stack' },
-];
 
 const MEDIA_COVERAGE: { outlet: string; headline: string; date: string; url: string }[] = [];
 
@@ -49,19 +43,6 @@ export default function Press() {
           size="md"
         />
 
-        {/* Stats bar */}
-        <div className="bg-white border-b border-slate-200">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              {STATS.map(s => (
-                <div key={s.label}>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">{s.value}</div>
-                  <div className="text-slate-600 text-sm">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 space-y-16">
 

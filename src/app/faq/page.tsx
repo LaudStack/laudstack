@@ -3,16 +3,19 @@
 /*
  * LaudStack — FAQ
  *
- * Comprehensive FAQ page covering all platform topics.
- * Accordion layout with category tabs for easy navigation.
- * Design: light, professional, consistent with platform theme.
+ * Comprehensive FAQ page covering all platform topics:
+ * General, Reviews & Ratings, Launching Products, Community Voting & Lauds,
+ * Deals & Promotions, Advertising, Trust & Safety, Account & Privacy, Billing & Plans
+ *
+ * Accordion layout with category sidebar for easy navigation.
  */
 
 import { useState } from 'react';
 import {
   ChevronDown, Search, HelpCircle, Users, Rocket,
-  Shield, Star, CreditCard, BookOpen, Zap, Mail,
-  ArrowRight, CheckCircle2,
+  Shield, Star, CreditCard, BookOpen, Mail,
+  ArrowRight, Tag, Megaphone, ThumbsUp, BarChart3,
+  Globe, PenLine, Award
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -31,23 +34,31 @@ const FAQ_CATEGORIES = [
     questions: [
       {
         q: 'What is LaudStack?',
-        a: 'LaudStack is a professional discovery and review platform for SaaS and AI stacks. We help businesses and professionals find, compare, and evaluate the best software tools through verified community reviews, editorial curation, and data-driven rankings. Think of us as the trusted source for software intelligence — combining the depth of G2 with the discovery energy of ProductHunt.',
+        a: 'LaudStack is the launch, discovery, and growth platform for AI and SaaS software. It brings together product launches, verified community reviews, community voting (lauds), software deals, advertising, and curated collections — all in one place. Think of it as a combination of Product Hunt (launches and voting), G2 (reviews and ratings), and AppSumo (deals and promotions), purpose-built for the modern software ecosystem.',
+      },
+      {
+        q: 'Who is LaudStack for?',
+        a: 'LaudStack serves three main audiences. First, builders and professionals who need to discover, compare, and evaluate SaaS and AI products for their workflows. Second, founders and product teams who want to launch their products, collect verified reviews, and grow their visibility. Third, the broader tech community that wants to vote on, discuss, and recommend the best software tools available.',
       },
       {
         q: 'Is LaudStack free to use?',
-        a: 'Yes — browsing tools, reading reviews, and using the comparison features are completely free for all users. We offer optional Pro plans for founders and power users who need advanced analytics, priority listings, and enhanced profile features. See our Pricing page for details.',
+        a: 'Yes — browsing products, reading reviews, voting (lauding), comparing tools, and accessing deals are completely free for all users. Founders can also list their products for free via LaunchPad. We offer optional paid promotion tiers (Boost, Spotlight, Dominate) for founders who want enhanced visibility, and a Pro plan for power users who need advanced analytics.',
       },
       {
-        q: 'How is LaudStack different from G2 or Capterra?',
-        a: 'LaudStack combines the verified review depth of G2 with the community-driven discovery energy of ProductHunt. We focus specifically on SaaS and AI stacks, maintain stricter review verification standards, and provide real-time trend data alongside editorial curation. Our Community Picks and Editor\'s Picks systems give you both crowd wisdom and expert guidance in one place.',
+        q: 'How is LaudStack different from G2, Capterra, or Product Hunt?',
+        a: 'LaudStack combines the best elements of multiple platforms into one. Unlike G2 or Capterra, we include community voting (lauds) and product launch features. Unlike Product Hunt, we provide deep verified reviews, star ratings, and long-term ranking data — not just launch-day hype. We also offer software deals and promotions (similar to AppSumo) and curated editorial collections. The result is a single platform where you can launch, discover, review, compare, and buy software.',
+      },
+      {
+        q: 'What categories of products does LaudStack cover?',
+        a: 'We cover a wide range of categories including AI Productivity, AI Writing, AI Image, AI Video, AI Code, AI Analytics, Marketing, Project Management, CRM, Sales, Design, Developer Tools, and more. Categories are continuously expanded as the software landscape evolves. Each category has its own dedicated page with filtered listings, rankings, and curated picks.',
       },
       {
         q: 'How often is the platform updated?',
-        a: 'New tools are added daily as founders launch via LaunchPad. Rankings are recalculated weekly based on fresh review data and community votes. Our editorial team publishes new picks and collections every week. The Changelog page documents all significant platform updates.',
+        a: 'New products are added daily as founders launch via LaunchPad. Rankings are recalculated regularly based on fresh review data, community lauds, and engagement metrics. Our editorial team publishes new collections and picks weekly. Deals and promotions are updated as founders create new offers.',
       },
       {
-        q: 'What categories of tools does LaudStack cover?',
-        a: 'We cover 12 categories: AI Productivity, AI Writing, AI Image, AI Video, AI Code, AI Analytics, Marketing, Project Management, CRM, Sales, Design, and Developer Tools. We continuously expand our category coverage as the market evolves.',
+        q: 'What does "Laud" mean on LaudStack?',
+        a: 'A "Laud" is our version of an upvote or endorsement. When you laud a product, you are publicly signaling that you recommend it. Lauds contribute to a product\'s community ranking and help surface the best tools. The term reflects our belief that great software deserves recognition — and the community should decide what rises to the top.',
       },
     ],
   },
@@ -61,61 +72,171 @@ const FAQ_CATEGORIES = [
     questions: [
       {
         q: 'How does LaudStack verify reviews?',
-        a: 'We use a multi-layer verification system. Reviewers must have an active LaudStack account. We cross-reference usage signals, check for duplicate submissions, and apply algorithmic fraud detection. Reviews that fail verification are flagged and removed. Our Trust Framework page explains the full process in detail.',
+        a: 'We use a multi-layer verification system. Reviewers must have an active LaudStack account. We cross-reference usage signals, check for duplicate submissions, and apply algorithmic fraud detection. Reviews that fail verification are flagged and removed. This ensures that every review on the platform reflects genuine user experience.',
       },
       {
-        q: 'Can I write a review for any tool?',
-        a: 'Yes, any registered user can write a review for any tool listed on LaudStack. We encourage honest, detailed reviews based on real usage. Reviews must comply with our Review Guidelines — they should be factual, constructive, and free from conflicts of interest.',
+        q: 'Can I write a review for any product?',
+        a: 'Yes, any registered user can write a review for any product listed on LaudStack. We encourage honest, detailed reviews based on real usage. Reviews should cover what you liked, what could be improved, and who the product is best suited for. All reviews must comply with our Review Guidelines — they should be factual, constructive, and free from conflicts of interest.',
       },
       {
         q: 'How is the star rating calculated?',
-        a: 'The displayed star rating is a weighted average of all verified reviews. We apply a Bayesian smoothing algorithm that prevents tools with very few reviews from dominating the rankings. This means a product needs a meaningful volume of reviews before its rating stabilises — protecting users from manipulation by a small number of reviews.',
+        a: 'The displayed star rating is a weighted average of all verified reviews. We apply a Bayesian smoothing algorithm that prevents products with very few reviews from dominating the rankings. This means a product needs a meaningful volume of reviews before its rating stabilises — protecting users from manipulation by a small number of reviews.',
       },
       {
         q: 'Can founders respond to reviews?',
-        a: 'Yes. Verified tool owners and founders can post official responses to any review on their tool\'s profile. This creates a transparent dialogue between users and makers. Responses are clearly labelled as "Founder Reply" and cannot edit or remove the original review.',
+        a: 'Yes. Verified product owners and founders can post official responses to any review on their product\'s profile. This creates a transparent dialogue between users and makers. Responses are clearly labelled as "Founder Reply" and cannot edit or remove the original review. This feature helps founders address feedback publicly and build trust.',
       },
       {
         q: 'What happens if I suspect a review is fake?',
-        a: 'Use the "Report Review" flag on any review card. Our moderation team investigates all reports within 48 hours. If a review is found to violate our guidelines, it is removed and the account may be suspended. We take review integrity extremely seriously.',
+        a: 'Use the "Report Review" flag on any review card. Our moderation team investigates all reports within 48 hours. If a review is found to violate our guidelines, it is removed and the account may be suspended. We take review integrity extremely seriously — it is the foundation of the platform.',
       },
       {
         q: 'Can I edit or delete my review after posting?',
         a: 'Yes, you can edit your review at any time from your dashboard. Edits are logged and the review will be re-verified. You can also delete your review, though we encourage updating rather than deleting as it preserves the historical record for the community.',
       },
+      {
+        q: 'What are "Editor\'s Picks" and "Community Picks"?',
+        a: 'Editor\'s Picks are products hand-selected by our editorial team based on quality, innovation, and user value — they are never sold or sponsored. Community Picks are products that have received the most lauds and positive reviews from the community over a given period. Together, they give you both expert curation and crowd wisdom.',
+      },
+      {
+        q: 'How do product comparisons work?',
+        a: 'You can compare any two or more products side by side on their respective product pages. Comparisons show ratings, review counts, pricing, features, and community sentiment. We also generate dedicated "Product A vs Product B" pages for popular matchups, making it easy to evaluate alternatives.',
+      },
     ],
   },
   {
     id: 'founders',
-    label: 'For Founders',
+    label: 'Launching Products',
     icon: Rocket,
     twColor: 'text-amber-600',
     twBg: 'bg-amber-50',
     twBorder: 'border-amber-200',
     questions: [
       {
-        q: 'How do I launch my tool to LaudStack?',
-        a: 'Go to the LaunchPad page and complete the submission form. You\'ll need to provide your tool\'s name, tagline, description, logo, website URL, category, and pricing model. Submissions are reviewed by our team within 2–3 business days. There is no fee to list a product.',
+        q: 'How do I launch my product on LaudStack?',
+        a: 'Go to the LaunchPad page and complete the submission form. You\'ll need to provide your product\'s name, tagline, description, logo, website URL, category, pricing model, and optional media (screenshots, videos). Submissions are reviewed by our team within 2–3 business days. There is no fee to list a product.',
       },
       {
         q: 'What is the LaunchPad?',
-        a: 'LaunchPad is LaudStack\'s dedicated launch hub for founders. When you launch via LaunchPad, your tool gets a dedicated launch day feature, appears in the "Fresh Launches" section on the homepage, and is eligible for community lauds and editorial review. It\'s the fastest path to getting discovered.',
+        a: 'LaunchPad is LaudStack\'s dedicated launch hub for founders. When you launch via LaunchPad, your product gets a dedicated launch day feature, appears in the "Latest Stacks" section on the homepage, and is eligible for community lauds and editorial review. It\'s the fastest path to getting discovered by the LaudStack community.',
       },
       {
-        q: 'How do I claim my tool\'s profile?',
-        a: 'Visit the Claim Your Product page and verify ownership by confirming access to the product\'s registered email domain or by adding a DNS TXT record. Once verified, you\'ll receive a "Verified Founder" badge and unlock the Founder Dashboard with analytics and review management tools.',
+        q: 'How do I claim my product\'s profile?',
+        a: 'Visit the Claim Your Product page and verify ownership by confirming access to the product\'s registered email domain or by adding a DNS TXT record. Once verified, you\'ll receive a "Verified Founder" badge and unlock the Founder Dashboard with analytics, review management, and promotion tools.',
       },
       {
         q: 'Can I pay to get a better ranking or Editor\'s Pick badge?',
-        a: 'No. Rankings are determined entirely by review scores, community votes, and engagement data. Editor\'s Pick badges are awarded solely at the editorial team\'s discretion based on quality criteria — they are never sold or sponsored. This is a core principle of our Trust Framework.',
+        a: 'No. Organic rankings are determined entirely by review scores, community lauds, and engagement data. Editor\'s Pick badges are awarded solely at the editorial team\'s discretion based on quality criteria — they are never sold or sponsored. Paid promotions (Boost, Spotlight, Dominate) are always clearly labelled as "Sponsored" and do not affect organic rankings.',
       },
       {
         q: 'What analytics does the Founder Dashboard provide?',
-        a: 'The Founder Dashboard shows profile views, click-throughs to your website, review trends over time, rating breakdowns, laud history, and comparison appearances. Pro plan subscribers get additional data including visitor demographics, referral sources, and conversion benchmarks.',
+        a: 'The Founder Dashboard shows profile views, click-throughs to your website, review trends over time, rating breakdowns, laud history, comparison appearances, and referral sources. You can also manage your product listing, respond to reviews, create deals, and run promotions — all from one place.',
+      },
+      {
+        q: 'Can I update my product listing after launch?',
+        a: 'Yes. Verified founders can update their product\'s description, screenshots, media, pricing, and category at any time from the Founder Dashboard. Major changes (like renaming or recategorising) may trigger a brief re-review by our team to ensure listing quality.',
       },
       {
         q: 'What is the Affiliate Program?',
-        a: 'LaudStack\'s Affiliate Program lets you earn commission by referring new tool submissions and Pro plan subscribers. Affiliates receive a unique referral link, a real-time dashboard, and monthly payouts. Visit the Affiliates page to apply.',
+        a: 'LaudStack\'s Affiliate Program lets you earn commission by referring new product submissions and Pro plan subscribers. Affiliates receive a unique referral link, a real-time dashboard, and monthly payouts. Visit the Affiliates page to learn about commission tiers and apply.',
+      },
+      {
+        q: 'How do I get featured in curated collections?',
+        a: 'Our editorial team curates collections based on quality, relevance, and community reception. You cannot pay to be included. The best way to get featured is to maintain a high-quality listing, collect genuine reviews, and engage with the community. Products with strong ratings and active founder engagement are more likely to be selected.',
+      },
+    ],
+  },
+  {
+    id: 'voting',
+    label: 'Community Voting & Lauds',
+    icon: ThumbsUp,
+    twColor: 'text-orange-600',
+    twBg: 'bg-orange-50',
+    twBorder: 'border-orange-200',
+    questions: [
+      {
+        q: 'How does community voting work?',
+        a: 'Any registered user can "laud" (upvote) products they recommend. Each user gets one laud per product. Lauds contribute to a product\'s community ranking and help surface the best tools. The Community Voting page shows real-time rankings based on laud counts, and you can filter by category, time period, and more.',
+      },
+      {
+        q: 'Can I remove my laud after voting?',
+        a: 'Yes. Lauds can be toggled on and off at any time. Simply click the laud button again on any product to remove your vote. Your voting history is visible in your profile dashboard.',
+      },
+      {
+        q: 'How are community rankings calculated?',
+        a: 'Community rankings combine laud counts with engagement signals like review activity, profile views, and click-through rates. We apply time-decay weighting so that recent activity matters more than historical votes. This keeps rankings fresh and rewards products that are actively delivering value.',
+      },
+      {
+        q: 'What is the difference between lauds and reviews?',
+        a: 'A laud is a quick endorsement — a single click to say "I recommend this." A review is a detailed written evaluation with a star rating, pros, cons, and use-case context. Both contribute to a product\'s overall ranking, but reviews carry more weight because they provide substantive information for other users.',
+      },
+      {
+        q: 'Can founders laud their own products?',
+        a: 'No. Self-lauding is detected and blocked by our system. Founders found attempting to manipulate laud counts — including through coordinated voting — risk having their product delisted. We take community integrity seriously.',
+      },
+      {
+        q: 'Are there leaderboards or awards based on lauds?',
+        a: 'Yes. The Community Voting page features real-time leaderboards showing the most lauded products overall and by category. We also highlight "Rising" products — those gaining the most lauds in a recent period. Top-ranked products may be featured in our newsletter and editorial collections.',
+      },
+    ],
+  },
+  {
+    id: 'deals',
+    label: 'Deals & Promotions',
+    icon: Tag,
+    twColor: 'text-green-700',
+    twBg: 'bg-green-50',
+    twBorder: 'border-green-200',
+    questions: [
+      {
+        q: 'What are LaudStack Deals?',
+        a: 'LaudStack Deals are exclusive discounts, lifetime offers, and promotional pricing offered by software founders directly to the LaudStack community. Deals can include percentage discounts, extended free trials, lifetime access offers, and bundle pricing. They are created and managed by verified founders through the Founder Dashboard.',
+      },
+      {
+        q: 'How do I find active deals?',
+        a: 'Visit the Deals page to browse all currently active offers. You can filter by category, discount type, and expiration date. Active deals are also highlighted on individual product pages and may appear in our newsletter and homepage featured sections.',
+      },
+      {
+        q: 'How do founders create deals?',
+        a: 'Verified founders can create deals from the Founder Dashboard under the "Promotions" tab. You set the deal type (percentage off, lifetime offer, extended trial, etc.), the discount amount, start and end dates, and any redemption limits. Deals go live immediately after creation and appear on the Deals page.',
+      },
+      {
+        q: 'Are deals verified or guaranteed by LaudStack?',
+        a: 'LaudStack verifies that the founder offering the deal is the legitimate owner of the product. However, the deal terms (pricing, features included, refund policy) are set by the founder. We recommend reading the deal details carefully and checking the product\'s reviews before purchasing. If you encounter issues with a deal, contact our support team.',
+      },
+      {
+        q: 'Can I get notified about new deals?',
+        a: 'Yes. Subscribe to the LaudStack newsletter to receive weekly deal roundups. You can also follow specific categories or products to get notified when new deals are posted. Notification preferences can be managed in your Account Settings.',
+      },
+    ],
+  },
+  {
+    id: 'advertising',
+    label: 'Advertising',
+    icon: Megaphone,
+    twColor: 'text-indigo-700',
+    twBg: 'bg-indigo-50',
+    twBorder: 'border-indigo-200',
+    questions: [
+      {
+        q: 'What advertising options does LaudStack offer?',
+        a: 'We offer three promotion tiers: Boost ($149/30 days) gives your product a Featured badge and priority placement in featured sections. Spotlight ($349/90 days) adds homepage carousel placement and newsletter features. Dominate ($599/180 days) includes all Spotlight benefits plus category page takeover and dedicated editorial coverage. All placements are clearly labelled as "Sponsored."',
+      },
+      {
+        q: 'Do sponsored placements affect organic rankings?',
+        a: 'No. Paid promotions are always displayed separately from organic rankings and are clearly labelled as "Sponsored." Your organic ranking is determined entirely by review scores, community lauds, and engagement data. Advertising gives you additional visibility but never manipulates the ranking algorithm.',
+      },
+      {
+        q: 'How do I purchase a promotion?',
+        a: 'Verified founders can purchase promotions directly from the Founder Dashboard under the "Promote" tab. Select your tier, review the placement details, and complete the secure checkout. Promotions are activated immediately upon payment. You can also visit the Advertise page for full details on each tier.',
+      },
+      {
+        q: 'Can I target specific categories or audiences?',
+        a: 'Yes. Higher-tier promotions (Spotlight and Dominate) include category-specific placement options. Your product will be featured prominently within its primary category pages, reaching users who are actively evaluating tools in that space. Contact our advertising team for custom placement requests.',
+      },
+      {
+        q: 'What metrics do I get for my promotion?',
+        a: 'All promotion tiers include a performance dashboard showing impressions, clicks, click-through rate, and profile views generated by the promotion. Spotlight and Dominate tiers include additional metrics like comparison appearances and referral source breakdowns.',
       },
     ],
   },
@@ -133,7 +254,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'How does LaudStack prevent manipulation of rankings?',
-        a: 'We use several safeguards: Bayesian rating smoothing, IP-based duplicate detection, account age requirements for reviews, algorithmic anomaly detection for sudden rating spikes, and manual audits for tools showing suspicious patterns. Founders found manipulating reviews are permanently banned.',
+        a: 'We use several safeguards: Bayesian rating smoothing, IP-based duplicate detection, account age requirements for reviews, algorithmic anomaly detection for sudden rating spikes, self-laud blocking, and manual audits for products showing suspicious patterns. Founders found manipulating reviews or lauds are permanently banned and their products delisted.',
       },
       {
         q: 'Are sponsored listings clearly disclosed?',
@@ -142,6 +263,10 @@ const FAQ_CATEGORIES = [
       {
         q: 'How do I report a product or review that violates guidelines?',
         a: 'Every product profile and review has a "Report" option. You can also contact our Trust & Safety team directly at trust@laudstack.com. We aim to respond to all reports within 48 hours and resolve serious violations within 5 business days.',
+      },
+      {
+        q: 'What happens to products that violate platform rules?',
+        a: 'Products that violate our guidelines may receive warnings, temporary suspensions, or permanent delisting depending on the severity. Review manipulation, fake reviews, and misleading product information are treated as serious violations. Founders are notified of any actions taken and can appeal through our dispute resolution process.',
       },
     ],
   },
@@ -155,23 +280,27 @@ const FAQ_CATEGORIES = [
     questions: [
       {
         q: 'How do I create a LaudStack account?',
-        a: 'Click "Sign In" in the top navigation and choose to sign up with your Manus account or email. Account creation is free and takes less than a minute. You\'ll need an account to write reviews, laud stacks, save tools to your collection, and access personalised recommendations.',
+        a: 'Click "Sign In" in the top navigation and choose to sign up with LinkedIn or email. Account creation is free and takes less than a minute. You\'ll need an account to write reviews, laud products, save tools to your collection, access deals, and manage your profile.',
       },
       {
         q: 'What data does LaudStack collect about me?',
-        a: 'We collect the information you provide during registration (name, email), your activity on the platform (tools viewed, reviews written, lauds given), and standard analytics data (browser type, general pathname). We never sell your personal data to third parties. See our Privacy Policy for full details.',
+        a: 'We collect the information you provide during registration (name, email), your activity on the platform (products viewed, reviews written, lauds given), and standard analytics data (browser type, general location). We never sell your personal data to third parties. See our Privacy Policy for full details.',
       },
       {
         q: 'Can I delete my account?',
-        a: 'Yes. Go to your Account Settings and select "Delete Account". This will permanently remove your profile and personal data within 30 days, in compliance with GDPR. Your reviews will be anonymised rather than deleted to preserve the integrity of the review record.',
+        a: 'Yes. Go to your Account Settings and select "Delete Account." This will permanently remove your profile and personal data within 30 days, in compliance with GDPR. Your reviews will be anonymised rather than deleted to preserve the integrity of the review record.',
       },
       {
         q: 'How do I manage my newsletter subscription?',
-        a: 'You can subscribe or unsubscribe from the LaudStack newsletter at any time via your Account Settings or by clicking the unsubscribe link at the bottom of any newsletter email. We send a weekly digest of top tools, rising picks, and platform updates — no spam.',
+        a: 'You can subscribe or unsubscribe from the LaudStack newsletter at any time via your Account Settings or by clicking the unsubscribe link at the bottom of any newsletter email. We send a weekly digest of top products, rising picks, new deals, and platform updates.',
       },
       {
         q: 'Is LaudStack GDPR compliant?',
         a: 'Yes. LaudStack is fully GDPR compliant. We provide data access, portability, and deletion rights to all EU users. Our Privacy Policy details how we handle personal data, and you can submit a data request at any time via your account settings or by emailing privacy@laudstack.com.',
+      },
+      {
+        q: 'Can I have both a user account and a founder account?',
+        a: 'Yes. Every LaudStack account can function as both a user and a founder. Once you verify ownership of a product, your account gains access to the Founder Dashboard alongside your regular user features. You can write reviews, laud products, and manage your own listings — all from the same account.',
       },
     ],
   },
@@ -185,7 +314,7 @@ const FAQ_CATEGORIES = [
     questions: [
       {
         q: 'What plans does LaudStack offer?',
-        a: 'LaudStack offers a free tier for all users and a Pro plan for founders and power users. The Pro plan includes advanced analytics, priority listing placement, enhanced founder profiles, and dedicated support. Visit the Pricing page for current plan details and pricing.',
+        a: 'LaudStack offers a free tier for all users and a Pro plan for founders and power users. The free tier includes full access to browsing, reviews, voting, deals, and comparisons. The Pro plan adds advanced analytics, priority listing placement, enhanced founder profiles, and dedicated support. Visit the Pricing page for current plan details.',
       },
       {
         q: 'How do I upgrade to a Pro plan?',
@@ -198,6 +327,10 @@ const FAQ_CATEGORIES = [
       {
         q: 'Do you offer discounts for startups or non-profits?',
         a: 'Yes. We offer a 50% discount for early-stage startups (pre-seed or seed stage) and registered non-profit organisations. Contact us at billing@laudstack.com with proof of eligibility to apply.',
+      },
+      {
+        q: 'How are promotion payments handled?',
+        a: 'Promotion tiers (Boost, Spotlight, Dominate) are one-time payments with fixed durations — no recurring charges. Payment is processed securely at checkout. Promotions are activated immediately and run for their full duration regardless of when you purchase.',
       },
     ],
   },
@@ -274,7 +407,7 @@ export default function FAQ() {
         breadcrumbs={[{ label: 'FAQ' }]}
         eyebrow="Help Centre"
         title="Frequently Asked Questions"
-        subtitle="How reviews work, launching tools, and more."
+        subtitle="Everything you need to know about LaudStack — from launching products and writing reviews to deals, voting, and advertising."
         accent="amber"
         layout="centered"
         size="md"
@@ -290,20 +423,6 @@ export default function FAQ() {
             placeholder={`Search ${totalQuestions} questions...`}
             className="w-full pl-12 pr-4 h-13 text-[15px] text-slate-900 bg-white border-[1.5px] border-slate-200 rounded-2xl outline-none shadow-md focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
           />
-        </div>
-
-        {/* Quick stats */}
-        <div className="flex items-center justify-center gap-6 mt-5 flex-wrap">
-          {[
-            { icon: BookOpen, text: `${totalQuestions} questions answered` },
-            { icon: Zap, text: '6 topic categories' },
-            { icon: CheckCircle2, text: 'Updated weekly' },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2 text-sm text-slate-500 font-semibold">
-              <Icon className="w-3.5 h-3.5 text-amber-500" />
-              {text}
-            </div>
-          ))}
         </div>
       </div>
 
@@ -451,7 +570,7 @@ export default function FAQ() {
                 ctaCls: 'text-emerald-600',
               },
               {
-                icon: Rocket, title: 'Launch Your Tool', desc: 'Founders can launch their tool for free via LaunchPad.',
+                icon: Rocket, title: 'Launch Your Product', desc: 'Founders can launch their product for free via LaunchPad.',
                 cta: 'Go to LaunchPad', href: '/launchpad',
                 cls: 'bg-amber-50 border-amber-200 hover:shadow-amber-200/40',
                 iconCls: 'text-amber-600 bg-white border-amber-200',

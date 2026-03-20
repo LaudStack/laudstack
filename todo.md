@@ -2279,4 +2279,13 @@
 - [x] Created resources/layout.tsx to wrap all resource pages with Navbar/Footer
 - [x] Removed redundant min-h-screen from resource pages
 - [x] Footer menu structure reviewed — reflects platform positioning correctly
-- [ ] Push to GitHub
+- [x] Push to GitHub
+
+## Footer, Login, Stats, About, FAQ Overhaul (March 2026)
+- [x] Footer: Remove "Promote Your Stack" (redundant with "Advertise")
+- [x] Footer: Fix "Sell on LaudStack" — removed (dead link)
+- [x] Replace slim login page with a popup login modal (AuthGateModal rebuilt with full login/signup form)
+- [x] Remove all fake stats sections from About, Advertise, Press, Launch Guide, FAQ, Community Voting, Reviews, Affiliates pages
+- [x] Rebuild About page with founder Chiedu Kabakwu and his photo
+- [x] Rebuild FAQ page with comprehensive, detailed content (9 categories, 55+ questions covering all platform features)
+- [ ] Push all changes to GitHub

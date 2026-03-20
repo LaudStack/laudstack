@@ -40,8 +40,6 @@ const PRIMARY_SECTIONS = [
       { label: "Launch Guide", href: "/resources/launch-guide" },
       { label: "Listing Optimization", href: "/resources/listing-optimization" },
       { label: "Grow Visibility", href: "/resources/grow-visibility" },
-      { label: "Promote Your Stack", href: "/resources/promote-your-stack" },
-      { label: "Sell on LaudStack", href: "/marketplace/creator/onboarding" },
       { label: "Advertise", href: "/advertise" },
     ],
   },

@@ -67,12 +67,6 @@ const TIERS = [
   },
 ];
 
-const STATS = [
-  { value: '40%', label: 'Max recurring commission', icon: DollarSign },
-  { value: '90', label: 'Day cookie window', icon: Users },
-  { value: 'Free', label: 'To join the program', icon: TrendingUp },
-  { value: '24h', label: 'Application review', icon: Star },
-];
 
 const HOW_IT_WORKS = [
   { step: '01', title: 'Sign Up Free', desc: 'Create your affiliate account in under 2 minutes. No approval wait time.' },
@@ -134,16 +128,6 @@ export default function Affiliates() {
 
       <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-          {STATS.map(({ value, label, icon: Icon }) => (
-            <div key={label} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
-              <Icon className="h-6 w-6 text-amber-400 mx-auto mb-2" />
-              <div className="text-2xl font-black text-slate-900">{value}</div>
-              <div className="text-xs text-slate-500 mt-0.5">{label}</div>
-            </div>
-          ))}
-        </div>
 
         {/* How It Works */}
         <div className="mb-16">

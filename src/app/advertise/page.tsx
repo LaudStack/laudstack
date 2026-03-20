@@ -7,28 +7,15 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import {
-  BarChart3, Star, Zap, Globe, CheckCircle,
-  ArrowRight, Mail, TrendingUp, Eye, Award, Target, Megaphone
+  Star, Zap, Globe,
+  ArrowRight, Mail, TrendingUp, Eye, Award, Megaphone
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import { toast } from 'sonner';
 
-const AUDIENCE_STATS = [
-  { value: '42+',     label: 'Verified Stacks Listed', icon: <CheckCircle className="w-5 h-5 text-amber-500" /> },
-  { value: '100%',    label: 'Verified Reviews', icon: <Star className="w-5 h-5 text-amber-500" /> },
-  { value: 'Free',    label: 'To List Your Stack', icon: <Zap className="w-5 h-5 text-amber-500" /> },
-  { value: '68%',     label: 'Decision-Maker Audience', icon: <Target className="w-5 h-5 text-amber-500" /> },
-];
 
-const AUDIENCE_BREAKDOWN = [
-  { segment: 'Founders & Co-founders', pct: 34 },
-  { segment: 'Product Managers', pct: 22 },
-  { segment: 'Engineers & Developers', pct: 19 },
-  { segment: 'Marketers & Growth', pct: 14 },
-  { segment: 'Other Professionals', pct: 11 },
-];
 
 const TIERS = [
   {
@@ -142,20 +129,7 @@ export default function Advertise() {
           size="md"
         />
 
-        {/* Audience stats bar */}
-        <div className="bg-white border-b border-slate-200">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {AUDIENCE_STATS.map(stat => (
-                <div key={stat.label} className="text-center">
-                  <div className="flex justify-center mb-2">{stat.icon}</div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">{stat.value}</div>
-                  <div className="text-slate-600 text-sm font-medium">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 space-y-20">
 
@@ -184,31 +158,7 @@ export default function Advertise() {
             </div>
           </section>
 
-          {/* Audience breakdown */}
-          <section>
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8">
-              <div className="flex items-center gap-2 text-amber-600 text-sm font-semibold mb-6">
-                <BarChart3 className="w-4 h-4" />
-                Audience Breakdown
-              </div>
-              <div className="space-y-4">
-                {AUDIENCE_BREAKDOWN.map(item => (
-                  <div key={item.segment}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="font-medium text-slate-700">{item.segment}</span>
-                      <span className="font-bold text-slate-900">{item.pct}%</span>
-                    </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-amber-400 rounded-full"
-                        style={{ width: `${item.pct}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+
 
           {/* Pricing tiers */}
           <section>

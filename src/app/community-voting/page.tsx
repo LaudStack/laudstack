@@ -426,32 +426,7 @@ export default function CommunityVotingPage() {
                 Laud your favorite SaaS and AI stacks. Ranked by real votes.
               </p>
             </div>
-            {/* Stats */}
-            <div className="flex gap-3 sm:gap-4 flex-wrap">
-              <StatCard
-                icon={Users}
-                value={
-                  stats
-                    ? stats.totalUsers.toLocaleString()
-                    : "—"
-                }
-                label="Members"
-              />
-              <StatCard
-                icon={TrendingUp}
-                value={totalVotes.toLocaleString()}
-                label="Total Votes"
-              />
-              <StatCard
-                icon={BarChart3}
-                value={
-                  stats
-                    ? `${stats.totalTools}+`
-                    : `${allTools.length}+`
-                }
-                label="Tools Ranked"
-              />
-            </div>
+
           </div>
         </div>
       </section>
