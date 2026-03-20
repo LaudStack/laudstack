@@ -163,6 +163,10 @@ export async function completeOnboarding(data: {
   company?: string;
   useCase?: string;
   referralSource?: string;
+  avatarUrl?: string;
+  city?: string;
+  state?: string;
+  country?: string;
 }) {
   const user = await requireAuth();
   const name = `${data.firstName} ${data.lastName}`.trim();
@@ -175,6 +179,10 @@ export async function completeOnboarding(data: {
     company: data.company || undefined,
     useCase: data.useCase || undefined,
     referralSource: data.referralSource || undefined,
+    avatarUrl: data.avatarUrl || undefined,
+    city: data.city || undefined,
+    state: data.state || undefined,
+    country: data.country || undefined,
     onboardingCompleted: true,
     updatedAt: new Date(),
   }).where(eq(users.id, user.id));

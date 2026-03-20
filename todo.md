@@ -2242,8 +2242,33 @@
 - [x] Fix Supabase Site URL: changed from https://laudstack.com to https://www.laudstack.com
 - [x] Add https://www.laudstack.com/** to Supabase redirect URLs allowlist
 - [x] Improved callback route with comprehensive error logging
-- [ ] Set up Supabase Custom Domain (replace ehnlovnzpfvaxwwmgppj.supabase.co with api.laudstack.com)
-- [ ] Update LinkedIn Developer Portal redirect URI with new custom domain
-- [ ] Update Supabase client config in code to use custom domain
-- [ ] Test LinkedIn login end-to-end after all changes
+- [x] Set up Supabase Custom Domain (auth.laudstack.com replaces ehnlovnzpfvaxwwmgppj.supabase.co)
+- [x] Update LinkedIn Developer Portal redirect URI to auth.laudstack.com/auth/v1/callback
+- [x] Update Vercel NEXT_PUBLIC_SUPABASE_URL to https://auth.laudstack.com (both dev + prod)
+- [x] Added auth.laudstack.com/** to Supabase redirect URLs allowlist
+- [x] Updated next.config.ts to allow images from auth.laudstack.com
+- [ ] Test LinkedIn login end-to-end after Vercel redeploy
+- [x] Push to GitHub
+
+## Registration & Onboarding System — Full Enhancement & Hardening
+- [ ] Replace placeholder logo with official LaudStack logo on all onboarding/welcome screens
+- [ ] Remove stats/placeholder metrics from /welcome page
+- [ ] Clean, minimal, professional welcome page design
+- [ ] Add profile photo upload step to onboarding (upload, preview, save, persist)
+- [ ] Polish all onboarding steps: layout, spacing, responsiveness, transitions
+- [ ] Implement automatic IP-based location detection (city, state, country)
+- [ ] Store detected location in user profile
+- [ ] Add fallback if IP detection fails (optional manual entry)
+- [ ] Fix and implement welcome email via Resend after onboarding completion
+- [ ] Build/fix welcome email template
+- [ ] Handle edge cases: duplicate sends, failed sends, retries
+- [ ] Harden email/password signup flow (no errors, stable sessions)
+- [ ] Harden LinkedIn OAuth flow (proper user creation, no duplicates, correct redirects)
+- [ ] Ensure onboarding triggers after first signup/login
+- [ ] Store onboarding completion status correctly
+- [ ] Prevent re-entering onboarding once completed
+- [ ] Correct redirect logic after onboarding
+- [ ] Remove all placeholder UI, TODO/FIXME comments in auth/onboarding
+- [ ] Fix all console errors/warnings in auth/onboarding flows
+- [ ] Eliminate dead ends and stuck states
 - [ ] Push to GitHub
