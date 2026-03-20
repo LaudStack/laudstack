@@ -1,5 +1,4 @@
 "use client";
-
 /**
  * useSavedTools — LaudStack
  *
@@ -12,10 +11,16 @@
  * Exposes toggle, isSaved, savedIds, clear, loading, and refetch helpers.
  * Uses a global event emitter so all mounted instances stay in sync
  * (e.g. ToolCard save button ↔ Navbar count ↔ Dashboard saved tab).
+ *
+ * MODULE-LEVEL FETCH GUARD:
+ *   The `_fetchedForSession` flag is module-level (not per-component-instance),
+ *   so the initial DB fetch only happens ONCE per authenticated session, not
+ *   on every navigation/remount. This prevents the Navbar saved-count from
+ *   flickering or making redundant API calls on every page change.
  */
-
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { registerCacheInvalidator } from "@/hooks/authCacheInvalidators";
 import {
   toggleSaveTool,
   getUserSavedToolIds,
@@ -26,17 +31,29 @@ import {
 type SaveListener = (ids: string[]) => void;
 const listeners = new Set<SaveListener>();
 let globalSavedIds: string[] = [];
+let _fetchedForSession = false;  // module-level guard — survives remounts
+let _loading = true;
 
 function broadcast(ids: string[]) {
   globalSavedIds = ids;
   listeners.forEach((fn) => fn(ids));
 }
 
+/** Reset module-level state on sign-out so next login fetches fresh data */
+function invalidateSavedToolsCache() {
+  globalSavedIds = [];
+  _fetchedForSession = false;
+  _loading = true;
+  broadcast([]);
+}
+
+// Register with the global sign-out invalidator registry
+registerCacheInvalidator(invalidateSavedToolsCache);
+
 export function useSavedTools() {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [savedIds, setSavedIds] = useState<string[]>(globalSavedIds);
-  const [loading, setLoading] = useState(true);
-  const fetchedRef = useRef(false);
+  const [loading, setLoading] = useState(_loading);
 
   // ── Subscribe to global broadcasts ──
   useEffect(() => {
@@ -50,25 +67,30 @@ export function useSavedTools() {
   // ── Fetch saved tool IDs from DB when authenticated ──
   useEffect(() => {
     if (authLoading) return;
-
     if (isAuthenticated) {
-      if (!fetchedRef.current) {
-        fetchedRef.current = true;
+      if (!_fetchedForSession) {
+        _fetchedForSession = true;
         setLoading(true);
         getUserSavedToolIds()
           .then((ids) => {
             const strIds = ids.map(String);
-            setSavedIds(strIds);
             broadcast(strIds);
+            _loading = false;
           })
           .catch((err) => {
             console.error("[useSavedTools] Failed to fetch saved tools:", err);
+            _loading = false;
           })
           .finally(() => setLoading(false));
+      } else {
+        // Already fetched this session — sync local state from global
+        setSavedIds(globalSavedIds);
+        setLoading(false);
       }
     } else {
-      fetchedRef.current = false;
-      setSavedIds([]);
+      // Not authenticated — reset
+      _fetchedForSession = false;
+      _loading = false;
       broadcast([]);
       setLoading(false);
     }
@@ -88,18 +110,15 @@ export function useSavedTools() {
     async (id: string | number): Promise<{ saved?: boolean; requiresAuth?: boolean }> => {
       const strId = String(id);
       const numId = Number(id);
-
       if (!isAuthenticated || isNaN(numId)) {
         return { requiresAuth: true };
       }
-
       // Optimistic update
       const wasSaved = globalSavedIds.includes(strId);
       const optimistic = wasSaved
         ? globalSavedIds.filter((x) => x !== strId)
         : [...globalSavedIds, strId];
       broadcast(optimistic);
-
       try {
         const result = await toggleSaveTool(numId);
         if (!result.success) {

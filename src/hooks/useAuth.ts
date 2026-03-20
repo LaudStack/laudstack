@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
+import { runAllCacheInvalidators } from "@/hooks/authCacheInvalidators";
 
 export interface AuthState {
   user: User | null;
@@ -10,14 +11,6 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
-/**
- * Module-level singleton — createBrowserClient is called once per browser
- * session, not on every render. This prevents the infinite re-render loop
- * caused by a new client instance being created each time the hook runs.
- *
- * We defer initialisation to the first call so that server-side rendering
- * (where window/document are unavailable) doesn't throw.
- */
 let supabaseClient: ReturnType<typeof createBrowserClient> | null = null;
 
 function getSupabaseClient() {
@@ -30,26 +23,14 @@ function getSupabaseClient() {
   return supabaseClient;
 }
 
-/* ─── Module-level auth cache ─────────────────────────────────────────────
- * Keeps the last-known auth state so that when React re-mounts the Navbar
- * during client-side navigation, the component can render the correct
- * auth UI *immediately* instead of showing a skeleton → real content flash.
- *
- * The cache is populated:
- *   1. After the first getUser() call resolves
- *   2. On every onAuthStateChange event
- *   3. On signOut
- *
- * We use useSyncExternalStore so all hook consumers share the same snapshot.
- * ────────────────────────────────────────────────────────────────────────── */
 interface CachedAuth {
   user: User | null;
-  resolved: boolean; // true once the first getUser() has returned
+  resolved: boolean;
 }
 
 let _cache: CachedAuth = { user: null, resolved: false };
 const _listeners = new Set<() => void>();
-let _initialised = false; // ensures we only call getUser + subscribe once
+let _initialised = false;
 
 function _notify() {
   _listeners.forEach((l) => l());
@@ -81,15 +62,19 @@ function _ensureInitialised() {
 
   const supabase = getSupabaseClient();
 
-  // 1. Resolve initial user
   supabase.auth.getUser().then(({ data: { user } }) => {
     _setCache(user, true);
   });
 
-  // 2. Subscribe to auth changes (login, logout, token refresh)
   supabase.auth.onAuthStateChange((_event, session) => {
     _setCache(session?.user ?? null, true);
   });
+}
+
+// Boot immediately at module import time — reduces the window before
+// resolved=true so the skeleton flash is minimised on first render.
+if (typeof window !== "undefined") {
+  _ensureInitialised();
 }
 
 export function useAuth(): AuthState & {
@@ -99,18 +84,17 @@ export function useAuth(): AuthState & {
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null; user: User | null }>;
   signUpWithEmail: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: string | null; supabaseId?: string }>;
 } {
-  // Boot the global listener on first hook call
   useEffect(() => { _ensureInitialised(); }, []);
 
-  // All instances share the same snapshot — no per-component loading flash
   const cached = useSyncExternalStore(_subscribe, _getSnapshot, _getServerSnapshot);
 
-  // Stable reference — same object across all renders
   const supabase = getSupabaseClient();
 
   const signOut = async () => {
     await supabase.auth.signOut();
     _setCache(null, true);
+    // Invalidate all session caches so the next login fetches fresh data
+    runAllCacheInvalidators();
   };
 
   const signInWithGoogle = async () => {
@@ -122,11 +106,6 @@ export function useAuth(): AuthState & {
     });
   };
 
-  /**
-   * LinkedIn OAuth via Supabase (linkedin_oidc provider).
-   * Extracts: first_name, last_name, email, avatar_url, and location data.
-   * Requires LinkedIn OIDC configured in Supabase Dashboard → Auth → Providers.
-   */
   const signInWithLinkedIn = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "linkedin_oidc",
@@ -160,10 +139,6 @@ export function useAuth(): AuthState & {
         emailRedirectTo: `${window.location.origin}/api/auth/callback`,
       },
     });
-
-    // No longer sign out after signup — email verification is not required
-    // for basic account creation. The session persists so the user can
-    // immediately access the platform.
 
     return { error: error?.message ?? null, supabaseId: data?.user?.id };
   };

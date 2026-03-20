@@ -339,7 +339,7 @@ export default function Navbar() {
                       {/* Desktop dropdown */}
                       {avatarOpen && (
                         <div
-                          className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-50"
+                          className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-[200]"
                           style={{ border: `1px solid ${BORDER}`, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}
                         >
                           <div className="px-4 py-3 border-b border-slate-200" style={{ background: NAV_BG }}>
@@ -369,6 +369,8 @@ export default function Navbar() {
                                 ].map(item => (
                                   <button
                                     key={item.label}
+                                    onPointerDown={e => e.preventDefault()}
+                                    onPointerDown={e => e.preventDefault()}
                                     onClick={() => { router.push(item.href); setAvatarOpen(false); }}
                                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                     style={{ fontSize: '14px', color: '#334155' }}
@@ -381,6 +383,8 @@ export default function Navbar() {
                                 ))}
                                 {isVerifiedFounder && (
                                   <button
+                                    onPointerDown={e => e.preventDefault()}
+                                    onPointerDown={e => e.preventDefault()}
                                     onClick={() => { router.push('/dashboard/founder'); setAvatarOpen(false); }}
                                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                     style={{ fontSize: '14px', color: '#D97706' }}
@@ -396,6 +400,7 @@ export default function Navbar() {
                           </div>
                           <div className="border-t border-slate-200 py-1.5">
                             <button
+                              onPointerDown={e => e.preventDefault()}
                               onClick={handleSignOut}
                               className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                               style={{ fontSize: '14px', color: '#EF4444' }}
@@ -493,7 +498,7 @@ export default function Navbar() {
                         {/* Mega menu dropdown */}
                         {isActive && item.megaMenu && (
                           <div
-                            className="absolute top-full left-0 mt-0 w-[340px] bg-white overflow-hidden z-50"
+                            className="absolute top-full left-0 mt-0 w-[340px] bg-white overflow-hidden z-[150]"
                             style={{
                               border: `1px solid ${BORDER}`,
                               borderTop: `3px solid ${ORANGE}`,
@@ -646,7 +651,7 @@ export default function Navbar() {
                         {/* Desktop dropdown */}
                         {avatarOpen && (
                           <div
-                            className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-50"
+                            className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-[200]"
                             style={{ border: `1px solid ${BORDER}`, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}
                           >
                             <div className="px-4 py-3 border-b border-slate-200" style={{ background: NAV_BG }}>
@@ -656,6 +661,7 @@ export default function Navbar() {
                             <div className="py-1.5">
                               {isStaffUser ? (
                                 <button
+                                  onPointerDown={e => e.preventDefault()}
                                   onClick={() => { router.push('/ops-console/dashboard'); setAvatarOpen(false); }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                   style={{ fontSize: '14px', color: '#D97706', fontWeight: 600 }}
@@ -749,7 +755,7 @@ export default function Navbar() {
 
               {/* LEFT: Hamburger menu */}
               <button
-                onClick={() => setMobileOpen(!mobileOpen)}
+                onClick={() => { setMobileOpen(!mobileOpen); setAvatarOpen(false); }}
                 className="flex items-center justify-center bg-transparent border-none cursor-pointer p-1"
                 style={{ color: isHomepage ? '#1E293B' : NAV_BAR_TEXT }}
                 aria-label="Toggle menu"
@@ -778,7 +784,7 @@ export default function Navbar() {
                 ) : isAuthenticated && user ? (
                   <>
                     <button
-                      onClick={() => setAvatarOpen(!avatarOpen)}
+                      onClick={() => { setAvatarOpen(!avatarOpen); setMobileOpen(false); }}
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent border-none cursor-pointer transition-colors hover:bg-slate-100"
                       aria-label="Profile menu"
                     >
@@ -794,7 +800,7 @@ export default function Navbar() {
                     {/* Mobile avatar dropdown */}
                     {avatarOpen && (
                       <div
-                        className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-50"
+                        className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-[200]"
                         style={{ border: `1px solid ${BORDER}`, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
                       >
                         <div className="px-4 py-3 border-b border-slate-200" style={{ background: NAV_BG }}>
@@ -824,7 +830,8 @@ export default function Navbar() {
                               ].map(item => (
                                 <button
                                   key={item.label}
-                                  onClick={() => { router.push(item.href); setAvatarOpen(false); }}
+                                  onPointerDown={e => e.preventDefault()}
+                                  onClick={() => { router.push(item.href); setAvatarOpen(false); setMobileOpen(false); }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                   style={{ fontSize: '14px', color: '#334155' }}
                                   onMouseEnter={e => { e.currentTarget.style.background = NAV_BG; e.currentTarget.style.color = ORANGE; }}
@@ -836,7 +843,8 @@ export default function Navbar() {
                               ))}
                               {isVerifiedFounder && (
                                 <button
-                                  onClick={() => { router.push('/dashboard/founder'); setAvatarOpen(false); }}
+                                  onPointerDown={e => e.preventDefault()}
+                                  onClick={() => { router.push('/dashboard/founder'); setAvatarOpen(false); setMobileOpen(false); }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                   style={{ fontSize: '14px', color: '#D97706' }}
                                   onMouseEnter={e => { e.currentTarget.style.background = '#FFFBEB'; }}
@@ -851,7 +859,8 @@ export default function Navbar() {
                         </div>
                         <div className="border-t border-slate-200 py-1.5">
                           <button
-                            onClick={() => { handleSignOut(); setAvatarOpen(false); }}
+                            onPointerDown={e => e.preventDefault()}
+                            onClick={() => { handleSignOut(); setAvatarOpen(false); setMobileOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                             style={{ fontSize: '14px', color: '#EF4444' }}
                             onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; }}
@@ -946,7 +955,7 @@ export default function Navbar() {
                       {/* Mega menu dropdown */}
                       {isActive && item.megaMenu && (
                         <div
-                          className="absolute top-full left-0 mt-0 w-[340px] bg-white overflow-hidden z-50"
+                          className="absolute top-full left-0 mt-0 w-[340px] bg-white overflow-hidden z-[150]"
                           style={{
                             border: `1px solid ${BORDER}`,
                             borderTop: `3px solid ${ORANGE}`,
