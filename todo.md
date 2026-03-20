@@ -2235,4 +2235,15 @@
 - [x] Notification Preferences: Replaced local-only toggles with DB-persisted preferences
 - [x] Profile Tab: Display job title, company, and location
 - [x] Public Profile: Added linkedinUrl, city/state/country to API response and display
+- [x] Push to GitHub
+
+## LinkedIn OAuth Fix & Custom Domain
+- [x] Diagnose LinkedIn login failure (root cause: www vs non-www domain redirect mismatch)
+- [x] Fix Supabase Site URL: changed from https://laudstack.com to https://www.laudstack.com
+- [x] Add https://www.laudstack.com/** to Supabase redirect URLs allowlist
+- [x] Improved callback route with comprehensive error logging
+- [ ] Set up Supabase Custom Domain (replace ehnlovnzpfvaxwwmgppj.supabase.co with api.laudstack.com)
+- [ ] Update LinkedIn Developer Portal redirect URI with new custom domain
+- [ ] Update Supabase client config in code to use custom domain
+- [ ] Test LinkedIn login end-to-end after all changes
 - [ ] Push to GitHub

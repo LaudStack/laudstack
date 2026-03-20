@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.cloudflare.com" },
       { protocol: "https", hostname: "**.supabase.co" },
       { protocol: "https", hostname: "ehnlovnzpfvaxwwmgppj.supabase.co" },
+      { protocol: "https", hostname: "auth.laudstack.com" },
       { protocol: "https", hostname: "logo.clearbit.com" },
       { protocol: "https", hostname: "d2xsxph8kpxj0f.cloudfront.net" },
       { protocol: "https", hostname: "**.cloudfront.net" },
