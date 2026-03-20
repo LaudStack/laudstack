@@ -136,6 +136,7 @@ export async function updateProfile(data: {
   headline?: string;
   website?: string;
   twitterHandle?: string;
+  linkedinUrl?: string;
   jobTitle?: string;
   company?: string;
   useCase?: string;

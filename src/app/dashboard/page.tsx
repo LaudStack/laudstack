@@ -1229,6 +1229,7 @@ function SettingsTab({
         headline: editHeadline,
         website: editWebsite,
         twitterHandle: editTwitter,
+        linkedinUrl: editLinkedin || undefined,
         avatarUrl: avatarUrl || undefined,
       });
       onProfileSaved();

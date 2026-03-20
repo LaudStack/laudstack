@@ -2207,5 +2207,12 @@
 - [x] Remove Google login button
 - [x] Make LinkedIn button slightly smaller with full LinkedIn logo
 - [x] Change divider text "or" to "Or Continue with"
-- [ ] Verify LinkedIn login on live site
+- [x] Verify LinkedIn login on live site
+- [x] Push to GitHub
+
+## LinkedIn Logo + Profile Data
+- [x] Make LinkedIn logo slightly bigger on login page
+- [x] Audit LinkedIn OAuth callback to extract full user data (name, photo, email)
+- [x] Ensure LinkedIn user data populates user profile fully
+- [x] Ensure first-time LinkedIn users redirect to onboarding
 - [ ] Push to GitHub
