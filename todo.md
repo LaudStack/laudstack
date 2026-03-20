@@ -2293,4 +2293,8 @@
 ## Careers & Press Page Rebuilds
 - [x] Fully rebuild the Careers page with comprehensive content
 - [x] Fully rebuild the Press page with comprehensive content
-- [ ] Push all changes to GitHub
+- [x] Push all changes to GitHub
+
+## Vercel Deployment Fix
+- [ ] Diagnose and fix Vercel build failures
+- [ ] Push fixes and confirm deployment goes live

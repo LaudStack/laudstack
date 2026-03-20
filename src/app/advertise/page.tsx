@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import {
-  Star, Zap, Globe,
+  Star, Zap, Globe, CheckCircle,
   ArrowRight, Mail, TrendingUp, Eye, Award, Megaphone
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
