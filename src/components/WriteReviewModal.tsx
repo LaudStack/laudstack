@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { submitReview } from "@/app/actions/public";
 import AuthGateModal from "@/components/AuthGateModal";
+import EmailVerificationModal from "@/components/EmailVerificationModal";
 import { invalidateToolsCache } from "@/hooks/useToolsData";
 
 interface Props {
@@ -52,6 +53,7 @@ export default function WriteReviewModal({
   const [downsides, setDownsides] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const displayRating = hovered || rating;
@@ -132,6 +134,8 @@ export default function WriteReviewModal({
         setSubmitted(true);
         invalidateToolsCache();
         onSuccess?.();
+      } else if (result.error === "EMAIL_NOT_VERIFIED") {
+        setShowVerifyModal(true);
       } else {
         toast.error(result.error || "Failed to submit review");
       }
@@ -144,6 +148,15 @@ export default function WriteReviewModal({
         open={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         action="review"
+      />
+      <EmailVerificationModal
+        open={showVerifyModal}
+        onClose={() => setShowVerifyModal(false)}
+        onVerified={() => {
+          setShowVerifyModal(false);
+          toast.success("Email verified! Please submit your review again.");
+        }}
+        actionLabel="leave a review"
       />
       {open && (
         <div

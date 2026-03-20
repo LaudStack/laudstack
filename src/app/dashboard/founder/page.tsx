@@ -1065,6 +1065,8 @@ function DealsTab() {
       setShowCreateModal(false);
       setNewDeal({ toolId: founderTools[0]?.id ? String(founderTools[0].id) : '', title: '', description: '', dealType: 'discount', discountPercent: '', originalPrice: '', dealPrice: '', couponCode: '', dealUrl: '', expiresAt: '', maxClaims: '100' });
       loadDeals();
+    } else if (res.error === 'EMAIL_NOT_VERIFIED') {
+      toast.error('Please verify your email before creating a deal. Go to your profile settings to verify your email.');
     } else {
       toast.error(res.error || 'Failed to create deal');
     }

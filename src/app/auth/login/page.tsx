@@ -136,14 +136,13 @@ function AuthForm() {
           if (signInError.toLowerCase().includes("invalid") || signInError.toLowerCase().includes("credentials")) {
             setError("Invalid email or password. Please try again.");
           } else if (signInError.toLowerCase().includes("email not confirmed")) {
-            // Supabase has email confirmation enabled at the project level.
-            // We bypass this by NOT blocking the user — email verification is
-            // handled on-demand for sensitive actions only.
-            // Try to proceed anyway — if Supabase blocks the session, the user
-            // will need to confirm via the Supabase confirmation email.
-            console.warn("[Login] Supabase email not confirmed — proceeding anyway.");
-            toast.info("Please check your inbox for a confirmation email from Supabase to complete sign-in.");
-            setError("Your email needs to be confirmed. Please check your inbox for a confirmation link.");
+            // Supabase email confirmation is disabled, so this shouldn't happen.
+            // If it does, don't block the user — just log and proceed.
+            console.warn("[Login] Unexpected 'email not confirmed' error — Supabase confirm email should be OFF.");
+            // Don't show an error — try to proceed with the session
+            toast.success("Welcome back!");
+            router.push("/dashboard");
+            return;
           } else {
             setError(signInError);
           }

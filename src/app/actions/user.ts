@@ -53,6 +53,11 @@ export async function submitReview(data: {
   cons?: string;
 }) {
   const user = await requireAuth();
+
+  // Progressive verification: require email verification to leave a review
+  if (!user.emailVerified) {
+    return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to leave a review." };
+  }
   
   const existing = await db.select().from(reviews)
     .where(and(eq(reviews.toolId, data.toolId), eq(reviews.userId, user.id)))

@@ -281,6 +281,11 @@ export async function createFounderDeal(data: {
   try {
     const user = await requireFounder();
 
+    // Progressive verification: require email verification to create a deal
+    if (!user.emailVerified) {
+      return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to create a deal." };
+    }
+
     // Verify the product belongs to this founder
     const tool = await db.query.tools.findFirst({
       where: and(eq(tools.id, data.toolId), or(eq(tools.submittedBy, user.id), eq(tools.claimedBy, user.id))),

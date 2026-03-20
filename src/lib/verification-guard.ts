@@ -10,7 +10,9 @@
  *   - Launching a stack (submitTool)
  *   - Claiming a stack
  *   - Becoming a marketplace creator
- *   - Password reset (handled separately by Supabase)
+ *   - Leaving a review (stack or marketplace)
+ *   - Creating / publishing deals
+ *   - Verified badge on profile (tied to emailVerified)
  *   - Admin/staff invite acceptance
  *
  * Usage in server actions:
@@ -29,6 +31,9 @@ export const SENSITIVE_ACTIONS = [
   "submit_tool",
   "claim_tool",
   "become_marketplace_creator",
+  "leave_review",
+  "create_deal",
+  "publish_deal",
   "admin_invite",
 ] as const;
 
@@ -42,6 +47,9 @@ export const ACTION_LABELS: Record<SensitiveAction, string> = {
   submit_tool: "launch a stack",
   claim_tool: "claim a stack",
   become_marketplace_creator: "become a marketplace creator",
+  leave_review: "leave a review",
+  create_deal: "create a deal",
+  publish_deal: "publish a deal",
   admin_invite: "accept an admin invite",
 };
 

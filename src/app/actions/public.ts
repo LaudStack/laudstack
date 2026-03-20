@@ -496,6 +496,11 @@ export async function submitReview(data: {
   const user = await getCurrentUser();
   if (!user) return { success: false, error: "Please sign in to submit a review" };
 
+  // Progressive verification: require email verification to leave a review
+  if (!user.emailVerified) {
+    return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to leave a review." };
+  }
+
   // 1. Duplicate protection: one review per user per stack (exclude admin-removed reviews)
   const existing = await db.query.reviews.findFirst({
     where: and(

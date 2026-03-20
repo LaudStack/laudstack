@@ -34,6 +34,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Progressive verification: require email verification to publish a deal
+    if (!dbUser.emailVerified) {
+      return NextResponse.json(
+        { error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to publish a deal." },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const { dealId, plan } = body as { dealId: number; plan: string };
 

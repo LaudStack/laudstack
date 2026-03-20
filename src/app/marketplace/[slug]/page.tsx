@@ -214,6 +214,8 @@ function WriteReviewForm({ productId, onReviewSubmitted }: { productId: number; 
         toast.success("Review submitted! Thank you for your feedback.");
         setSubmitted(true);
         onReviewSubmitted();
+      } else if (res.error === "EMAIL_NOT_VERIFIED") {
+        toast.error("Please verify your email before leaving a review. Go to your profile settings to verify.");
       } else {
         toast.error(res.error || "Failed to submit review");
       }

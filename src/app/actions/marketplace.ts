@@ -737,6 +737,11 @@ export async function submitReview(data: {
   try {
     const user = await requireAuth();
 
+    // Progressive verification: require email verification to leave a review
+    if (!user.emailVerified) {
+      return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to leave a review." };
+    }
+
     // Must have purchased
     const [order] = await db.select().from(marketplaceOrders)
       .where(

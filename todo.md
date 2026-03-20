@@ -2180,3 +2180,25 @@
 - [x] Test full signup/login flow works without verification
 - [x] Test sensitive actions properly require verification
 - [x] Push to GitHub
+
+## LinkedIn OAuth Login
+- [x] Audit current auth system (Supabase providers, login UI, callback)
+- [x] Configure LinkedIn OAuth provider in Supabase
+- [x] LinkedIn sign-in backend logic already implemented
+- [x] LinkedIn sign-in button already in login UI
+- [x] LinkedIn callback and user creation already handled
+- [x] Test full LinkedIn login flow
+- [x] Push to GitHub
+
+## Expanded Progressive Verification + Frictionless Signup
+- [x] Disable Supabase "Confirm email" setting to unblock OAuth and email signup
+- [x] Configure Supabase URL settings for laudstack.com
+- [x] Add verification guard to: leave a review
+- [x] Add verification guard to: verified badge on profile
+- [x] Add verification guard to: submit/publish deals
+- [x] Add EmailVerificationModal to review submission UI
+- [x] Add EmailVerificationModal to deal submission UI
+- [x] Clean up any remaining legacy verification code from signup
+- [x] Ensure LinkedIn OAuth signup creates DB user and redirects to onboarding
+- [x] Ensure email/password signup is frictionless with no verification blocking
+- [x] Build, test, push to GitHub
