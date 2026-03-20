@@ -351,12 +351,38 @@ export default function Home() {
               <div className="absolute" style={{ bottom: '32%', left: '8%', width: '50px', height: '50px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 15px rgba(217,183,11,0.06)', pointerEvents: 'none' }} />
               <div className="absolute" style={{ top: '55%', right: '3%', width: '95px', height: '95px', borderRadius: '50%', border: '1.5px solid rgba(217,183,11,0.12)', background: 'rgba(217,183,11,0.05)', boxShadow: 'inset 0 0 20px rgba(217,183,11,0.1)', pointerEvents: 'none' }} />
               
-              {/* Vertical accent stripes — refined with gradient flow */}
-              <div className="absolute" style={{ left: '10%', top: '0', width: '2.5px', height: '100%', background: 'linear-gradient(180deg, rgba(217,183,11,0.16) 0%, rgba(217,183,11,0.04) 40%, rgba(217,183,11,0.1) 100%)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ left: '26%', top: '0', width: '1px', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.06) 100%)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ left: '50%', top: '0', width: '2px', height: '100%', background: 'linear-gradient(180deg, rgba(217,183,11,0.14) 0%, rgba(217,183,11,0.03) 45%, rgba(217,183,11,0.12) 100%)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ right: '26%', top: '0', width: '1px', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.08) 100%)', pointerEvents: 'none' }} />
-              <div className="absolute" style={{ right: '10%', top: '0', width: '2.5px', height: '100%', background: 'linear-gradient(180deg, rgba(217,183,11,0.1) 0%, rgba(217,183,11,0.04) 40%, rgba(217,183,11,0.14) 100%)', pointerEvents: 'none' }} />
+              {/* Premium decorative swirl stripes — flowing curves */}
+              <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }} preserveAspectRatio="none" viewBox="0 0 1200 400">
+                <defs>
+                  <linearGradient id="swirl1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(217,183,11,0.18)" />
+                    <stop offset="50%" stopColor="rgba(217,183,11,0.06)" />
+                    <stop offset="100%" stopColor="rgba(217,183,11,0.12)" />
+                  </linearGradient>
+                  <linearGradient id="swirl2" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.1)" />
+                    <stop offset="50%" stopColor="rgba(255,255,255,0.03)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
+                  </linearGradient>
+                  <linearGradient id="swirl3" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(217,183,11,0.14)" />
+                    <stop offset="45%" stopColor="rgba(217,183,11,0.03)" />
+                    <stop offset="100%" stopColor="rgba(217,183,11,0.12)" />
+                  </linearGradient>
+                </defs>
+                {/* Left swirl curves */}
+                <path d="M 120 0 Q 100 100, 120 200 T 120 400" stroke="url(#swirl1)" strokeWidth="3" fill="none" strokeLinecap="round" />
+                <path d="M 310 0 Q 290 120, 310 240 T 310 400" stroke="url(#swirl2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Center swirl curves */}
+                <path d="M 600 0 Q 580 110, 600 220 T 600 400" stroke="url(#swirl3)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                <path d="M 620 0 Q 640 100, 620 200 T 620 400" stroke="url(#swirl1)" strokeWidth="2" fill="none" strokeLinecap="round" />
+                {/* Right swirl curves */}
+                <path d="M 890 0 Q 910 120, 890 240 T 890 400" stroke="url(#swirl2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                <path d="M 1080 0 Q 1100 100, 1080 200 T 1080 400" stroke="url(#swirl1)" strokeWidth="3" fill="none" strokeLinecap="round" />
+                {/* Additional flowing accent swirls */}
+                <path d="M 200 0 Q 220 150, 200 300 T 200 400" stroke="url(#swirl2)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6" />
+                <path d="M 1000 0 Q 980 140, 1000 280 T 1000 400" stroke="url(#swirl2)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6" />
+              </svg>
               
               {/* Diagonal accent elements for depth and sophistication */}
               <div className="absolute" style={{ top: '8%', left: '4%', width: '170px', height: '1.5px', background: 'linear-gradient(45deg, rgba(217,183,11,0.12) 0%, transparent 100%)', transform: 'rotate(-18deg)', pointerEvents: 'none' }} />
