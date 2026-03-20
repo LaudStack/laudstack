@@ -2272,3 +2272,10 @@
 - [ ] Fix all console errors/warnings in auth/onboarding flows
 - [ ] Eliminate dead ends and stuck states
 - [ ] Push to GitHub
+
+## Footer & Page Layout Fixes
+- [ ] Audit all footer links — identify which pages lack Navbar/Footer wrapper
+- [ ] Remove/hide founder-only links from footer for non-logged-in users
+- [ ] Wrap all public pages in proper Navbar/Footer layout
+- [ ] Review footer menu structure — ensure it reflects platform positioning
+- [ ] Push to GitHub
