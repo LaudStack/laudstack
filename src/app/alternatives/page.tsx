@@ -5,7 +5,7 @@
  * Search for any stack and discover top-rated alternatives in the same category.
  * Shows a search-driven workflow with popular stacks grid as the default view.
  */
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect , Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Search,
@@ -221,7 +221,7 @@ function AlternativeRowSkeleton() {
 }
 
 /* ─── Main Page ─────────────────────────────────────────────────────────────── */
-export default function AlternativesPage() {
+function AlternativesPageContent() {
   const { tools: allTools, loading } = useToolsData();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -551,5 +551,18 @@ export default function AlternativesPage() {
 
       <Footer />
     </div>
+  );
+}
+
+// ─── Suspense wrapper required for useSearchParams ────────────────────────────
+export default function AlternativesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <AlternativesPageContent />
+    </Suspense>
   );
 }

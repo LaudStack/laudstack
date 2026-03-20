@@ -1,11 +1,12 @@
 "use client";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CheckCircle, Download, ArrowRight, Package } from "lucide-react";
 
-export default function PurchaseSuccessPage() {
+function PurchaseSuccessContent() {
   const searchParams = useSearchParams();
   const productSlug = searchParams?.get("product") ?? null;
 
@@ -72,5 +73,18 @@ export default function PurchaseSuccessPage() {
 
       <Footer />
     </div>
+  );
+}
+
+// ─── Suspense wrapper required for useSearchParams ────────────────────────────
+export default function PurchaseSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <PurchaseSuccessContent />
+    </Suspense>
   );
 }

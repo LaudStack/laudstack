@@ -4,9 +4,9 @@
  * Design: Clean white sidebar layout, amber accents, data-rich profile view
  * Tabs: Profile · My Reviews · Saved Products · Deals · Notifications · Settings
  */
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   User, Star, Bookmark, Settings, Bell, Shield,
   Edit3, Camera, CheckCircle, TrendingUp, MessageSquare, Heart,
@@ -2114,12 +2114,25 @@ function DealsTab() {
 
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
-export default function Dashboard() {
+function DashboardContent() {
   const { tools: allTools, reviews: allReviews, loading: toolsLoading } = useToolsData();
-  const [activeTab, setActiveTab] = useState<Tab>('profile');
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get('tab') as Tab | null;
+  const VALID_TABS: Tab[] = ['profile', 'reviews', 'saved', 'following', 'purchases', 'offers', 'deals', 'notifications', 'settings'];
+  const [activeTab, setActiveTab] = useState<Tab>(
+    tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'profile'
+  );
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { dbUser, loading: dbLoading, refetch: refetchDbUser } = useDbUser();
   const router = useRouter();
+
+  // Sync tab with URL param changes (e.g. when Navbar pushes ?tab=notifications)
+  useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam]);
 
   const founderStatus = dbUser?.founderStatus ?? 'none';
   const isVerifiedFounder = founderStatus === 'verified';
@@ -2310,5 +2323,18 @@ export default function Dashboard() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+// ─── Suspense wrapper required for useSearchParams ────────────────────────────
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }

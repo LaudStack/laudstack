@@ -11,7 +11,7 @@
  * - Polished empty state with suggestions
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef , Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, X, ArrowRight, Sparkles, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -58,7 +58,7 @@ function CardSkeleton() {
   );
 }
 
-export default function SearchResults() {
+function SearchResultsContent() {
   const searchStr = useSearchParams();
   const initialQ = searchStr?.get('q') || '';
 
@@ -422,5 +422,18 @@ export default function SearchResults() {
 
       <Footer />
     </div>
+  );
+}
+
+// ─── Suspense wrapper required for useSearchParams ────────────────────────────
+export default function SearchResults() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SearchResultsContent />
+    </Suspense>
   );
 }

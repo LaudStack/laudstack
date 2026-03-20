@@ -19,7 +19,7 @@ function getDb() {
       idle_timeout: 20,
       connect_timeout: 30,
       ssl: 'require',
-      prepare: false, // Required for Supabase transaction-mode pooler (port 5432)
+      prepare: false, // Required for Supabase transaction-mode pooler (port 6543)
     });
     _db = drizzle(client, { schema });
   }

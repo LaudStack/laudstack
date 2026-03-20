@@ -1,7 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback , Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -154,7 +154,7 @@ function FeaturedSection({ products }: { products: any[] }) {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default function MarketplaceBrowsePage() {
+function MarketplaceBrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -427,5 +427,18 @@ export default function MarketplaceBrowsePage() {
 
       <Footer />
     </div>
+  );
+}
+
+// ─── Suspense wrapper required for useSearchParams ────────────────────────────
+export default function MarketplaceBrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <MarketplaceBrowseContent />
+    </Suspense>
   );
 }

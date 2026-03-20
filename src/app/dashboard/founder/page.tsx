@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
  * All 7 tabs fully functional with real server actions
  * Tabs: Overview · My Products · Reviews (reply) · Deals · Analytics · Promote · Settings
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LogoWithFallback from '@/components/LogoWithFallback';
@@ -2611,7 +2611,7 @@ function FounderSettingsTab({ dbUser }: { dbUser: any }) {
 }
 
 // ─── Main Founder Dashboard ───────────────────────────────────────────────────
-export default function FounderDashboard() {
+function FounderDashboardContent() {
   const searchParams = useSearchParams();
   const tabParam = (searchParams?.get('tab') ?? null) as Tab | null;
   const [activeTab, setActiveTab] = useState<Tab>(tabParam && ['overview','tools','reviews','deals','lauds','analytics','promote','claims','settings'].includes(tabParam) ? tabParam : 'overview');
@@ -2805,5 +2805,18 @@ export default function FounderDashboard() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+// ─── Suspense wrapper required for useSearchParams ────────────────────────────
+export default function FounderDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <FounderDashboardContent />
+    </Suspense>
   );
 }
