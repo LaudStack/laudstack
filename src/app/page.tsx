@@ -1,4 +1,6 @@
 
+'use client';
+
 /*
  * LaudStack Homepage — 100% Aggregator X Template Match
  *
