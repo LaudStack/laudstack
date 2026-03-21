@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import type { Tool } from "@/lib/types";
 import { useSavedTools } from "@/hooks/useSavedTools";
 import { useLaudedTools } from "@/hooks/useLaudedTools";
+import { invalidateToolsCache } from "@/hooks/useToolsData";
 import AuthGateModal from "@/components/AuthGateModal";
 
 // ─── Badge config ─────────────────────────────────────────────────────────────
@@ -285,10 +286,13 @@ function useLaudGlobal(tool: Tool) {
           }
           if (result.newCount !== undefined) {
             setUpvoteCount(result.newCount);
+            invalidateToolsCache();
           } else if (result.lauded === wasUpvoted) {
             // Toggle failed silently — revert count
             setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
             toast.error("Failed to laud");
+          } else {
+            invalidateToolsCache();
           }
         } catch {
           // Revert optimistic count on error

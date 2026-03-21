@@ -27,6 +27,7 @@ import FeaturedStacksSidebar from '@/components/FeaturedStacksSidebar';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
 import { useLaudedTools } from '@/hooks/useLaudedTools';
+import { useAuth } from '@/hooks/useAuth';
 import { CATEGORY_META } from '@/lib/categories';
 import type { Tool } from '@/lib/types';
 
@@ -208,7 +209,7 @@ export default function CommunityPicks() {
 
   // Global laud hook — single source of truth, syncs with all other pages
   const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
-
+  const { isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('all_time');
   const [searchQuery, setSearchQuery] = useState('');
@@ -219,14 +220,16 @@ export default function CommunityPicks() {
   const [laudCountOverrides, setLaudCountOverrides] = useState<Record<string, number>>({});
 
   const handleVote = useCallback(async (id: string) => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
     const wasVoted = isLauded(id);
-
     // Optimistic count update
     setLaudCountOverrides(prev => ({
       ...prev,
       [id]: (prev[id] ?? 0) + (wasVoted ? -1 : 1),
     }));
-
     if (!wasVoted) toast.success('Lauded! Thanks for supporting the community.');
 
     try {
@@ -253,13 +256,14 @@ export default function CommunityPicks() {
       }
 
       if (result.newCount !== undefined) {
-        // Reconcile with confirmed server count
-        const baseTool = allTools.find(t => t.id === id);
-        const baseCount = baseTool?.upvote_count ?? 0;
-        setLaudCountOverrides(prev => ({
-          ...prev,
-          [id]: result.newCount! - baseCount,
-        }));
+        // Clear the override so the freshly-fetched upvote_count is used directly.
+        // Setting a delta of (newCount - staleBase) would double-count once the
+        // cache refetches and allTools gets the updated value.
+        setLaudCountOverrides(prev => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
         invalidateToolsCache();
       }
     } catch {
@@ -270,7 +274,7 @@ export default function CommunityPicks() {
       }));
       toast.error('Something went wrong. Please try again.');
     }
-  }, [isLauded, toggleLaudGlobal, allTools]);
+  }, [isAuthenticated, isLauded, toggleLaudGlobal, allTools]);
 
   const filteredTools = useMemo(() => {
     let tools = [...allTools];

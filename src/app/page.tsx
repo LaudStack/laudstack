@@ -39,7 +39,7 @@ import Footer from '@/components/Footer';
 import LogoWithFallback from '@/components/LogoWithFallback';
 
 import { useRouter } from 'next/navigation';
-import { useToolsData } from '@/hooks/useToolsData';
+import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
 import { useLaudedTools } from '@/hooks/useLaudedTools';
 import AuthGateModal from '@/components/AuthGateModal';
 import { trpc } from '@/lib/trpc/client';
@@ -190,9 +190,12 @@ function ProductCard({
           }
           if (result.newCount !== undefined) {
             setUpvoteCount(result.newCount);
+            invalidateToolsCache();
           } else if (result.lauded === wasUpvoted) {
             setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
             toast.error('Failed to laud');
+          } else {
+            invalidateToolsCache();
           }
         } catch {
           setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));

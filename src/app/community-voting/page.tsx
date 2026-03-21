@@ -328,13 +328,14 @@ export default function CommunityVotingPage() {
           }));
           toast.error(result.error || "Failed to update vote");
         } else if (result.newCount !== undefined) {
-          // Reconcile with server count
-          const baseTool = allTools.find((t) => t.id === id);
-          const baseCount = baseTool?.upvote_count ?? 0;
-          setLaudCountOverrides((prev) => ({
-            ...prev,
-            [id]: result.newCount! - baseCount,
-          }));
+          // Clear the override so the freshly-fetched upvote_count is used directly.
+          // Setting a delta of (newCount - staleBase) would double-count once the
+          // cache refetches and allTools gets the updated value.
+          setLaudCountOverrides((prev) => {
+            const next = { ...prev };
+            delete next[id];
+            return next;
+          });
           invalidateToolsCache();
         }
       } catch {
