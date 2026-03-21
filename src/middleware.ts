@@ -16,6 +16,10 @@ import { createServerClient } from "@supabase/ssr";
  * Role enforcement:
  *    - Staff/admin users are blocked from /dashboard and /onboarding
  *    - Regular users are blocked from /ops-console (except /gate)
+ *
+ * Performance:
+ *    - Prefetch requests skip the getUserRole DB call to reduce latency
+ *    - getUserRole is only called when a redirect decision is needed
  */
 
 // Staff roles that should be redirected to admin panel
@@ -48,6 +52,14 @@ async function getUserRole(supabaseId: string): Promise<string | null> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ─── Skip prefetch requests for protected routes ───────────────────────
+  // Next.js App Router sends prefetch requests ahead of navigation.
+  // These don't need the full getUserRole DB check — the actual navigation
+  // will be protected. Skipping here reduces latency on link hover/prefetch.
+  const isPrefetch =
+    request.headers.get("next-router-prefetch") === "1" ||
+    request.headers.get("purpose") === "prefetch";
 
   // ─── SEO URL Rewrites ──────────────────────────────────────────────────
   // /chatgpt-alternatives → /alt/chatgpt
@@ -130,17 +142,20 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set("redirect", pathname);
       return NextResponse.redirect(url);
     }
-    // Check if the user is a staff/admin — redirect them to admin panel
-    const role = await getUserRole(user.id);
-    if (role && STAFF_ROLES.has(role)) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/ops-console/dashboard";
-      return NextResponse.redirect(url);
+    // Skip the DB role check on prefetch requests — actual navigation will enforce it
+    if (!isPrefetch) {
+      // Check if the user is a staff/admin — redirect them to admin panel
+      const role = await getUserRole(user.id);
+      if (role && STAFF_ROLES.has(role)) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/ops-console/dashboard";
+        return NextResponse.redirect(url);
+      }
     }
   }
 
   // Onboarding — block staff/admin users (they don't need user onboarding)
-  if (pathname === "/onboarding" && user) {
+  if (pathname === "/onboarding" && user && !isPrefetch) {
     const role = await getUserRole(user.id);
     if (role && STAFF_ROLES.has(role)) {
       const url = request.nextUrl.clone();

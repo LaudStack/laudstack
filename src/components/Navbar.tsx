@@ -31,6 +31,21 @@ import { getInitials } from '@/lib/utils';
 import { useSavedTools } from '@/hooks/useSavedTools';
 import { getUnreadNotificationCount } from '@/app/actions/notifications';
 
+/* ── Module-level notification count cache ──
+ * Prevents re-fetching on every Navbar mount (Next.js re-mounts layout on navigation).
+ * Cache expires after 30 seconds to stay fresh. */
+let _cachedNotifCount = 0;
+let _notifCacheTs = 0;
+const NOTIF_CACHE_TTL = 30_000; // 30 seconds
+function getCachedNotifCount(): number | null {
+  if (Date.now() - _notifCacheTs < NOTIF_CACHE_TTL) return _cachedNotifCount;
+  return null;
+}
+function setCachedNotifCount(n: number) {
+  _cachedNotifCount = n;
+  _notifCacheTs = Date.now();
+}
+
 /* ── Color constants ── */
 const NAVY = '#0C1830';           // primary text
 const NAVY_LIGHT = '#1E3A5F';     // lighter navy for hover
@@ -103,15 +118,19 @@ export default function Navbar() {
   const { dbUser } = useDbUser();
   const { savedIds } = useSavedTools();
   const avatarRef = useRef<HTMLDivElement>(null);
-  const [navUnreadCount, setNavUnreadCount] = useState(0);
-
-  // Poll for unread notification count
+  // Initialise from module-level cache to avoid flicker on re-mount
+  const [navUnreadCount, setNavUnreadCount] = useState(() => getCachedNotifCount() ?? 0);
+  // Poll for unread notification count (with module-level cache to prevent re-fetch on every mount)
   useEffect(() => {
     if (!isAuthenticated) return;
     const fetchCount = () => {
-      getUnreadNotificationCount().then(setNavUnreadCount).catch(() => {});
+      getUnreadNotificationCount().then(n => {
+        setCachedNotifCount(n);
+        setNavUnreadCount(n);
+      }).catch(() => {});
     };
-    fetchCount();
+    // Only fetch immediately if cache is stale
+    if (getCachedNotifCount() === null) fetchCount();
     const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
@@ -607,8 +626,8 @@ export default function Navbar() {
                   {authLoading ? (
                     /* Skeleton placeholder while auth is loading — prevents flash */
                     <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 animate-pulse" />
-                      <div className="w-9 h-9 rounded-full bg-slate-100 animate-pulse" />
+                      <div className="w-10 h-10 rounded-full animate-pulse" style={{ background: 'rgba(255,255,255,0.15)' }} />
+                      <div className="w-9 h-9 rounded-full animate-pulse" style={{ background: 'rgba(255,255,255,0.15)' }} />
                     </div>
                   ) : isAuthenticated && user ? (
                     <>
@@ -680,6 +699,7 @@ export default function Navbar() {
                                   ].map(item => (
                                     <button
                                       key={item.label}
+                                      onPointerDown={e => e.preventDefault()}
                                       onClick={() => { router.push(item.href); setAvatarOpen(false); }}
                                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                       style={{ fontSize: '14px', color: '#334155' }}
@@ -692,6 +712,7 @@ export default function Navbar() {
                                   ))}
                                   {isVerifiedFounder && (
                                     <button
+                                      onPointerDown={e => e.preventDefault()}
                                       onClick={() => { router.push('/dashboard/founder'); setAvatarOpen(false); }}
                                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                       style={{ fontSize: '14px', color: '#D97706' }}
@@ -707,6 +728,7 @@ export default function Navbar() {
                             </div>
                             <div className="border-t border-slate-200 py-1.5">
                               <button
+                                onPointerDown={e => e.preventDefault()}
                                 onClick={handleSignOut}
                                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                                 style={{ fontSize: '14px', color: '#EF4444' }}
@@ -808,6 +830,7 @@ export default function Navbar() {
                         <div className="py-1.5">
                           {isStaffUser ? (
                             <button
+                              onPointerDown={e => e.preventDefault()}
                               onClick={() => { router.push('/ops-console/dashboard'); setAvatarOpen(false); }}
                               className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors bg-transparent border-none cursor-pointer"
                               style={{ fontSize: '14px', color: '#D97706', fontWeight: 600 }}

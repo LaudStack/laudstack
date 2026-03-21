@@ -664,7 +664,7 @@ function ReviewsTab() {
 function SavedTab() {
   const { tools: allTools } = useToolsData();
   const { savedIds, toggle } = useSavedTools();
-  const tools = allTools.filter((t: any) => savedIds.includes(t.id));
+  const tools = allTools.filter((t: any) => savedIds.includes(String(t.id)));
 
   return (
     <div className="space-y-4">
@@ -2115,7 +2115,6 @@ function DealsTab() {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 function DashboardContent() {
-  const { tools: allTools, reviews: allReviews, loading: toolsLoading } = useToolsData();
   const searchParams = useSearchParams();
   const tabParam = searchParams?.get('tab') as Tab | null;
   const VALID_TABS: Tab[] = ['profile', 'reviews', 'saved', 'following', 'purchases', 'offers', 'deals', 'notifications', 'settings'];
@@ -2327,13 +2326,41 @@ function DashboardContent() {
 }
 
 // ─── Suspense wrapper required for useSearchParams ────────────────────────────
+function DashboardSkeleton() {
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="h-[60px] lg:h-[64px]" />
+      <div className="max-w-[1400px] mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <div className="h-7 w-48 bg-slate-200 rounded-lg" />
+              <div className="h-4 w-32 bg-slate-100 rounded-lg mt-2" />
+            </div>
+            <div className="h-10 w-40 bg-slate-200 rounded-xl" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
+              <div className="h-12 bg-slate-100 rounded-xl" />
+              <div className="h-10 bg-slate-100 rounded-xl" />
+              <div className="h-10 bg-slate-100 rounded-xl" />
+              <div className="h-10 bg-slate-100 rounded-xl" />
+            </div>
+            <div className="lg:col-span-3 space-y-4">
+              <div className="bg-white border border-slate-200 rounded-2xl h-64" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[1,2,3,4].map(i => <div key={i} className="bg-white border border-slate-200 rounded-2xl h-24" />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function Dashboard() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    }>
+    <Suspense fallback={<DashboardSkeleton />}>
       <DashboardContent />
     </Suspense>
   );
