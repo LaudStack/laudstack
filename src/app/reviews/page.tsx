@@ -9,7 +9,7 @@
  * Sort by: most recent, most helpful, highest rated, lowest rated
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Star, ThumbsUp, Shield, ChevronDown,
@@ -20,6 +20,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import { getAllPublishedReviews, markReviewHelpful } from '@/app/actions/public';
+import { useAuth } from '@/hooks/useAuth';
+import AuthGateModal from '@/components/AuthGateModal';
 import { toast } from 'sonner';
 
 const SORT_OPTIONS = [
@@ -123,8 +125,9 @@ function HeroSkeleton() {
 
 // ─── Review Card ─────────────────────────────────────────────────────────────
 
-function ReviewCard({ review }: { review: any }) {
+function ReviewCard({ review, onAuthRequired }: { review: any; onAuthRequired: () => void }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [helpful, setHelpful] = useState(review.helpful_count ?? 0);
   const [voted, setVoted] = useState(false);
 
@@ -144,6 +147,8 @@ function ReviewCard({ review }: { review: any }) {
 
   const handleHelpful = async () => {
     if (voted) return;
+    // Gate behind auth — show modal instead of silently failing
+    if (!user) { onAuthRequired(); return; }
     setVoted(true);
     setHelpful((h: number) => h + 1);
     const result = await markReviewHelpful(parseInt(review.id, 10));
@@ -265,6 +270,10 @@ export default function ReviewsPage() {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [searchQuery, setSearchQuery]   = useState('');
   const [showFilters, setShowFilters]   = useState(false);
+
+  // Auth gate for helpful voting
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const handleAuthRequired = useCallback(() => setShowAuthModal(true), []);
 
   // Fetch ALL published reviews from server action
   useEffect(() => {
@@ -495,7 +504,7 @@ export default function ReviewsPage() {
         {filtered.length > 0 ? (
           <div className="space-y-4">
             {filtered.map(review => (
-              <ReviewCard key={review.id} review={review} />
+              <ReviewCard key={review.id} review={review} onAuthRequired={handleAuthRequired} />
             ))}
           </div>
         ) : (
@@ -522,6 +531,14 @@ export default function ReviewsPage() {
       </div>
 
       <Footer />
+
+      {/* Auth gate modal for helpful voting */}
+      <AuthGateModal
+        open={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        action="helpful_vote"
+        message="Sign in to mark reviews as helpful"
+      />
     </div>
   );
 }

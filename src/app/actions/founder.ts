@@ -77,7 +77,8 @@ export async function getFounderReviews() {
       })
       .from(reviews)
       .leftJoin(users, eq(reviews.userId, users.id))
-      .where(inArray(reviews.toolId, toolIds))
+      // Founders only see published and pending reviews — not hidden/removed by admin
+      .where(and(inArray(reviews.toolId, toolIds), inArray(reviews.status, ["published", "pending"])))
       .orderBy(desc(reviews.createdAt));
 
     // Enrich with tool info and compute display name

@@ -41,17 +41,19 @@ export async function GET(request: NextRequest) {
       // Total counts
       db.select({ count: count() }).from(users),
       db.select({ count: count() }).from(tools).where(eq(tools.status, "approved")),
-      db.select({ count: count() }).from(reviews),
+      // Only count published reviews for platform stats
+      db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
       // Today's new items (last 24 hours)
       db.select({ count: count() }).from(users).where(gte(users.createdAt, oneDayAgo)),
       db.select({ count: count() }).from(tools).where(gte(tools.createdAt, oneDayAgo)),
-      db.select({ count: count() }).from(reviews).where(gte(reviews.createdAt, oneDayAgo)),
+      // New published reviews today
+      db.select({ count: count() }).from(reviews).where(and(eq(reviews.status, "published"), gte(reviews.createdAt, oneDayAgo))),
       // Pending action items
       db.select({ count: count() }).from(toolSubmissions).where(eq(toolSubmissions.status, "pending")),
       db.select({ count: count() }).from(toolClaims).where(eq(toolClaims.status, "pending")),
       db.select({ count: count() }).from(reviews).where(eq(reviews.status, "pending")),
-      // Average rating
-      db.select({ avg: sql<number>`COALESCE(AVG(${reviews.rating}), 0)` }).from(reviews),
+      // Average rating (published reviews only)
+      db.select({ avg: sql<number>`COALESCE(AVG(${reviews.rating}), 0)` }).from(reviews).where(eq(reviews.status, "published")),
     ]);
 
     const digestData = {

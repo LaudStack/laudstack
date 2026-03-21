@@ -45,6 +45,7 @@ export async function updateFounderProfile(data: {
 // ─── Reviews ──────────────────────────────────────────────────────────────────────────────
 
 export async function getUserReviews() {
+  try {
   const user = await requireAuth();
   const rows = await db
     .select({
@@ -72,6 +73,9 @@ export async function getUserReviews() {
     .where(eq(reviews.userId, user.id))
     .orderBy(sql`${reviews.createdAt} DESC`);
   return rows;
+  } catch {
+    return [];
+  }
 }
 
 // ─── Profile ──────────────────────────────────────────────────────────────────

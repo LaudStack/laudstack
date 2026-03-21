@@ -15,7 +15,7 @@
 import React, { useState } from "react";
 import {
   X, Mail, Lock, Eye, EyeOff, User, ArrowRight,
-  AlertCircle, LogIn, Star, Bookmark, Tag, MessageSquare,
+  AlertCircle, LogIn, Star, Bookmark, Tag, MessageSquare, ThumbsUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,8 @@ import LaudIcon from "@/components/LaudIcon";
 interface Props {
   open: boolean;
   onClose: () => void;
-  action?: "upvote" | "laud" | "review" | "save" | "claim" | "claim_deal" | "comment" | "general";
+  action?: "upvote" | "laud" | "review" | "save" | "claim" | "claim_deal" | "comment" | "helpful_vote" | "general";
+  message?: string;
 }
 
 const ACTION_CONFIG: Record<
@@ -68,6 +69,11 @@ const ACTION_CONFIG: Record<
     icon: MessageSquare,
     title: "Sign in to Comment",
     description: "Join the conversation — share your thoughts, ask questions, and engage with the community.",
+  },
+  helpful_vote: {
+    icon: ThumbsUp,
+    title: "Sign in to Vote",
+    description: "Sign in to mark reviews as helpful and support the community.",
   },
   general: {
     icon: LogIn,

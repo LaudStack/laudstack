@@ -37,7 +37,7 @@ export async function getAdminStats() {
     ] = await Promise.all([
       db.select({ count: count() }).from(users),
       db.select({ count: count() }).from(tools),
-      db.select({ count: count() }).from(reviews),
+      db.select({ count: count() }).from(reviews).where(eq(reviews.status, "published")),
       db.select({ count: count() }).from(toolSubmissions).where(eq(toolSubmissions.status, "pending")),
       db.select({ count: count() }).from(toolClaims).where(eq(toolClaims.status, "pending")),
       db.select({ count: count() }).from(users).where(eq(users.founderStatus, "pending")),
