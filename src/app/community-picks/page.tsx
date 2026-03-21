@@ -6,9 +6,14 @@
  * Tools voted to the top by the LaudStack community.
  * Sorted by laud count; filterable by category and time period.
  * Design: light, consistent with platform theme — amber accents, slate typography.
+ *
+ * Laud state is managed via the global useLaudedTools hook — same source of
+ * truth as ToolCard, community-voting, launches, and the tool detail page.
+ * No isolated votedIds / laudCounts state — eliminates cross-page inconsistency
+ * and the "lauds disappear after refresh" bug.
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import LogoWithFallback from '@/components/LogoWithFallback';
 import {
@@ -20,9 +25,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FeaturedStacksSidebar from '@/components/FeaturedStacksSidebar';
 import AuthGateModal from '@/components/AuthGateModal';
-import { useToolsData } from '@/hooks/useToolsData';
-import { useAuth } from '@/hooks/useAuth';
-import { toggleLaud, getUserLaudedToolIds } from '@/app/actions/laud';
+import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
+import { useLaudedTools } from '@/hooks/useLaudedTools';
 import { CATEGORY_META } from '@/lib/categories';
 import type { Tool } from '@/lib/types';
 
@@ -148,7 +152,7 @@ function CommunityPickCard({
         </div>
       </div>
 
-      {/* Laud */}
+      {/* Laud button */}
       <button
         onClick={e => { e.stopPropagation(); onVote(tool.id); }}
         className="flex-shrink-0 flex flex-col items-center justify-center transition-all cursor-pointer"
@@ -176,7 +180,7 @@ function CommunityPickCard({
         }}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
-          <path fill="#FFFFFF" stroke="currentColor" strokeWidth="1.5" d="M6.579 3.467c.71-1.067 2.132-1.067 2.842 0L12.975 8.8c.878 1.318.043 3.2-1.422 3.2H4.447c-1.464 0-2.3-1.882-1.422-3.2z" />
+          <path fill={voted ? '#FEF3C7' : '#FFFFFF'} stroke="currentColor" strokeWidth="1.5" d="M6.579 3.467c.71-1.067 2.132-1.067 2.842 0L12.975 8.8c.878 1.318.043 3.2-1.422 3.2H4.447c-1.464 0-2.3-1.882-1.422-3.2z" />
         </svg>
         <span className="tabular-nums" style={{ fontSize: 14, fontWeight: 800 }}>
           {(tool.upvote_count + laudCountOffset).toLocaleString()}
@@ -202,55 +206,71 @@ function CommunityPickCard({
 export default function CommunityPicks() {
   const { tools: allTools, loading: toolsLoading } = useToolsData();
 
+  // Global laud hook — single source of truth, syncs with all other pages
+  const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('all_time');
   const [searchQuery, setSearchQuery] = useState('');
-  const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
-  const [laudCounts, setLaudCounts] = useState<Record<string, number>>({});
   const [visibleCount, setVisibleCount] = useState(20);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { isAuthenticated } = useAuth();
 
-  // Initialize voted state from DB
-  useEffect(() => {
-    if (!isAuthenticated) { setVotedIds(new Set()); return; }
-    getUserLaudedToolIds().then(ids => {
-      setVotedIds(new Set(ids.map(String)));
-    }).catch(() => {});
-  }, [isAuthenticated]);
+  // Local count overrides: delta on top of base tool.upvote_count (optimistic)
+  const [laudCountOverrides, setLaudCountOverrides] = useState<Record<string, number>>({});
 
-  const handleVote = async (id: string) => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    if (votedIds.has(id)) {
-      // Un-laud
-      setVotedIds(prev => { const next = new Set(Array.from(prev)); next.delete(id); return next; });
-      setLaudCounts(prev => ({ ...prev, [id]: Math.max(0, (prev[id] ?? 0) - 1) }));
-      const result = await toggleLaud(parseInt(id, 10));
-      if (!result.success) {
-        setVotedIds(prev => { const next = new Set(Array.from(prev)); next.add(id); return next; });
-        setLaudCounts(prev => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
-        toast.error(result.error || 'Failed to remove laud');
-      } else if (result.newCount !== undefined) {
-        setLaudCounts(prev => ({ ...prev, [id]: result.newCount! - (allTools.find(t => t.id === id)?.upvote_count ?? 0) }));
+  const handleVote = useCallback(async (id: string) => {
+    const wasVoted = isLauded(id);
+
+    // Optimistic count update
+    setLaudCountOverrides(prev => ({
+      ...prev,
+      [id]: (prev[id] ?? 0) + (wasVoted ? -1 : 1),
+    }));
+
+    if (!wasVoted) toast.success('Lauded! Thanks for supporting the community.');
+
+    try {
+      const result = await toggleLaudGlobal(id);
+
+      if (result.requiresAuth) {
+        // Revert optimistic count and show auth modal
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [id]: (prev[id] ?? 0) + (wasVoted ? 1 : -1),
+        }));
+        setShowAuthModal(true);
+        return;
       }
-      return;
+
+      if (result.error) {
+        // Rollback on server error
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [id]: (prev[id] ?? 0) + (wasVoted ? 1 : -1),
+        }));
+        toast.error(result.error || 'Failed to update vote');
+        return;
+      }
+
+      if (result.newCount !== undefined) {
+        // Reconcile with confirmed server count
+        const baseTool = allTools.find(t => t.id === id);
+        const baseCount = baseTool?.upvote_count ?? 0;
+        setLaudCountOverrides(prev => ({
+          ...prev,
+          [id]: result.newCount! - baseCount,
+        }));
+        invalidateToolsCache();
+      }
+    } catch {
+      // Rollback on network error
+      setLaudCountOverrides(prev => ({
+        ...prev,
+        [id]: (prev[id] ?? 0) + (wasVoted ? 1 : -1),
+      }));
+      toast.error('Something went wrong. Please try again.');
     }
-    // Laud
-    setVotedIds(prev => { const next = new Set(Array.from(prev)); next.add(id); return next; });
-    setLaudCounts(prev => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
-    toast.success('Lauded! Thanks for supporting the community.');
-    const result = await toggleLaud(parseInt(id, 10));
-    if (!result.success) {
-      setVotedIds(prev => { const next = new Set(Array.from(prev)); next.delete(id); return next; });
-      setLaudCounts(prev => ({ ...prev, [id]: Math.max(0, (prev[id] ?? 0) - 1) }));
-      toast.error(result.error || 'Failed to laud');
-    } else if (result.newCount !== undefined) {
-      setLaudCounts(prev => ({ ...prev, [id]: result.newCount! - (allTools.find(t => t.id === id)?.upvote_count ?? 0) }));
-    }
-  };
+  }, [isLauded, toggleLaudGlobal, allTools]);
 
   const filteredTools = useMemo(() => {
     let tools = [...allTools];
@@ -269,16 +289,20 @@ export default function CommunityPicks() {
       );
     }
 
-    // Sort by upvote_count (community lauds)
-    tools.sort((a, b) => b.upvote_count - a.upvote_count);
+    // Sort by effective laud count (base + local override) so ranking updates immediately after voting
+    tools.sort((a, b) => {
+      const aCount = a.upvote_count + (laudCountOverrides[a.id] ?? 0);
+      const bCount = b.upvote_count + (laudCountOverrides[b.id] ?? 0);
+      return bCount - aCount;
+    });
 
     return tools;
-  }, [selectedCategory, timePeriod, searchQuery, allTools]);
+  }, [selectedCategory, timePeriod, searchQuery, allTools, laudCountOverrides]);
 
   const visibleTools = filteredTools.slice(0, visibleCount);
 
-  // Stats
-  const totalVotes = allTools.reduce((s, t) => s + t.upvote_count, 0);
+  // Stats — use effective counts for total
+  const totalVotes = allTools.reduce((s, t) => s + t.upvote_count + (laudCountOverrides[t.id] ?? 0), 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -414,8 +438,8 @@ export default function CommunityPicks() {
                   tool={tool}
                   rank={i + 1}
                   onVote={handleVote}
-                  voted={votedIds.has(tool.id)}
-                  laudCountOffset={laudCounts[tool.id] ?? 0}
+                  voted={isLauded(tool.id)}
+                  laudCountOffset={laudCountOverrides[tool.id] ?? 0}
                 />
               ))}
             </div>

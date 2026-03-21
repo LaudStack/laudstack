@@ -79,7 +79,10 @@ export async function GET() {
       totalUsers: totalUserCount[0].count,
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+        // 5-minute CDN cache so laud/review counts stay fresh after user interactions.
+        // Client-side invalidateToolsCache() clears the in-memory cache immediately;
+        // the CDN will serve a fresh response within 5 minutes at most.
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
       },
     });
   } catch (error) {

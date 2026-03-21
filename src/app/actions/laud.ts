@@ -156,13 +156,34 @@ export async function toggleLaud(toolId: number): Promise<{
       return { success: false, error: rateCheck.reason };
     }
 
-    // Insert upvote with IP and user agent tracking
-    await db.insert(upvotes).values({
-      toolId,
-      userId: user.id,
-      ipAddress: ip,
-      userAgent: userAgent,
-    });
+    // Insert upvote with IP and user agent tracking.
+    // onConflictDoNothing guards against the race condition between the
+    // duplicate SELECT check above and this INSERT (concurrent requests).
+    let inserted: { id: number }[];
+    try {
+      inserted = await db.insert(upvotes).values({
+        toolId,
+        userId: user.id,
+        ipAddress: ip,
+        userAgent: userAgent,
+      }).onConflictDoNothing().returning({ id: upvotes.id });
+    } catch (e: unknown) {
+      // Unique constraint violation — user already lauded (race condition)
+      const msg = (e as Error)?.message ?? '';
+      if (msg.includes('unique') || msg.includes('23505')) {
+        const current = await db.select({ upvoteCount: tools.upvoteCount })
+          .from(tools).where(eq(tools.id, toolId));
+        return { success: true, lauded: true, newCount: current[0]?.upvoteCount ?? 0 };
+      }
+      throw e;
+    }
+
+    // If onConflictDoNothing silently skipped the insert, return current count
+    if (!inserted || inserted.length === 0) {
+      const current = await db.select({ upvoteCount: tools.upvoteCount })
+        .from(tools).where(eq(tools.id, toolId));
+      return { success: true, lauded: true, newCount: current[0]?.upvoteCount ?? 0 };
+    }
 
     // Update tool count
     await db.update(tools).set({
