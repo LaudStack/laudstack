@@ -14,7 +14,7 @@ import {
   AlertCircle, BarChart3, Eye, MousePointerClick,
   Bookmark, MessageSquare, TrendingUp, Trophy,
   FileText, UserCheck, Zap, Package, Activity,
-  Megaphone, ShoppingBag, Mail, RefreshCw,
+  Megaphone, ShoppingBag, Mail, RefreshCw, UserPlus,
 } from "lucide-react";
 import {
   getDashboardKPIs,
@@ -385,6 +385,8 @@ export default function AdminDashboard() {
         <KPICard label="Active Deals"    value={formatNumber(kpis?.totalDeals ?? 0)}     icon={Tag}        color="cyan"   href="/ops-console/deals" />
         <KPICard label="Pending Launches" value={formatNumber(kpis?.pendingSubmissions ?? 0)} icon={FileText} color="amber" href="/ops-console/stacks/launches" />
         <KPICard label="Pending Claims"  value={formatNumber(kpis?.pendingClaims ?? 0)}  icon={Package}    color="slate"  href="/ops-console/stacks/claimed" />
+        <KPICard label="User Follows"    value={formatNumber(kpis?.totalUserFollows ?? 0)}  icon={UserPlus}   color="blue" />
+        <KPICard label="Stack Follows"   value={formatNumber(kpis?.totalStackFollows ?? 0)} icon={Bookmark}   color="purple" />
       </div>
 
       {/* ── Revenue + Growth Charts Row ── */}

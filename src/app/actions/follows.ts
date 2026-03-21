@@ -10,6 +10,16 @@ import { getCurrentUser } from "@/lib/admin-auth";
 type ActionResult = { success: boolean; error?: string };
 type ToggleResult = { success: boolean; following?: boolean; error?: string };
 
+// ─── Helper: is a DB error a unique constraint violation? ────────────────────
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code: string }).code === "23505"
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // USER FOLLOWS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -43,10 +53,16 @@ export async function followUser(targetUserId: number): Promise<ActionResult> {
       return { success: true }; // Already following, idempotent
     }
 
-    await db.insert(userFollows).values({
-      followerId: user.id,
-      followingId: targetUserId,
-    });
+    try {
+      await db.insert(userFollows).values({
+        followerId: user.id,
+        followingId: targetUserId,
+      });
+    } catch (insertError) {
+      // Unique constraint violation = already following (race condition)
+      if (isUniqueViolation(insertError)) return { success: true };
+      throw insertError;
+    }
 
     return { success: true };
   } catch (error) {
@@ -105,11 +121,17 @@ export async function toggleFollowUser(targetUserId: number): Promise<ToggleResu
       await db.delete(userFollows).where(eq(userFollows.id, existing[0].id));
       return { success: true, following: false };
     } else {
-      // Follow
-      await db.insert(userFollows).values({
-        followerId: user.id,
-        followingId: targetUserId,
-      });
+      // Follow — handle race condition gracefully
+      try {
+        await db.insert(userFollows).values({
+          followerId: user.id,
+          followingId: targetUserId,
+        });
+      } catch (insertError) {
+        // Unique constraint violation = already following (concurrent request)
+        if (isUniqueViolation(insertError)) return { success: true, following: true };
+        throw insertError;
+      }
       return { success: true, following: true };
     }
   } catch (error) {
@@ -272,10 +294,16 @@ export async function followStack(toolId: number): Promise<ActionResult> {
       return { success: true }; // Already following, idempotent
     }
 
-    await db.insert(stackFollows).values({
-      userId: user.id,
-      toolId,
-    });
+    try {
+      await db.insert(stackFollows).values({
+        userId: user.id,
+        toolId,
+      });
+    } catch (insertError) {
+      // Unique constraint violation = already following (race condition)
+      if (isUniqueViolation(insertError)) return { success: true };
+      throw insertError;
+    }
 
     return { success: true };
   } catch (error) {
@@ -333,11 +361,17 @@ export async function toggleFollowStack(toolId: number): Promise<ToggleResult> {
       await db.delete(stackFollows).where(eq(stackFollows.id, existing[0].id));
       return { success: true, following: false };
     } else {
-      // Follow
-      await db.insert(stackFollows).values({
-        userId: user.id,
-        toolId,
-      });
+      // Follow — handle race condition gracefully
+      try {
+        await db.insert(stackFollows).values({
+          userId: user.id,
+          toolId,
+        });
+      } catch (insertError) {
+        // Unique constraint violation = already following (concurrent request)
+        if (isUniqueViolation(insertError)) return { success: true, following: true };
+        throw insertError;
+      }
       return { success: true, following: true };
     }
   } catch (error) {

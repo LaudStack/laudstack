@@ -7,6 +7,7 @@ import {
   upvotes, savedTools, toolViews, outboundClicks, comments,
   promotions, marketplaceOrders, toolUpgrades, deals,
   marketplaceProducts, newsletterSubscribers,
+  userFollows, stackFollows,
 } from "@/drizzle/schema";
 import { eq, desc, sql, and, count, sum, gte, lte } from "drizzle-orm";
 
@@ -21,6 +22,8 @@ export type DashboardKPIs = {
   totalDeals: number;
   pendingSubmissions: number;
   pendingClaims: number;
+  totalUserFollows: number;
+  totalStackFollows: number;
   // Deltas (vs previous period)
   usersDelta: number;
   stacksDelta: number;
@@ -120,6 +123,7 @@ export async function getDashboardKPIs(period: number = 30): Promise<DashboardKP
     const [
       totalUsers, totalStacks, totalReviews, totalUpvotes, totalDeals,
       pendingSubmissions, pendingClaims,
+      totalUserFollows, totalStackFollows,
       promoRevenue, marketplaceRevenue, upgradeRevenue,
       currentUsers, currentStacks, currentReviews,
       currentPromoRev, currentMarketRev, currentUpgradeRev,
@@ -133,6 +137,8 @@ export async function getDashboardKPIs(period: number = 30): Promise<DashboardKP
       db.select({ c: count() }).from(deals).then(r => r[0].c),
       db.select({ c: count() }).from(toolSubmissions).where(eq(toolSubmissions.status, "pending")).then(r => r[0].c),
       db.select({ c: count() }).from(toolClaims).where(eq(toolClaims.status, "pending")).then(r => r[0].c),
+      db.select({ c: count() }).from(userFollows).then(r => r[0].c),
+      db.select({ c: count() }).from(stackFollows).then(r => r[0].c),
       db.select({ s: sum(promotions.amountPaid) }).from(promotions).where(eq(promotions.status, "active")).then(r => Number(r[0].s) || 0),
       db.select({ s: sum(marketplaceOrders.platformFee) }).from(marketplaceOrders).where(eq(marketplaceOrders.status, "completed")).then(r => Number(r[0].s) || 0),
       db.select({ s: sum(toolUpgrades.amountPaid) }).from(toolUpgrades).where(eq(toolUpgrades.status, "active")).then(r => Number(r[0].s) || 0),
@@ -163,6 +169,8 @@ export async function getDashboardKPIs(period: number = 30): Promise<DashboardKP
       totalDeals,
       pendingSubmissions,
       pendingClaims,
+      totalUserFollows,
+      totalStackFollows,
       usersDelta: prevUsers > 0 ? Math.round(((currentUsers - prevUsers) / prevUsers) * 100) : currentUsers > 0 ? 100 : 0,
       stacksDelta: prevStacks > 0 ? Math.round(((currentStacks - prevStacks) / prevStacks) * 100) : currentStacks > 0 ? 100 : 0,
       reviewsDelta: prevReviews > 0 ? Math.round(((currentReviews - prevReviews) / prevReviews) * 100) : currentReviews > 0 ? 100 : 0,
@@ -173,6 +181,7 @@ export async function getDashboardKPIs(period: number = 30): Promise<DashboardKP
     return {
       totalUsers: 0, totalStacks: 0, totalReviews: 0, totalRevenue: 0,
       totalUpvotes: 0, totalDeals: 0, pendingSubmissions: 0, pendingClaims: 0,
+      totalUserFollows: 0, totalStackFollows: 0,
       usersDelta: 0, stacksDelta: 0, reviewsDelta: 0, revenueDelta: 0,
     };
   }

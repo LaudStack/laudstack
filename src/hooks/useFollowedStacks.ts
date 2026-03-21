@@ -13,6 +13,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { getCurrentUserFollowedStackIds } from "@/app/actions/follows";
+import { registerCacheInvalidator } from "@/hooks/authCacheInvalidators";
 
 // ── Global event bus for cross-component sync ──────────────────────────────
 type FollowListener = (ids: number[]) => void;
@@ -25,7 +26,16 @@ function broadcast(ids: number[]) {
   listeners.forEach((fn) => fn(ids));
 }
 
-/** Imperatively add/remove an ID from the global set (used by FollowStackButton) */
+/** Clear the global cache on sign-out so the next user starts fresh */
+function clearFollowedStacksCache() {
+  globalFetched = false;
+  broadcast([]);
+}
+
+// Register the invalidator once at module load time
+registerCacheInvalidator(clearFollowedStacksCache);
+
+/** Imperatively add/remove an ID from the global set (used by FollowStackButton and FollowingTab) */
 export function updateFollowedStackId(toolId: number, following: boolean) {
   if (following && !globalFollowedIds.includes(toolId)) {
     broadcast([...globalFollowedIds, toolId]);
@@ -53,7 +63,7 @@ export function useFollowedStacks() {
     };
     listeners.add(handler);
     // Sync with current global state on mount
-    if (globalFollowedIds.length > 0) {
+    if (globalFollowedIds.length > 0 || globalFetched) {
       setFollowedIds(globalFollowedIds);
     }
     return () => {
@@ -89,9 +99,8 @@ export function useFollowedStacks() {
         setLoading(false);
       }
     } else {
-      // User logged out — clear everything
-      globalFetched = false;
-      broadcast([]);
+      // Not authenticated — clear everything
+      clearFollowedStacksCache();
       if (mountedRef.current) setLoading(false);
     }
   }, [isAuthenticated, authLoading]);

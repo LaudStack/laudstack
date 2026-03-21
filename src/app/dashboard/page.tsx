@@ -36,6 +36,7 @@ import {
   unfollowStack,
   unfollowUser,
 } from '@/app/actions/follows';
+import { updateFollowedStackId } from '@/hooks/useFollowedStacks';
 import {
   getBuyerPurchases,
   getBuyerOffers,
@@ -794,6 +795,8 @@ function FollowingTab() {
       const result = await unfollowStack(toolId);
       if (result.success) {
         setFollowedStacks(prev => prev.filter(s => s.id !== toolId));
+        // Sync with global useFollowedStacks so FollowStackButton updates everywhere
+        updateFollowedStackId(toolId, false);
         toast.success(`Unfollowed ${toolName}`);
       } else {
         toast.error(result.error || 'Failed to unfollow stack');

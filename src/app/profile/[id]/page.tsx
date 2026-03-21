@@ -13,6 +13,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FollowUserButton from '@/components/FollowUserButton';
+import AuthGateModal from '@/components/AuthGateModal';
 import { getUserFollowCounts, getFollowers, getFollowing, isFollowingUser } from '@/app/actions/follows';
 import { useAuth } from '@/hooks/useAuth';
 import { useDbUser } from '@/hooks/useDbUser';
@@ -64,6 +65,7 @@ export default function PublicProfile() {
   const [followingList, setFollowingList] = useState<any[]>([]);
   const [followersLoading, setFollowersLoading] = useState(false);
   const [followingLoading, setFollowingLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -251,9 +253,7 @@ export default function PublicProfile() {
                   targetUserId={parseInt(userId, 10)}
                   targetUserName={u.name || 'User'}
                   initialFollowing={isCurrentUserFollowing}
-                  onAuthRequired={() => {
-                    window.location.href = '/login';
-                  }}
+                  onAuthRequired={() => setShowAuthModal(true)}
                   onToggle={(following) => {
                     setIsCurrentUserFollowing(following);
                     setFollowCounts(prev => ({
@@ -549,6 +549,13 @@ export default function PublicProfile() {
       </div>
 
       <Footer />
+
+      {/* Auth gate for follow button */}
+      <AuthGateModal
+        open={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        action="general"
+      />
     </div>
   );
 }
