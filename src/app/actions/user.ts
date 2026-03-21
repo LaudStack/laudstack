@@ -3,7 +3,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { db, getUserBySupabaseId } from "@/server/db";
-import { users, tools, reviews, upvotes, deals, dealClaims, savedTools } from "@/drizzle/schema";
+import { users, tools, reviews, upvotes, deals, dealClaims, savedTools, reviewRateLimits, userFollows, stackFollows } from "@/drizzle/schema";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import type { User } from "@/drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
@@ -249,6 +249,10 @@ export async function deleteAccount() {
 
   try {
     // Delete user-related data (tables without ON DELETE CASCADE)
+    await db.delete(reviewRateLimits).where(eq(reviewRateLimits.userId, dbUser.id));
+    await db.delete(userFollows).where(eq(userFollows.followerId, dbUser.id));
+    await db.delete(userFollows).where(eq(userFollows.followingId, dbUser.id));
+    await db.delete(stackFollows).where(eq(stackFollows.userId, dbUser.id));
     await db.delete(savedTools).where(eq(savedTools.userId, dbUser.id));
     await db.delete(reviews).where(eq(reviews.userId, dbUser.id));
     await db.delete(upvotes).where(eq(upvotes.userId, dbUser.id));

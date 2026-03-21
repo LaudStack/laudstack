@@ -2677,6 +2677,36 @@ function FounderDashboardContent() {
     );
   }
 
+  // ── Founder status gate: non-founders see an upgrade prompt ──────────────
+  if (dbUser && dbUser.founderStatus !== 'verified' && dbUser.founderStatus !== 'pending') {
+    return (
+      <div className="min-h-screen flex flex-col bg-white">
+        <Navbar />
+        <div className="h-[60px] lg:h-[64px]" />
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-5">
+              <Rocket className="w-8 h-8 text-amber-500" />
+            </div>
+            <h2 className="text-slate-900 font-black text-2xl mb-2">Become a Verified Founder</h2>
+            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+              Launch or claim your tool to unlock the Founder Dashboard — respond to reviews, create deals, and track analytics.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/launchpad" className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-3 rounded-xl transition-colors text-sm">
+                <Rocket className="w-4 h-4" /> Launch a Product
+              </Link>
+              <Link href="/claim" className="inline-flex items-center gap-2 bg-white border border-slate-200 hover:border-amber-300 text-slate-700 font-semibold px-5 py-3 rounded-xl transition-colors text-sm">
+                <Shield className="w-4 h-4" /> Claim Existing Tool
+              </Link>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />

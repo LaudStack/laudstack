@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { users, reviews, tools, savedTools } from "@/drizzle/schema";
-import { eq, sql, count, and, ne } from "drizzle-orm";
+import { eq, sql, count, and, ne, or } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
 /**
  * GET /api/profile/[id]
- * Returns public profile data for a user. No private details (email, etc).
+ * Returns public profile data for a user.
+ * Respects `publicProfile` and `showReviewsPublicly` privacy settings.
+ * No private details (email, etc.) are ever returned.
  */
 export async function GET(
   _request: NextRequest,
@@ -20,7 +22,7 @@ export async function GET(
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Fetch user (limited fields)
+    // Fetch user (limited fields, including privacy flags)
     const [user] = await db
       .select({
         id: users.id,
@@ -41,6 +43,8 @@ export async function GET(
         city: users.city,
         state: users.state,
         country: users.country,
+        publicProfile: users.publicProfile,
+        showReviewsPublicly: users.showReviewsPublicly,
       })
       .from(users)
       .where(eq(users.id, userId))
@@ -48,6 +52,35 @@ export async function GET(
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // ── Privacy gate: private profiles return only a minimal stub ──────────
+    if (!user.publicProfile) {
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          name: "Private User",
+          avatarUrl: null,
+          bio: null,
+          headline: null,
+          website: null,
+          twitterHandle: null,
+          linkedinUrl: null,
+          founderStatus: user.founderStatus,
+          role: user.role,
+          memberSince: user.createdAt,
+          jobTitle: null,
+          company: null,
+          city: null,
+          state: null,
+          country: null,
+          isPrivate: true,
+        },
+        stats: { reviewCount: 0, avgRating: 0, savedToolsCount: 0 },
+        badges: [],
+        founderTools: [],
+        recentReviews: [],
+      });
     }
 
     // Count published reviews only (hidden/removed reviews should not appear publicly)
@@ -65,26 +98,29 @@ export async function GET(
       .from(savedTools)
       .where(eq(savedTools.userId, userId));
 
-    // Get recent published reviews with tool info (limited to 5)
-    const recentReviews = await db
-      .select({
-        id: reviews.id,
-        rating: reviews.rating,
-        title: reviews.title,
-        body: reviews.body,
-        createdAt: reviews.createdAt,
-        toolId: reviews.toolId,
-        toolName: tools.name,
-        toolSlug: tools.slug,
-        toolLogo: tools.logoUrl,
-      })
-      .from(reviews)
-      .leftJoin(tools, eq(reviews.toolId, tools.id))
-      .where(and(eq(reviews.userId, userId), ne(reviews.status, "removed"), ne(reviews.status, "hidden")))
-      .orderBy(sql`${reviews.createdAt} DESC`)
-      .limit(5);
+    // ── Reviews: only shown when showReviewsPublicly is true ───────────────
+    let recentReviews: any[] = [];
+    if (user.showReviewsPublicly) {
+      recentReviews = await db
+        .select({
+          id: reviews.id,
+          rating: reviews.rating,
+          title: reviews.title,
+          body: reviews.body,
+          createdAt: reviews.createdAt,
+          toolId: reviews.toolId,
+          toolName: tools.name,
+          toolSlug: tools.slug,
+          toolLogo: tools.logoUrl,
+        })
+        .from(reviews)
+        .leftJoin(tools, eq(reviews.toolId, tools.id))
+        .where(and(eq(reviews.userId, userId), ne(reviews.status, "removed"), ne(reviews.status, "hidden")))
+        .orderBy(sql`${reviews.createdAt} DESC`)
+        .limit(5);
+    }
 
-    // Fetch founder's tools (if they are a verified founder)
+    // ── Founder tools: include both submittedBy AND claimedBy ──────────────
     let founderTools: any[] = [];
     if (user.founderStatus === "verified") {
       founderTools = await db
@@ -102,7 +138,7 @@ export async function GET(
           isVerified: tools.isVerified,
         })
         .from(tools)
-        .where(eq(tools.submittedBy, userId))
+        .where(or(eq(tools.submittedBy, userId), eq(tools.claimedBy, userId)))
         .orderBy(sql`${tools.createdAt} DESC`)
         .limit(10);
     }
@@ -117,62 +153,23 @@ export async function GET(
     const reviewCount = reviewStats?.count ?? 0;
     const avgRating = Number(reviewStats?.avgRating ?? 0);
     const savedCount = savedStats?.count ?? 0;
-    const badges: { id: string; label: string; icon: string; color: string }[] =
-      [];
+    const badges: { id: string; label: string; icon: string; color: string }[] = [];
 
     if (reviewCount >= 1)
-      badges.push({
-        id: "first_review",
-        label: "First Review",
-        icon: "star",
-        color: "amber",
-      });
+      badges.push({ id: "first_review", label: "First Review", icon: "star", color: "amber" });
     if (reviewCount >= 5)
-      badges.push({
-        id: "reviewer",
-        label: "Active Reviewer",
-        icon: "star",
-        color: "blue",
-      });
+      badges.push({ id: "reviewer", label: "Active Reviewer", icon: "star", color: "blue" });
     if (reviewCount >= 25)
-      badges.push({
-        id: "top_reviewer",
-        label: "Top Reviewer",
-        icon: "award",
-        color: "purple",
-      });
+      badges.push({ id: "top_reviewer", label: "Top Reviewer", icon: "award", color: "purple" });
     if (savedCount >= 10)
-      badges.push({
-        id: "curator",
-        label: "Tool Curator",
-        icon: "bookmark",
-        color: "green",
-      });
+      badges.push({ id: "curator", label: "Tool Curator", icon: "bookmark", color: "green" });
     if (user.founderStatus === "verified")
-      badges.push({
-        id: "founder",
-        label: "Verified Founder",
-        icon: "rocket",
-        color: "amber",
-      });
+      badges.push({ id: "founder", label: "Verified Founder", icon: "rocket", color: "amber" });
     if (avgRating >= 4.5 && reviewCount >= 3)
-      badges.push({
-        id: "quality",
-        label: "Quality Reviewer",
-        icon: "check",
-        color: "emerald",
-      });
+      badges.push({ id: "quality", label: "Quality Reviewer", icon: "check", color: "emerald" });
     // Early adopter: joined before 2026-06-01
-    if (
-      user.createdAt &&
-      new Date(user.createdAt) < new Date("2026-06-01")
-    ) {
-      badges.push({
-        id: "early_adopter",
-        label: "Early Adopter",
-        icon: "zap",
-        color: "orange",
-      });
+    if (user.createdAt && new Date(user.createdAt) < new Date("2026-06-01")) {
+      badges.push({ id: "early_adopter", label: "Early Adopter", icon: "zap", color: "orange" });
     }
 
     return NextResponse.json({
@@ -193,6 +190,7 @@ export async function GET(
         city: user.city,
         state: user.state,
         country: user.country,
+        isPrivate: false,
       },
       stats: {
         reviewCount,

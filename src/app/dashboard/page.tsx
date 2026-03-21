@@ -207,7 +207,7 @@ function ProfileTab({
   const STATS = [
     { icon: <Star className="w-4 h-4 text-amber-500" />, label: 'Reviews Written', value: userReviews.length },
     { icon: <Bookmark className="w-4 h-4 text-blue-500" />, label: 'Tools Saved', value: savedIds.length },
-    { icon: <ThumbsUp className="w-4 h-4 text-green-500" />, label: 'Helpful Votes', value: 0 },
+    { icon: <ThumbsUp className="w-4 h-4 text-green-500" />, label: 'Helpful Votes', value: userReviews.reduce((sum: number, r: any) => sum + (r.helpfulCount ?? 0), 0) },
     { icon: <Award className="w-4 h-4 text-purple-500" />, label: 'Member Since', value: memberSince },
   ];
 

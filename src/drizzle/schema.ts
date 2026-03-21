@@ -330,7 +330,7 @@ export const reviewRateLimits = pgTable("review_rate_limits", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   ipAddress: text("ip_address"),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
 });
@@ -343,10 +343,10 @@ export const upvotes = pgTable("upvotes", {
   id: serial("id").primaryKey(),
   toolId: integer("tool_id")
     .notNull()
-    .references(() => tools.id),
+    .references(() => tools.id, { onDelete: "cascade" }),
   userId: integer("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   ipAddress: varchar("ip_address", { length: 45 }),
   userAgent: text("user_agent"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -371,10 +371,10 @@ export const savedTools = pgTable("saved_tools", {
   id: serial("id").primaryKey(),
   toolId: integer("tool_id")
     .notNull()
-    .references(() => tools.id),
+    .references(() => tools.id, { onDelete: "cascade" }),
   userId: integer("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
