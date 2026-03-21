@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Monetization & Revenue
  * Revenue tracking, upgrade stats, tier breakdown

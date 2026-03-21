@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Tool Detail / Edit Page
  * Full edit: name, tagline, description, category, pricing, logo, screenshots, affiliate URL

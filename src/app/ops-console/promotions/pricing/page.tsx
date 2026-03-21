@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Pricing & Plans — Configure pricing tiers for all promotion types
  * Full CRUD: create, edit, toggle active, delete pricing rows

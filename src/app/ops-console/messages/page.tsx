@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 /**
  * Admin Messages — Contact Submissions Management

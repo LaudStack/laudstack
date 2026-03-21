@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 /*
  * LaudStack Homepage — 100% Aggregator X Template Match

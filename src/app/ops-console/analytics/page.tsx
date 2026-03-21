@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Comprehensive Analytics Dashboard
  * Enterprise-grade analytics with real data, interactive charts, geographic maps,

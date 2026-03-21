@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Deal of the Day — Slot Calendar Management
  * Calendar view of DOTD slots with assign, override, and remove capabilities.

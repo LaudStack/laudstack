@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // LaudStack — Events Page
 // Upcoming events grid, past events archive, and event registration CTAs

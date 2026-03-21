@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Platform Settings
  * General, SEO, email, moderation, feature flags, security

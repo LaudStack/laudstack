@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Newsletter Subscribers
  * View and manage newsletter subscribers

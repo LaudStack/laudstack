@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Stack Finder — LaudStack Guided Comparison Engine
  *

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 /**
  * ToolDetail — LaudStack Stack Detail Page

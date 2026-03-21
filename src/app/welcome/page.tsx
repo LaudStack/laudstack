@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // Welcome.tsx — Post-onboarding page
 // Design: Clean, celebratory, action-oriented — gets users to their first value quickly

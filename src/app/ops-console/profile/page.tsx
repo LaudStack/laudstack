@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { Mail, Shield, Calendar, Clock, Save, Loader2 } from "lucide-react";

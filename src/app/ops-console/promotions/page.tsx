@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Admin Promotions — Tabbed Hub
  * Tabs: Overview | All Promotions | Stacks | Deals | Marketplace

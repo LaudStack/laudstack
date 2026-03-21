@@ -14,6 +14,9 @@ export interface AuthState {
 let supabaseClient: ReturnType<typeof createBrowserClient> | null = null;
 
 function getSupabaseClient() {
+  // Guard: never call createBrowserClient during SSR — env vars may be absent
+  // and the browser Supabase client must only run in a browser context.
+  if (typeof window === "undefined") return null;
   if (!supabaseClient) {
     supabaseClient = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,9 +61,9 @@ function _getServerSnapshot(): CachedAuth {
 /** Boot the auth listener once, globally */
 function _ensureInitialised() {
   if (_initialised) return;
-  _initialised = true;
-
   const supabase = getSupabaseClient();
+  if (!supabase) return; // SSR — skip
+  _initialised = true;
 
   supabase.auth.getUser().then(({ data: { user } }) => {
     _setCache(user, true);
@@ -88,16 +91,17 @@ export function useAuth(): AuthState & {
 
   const cached = useSyncExternalStore(_subscribe, _getSnapshot, _getServerSnapshot);
 
-  const supabase = getSupabaseClient();
-
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const supabase = getSupabaseClient();
+    if (supabase) await supabase.auth.signOut();
     _setCache(null, true);
     // Invalidate all session caches so the next login fetches fresh data
     runAllCacheInvalidators();
   };
 
   const signInWithGoogle = async () => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -107,6 +111,8 @@ export function useAuth(): AuthState & {
   };
 
   const signInWithLinkedIn = async () => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
     await supabase.auth.signInWithOAuth({
       provider: "linkedin_oidc",
       options: {
@@ -117,12 +123,16 @@ export function useAuth(): AuthState & {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { error: "Not in browser context", user: null };
     const cleanEmail = email.trim().toLowerCase();
     const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
     return { error: error?.message ?? null, user: data?.user ?? null };
   };
 
   const signUpWithEmail = async (email: string, password: string, firstName?: string, lastName?: string) => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { error: "Not in browser context" };
     const cleanEmail = email.trim().toLowerCase();
     const cleanFirst = firstName?.trim();
     const cleanLast = lastName?.trim();

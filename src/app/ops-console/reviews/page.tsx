@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Reviews Moderation Panel
  * Full moderation: approve, hide, remove, reject flags, view details

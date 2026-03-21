@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // LaudStack — Press Kit Page
 // Fully rebuilt: comprehensive boilerplate, brand assets, founder bio, key facts, press contact

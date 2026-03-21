@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Admin Stacks — Claimed
  * Manage founder ownership claims (toolClaims table).

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // LaudStack — Pricing Page
 // Users: 100% free. Founders: 100% free. Monetization via paid promotions.

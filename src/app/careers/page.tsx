@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // LaudStack — Careers Page
 // Fully rebuilt: culture-forward, no fake stats, founder-driven narrative

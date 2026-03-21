@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Admin Stacks — Listed
  * Manage stacks added directly by admin (submittedBy IS NULL).

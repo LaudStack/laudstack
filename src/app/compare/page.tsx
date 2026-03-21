@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 /**
  * Compare.tsx — LaudStack Stack Comparison Page

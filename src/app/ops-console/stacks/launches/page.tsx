@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /**
  * Admin Stacks — Launches
  * Manage founder-submitted stacks (toolSubmissions table).

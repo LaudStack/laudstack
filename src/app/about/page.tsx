@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // LaudStack — About Page
 // Rebuilt: Founder-centric storytelling with Chiedu Kabakwu's photo and mission narrative

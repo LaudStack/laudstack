@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // LaudStack — Trust Framework Page
 // Design: Dark editorial, amber accents, policy-focused layout

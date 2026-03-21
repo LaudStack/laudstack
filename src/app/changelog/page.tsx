@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 // Design: LaudStack dark-slate + amber accent. Changelog with timeline layout.
 import Navbar from '@/components/Navbar';

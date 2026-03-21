@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 /*
  * LaudStack Admin — Dashboard Overview (Rebuilt)
  * Professional analytics dashboard with compact KPIs, recharts graphs,
