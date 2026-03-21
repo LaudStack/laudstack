@@ -317,6 +317,8 @@ export const reviews = pgTable("reviews", {
   index("reviews_user_id_idx").on(table.userId),
   index("reviews_status_idx").on(table.status),
   index("reviews_created_at_idx").on(table.createdAt),
+  // One active review per user per tool (DB-level enforcement)
+  uniqueIndex("reviews_tool_user_unique").on(table.toolId, table.userId),
 ]);
 
 export type Review = typeof reviews.$inferSelect;

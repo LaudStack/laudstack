@@ -6,7 +6,7 @@ import { db, getUserBySupabaseId } from "@/server/db";
 import { users, tools, reviews, upvotes, deals, dealClaims, savedTools } from "@/drizzle/schema";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import type { User } from "@/drizzle/schema";
-import { eq, and, sql, count } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { sendWelcomeEmail, sendAdminNewUserAlert } from "@/server/email";
 import { requireAuth, getCurrentUser } from "@/lib/admin-auth";
 
@@ -42,55 +42,7 @@ export async function updateFounderProfile(data: {
   }
 }
 
-// ─── Reviews ──────────────────────────────────────────────────────────────────
-
-export async function submitReview(data: {
-  toolId: number;
-  rating: number;
-  title?: string;
-  body?: string;
-  pros?: string;
-  cons?: string;
-}) {
-  const user = await requireAuth();
-
-  // Progressive verification: require email verification to leave a review
-  if (!user.emailVerified) {
-    return { success: false, error: "EMAIL_NOT_VERIFIED", message: "Please verify your email to leave a review." };
-  }
-  
-  const existing = await db.select().from(reviews)
-    .where(and(eq(reviews.toolId, data.toolId), eq(reviews.userId, user.id)))
-    .limit(1);
-  
-  if (existing.length > 0) {
-    throw new Error("You have already reviewed this product");
-  }
-  
-  const [review] = await db.insert(reviews).values({
-    toolId: data.toolId,
-    userId: user.id,
-    rating: data.rating,
-    title: data.title ?? null,
-    body: data.body ?? null,
-    pros: data.pros ?? null,
-    cons: data.cons ?? null,
-  }).returning({ id: reviews.id });
-  
-  // Update tool's review count and average rating
-  const [stats] = await db.select({
-    count: count(),
-    avg: sql<number>`COALESCE(AVG(${reviews.rating}), 0)`,
-  }).from(reviews).where(eq(reviews.toolId, data.toolId));
-  
-  await db.update(tools).set({
-    reviewCount: stats.count,
-    averageRating: Number(stats.avg),
-    updatedAt: new Date(),
-  }).where(eq(tools.id, data.toolId));
-  
-  return { success: true, reviewId: review.id };
-}
+// ─── Reviews ──────────────────────────────────────────────────────────────────────────────
 
 export async function getUserReviews() {
   const user = await requireAuth();

@@ -406,6 +406,14 @@ function ReviewsTab() {
       return;
     }
     setSaving(true);
+    // Optimistic update — reflect changes immediately in the list
+    const prevReviews = userReviews;
+    setUserReviews(prev => prev.map(r =>
+      r.id === editingId
+        ? { ...r, rating: editRating, title: editTitle.trim(), body: editBody.trim(), pros: editPros.trim() || null, cons: editCons.trim() || null, updatedAt: new Date().toISOString() }
+        : r
+    ));
+    setEditingId(null);
     try {
       const result = await editReview(editingId, {
         rating: editRating,
@@ -416,12 +424,17 @@ function ReviewsTab() {
       });
       if (result.success) {
         toast.success('Review updated');
-        setEditingId(null);
+        // Refresh from server to get authoritative data
         loadReviews();
       } else {
+        // Revert optimistic update on failure
+        setUserReviews(prevReviews);
+        setEditingId(editingId);
         toast.error(result.error || 'Failed to update review');
       }
     } catch {
+      setUserReviews(prevReviews);
+      setEditingId(editingId);
       toast.error('Failed to update review');
     } finally {
       setSaving(false);
@@ -430,15 +443,21 @@ function ReviewsTab() {
 
   const handleDelete = async (reviewId: number) => {
     setDeletingId(reviewId);
+    // Optimistic removal
+    const prevReviews = userReviews;
+    setUserReviews(prev => prev.filter(r => r.id !== reviewId));
     try {
       const result = await deleteReview(reviewId);
       if (result.success) {
         toast.success('Review deleted');
-        loadReviews();
+        // No need to loadReviews — already removed optimistically
       } else {
+        // Revert on failure
+        setUserReviews(prevReviews);
         toast.error(result.error || 'Failed to delete review');
       }
     } catch {
+      setUserReviews(prevReviews);
       toast.error('Failed to delete review');
     } finally {
       setDeletingId(null);

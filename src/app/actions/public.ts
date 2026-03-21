@@ -529,19 +529,27 @@ export async function submitReview(data: {
   const isSpam = detectSpam(fullText);
 
   // Insert review — spam reviews go to pending for moderation
-  await db.insert(reviews).values({
-    toolId: data.toolId,
-    userId: user.id,
-    rating: data.rating,
-    title: data.title.trim(),
-    body: data.body.trim(),
-    pros: data.pros?.trim() || null,
-    cons: data.cons?.trim() || null,
-    isVerified: user.emailVerified ?? false,
-    status: isSpam ? "pending" : "published",
-    ipAddress: ip,
-    userAgent: userAgent,
-  });
+  try {
+    await db.insert(reviews).values({
+      toolId: data.toolId,
+      userId: user.id,
+      rating: data.rating,
+      title: data.title.trim(),
+      body: data.body.trim(),
+      pros: data.pros?.trim() || null,
+      cons: data.cons?.trim() || null,
+      isVerified: user.emailVerified ?? false,
+      status: isSpam ? "pending" : "published",
+      ipAddress: ip,
+      userAgent: userAgent,
+    });
+  } catch (insertErr: unknown) {
+    // Handle DB-level unique constraint violation (race condition between duplicate check and insert)
+    if (insertErr instanceof Error && insertErr.message?.includes("unique")) {
+      return { success: false, error: "You have already reviewed this stack. You can edit your existing review instead." };
+    }
+    throw insertErr;
+  }
 
   // Record rate limit entry
   await db.insert(reviewRateLimits).values({
@@ -681,29 +689,6 @@ export async function requestFounderUpgrade(data: {
   }).where(eq(users.id, user.id));
 
   return { success: true };
-}
-
-// ─── User Reviews ────────────────────────────────────────────────────────────
-
-export async function getUserReviews() {
-  const user = await getCurrentUser();
-  if (!user) return [];
-
-  return db
-    .select({
-      id: reviews.id,
-      rating: reviews.rating,
-      title: reviews.title,
-      body: reviews.body,
-      createdAt: reviews.createdAt,
-      toolName: tools.name,
-      toolSlug: tools.slug,
-      toolLogo: tools.logoUrl,
-    })
-    .from(reviews)
-    .innerJoin(tools, eq(reviews.toolId, tools.id))
-    .where(eq(reviews.userId, user.id))
-    .orderBy(desc(reviews.createdAt));
 }
 
 // ─── Edit Own Review ────────────────────────────────────────────────────────

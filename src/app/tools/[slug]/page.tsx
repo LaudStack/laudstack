@@ -1613,7 +1613,7 @@ export default function ToolDetail() {
       <ReviewNudge
         toolName={tool?.name || ''}
         isAuthenticated={!!dbUser}
-        hasReviewed={reviews.some(r => r.user?.name === dbUser?.name)}
+        hasReviewed={userHasReview}
         onWriteReview={() => {
           if (!dbUser) {
             setAuthAction('review');

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { users, reviews, tools, savedTools } from "@/drizzle/schema";
-import { eq, sql, count } from "drizzle-orm";
+import { eq, sql, count, and, ne } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
@@ -50,14 +50,14 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Count reviews
+    // Count published reviews only (hidden/removed reviews should not appear publicly)
     const [reviewStats] = await db
       .select({
         count: count(),
         avgRating: sql<number>`COALESCE(AVG(${reviews.rating}), 0)`,
       })
       .from(reviews)
-      .where(eq(reviews.userId, userId));
+      .where(and(eq(reviews.userId, userId), ne(reviews.status, "removed"), ne(reviews.status, "hidden")));
 
     // Count saved products
     const [savedStats] = await db
@@ -65,7 +65,7 @@ export async function GET(
       .from(savedTools)
       .where(eq(savedTools.userId, userId));
 
-    // Get recent reviews with tool info (limited to 5)
+    // Get recent published reviews with tool info (limited to 5)
     const recentReviews = await db
       .select({
         id: reviews.id,
@@ -80,7 +80,7 @@ export async function GET(
       })
       .from(reviews)
       .leftJoin(tools, eq(reviews.toolId, tools.id))
-      .where(eq(reviews.userId, userId))
+      .where(and(eq(reviews.userId, userId), ne(reviews.status, "removed"), ne(reviews.status, "hidden")))
       .orderBy(sql`${reviews.createdAt} DESC`)
       .limit(5);
 
