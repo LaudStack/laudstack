@@ -2,7 +2,7 @@
 
 import { db } from "@/server/db";
 import { userFollows, stackFollows, users, tools } from "@/drizzle/schema";
-import { eq, and, count, desc } from "drizzle-orm";
+import { eq, and, count, desc, inArray } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/admin-auth";
 
 // ─── Shared result type ──────────────────────────────────────────────────────
@@ -433,13 +433,20 @@ export async function getFollowedStacks(userId: number, limit = 50, offset = 0):
       })
         .from(stackFollows)
         .innerJoin(tools, eq(stackFollows.toolId, tools.id))
-        .where(eq(stackFollows.userId, userId))
+        .where(and(
+          eq(stackFollows.userId, userId),
+          inArray(tools.status, ["approved", "featured"]),
+        ))
         .orderBy(desc(stackFollows.createdAt))
         .limit(limit)
         .offset(offset),
       db.select({ count: count() })
         .from(stackFollows)
-        .where(eq(stackFollows.userId, userId)),
+        .innerJoin(tools, eq(stackFollows.toolId, tools.id))
+        .where(and(
+          eq(stackFollows.userId, userId),
+          inArray(tools.status, ["approved", "featured"]),
+        )),
     ]);
 
     return {

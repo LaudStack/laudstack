@@ -84,10 +84,10 @@ export default function PublicProfile() {
     const numId = parseInt(userId, 10);
     if (isNaN(numId)) return;
     getUserFollowCounts(numId).then(setFollowCounts).catch(() => {});
-    if (isAuthenticated) {
+    if (isAuthenticated && dbUser && dbUser.id !== numId) {
       isFollowingUser(numId).then(setIsCurrentUserFollowing).catch(() => {});
     }
-  }, [userId, isAuthenticated]);
+  }, [userId, isAuthenticated, dbUser]);
 
   const loadFollowers = useCallback(async () => {
     if (!userId) return;

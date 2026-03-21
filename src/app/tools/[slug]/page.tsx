@@ -738,6 +738,7 @@ export default function ToolDetail() {
                   toolName={tool.name}
                   initialFollowing={isFollowingStack(tool.id)}
                   onAuthRequired={() => { setAuthAction('general'); setShowAuthModal(true); }}
+                  onToggle={(following) => setFollowerCount(prev => following ? prev + 1 : Math.max(0, prev - 1))}
                 />
               </div>
 
@@ -808,6 +809,7 @@ export default function ToolDetail() {
                     initialFollowing={isFollowingStack(tool.id)}
                     variant="compact"
                     onAuthRequired={() => { setAuthAction('general'); setShowAuthModal(true); }}
+                    onToggle={(following) => setFollowerCount(prev => following ? prev + 1 : Math.max(0, prev - 1))}
                   />
                 </div>
               </div>
