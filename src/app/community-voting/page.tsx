@@ -16,7 +16,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToolsData, invalidateToolsCache } from "@/hooks/useToolsData";
 import { useAuth } from "@/hooks/useAuth";
-import { toggleLaud, getUserLaudedToolIds } from "@/app/actions/laud";
+import { useLaudedTools } from "@/hooks/useLaudedTools";
 import { getPlatformStats } from "@/app/actions/public";
 import { CATEGORY_META } from "@/lib/categories";
 import type { Tool } from "@/lib/types";
@@ -260,6 +260,9 @@ export default function CommunityVotingPage() {
   const { tools: allTools, loading: toolsLoading } = useToolsData();
   const { isAuthenticated } = useAuth();
 
+  // Use the global useLaudedTools hook — syncs with all other pages
+  const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
+
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("all_time");
   const [category, setCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -268,9 +271,8 @@ export default function CommunityVotingPage() {
   // Auth gate
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Laud state
-  const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
-  const [laudCounts, setLaudCounts] = useState<Record<string, number>>({});
+  // Local count overrides (optimistic delta on top of base tool counts)
+  const [laudCountOverrides, setLaudCountOverrides] = useState<Record<string, number>>({});
 
   // Platform stats
   const [stats, setStats] = useState<{
@@ -285,18 +287,7 @@ export default function CommunityVotingPage() {
       .catch(() => {});
   }, []);
 
-  // Initialize voted state from DB when authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setVotedIds(new Set());
-      return;
-    }
-    getUserLaudedToolIds()
-      .then((ids) => setVotedIds(new Set(ids.map(String))))
-      .catch(() => {});
-  }, [isAuthenticated]);
-
-  // Handle vote with optimistic update
+  // Handle vote with optimistic update via global hook
   const handleVote = useCallback(
     async (id: string) => {
       if (!isAuthenticated) {
@@ -304,16 +295,10 @@ export default function CommunityVotingPage() {
         return;
       }
 
-      const wasVoted = votedIds.has(id);
+      const wasVoted = isLauded(id);
 
-      // Optimistic update
-      setVotedIds((prev) => {
-        const next = new Set(Array.from(prev));
-        if (wasVoted) next.delete(id);
-        else next.add(id);
-        return next;
-      });
-      setLaudCounts((prev) => ({
+      // Optimistic count update
+      setLaudCountOverrides((prev) => ({
         ...prev,
         [id]: (prev[id] ?? 0) + (wasVoted ? -1 : 1),
       }));
@@ -322,19 +307,22 @@ export default function CommunityVotingPage() {
         toast.success("Lauded! Thanks for your vote.");
       }
 
-      // Server call
+      // Server call via global hook (handles DB + global state)
       try {
-        const result = await toggleLaud(parseInt(id, 10));
+        const result = await toggleLaudGlobal(id);
 
-        if (!result.success) {
+        if (result.requiresAuth) {
+          setLaudCountOverrides((prev) => ({
+            ...prev,
+            [id]: (prev[id] ?? 0) + (wasVoted ? 1 : -1),
+          }));
+          setShowAuthModal(true);
+          return;
+        }
+
+        if (result.error) {
           // Rollback
-          setVotedIds((prev) => {
-            const next = new Set(Array.from(prev));
-            if (wasVoted) next.add(id);
-            else next.delete(id);
-            return next;
-          });
-          setLaudCounts((prev) => ({
+          setLaudCountOverrides((prev) => ({
             ...prev,
             [id]: (prev[id] ?? 0) + (wasVoted ? 1 : -1),
           }));
@@ -343,7 +331,7 @@ export default function CommunityVotingPage() {
           // Reconcile with server count
           const baseTool = allTools.find((t) => t.id === id);
           const baseCount = baseTool?.upvote_count ?? 0;
-          setLaudCounts((prev) => ({
+          setLaudCountOverrides((prev) => ({
             ...prev,
             [id]: result.newCount! - baseCount,
           }));
@@ -351,20 +339,14 @@ export default function CommunityVotingPage() {
         }
       } catch {
         // Rollback on network error
-        setVotedIds((prev) => {
-          const next = new Set(Array.from(prev));
-          if (wasVoted) next.add(id);
-          else next.delete(id);
-          return next;
-        });
-        setLaudCounts((prev) => ({
+        setLaudCountOverrides((prev) => ({
           ...prev,
           [id]: (prev[id] ?? 0) + (wasVoted ? 1 : -1),
         }));
         toast.error("Something went wrong. Please try again.");
       }
     },
-    [isAuthenticated, votedIds, allTools]
+    [isAuthenticated, isLauded, toggleLaudGlobal, allTools]
   );
 
   // Filter and sort tools
@@ -563,8 +545,8 @@ export default function CommunityVotingPage() {
                   key={tool.id}
                   tool={tool}
                   rank={i + 1}
-                  voted={votedIds.has(tool.id)}
-                  laudCountOffset={laudCounts[tool.id] ?? 0}
+                  voted={isLauded(tool.id)}
+                  laudCountOffset={laudCountOverrides[tool.id] ?? 0}
                   onVote={handleVote}
                 />
               ))}

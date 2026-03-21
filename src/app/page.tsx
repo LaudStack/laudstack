@@ -24,7 +24,7 @@
  * - Browse all buttons: font 12px weight 500, padding 14px 20px, radius 48px, border #0C1830
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useTransition } from 'react';
 import {
   Search, ArrowRight, ChevronRight, ChevronLeft,
   Star,
@@ -40,6 +40,8 @@ import LogoWithFallback from '@/components/LogoWithFallback';
 
 import { useRouter } from 'next/navigation';
 import { useToolsData } from '@/hooks/useToolsData';
+import { useLaudedTools } from '@/hooks/useLaudedTools';
+import AuthGateModal from '@/components/AuthGateModal';
 import { trpc } from '@/lib/trpc/client';
 
 // ─── Static data ───────────────────────────────────────────────────────────
@@ -160,6 +162,46 @@ function ProductCard({
   const catColor = getCatColor(tool.category);
   const isFeatured = variant === 'featured';
   const isSponsored = tool.isSponsored ?? false;
+  const { isLauded, toggle } = useLaudedTools();
+  const [upvoteCount, setUpvoteCount] = useState(tool.upvote_count ?? 0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const upvoted = isLauded(tool.id);
+
+  // Keep local count in sync when tool data refreshes
+  useEffect(() => {
+    setUpvoteCount(tool.upvote_count ?? 0);
+  }, [tool.upvote_count]);
+
+  const handleLaud = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startTransition(() => {
+      const run = async () => {
+        const wasUpvoted = upvoted;
+        setUpvoteCount((c) => (wasUpvoted ? Math.max(0, c - 1) : c + 1));
+        if (!wasUpvoted) toast.success(`Lauded ${tool.name}!`);
+        try {
+          const result = await toggle(tool.id);
+          if (result.requiresAuth) {
+            setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+            setShowAuthModal(true);
+            return;
+          }
+          if (result.newCount !== undefined) {
+            setUpvoteCount(result.newCount);
+          } else if (result.lauded === wasUpvoted) {
+            setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+            toast.error('Failed to laud');
+          }
+        } catch {
+          setUpvoteCount((c) => (wasUpvoted ? c + 1 : Math.max(0, c - 1)));
+          toast.error('Something went wrong. Please try again.');
+        }
+      };
+      run().catch(console.error);
+    });
+  };
 
   return (
     <div
@@ -273,41 +315,55 @@ function ProductCard({
           </div>
         </Link>
 
-        {/* Laud button — PH-style: rounded triangle SVG */}
+        {/* Laud button — PH-style: rounded triangle SVG — fully wired */}
+        {showAuthModal && (
+          <AuthGateModal
+            open={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            action="upvote"
+          />
+        )}
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            toast.info('Sign in to Laud this stack');
+          onClick={handleLaud}
+          disabled={isPending}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: isPending ? 'wait' : 'pointer',
+            opacity: isPending ? 0.6 : 1,
           }}
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
         >
           <div
             className="flex flex-col items-center justify-center w-10 h-10 lg:w-12 lg:h-12"
             style={{
               borderRadius: '12px',
-              border: '2px solid #E2E8F0',
-              background: '#FFFFFF',
+              border: `2px solid ${upvoted ? '#FBBF24' : '#E2E8F0'}`,
+              background: upvoted ? '#FFFBEB' : '#FFFFFF',
               gap: '3px',
-              transition: 'all 0.3s',
+              transition: 'all 0.2s',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.borderColor = '#D97706';
+              if (!upvoted) e.currentTarget.style.borderColor = '#D97706';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = '#E2E8F0';
+              if (!upvoted) e.currentTarget.style.borderColor = upvoted ? '#FBBF24' : '#E2E8F0';
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 16 16">
               <path
-                fill="#FFFFFF"
-                stroke="#334155"
+                fill={upvoted ? '#FFFBEB' : '#FFFFFF'}
+                stroke={upvoted ? '#B45309' : '#334155'}
                 strokeWidth="1.5"
                 d="M6.579 3.467c.71-1.067 2.132-1.067 2.842 0L12.975 8.8c.878 1.318.043 3.2-1.422 3.2H4.447c-1.464 0-2.3-1.882-1.422-3.2z"
               />
             </svg>
-            <p className="text-[12px] lg:text-[14px]" style={{ fontWeight: 600, lineHeight: 1, color: '#334155', margin: 0 }}>
-              {tool.upvote_count ?? 0}
+            <p
+              className="text-[12px] lg:text-[14px]"
+              style={{ fontWeight: 600, lineHeight: 1, color: upvoted ? '#B45309' : '#334155', margin: 0 }}
+            >
+              {upvoteCount}
             </p>
           </div>
         </button>

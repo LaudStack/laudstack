@@ -23,7 +23,7 @@ import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
 import { editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
-import { toggleLaud } from '@/app/actions/laud';
+// toggleLaud is called via useLaudedTools hook (toggle) — no direct import needed
 import { useLaudedTools } from '@/hooks/useLaudedTools';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
@@ -394,9 +394,14 @@ export default function ToolDetail() {
     [slug, allTools]
   );
 
-  // Initialize laud count once tool data loads (F2 fix: always initialize, even for 0)
+  // Reset laud count when slug changes (navigating between tools)
   useEffect(() => {
-    if (!laudCountInitialized) {
+    setLaudCountInitialized(false);
+  }, [slug]);
+
+  // Initialize laud count once tool data loads for this slug
+  useEffect(() => {
+    if (!laudCountInitialized && toolUpvoteCount !== undefined) {
       setLaudCount(toolUpvoteCount);
       setLaudCountInitialized(true);
     }
