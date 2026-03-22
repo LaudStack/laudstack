@@ -110,6 +110,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen]     = useState(false);
   const [searchInput, setSearchInput]   = useState('');
   const [avatarOpen, setAvatarOpen]     = useState(false);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const currentPath: string = pathname ?? '/';
@@ -817,10 +818,26 @@ export default function Navbar() {
                       )}
                     </button>
 
-                    {/* Mobile avatar dropdown */}
+                    {/* Mobile avatar button - opens modal drawer */}
+                    {isAuthenticated && (
+                      <button
+                        onClick={() => setMobileProfileOpen(true)}
+                        className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer transition-colors hover:bg-slate-100"
+                        style={{ background: 'transparent' }}
+                      >
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" style={{ border: `3px solid ${NAVY}`, boxShadow: '0 0 0 1px rgba(30,41,59,0.1)' }} />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-extrabold text-white" style={{ background: NAVY, border: '3px solid #334155', boxShadow: '0 0 0 1px rgba(30,41,59,0.1)' }}>
+                            {getInitials(displayName)}
+                          </div>
+                        )}
+                      </button>
+                    )}
+                    {/* Desktop avatar dropdown */}
                     {avatarOpen && (
                       <div
-                        className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-[200]"
+                        className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl overflow-hidden z-[200] hidden lg:block"
                         style={{ border: `1px solid ${BORDER}`, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
                       >
                         <div className="px-4 py-3 border-b border-slate-200" style={{ background: NAV_BG }}>
@@ -890,6 +907,80 @@ export default function Navbar() {
                             <LogOut style={{ width: '16px', height: '16px' }} />
                             Sign Out
                           </button>
+                        </div>
+                      </div>
+                    )}
+                    {/* Mobile profile menu modal drawer */}
+                    {mobileProfileOpen && (
+                      <div className="fixed inset-0 z-[300] lg:hidden">
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-black/40" onClick={() => setMobileProfileOpen(false)} />
+                        {/* Modal drawer from bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl overflow-hidden max-h-[80vh] flex flex-col">
+                          {/* Header */}
+                          <div className="px-4 py-4 border-b border-slate-200 flex items-center justify-between" style={{ background: NAV_BG }}>
+                            <div>
+                              <p className="text-[16px] font-semibold text-slate-900">{displayName}</p>
+                              <p className="text-[13px] text-slate-500">{dbUser?.headline || 'LaudStack Member'}</p>
+                            </div>
+                            <button onClick={() => setMobileProfileOpen(false)} className="p-2 hover:bg-white/50 rounded-lg transition-colors" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                              <X style={{ width: '20px', height: '20px', color: '#334155' }} />
+                            </button>
+                          </div>
+                          {/* Menu items */}
+                          <div className="flex-1 overflow-y-auto py-2">
+                            {isStaffUser ? (
+                              <button
+                                onClick={() => { router.push('/ops-console/dashboard'); setMobileProfileOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
+                                style={{ fontSize: '15px', color: '#D97706', fontWeight: 600, background: 'transparent', border: 'none', cursor: 'pointer' }}
+                              >
+                                <Shield style={{ width: '18px', height: '18px', color: '#D97706' }} />
+                                Admin Panel
+                              </button>
+                            ) : (
+                              <>
+                                {[
+                                  { icon: User, label: 'My Dashboard', href: '/dashboard' },
+                                  { icon: PenSquare, label: 'My Reviews', href: '/dashboard?tab=reviews' },
+                                  { icon: Bookmark, label: `Saved Stacks${savedIds.length > 0 ? ` (${savedIds.length})` : ''}`, href: '/dashboard?tab=saved' },
+                                  { icon: Bell, label: `Notifications${navUnreadCount > 0 ? ` (${navUnreadCount})` : ''}`, href: '/dashboard?tab=notifications' },
+                                  { icon: Settings, label: 'Settings', href: '/dashboard?tab=settings' },
+                                ].map(item => (
+                                  <button
+                                    key={item.label}
+                                    onClick={() => { router.push(item.href); setMobileProfileOpen(false); }}
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
+                                    style={{ fontSize: '15px', color: '#334155', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                                  >
+                                    <item.icon style={{ width: '18px', height: '18px', color: '#94A3B8' }} />
+                                    {item.label}
+                                  </button>
+                                ))}
+                                {isVerifiedFounder && (
+                                  <button
+                                    onClick={() => { router.push('/dashboard/founder'); setMobileProfileOpen(false); }}
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
+                                    style={{ fontSize: '15px', color: '#D97706', fontWeight: 600, background: 'transparent', border: 'none', cursor: 'pointer' }}
+                                  >
+                                    <Crown style={{ width: '18px', height: '18px' }} />
+                                    Founder Dashboard
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {/* Sign out button */}
+                          <div className="border-t border-slate-200 p-3">
+                            <button
+                              onClick={() => { handleSignOut(); setMobileProfileOpen(false); }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors rounded-lg"
+                              style={{ fontSize: '15px', color: '#EF4444', fontWeight: 500, background: '#FEF2F2', border: 'none', cursor: 'pointer' }}
+                            >
+                              <LogOut style={{ width: '18px', height: '18px' }} />
+                              Sign Out
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
