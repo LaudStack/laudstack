@@ -59,7 +59,7 @@ export default function PublicProfile() {
   const { isAuthenticated } = useAuth();
   const { dbUser } = useDbUser();
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
-  const { isFollowingUser: isFollowingUserGlobal } = useFollowedUsers();
+  const { isFollowingUser: isFollowingUserGlobal, loading: usersLoading } = useFollowedUsers();
   const [isCurrentUserFollowing, setIsCurrentUserFollowing] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -267,7 +267,7 @@ export default function PublicProfile() {
 
             {/* Follow button + counts */}
             <div className="flex items-center gap-4 mt-4 flex-wrap">
-              {(!dbUser || dbUser.id !== parseInt(userId, 10)) && (
+              {(!dbUser || dbUser.id !== parseInt(userId, 10)) && !usersLoading && (
                 <FollowUserButton
                   targetUserId={parseInt(userId, 10)}
                   targetUserName={u.name || 'User'}

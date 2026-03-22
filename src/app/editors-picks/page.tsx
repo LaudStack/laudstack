@@ -241,7 +241,12 @@ function SpotlightCard({
           >
             <ExternalLink className="w-3.5 h-3.5" /> Visit Site
           </button>
-          <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-colors cursor-pointer">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/tools/${tool.slug}`);
+            }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-colors cursor-pointer">
             View Details <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>

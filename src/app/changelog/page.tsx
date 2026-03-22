@@ -2,10 +2,13 @@
 export const dynamic = "force-dynamic";
 
 // Design: LaudStack dark-slate + amber accent. Changelog with timeline layout.
+import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { Zap, Shield, Star, Bug, TrendingUp, Package, Users, ArrowRight, Rocket } from 'lucide-react';
+import { Zap, Shield, Star, Bug, TrendingUp, Package, Users, ArrowRight, Rocket, Loader2, CheckCircle2 } from 'lucide-react';
+import { trpc } from '@/lib/trpc/client';
+import { toast } from 'sonner';
 
 const RELEASES = [
   {
@@ -101,6 +104,34 @@ function formatDate(dateStr: string) {
 }
 
 export default function Changelog() {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
+  const subscribe = trpc.newsletter.subscribe.useMutation({
+    onSuccess: (data: { alreadySubscribed?: boolean }) => {
+      if (data.alreadySubscribed) {
+        toast.info("You're already subscribed — thanks for being part of the community!");
+      } else {
+        toast.success("You're subscribed! Check your inbox for a welcome email.");
+        setSubscribed(true);
+        setEmail('');
+      }
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err.message || 'Something went wrong. Please try again.');
+    },
+  });
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    subscribe.mutate({ email: trimmed, source: 'changelog_page' });
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
@@ -122,7 +153,7 @@ export default function Changelog() {
           <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-100 hidden md:block" />
 
           <div className="space-y-6 sm:space-y-12">
-            {RELEASES.map((release, idx) => (
+            {RELEASES.map((release) => (
               <div key={release.version} className="relative md:pl-16">
                 {/* Timeline dot */}
                 <div className="absolute left-4 top-1.5 w-4 h-4 rounded-full bg-amber-500 border-4 border-slate-950 hidden md:block" style={{ zIndex: 1 }} />
@@ -175,16 +206,34 @@ export default function Changelog() {
           <p className="text-slate-600 text-sm mb-6 max-w-md mx-auto">
             Get notified about new features and improvements as soon as they ship.
           </p>
-          <div className="flex flex-col sm:flex-row items-center gap-3 max-w-sm mx-auto">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500"
-            />
-            <button className="px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-400 transition-colors whitespace-nowrap">
-              Subscribe
-            </button>
-          </div>
+          {subscribed ? (
+            <div className="flex items-center justify-center gap-2 text-emerald-600 font-semibold text-sm">
+              <CheckCircle2 className="w-5 h-5" />
+              You&apos;re subscribed!
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center gap-3 max-w-sm mx-auto">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                className="flex-1 w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500"
+                disabled={subscribe.isPending}
+              />
+              <button
+                type="submit"
+                disabled={subscribe.isPending}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-400 transition-colors whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {subscribe.isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Subscribing…</>
+                ) : (
+                  <><ArrowRight className="w-4 h-4" /> Subscribe</>
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </div>
 

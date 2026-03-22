@@ -1040,6 +1040,9 @@ function NotificationsTab() {
     if (type === 'claim_rejected' || type === 'submission_rejected') return <AlertCircle className="w-4 h-4 text-red-500" />;
     if (type === 'tool_verified') return <Shield className="w-4 h-4 text-emerald-500" />;
     if (type === 'tool_featured') return <Award className="w-4 h-4 text-amber-500" />;
+    if (type === 'new_submission') return <Package className="w-4 h-4 text-sky-500" />;
+    if (type === 'new_claim') return <Briefcase className="w-4 h-4 text-violet-500" />;
+    if (type === 'system') return <Info className="w-4 h-4 text-slate-500" />;
     return <Bell className="w-4 h-4 text-slate-500" />;
   };
 

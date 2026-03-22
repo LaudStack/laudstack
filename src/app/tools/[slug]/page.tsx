@@ -26,14 +26,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { editReview, deleteReview, getToolDetail, markReviewHelpful, getMyHelpfulVotes } from '@/app/actions/public';
 // toggleLaud is called via useLaudedTools hook (toggle) — no direct import needed
 import { useLaudedTools } from '@/hooks/useLaudedTools';
-import { invalidateToolsCache } from '@/hooks/useToolsData';
+import { useToolsData, invalidateToolsCache } from '@/hooks/useToolsData';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCompare } from '@/contexts/CompareContext';
 import { useSavedTools } from '@/hooks/useSavedTools';
 import { useDbUser } from '@/hooks/useDbUser';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import { useToolsData } from '@/hooks/useToolsData';
 import type { Tool, Review } from '@/lib/types';
 import { getToolExtras } from '@/lib/toolExtras';
 import CommentsSection from '@/components/CommentsSection';
@@ -286,7 +285,7 @@ export default function ToolDetail() {
   const { isSelected: isComparing, toggle: compareToggle, canAdd: canCompare } = useCompare();
   const { isSaved, toggle: toggleSave } = useSavedTools();
   const { isLauded, toggle: toggleLaudGlobal } = useLaudedTools();
-  const { isFollowing: isFollowingStack } = useFollowedStacks();
+  const { isFollowing: isFollowingStack, loading: stacksLoading } = useFollowedStacks();
 
   const [selectedTab, setSelectedTab] = useState<'overview' | 'features' | 'pricing' | 'reviews' | 'team' | 'discussion' | 'alternatives'>('overview');
   const [mediaIndex, setMediaIndex] = useState(0);
@@ -739,13 +738,15 @@ export default function ToolDetail() {
                   <GitCompareArrows className="w-3.5 h-3.5" />
                   Compare
                 </button>
-                <FollowStackButton
-                  toolId={parseInt(tool.id, 10)}
-                  toolName={tool.name}
-                  initialFollowing={isFollowingStack(tool.id)}
-                  onAuthRequired={() => { setAuthAction('general'); setShowAuthModal(true); }}
-                  onToggle={(following) => setFollowerCount(prev => following ? prev + 1 : Math.max(0, prev - 1))}
-                />
+                {!stacksLoading && (
+                  <FollowStackButton
+                    toolId={parseInt(tool.id, 10)}
+                    toolName={tool.name}
+                    initialFollowing={isFollowingStack(tool.id)}
+                    onAuthRequired={() => { setAuthAction('general'); setShowAuthModal(true); }}
+                    onToggle={(following) => setFollowerCount(prev => following ? prev + 1 : Math.max(0, prev - 1))}
+                  />
+                )}
               </div>
 
               {/* Mobile: stacked compact buttons */}
@@ -809,14 +810,16 @@ export default function ToolDetail() {
                     <GitCompareArrows className="w-3.5 h-3.5" />
                     Compare
                   </button>
-                  <FollowStackButton
-                    toolId={parseInt(tool.id, 10)}
-                    toolName={tool.name}
-                    initialFollowing={isFollowingStack(tool.id)}
-                    variant="compact"
-                    onAuthRequired={() => { setAuthAction('general'); setShowAuthModal(true); }}
-                    onToggle={(following) => setFollowerCount(prev => following ? prev + 1 : Math.max(0, prev - 1))}
-                  />
+                  {!stacksLoading && (
+                    <FollowStackButton
+                      toolId={parseInt(tool.id, 10)}
+                      toolName={tool.name}
+                      initialFollowing={isFollowingStack(tool.id)}
+                      variant="compact"
+                      onAuthRequired={() => { setAuthAction('general'); setShowAuthModal(true); }}
+                      onToggle={(following) => setFollowerCount(prev => following ? prev + 1 : Math.max(0, prev - 1))}
+                    />
+                  )}
                 </div>
               </div>
             </div>
