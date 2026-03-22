@@ -90,12 +90,17 @@ async function checkLaudRateLimit(userId: number, ip: string): Promise<{ allowed
 // ─── Bot detection ──────────────────────────────────────────────────────────
 
 function isSuspiciousUserAgent(ua: string): boolean {
+  // NOTE: "unknown" is intentionally allowed here.
+  // Next.js server actions invoked from the browser do not always forward the
+  // user-agent header through Vercel's serverless runtime. Blocking "unknown"
+  // would silently reject all legitimate laud requests from real users.
+  // We only block headers that positively identify automated/scraping tools.
+  if (!ua) return false;
   const botPatterns = [
     /bot/i, /crawler/i, /spider/i, /scraper/i, /curl/i, /wget/i,
     /python-requests/i, /httpie/i, /postman/i, /insomnia/i,
     /headless/i, /phantom/i, /selenium/i, /puppeteer/i, /playwright/i,
   ];
-  if (!ua || ua === "unknown") return true;
   return botPatterns.some(p => p.test(ua));
 }
 

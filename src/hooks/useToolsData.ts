@@ -1,5 +1,20 @@
 "use client";
 
+/**
+ * useToolsData — LaudStack
+ *
+ * Shared module-level cache for homepage tool data (tools, reviews,
+ * leaderboard, stats). All mounted instances share the same data and
+ * invalidation signal so a single laud/save/review mutation refreshes
+ * every consumer simultaneously.
+ *
+ * Fix (2026-03-21): invalidateToolsCache() now broadcasts a version
+ * bump to all mounted instances via a listener set, causing them to
+ * re-fetch immediately. Previously, the useEffect had an empty
+ * dependency array so it never re-ran after invalidation — leaving
+ * every consumer with stale upvote_count values after a laud.
+ */
+
 import { useState, useEffect } from "react";
 import type { Tool, Review } from "@/lib/types";
 
@@ -23,6 +38,7 @@ interface HomepageData {
   totalUsers: number;
 }
 
+// ── Module-level cache ──────────────────────────────────────────────────────
 let cachedData: HomepageData | null = null;
 let cacheTimestamp: number | null = null;
 let fetchPromise: Promise<HomepageData> | null = null;
@@ -30,11 +46,15 @@ let fetchPromise: Promise<HomepageData> | null = null;
 /** Cache TTL: 5 minutes. Prevents serving stale rankings after a recalculation. */
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-/**
- * Normalize leaderboard entries from the API.
- * The API returns nested { rank, tool: {...}, rank_change, period } objects,
- * but the homepage expects flat { tool_id, name, slug, ... } objects.
- */
+// ── Invalidation broadcast ──────────────────────────────────────────────────
+// Every mounted useToolsData instance registers a listener here.
+// invalidateToolsCache() increments the version counter and notifies all
+// listeners so they re-fetch immediately.
+type InvalidationListener = () => void;
+const invalidationListeners = new Set<InvalidationListener>();
+let cacheVersion = 0;
+
+// ── Leaderboard normalizer ──────────────────────────────────────────────────
 function normalizeLeaderboard(raw: unknown[]): FlatLeaderboardEntry[] {
   if (!Array.isArray(raw) || raw.length === 0) return [];
   const first = raw[0] as Record<string, unknown>;
@@ -63,11 +83,13 @@ function normalizeLeaderboard(raw: unknown[]): FlatLeaderboardEntry[] {
     .filter((e): e is FlatLeaderboardEntry => e !== null);
 }
 
+// ── Fetch helper ────────────────────────────────────────────────────────────
 function fetchData(): Promise<HomepageData> {
-  // Expire the cache after TTL so rankings stay fresh
+  // Serve from cache if still fresh
   if (cachedData && cacheTimestamp && Date.now() - cacheTimestamp < CACHE_TTL_MS) {
     return Promise.resolve(cachedData);
   }
+  // De-duplicate concurrent fetches
   if (fetchPromise) return fetchPromise;
   fetchPromise = fetch("/api/homepage")
     .then((r) => r.json())
@@ -81,12 +103,17 @@ function fetchData(): Promise<HomepageData> {
       };
       cachedData = normalized;
       cacheTimestamp = Date.now();
+      fetchPromise = null;
       return normalized;
     })
-    .catch(() => ({ tools: [], reviews: [], leaderboard: [], totalReviews: 0, totalUsers: 0 }));
+    .catch(() => {
+      fetchPromise = null;
+      return { tools: [], reviews: [], leaderboard: [], totalReviews: 0, totalUsers: 0 };
+    });
   return fetchPromise;
 }
 
+// ── Hook ────────────────────────────────────────────────────────────────────
 export function useToolsData() {
   const [tools, setTools] = useState<Tool[]>(cachedData?.tools ?? []);
   const [reviews, setReviews] = useState<Review[]>(cachedData?.reviews ?? []);
@@ -94,8 +121,23 @@ export function useToolsData() {
   const [totalReviews, setTotalReviews] = useState<number>(cachedData?.totalReviews ?? 0);
   const [totalUsers, setTotalUsers] = useState<number>(cachedData?.totalUsers ?? 0);
   const [loading, setLoading] = useState(!cachedData);
+  // Local version counter — incremented when invalidation is broadcast
+  const [localVersion, setLocalVersion] = useState(cacheVersion);
 
+  // Subscribe to invalidation broadcasts
   useEffect(() => {
+    const handler: InvalidationListener = () => {
+      setLocalVersion((v) => v + 1);
+    };
+    invalidationListeners.add(handler);
+    return () => {
+      invalidationListeners.delete(handler);
+    };
+  }, []);
+
+  // Fetch (or re-fetch) whenever localVersion changes
+  useEffect(() => {
+    setLoading(true);
     fetchData().then((data) => {
       setTools(data.tools);
       setReviews(data.reviews);
@@ -104,14 +146,23 @@ export function useToolsData() {
       setTotalUsers(data.totalUsers);
       setLoading(false);
     });
-  }, []);
+  }, [localVersion]);
 
   return { tools, reviews, leaderboard, totalReviews, totalUsers, loading };
 }
 
-// Invalidate cache (call after mutations like upvote)
+// ── Cache invalidation ──────────────────────────────────────────────────────
+/**
+ * Invalidate the tools cache and immediately trigger a re-fetch in all
+ * mounted useToolsData consumers.
+ *
+ * Call this after any mutation that changes tool data (laud, review, save).
+ */
 export function invalidateToolsCache() {
   cachedData = null;
   cacheTimestamp = null;
   fetchPromise = null;
+  cacheVersion += 1;
+  // Notify all mounted instances to re-fetch
+  invalidationListeners.forEach((fn) => fn());
 }

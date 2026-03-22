@@ -21,6 +21,14 @@
  *  - `_loading` is MODULE-LEVEL so new instances get the correct
  *    loading state immediately without waiting for their own effect.
  *  - Registers a cache invalidator so sign-out clears the module cache.
+ *
+ * Fix history:
+ *  - 2026-03-21: _fetchedForSession is now only set to true AFTER a
+ *    successful fetch (not before), so a failed fetch is always retried.
+ *  - 2026-03-21: Revert logic uses a pre-optimistic snapshot of
+ *    globalLaudedIds to avoid incorrect state on concurrent toggles.
+ *  - 2026-03-21: Catch block resets _fetchedForSession = false so the
+ *    next render cycle retries the fetch.
  */
 import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +39,7 @@ import { registerCacheInvalidator } from "@/hooks/authCacheInvalidators";
 type LaudListener = (ids: string[]) => void;
 const listeners = new Set<LaudListener>();
 let globalLaudedIds: string[] = [];
-let _fetchedForSession = false; // module-level guard — survives remounts
+let _fetchedForSession = false; // set to true only AFTER a successful fetch
 let _loading = true;            // module-level loading flag
 
 function broadcast(ids: string[]) {
@@ -80,20 +88,23 @@ export function useLaudedTools() {
         setLoading(false);
         return;
       }
-      // First fetch for this session
-      _fetchedForSession = true;
+      // First fetch for this session — do NOT set _fetchedForSession = true yet.
+      // It is only set to true after a successful response so that a failed
+      // fetch is always retried on the next render cycle.
       _loading = true;
       setLoading(true);
       getUserLaudedToolIds()
         .then((ids) => {
           const strIds = ids.map(String);
           _loading = false;
+          _fetchedForSession = true; // mark success AFTER the fetch completes
           broadcast(strIds);
           setLoading(false);
         })
         .catch((err) => {
           console.error("[useLaudedTools] Failed to fetch lauded tools:", err);
           _loading = false;
+          _fetchedForSession = false; // allow retry on next render cycle
           setLoading(false);
         });
     } else {
@@ -126,31 +137,47 @@ export function useLaudedTools() {
         return { requiresAuth: true };
       }
 
+      // Capture a snapshot of globalLaudedIds BEFORE the optimistic update.
+      // This snapshot is used for reverting so that concurrent toggles on
+      // other tools do not corrupt the revert logic.
+      const snapshotBeforeToggle = [...globalLaudedIds];
+      const wasLauded = snapshotBeforeToggle.includes(strId);
+
       // Optimistic update
-      const wasLauded = globalLaudedIds.includes(strId);
       const optimistic = wasLauded
-        ? globalLaudedIds.filter((x) => x !== strId)
-        : [...globalLaudedIds, strId];
+        ? snapshotBeforeToggle.filter((x) => x !== strId)
+        : [...snapshotBeforeToggle, strId];
       broadcast(optimistic);
 
       try {
         const result = await toggleLaud(numId);
         if (!result.success) {
-          // Revert on failure — re-read globalLaudedIds in case another toggle ran concurrently
+          // Revert to the snapshot state, then re-apply any concurrent changes
+          // that happened to OTHER tools while this request was in flight.
+          // Strategy: take the current globalLaudedIds (which may have changed
+          // due to other toggles), remove/add strId back to the pre-toggle state.
+          const currentOthers = globalLaudedIds.filter((x) => x !== strId);
           const reverted = wasLauded
-            ? [...globalLaudedIds, strId]
-            : globalLaudedIds.filter((x) => x !== strId);
+            ? [...currentOthers, strId]
+            : currentOthers;
           broadcast(reverted);
           console.error("[useLaudedTools] Toggle failed:", result.error);
           return { lauded: wasLauded, error: result.error };
         }
-        // Confirm the optimistic update (already applied)
+        // Confirm the optimistic update (already applied).
+        // Sync the final authoritative state from the server.
+        const currentOthers = globalLaudedIds.filter((x) => x !== strId);
+        const confirmed = result.lauded
+          ? [...currentOthers, strId]
+          : currentOthers;
+        broadcast(confirmed);
         return { lauded: result.lauded, newCount: result.newCount };
       } catch (err) {
-        // Revert on error
+        // Revert on network/unexpected error
+        const currentOthers = globalLaudedIds.filter((x) => x !== strId);
         const reverted = wasLauded
-          ? [...globalLaudedIds, strId]
-          : globalLaudedIds.filter((x) => x !== strId);
+          ? [...currentOthers, strId]
+          : currentOthers;
         broadcast(reverted);
         console.error("[useLaudedTools] Toggle error:", err);
         return { lauded: wasLauded, error: "Network error" };
@@ -173,6 +200,7 @@ export function useLaudedTools() {
       broadcast(strIds);
     } catch (err) {
       console.error("[useLaudedTools] Refetch error:", err);
+      _fetchedForSession = false; // allow retry
     }
   }, [isAuthenticated]);
 

@@ -15,7 +15,7 @@
  *                [1 badge max]
  */
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -265,6 +265,14 @@ function useLaudGlobal(tool: Tool) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isPending, startTransition] = useTransition();
   const upvoted = isLauded(tool.id);
+
+  // Sync local upvoteCount when the parent re-renders with a fresh tool prop
+  // (e.g. after invalidateToolsCache triggers a refetch in useToolsData).
+  // Without this, the local useState value stays stale even when the parent
+  // has the updated count from the DB.
+  useEffect(() => {
+    setUpvoteCount(tool.upvote_count ?? 0);
+  }, [tool.upvote_count]);
 
   const handleUpvote = (e: React.MouseEvent) => {
     e.preventDefault();

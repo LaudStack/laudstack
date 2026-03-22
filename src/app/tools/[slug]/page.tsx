@@ -294,7 +294,6 @@ export default function ToolDetail() {
   const [mediaErr, setMediaErr] = useState(false);
   // upvoted state is now derived from the global useLaudedTools hook
   const [laudCount, setLaudCount] = useState(0);
-  const [laudCountInitialized, setLaudCountInitialized] = useState(false);
   const [helpfulMap, setHelpfulMap] = useState<Record<string, boolean>>({});
   const [reviewOpen, setReviewOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -395,18 +394,15 @@ export default function ToolDetail() {
     [slug, allTools]
   );
 
-  // Reset laud count when slug changes (navigating between tools)
+  // Sync laudCount whenever toolUpvoteCount changes (slug navigation or cache refetch).
+  // We always accept the server value here; handleUpvote sets the count directly
+  // from result.newCount after each toggle so there is no risk of overwriting a
+  // pending optimistic update.
   useEffect(() => {
-    setLaudCountInitialized(false);
-  }, [slug]);
-
-  // Initialize laud count once tool data loads for this slug
-  useEffect(() => {
-    if (!laudCountInitialized && toolUpvoteCount !== undefined) {
+    if (toolUpvoteCount !== undefined) {
       setLaudCount(toolUpvoteCount);
-      setLaudCountInitialized(true);
     }
-  }, [slug, toolUpvoteCount, laudCountInitialized]);
+  }, [slug, toolUpvoteCount]);
 
   // upvoted state is now derived from the global useLaudedTools hook
   const upvoted = stableToolId ? isLauded(stableToolId) : false;
