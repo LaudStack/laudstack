@@ -28,7 +28,8 @@ export default function ReviewShareButtons({
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const reviewUrl = `https://laudstack.com/tools/${toolSlug}#review-${reviewId}`;
+  const siteUrl = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SITE_URL) || 'https://laudstack.com';
+  const reviewUrl = `${siteUrl}/tools/${toolSlug}#review-${reviewId}`;
   const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
   const shareText = `${stars} "${reviewSnippet.slice(0, 120)}${reviewSnippet.length > 120 ? "…" : ""}" — Review of ${toolName} on @LaudStack`;
 

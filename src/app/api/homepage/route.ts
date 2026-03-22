@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { tools, reviews, users } from "@/drizzle/schema";
-import { eq, desc, and, sql, count, inArray } from "drizzle-orm";
+import { eq, desc, and, count, inArray } from "drizzle-orm";
 import { dbToolsToFrontend, dbToolToLeaderboard } from "@/lib/adapters";
+import type { Founder } from "@/lib/types";
 
 export async function GET() {
   try {
@@ -18,7 +19,48 @@ export async function GET() {
       db.select({ count: count() }).from(users),
     ]);
 
-    const frontendTools = dbToolsToFrontend(allApprovedTools);
+    // ── Fetch founder info for all claimed tools in one query ──────────────────
+    const claimedByIds = [...new Set(
+      allApprovedTools
+        .map(t => t.claimedBy)
+        .filter((id): id is number => id !== null && id !== undefined)
+    )];
+
+    let founderMap: Map<number, Founder> = new Map();
+    if (claimedByIds.length > 0) {
+      const founderRows = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          name: users.name,
+          avatarUrl: users.avatarUrl,
+          twitterHandle: users.twitterHandle,
+          linkedinUrl: users.linkedinUrl,
+          founderBio: users.founderBio,
+          founderPlanActive: users.founderPlanActive,
+        })
+        .from(users)
+        .where(inArray(users.id, claimedByIds));
+
+      founderRows.forEach(f => {
+        const displayName =
+          (f.firstName ? [f.firstName, f.lastName].filter(Boolean).join(" ") : null) ??
+          f.name ??
+          "Founder";
+        founderMap.set(f.id, {
+          id: String(f.id),
+          name: displayName,
+          avatar_url: f.avatarUrl ?? undefined,
+          twitter_handle: f.twitterHandle ?? undefined,
+          linkedin_url: f.linkedinUrl ?? undefined,
+          bio: f.founderBio ?? undefined,
+          is_pro: f.founderPlanActive ?? false,
+        });
+      });
+    }
+
+    const frontendTools = dbToolsToFrontend(allApprovedTools, founderMap);
 
     // Build leaderboard: already ordered by rankScore from DB — take top 10 with reviews
     const leaderboard = allApprovedTools

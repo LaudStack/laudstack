@@ -20,7 +20,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
-import { getAllPublishedReviews, markReviewHelpful } from '@/app/actions/public';
+import { getAllPublishedReviews, markReviewHelpful, getMyHelpfulVotes } from '@/app/actions/public';
 import { useAuth } from '@/hooks/useAuth';
 import AuthGateModal from '@/components/AuthGateModal';
 import { toast } from 'sonner';
@@ -126,11 +126,11 @@ function HeroSkeleton() {
 
 // ─── Review Card ─────────────────────────────────────────────────────────────
 
-function ReviewCard({ review, onAuthRequired }: { review: any; onAuthRequired: () => void }) {
+function ReviewCard({ review, onAuthRequired, initialVoted = false }: { review: any; onAuthRequired: () => void; initialVoted?: boolean }) {
   const router = useRouter();
   const { user } = useAuth();
   const [helpful, setHelpful] = useState(review.helpful_count ?? 0);
-  const [voted, setVoted] = useState(false);
+  const [voted, setVoted] = useState(initialVoted);
 
   const initials = review.user?.name
     ? review.user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -265,6 +265,7 @@ export default function ReviewsPage() {
   const [allReviews, setAllReviews] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [myVotedIds, setMyVotedIds] = useState<Set<number>>(new Set());
 
   const [sortBy, setSortBy]             = useState('recent');
   const [ratingFilter, setRatingFilter] = useState('all');
@@ -276,13 +277,17 @@ export default function ReviewsPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const handleAuthRequired = useCallback(() => setShowAuthModal(true), []);
 
-  // Fetch ALL published reviews from server action
+  // Fetch ALL published reviews + current user's helpful votes in parallel
   useEffect(() => {
     setLoading(true);
-    getAllPublishedReviews({ limit: 500 })
-      .then(data => {
+    Promise.all([
+      getAllPublishedReviews({ limit: 500 }),
+      getMyHelpfulVotes(),
+    ])
+      .then(([data, myVotes]) => {
         setAllReviews(data.reviews);
         setTotalCount(data.total);
+        setMyVotedIds(new Set(myVotes));
       })
       .catch(() => {
         setAllReviews([]);
@@ -505,7 +510,7 @@ export default function ReviewsPage() {
         {filtered.length > 0 ? (
           <div className="space-y-4">
             {filtered.map(review => (
-              <ReviewCard key={review.id} review={review} onAuthRequired={handleAuthRequired} />
+              <ReviewCard key={review.id} review={review} onAuthRequired={handleAuthRequired} initialVoted={myVotedIds.has(parseInt(review.id, 10))} />
             ))}
           </div>
         ) : (

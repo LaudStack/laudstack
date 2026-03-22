@@ -109,6 +109,40 @@ export async function getToolDetail(slug: string) {
 
   if (!tool) return null;
 
+  // Fetch founder info if the tool is claimed
+  let founder: { id: string; name: string; avatar_url?: string; twitter_handle?: string; linkedin_url?: string; bio?: string; is_pro: boolean } | undefined;
+  if (tool.claimedBy) {
+    const founderRow = await db.query.users.findFirst({
+      where: eq(users.id, tool.claimedBy),
+      columns: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        name: true,
+        avatarUrl: true,
+        twitterHandle: true,
+        linkedinUrl: true,
+        founderBio: true,
+        founderPlanActive: true,
+      },
+    });
+    if (founderRow) {
+      const displayName =
+        (founderRow.firstName ? [founderRow.firstName, founderRow.lastName].filter(Boolean).join(' ') : null) ??
+        founderRow.name ??
+        'Founder';
+      founder = {
+        id: String(founderRow.id),
+        name: displayName,
+        avatar_url: founderRow.avatarUrl ?? undefined,
+        twitter_handle: founderRow.twitterHandle ?? undefined,
+        linkedin_url: founderRow.linkedinUrl ?? undefined,
+        bio: founderRow.founderBio ?? undefined,
+        is_pro: founderRow.founderPlanActive ?? false,
+      };
+    }
+  }
+
   // Get reviews with user info — only published reviews visible to public
   const toolReviews = await db
     .select({
@@ -167,6 +201,7 @@ export async function getToolDetail(slug: string) {
 
   return {
     tool,
+    founder,
     reviews: enrichedReviews,
     relatedTools,
     ratingDistribution: distribution,
@@ -905,5 +940,24 @@ export async function markReviewHelpful(reviewId: number) {
       return { success: false, error: "You have already marked this review as helpful" };
     }
     return { success: false, error: "Failed to mark review as helpful" };
+  }
+}
+
+// ─── Get Current User's Helpful Vote IDs ────────────────────────────────────
+/**
+ * Returns the set of review IDs that the current user has already marked as helpful.
+ * Used to pre-populate the voted state on the reviews page and tool detail page.
+ */
+export async function getMyHelpfulVotes(): Promise<number[]> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return [];
+    const rows = await db
+      .select({ reviewId: reviewHelpfulVotes.reviewId })
+      .from(reviewHelpfulVotes)
+      .where(eq(reviewHelpfulVotes.userId, user.id));
+    return rows.map(r => r.reviewId);
+  } catch {
+    return [];
   }
 }

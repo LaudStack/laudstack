@@ -23,7 +23,7 @@ import Navbar from '@/components/Navbar';
 import WriteReviewModal from '@/components/WriteReviewModal';
 import AuthGateModal from '@/components/AuthGateModal';
 import { useAuth } from '@/hooks/useAuth';
-import { editReview, deleteReview, getToolDetail, markReviewHelpful } from '@/app/actions/public';
+import { editReview, deleteReview, getToolDetail, markReviewHelpful, getMyHelpfulVotes } from '@/app/actions/public';
 // toggleLaud is called via useLaudedTools hook (toggle) — no direct import needed
 import { useLaudedTools } from '@/hooks/useLaudedTools';
 import { invalidateToolsCache } from '@/hooks/useToolsData';
@@ -333,7 +333,10 @@ export default function ToolDetail() {
   useEffect(() => {
     if (!slug) return;
     setReviewsLoading(true);
-    getToolDetail(slug).then(data => {
+    Promise.all([
+      getToolDetail(slug),
+      getMyHelpfulVotes(),
+    ]).then(([data, myVotes]) => {
       if (data) {
         const converted = (data.reviews ?? []).map((r: ServerReview) => toFrontendReview(r, String(data.tool.id)));
         setToolReviews(converted);
@@ -342,6 +345,12 @@ export default function ToolDetail() {
           ? converted.reduce((sum: number, r: Review) => sum + r.rating, 0) / converted.length
           : 0;
         setRealAvgRating(avgR);
+      }
+      // Pre-populate helpful votes so already-voted reviews show as voted
+      if (myVotes.length > 0) {
+        const votedMap: Record<string, boolean> = {};
+        myVotes.forEach(id => { votedMap[String(id)] = true; });
+        setHelpfulMap(prev => ({ ...prev, ...votedMap }));
       }
     }).catch(() => {}).finally(() => setReviewsLoading(false));
   }, [slug]);
@@ -1109,7 +1118,7 @@ export default function ToolDetail() {
                       </div>
                     ) : (
                       reviews.map((review, i) => (
-                        <div key={review.id} className="px-5 sm:px-7 py-5 sm:py-6" style={{ borderBottom: i < reviews.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                        <div key={review.id} id={`review-${review.id}`} className="px-5 sm:px-7 py-5 sm:py-6" style={{ borderBottom: i < reviews.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
                           <div className="flex flex-col gap-3 mb-4">
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex items-center gap-3 min-w-0">
@@ -1276,17 +1285,7 @@ export default function ToolDetail() {
                               reviewId={parseInt(review.id, 10)}
                               isFounder={true}
                               hasExistingReply={!!review.founder_reply}
-                              onReplySuccess={() => {
-                                // Refresh tool data to show the new reply
-                                if (tool?.slug) {
-                                  getToolDetail(tool.slug).then(data => {
-                                    if (data) {
-                                      // Refresh reviews in place
-                                      window.location.reload();
-                                    }
-                                  });
-                                }
-                              }}
+                              onReplySuccess={refreshReviews}
                             />
                           )}
                         </div>

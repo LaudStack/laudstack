@@ -131,9 +131,16 @@ export default function WriteReviewModal({
       });
 
       if (result.success) {
-        setSubmitted(true);
         invalidateToolsCache();
-        onSuccess?.();
+        if (result.message) {
+          // Review is pending moderation (spam-flagged) — show toast and close
+          toast.info(result.message);
+          handleClose();
+          onSuccess?.();
+        } else {
+          setSubmitted(true);
+          onSuccess?.();
+        }
       } else if (result.error === "EMAIL_NOT_VERIFIED") {
         setShowVerifyModal(true);
       } else {

@@ -2,10 +2,11 @@
  * Adapters to convert Drizzle DB records (camelCase) to frontend types (snake_case).
  * This allows all existing components (ToolCard, etc.) to work without modification.
  */
-import type { Tool as FrontendTool, Review as FrontendReview, LeaderboardEntry } from "./types";
+import type { Tool as FrontendTool, Review as FrontendReview, LeaderboardEntry, Founder } from "./types";
 import type { Tool as DbTool, Review as DbReview } from "@/drizzle/schema";
 
-export function dbToolToFrontend(t: DbTool): FrontendTool {
+export function dbToolToFrontend(t: DbTool, founderMap?: Map<number, Founder>): FrontendTool {
+  const founder = (founderMap && t.claimedBy) ? founderMap.get(t.claimedBy) : undefined;
   return {
     id: String(t.id),
     slug: t.slug,
@@ -31,13 +32,14 @@ export function dbToolToFrontend(t: DbTool): FrontendTool {
     launched_at: t.launchedAt.toISOString(),
     created_at: t.createdAt.toISOString(),
     updated_at: t.updatedAt.toISOString(),
+    founder,
     features: (Array.isArray(t.features) ? t.features : typeof t.features === "string" ? JSON.parse(t.features) : []) as FrontendTool["features"],
     pricing_tiers: (Array.isArray(t.pricingTiers) ? t.pricingTiers : typeof t.pricingTiers === "string" ? JSON.parse(t.pricingTiers) : []) as FrontendTool["pricing_tiers"],
   };
 }
 
-export function dbToolsToFrontend(tools: DbTool[]): FrontendTool[] {
-  return tools.map(dbToolToFrontend);
+export function dbToolsToFrontend(tools: DbTool[], founderMap?: Map<number, Founder>): FrontendTool[] {
+  return tools.map(t => dbToolToFrontend(t, founderMap));
 }
 
 export function dbReviewToFrontend(
