@@ -1,52 +1,52 @@
 "use client";
 
 /**
- * useFollowedStacks — LaudStack
+ * useFollowedUsers — LaudStack
  *
- * DB-backed followed stacks hook. Uses server actions for authenticated users.
- * Follows the same global event bus pattern as useSavedTools.
+ * DB-backed followed users hook. Uses server actions for authenticated users.
+ * Mirrors the same global event bus pattern as useFollowedStacks.
  *
- * Exposes isFollowing, followedIds, loading, and refetch helpers.
- * The actual toggle is handled by the FollowStackButton component.
+ * Exposes isFollowingUser, followedUserIds, loading, and refetch helpers.
+ * The actual toggle is handled by the FollowUserButton component.
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { getCurrentUserFollowedStackIds } from "@/app/actions/follows";
+import { getCurrentUserFollowedUserIds } from "@/app/actions/follows";
 import { registerCacheInvalidator } from "@/hooks/authCacheInvalidators";
 
 // ── Global event bus for cross-component sync ──────────────────────────────
-type FollowListener = (ids: number[]) => void;
-const listeners = new Set<FollowListener>();
-let globalFollowedIds: number[] = [];
+type FollowUserListener = (ids: number[]) => void;
+const listeners = new Set<FollowUserListener>();
+let globalFollowedUserIds: number[] = [];
 let globalFetched = false;
 
 function broadcast(ids: number[]) {
-  globalFollowedIds = ids;
+  globalFollowedUserIds = ids;
   listeners.forEach((fn) => fn(ids));
 }
 
 /** Clear the global cache on sign-out so the next user starts fresh */
-function clearFollowedStacksCache() {
+function clearFollowedUsersCache() {
   globalFetched = false;
   broadcast([]);
 }
 
 // Register the invalidator once at module load time
-registerCacheInvalidator(clearFollowedStacksCache);
+registerCacheInvalidator(clearFollowedUsersCache);
 
-/** Imperatively add/remove an ID from the global set (used by FollowStackButton and FollowingTab) */
-export function updateFollowedStackId(toolId: number, following: boolean) {
-  if (following && !globalFollowedIds.includes(toolId)) {
-    broadcast([...globalFollowedIds, toolId]);
+/** Imperatively add/remove a user ID from the global set (used by FollowUserButton and dashboard) */
+export function updateFollowedUserId(userId: number, following: boolean) {
+  if (following && !globalFollowedUserIds.includes(userId)) {
+    broadcast([...globalFollowedUserIds, userId]);
   } else if (!following) {
-    broadcast(globalFollowedIds.filter((id) => id !== toolId));
+    broadcast(globalFollowedUserIds.filter((id) => id !== userId));
   }
 }
 
-export function useFollowedStacks() {
+export function useFollowedUsers() {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const [followedIds, setFollowedIds] = useState<number[]>(globalFollowedIds);
+  const [followedUserIds, setFollowedUserIds] = useState<number[]>(globalFollowedUserIds);
   const [loading, setLoading] = useState(!globalFetched);
   const mountedRef = useRef(true);
 
@@ -58,20 +58,20 @@ export function useFollowedStacks() {
 
   // ── Subscribe to global broadcasts ──
   useEffect(() => {
-    const handler: FollowListener = (ids) => {
-      if (mountedRef.current) setFollowedIds(ids);
+    const handler: FollowUserListener = (ids) => {
+      if (mountedRef.current) setFollowedUserIds(ids);
     };
     listeners.add(handler);
     // Sync with current global state on mount
-    if (globalFollowedIds.length > 0 || globalFetched) {
-      setFollowedIds(globalFollowedIds);
+    if (globalFollowedUserIds.length > 0 || globalFetched) {
+      setFollowedUserIds(globalFollowedUserIds);
     }
     return () => {
       listeners.delete(handler);
     };
   }, []);
 
-  // ── Fetch followed stack IDs from DB when authenticated ──
+  // ── Fetch followed user IDs from DB when authenticated ──
   useEffect(() => {
     if (authLoading) return;
 
@@ -81,7 +81,7 @@ export function useFollowedStacks() {
         // It is only set to true AFTER a successful fetch so that a failed
         // or interrupted fetch is always retried on the next render cycle.
         setLoading(true);
-        getCurrentUserFollowedStackIds()
+        getCurrentUserFollowedUserIds()
           .then((ids) => {
             if (mountedRef.current) {
               globalFetched = true; // mark success AFTER the fetch completes
@@ -90,7 +90,7 @@ export function useFollowedStacks() {
             }
           })
           .catch((err) => {
-            console.error("[useFollowedStacks] Failed to fetch:", err);
+            console.error("[useFollowedUsers] Failed to fetch:", err);
             if (mountedRef.current) {
               globalFetched = false; // Allow retry
               setLoading(false);
@@ -98,30 +98,30 @@ export function useFollowedStacks() {
           });
       } else {
         // Already fetched globally, just sync local state
-        setFollowedIds(globalFollowedIds);
+        setFollowedUserIds(globalFollowedUserIds);
         setLoading(false);
       }
     } else {
       // Not authenticated — clear everything
-      clearFollowedStacksCache();
+      clearFollowedUsersCache();
       if (mountedRef.current) setLoading(false);
     }
   }, [isAuthenticated, authLoading]);
 
-  const isFollowing = useCallback(
-    (id: string | number) => followedIds.includes(Number(id)),
-    [followedIds]
+  const isFollowingUser = useCallback(
+    (id: string | number) => followedUserIds.includes(Number(id)),
+    [followedUserIds]
   );
 
   const refetch = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
-      const ids = await getCurrentUserFollowedStackIds();
+      const ids = await getCurrentUserFollowedUserIds();
       broadcast(ids);
     } catch (err) {
-      console.error("[useFollowedStacks] Refetch error:", err);
+      console.error("[useFollowedUsers] Refetch error:", err);
     }
   }, [isAuthenticated]);
 
-  return { followedIds, isFollowing, loading, refetch };
+  return { followedUserIds, isFollowingUser, loading, refetch };
 }

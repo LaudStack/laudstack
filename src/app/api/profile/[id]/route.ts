@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
-import { users, reviews, tools, savedTools } from "@/drizzle/schema";
+import { users, reviews, tools, savedTools, userFollows } from "@/drizzle/schema";
 import { eq, sql, count, and, ne, or } from "drizzle-orm";
 
 export const runtime = "nodejs";
@@ -43,6 +43,7 @@ export async function GET(
         city: users.city,
         state: users.state,
         country: users.country,
+        emailVerified: users.emailVerified,
         publicProfile: users.publicProfile,
         showReviewsPublicly: users.showReviewsPublicly,
       })
@@ -74,16 +75,28 @@ export async function GET(
           city: null,
           state: null,
           country: null,
-          isPrivate: true,
-        },
-        stats: { reviewCount: 0, avgRating: 0, savedToolsCount: 0 },
-        badges: [],
-        founderTools: [],
-        recentReviews: [],
-      });
-    }
+        isPrivate: true,
+      },
+      stats: { reviewCount: 0, avgRating: 0, savedToolsCount: 0, followers: 0, following: 0 },
+      badges: [],
+      founderTools: [],
+      recentReviews: [],
+    });
+  }
 
-    // Count published reviews only (hidden/removed reviews should not appear publicly)
+  // Fetch follow counts
+  const [followerResult, followingResult] = await Promise.all([
+    db.select({ count: count() })
+      .from(userFollows)
+      .where(eq(userFollows.followingId, userId)),
+    db.select({ count: count() })
+      .from(userFollows)
+      .where(eq(userFollows.followerId, userId)),
+  ]);
+  const followersCount = followerResult[0]?.count ?? 0;
+  const followingCount = followingResult[0]?.count ?? 0;
+
+  // Count published reviews only (hidden/removed reviews should not appear publicly)
     const [reviewStats] = await db
       .select({
         count: count(),
@@ -190,12 +203,15 @@ export async function GET(
         city: user.city,
         state: user.state,
         country: user.country,
+        emailVerified: user.emailVerified,
         isPrivate: false,
       },
       stats: {
         reviewCount,
         avgRating,
         savedToolsCount: savedCount,
+        followers: followersCount,
+        following: followingCount,
       },
       badges,
       founderTools,

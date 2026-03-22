@@ -14,7 +14,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FollowUserButton from '@/components/FollowUserButton';
 import AuthGateModal from '@/components/AuthGateModal';
-import { getUserFollowCounts, getFollowers, getFollowing, isFollowingUser } from '@/app/actions/follows';
+import { getFollowers, getFollowing, isFollowingUser } from '@/app/actions/follows';
+import { useFollowedUsers } from '@/hooks/useFollowedUsers';
 import { useAuth } from '@/hooks/useAuth';
 import { useDbUser } from '@/hooks/useDbUser';
 
@@ -58,6 +59,7 @@ export default function PublicProfile() {
   const { isAuthenticated } = useAuth();
   const { dbUser } = useDbUser();
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
+  const { isFollowingUser: isFollowingUserGlobal } = useFollowedUsers();
   const [isCurrentUserFollowing, setIsCurrentUserFollowing] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -78,16 +80,31 @@ export default function PublicProfile() {
       .catch(err => { setError(err.message); setLoading(false); });
   }, [userId]);
 
-  // Fetch follow counts and follow state
+  // Sync follow counts from API response
+  useEffect(() => {
+    if (profile?.stats) {
+      setFollowCounts({
+        followers: profile.stats.followers ?? 0,
+        following: profile.stats.following ?? 0,
+      });
+    }
+  }, [profile]);
+
+  // Sync follow state from global hook (covers the case where user was followed from another page)
   useEffect(() => {
     if (!userId) return;
     const numId = parseInt(userId, 10);
     if (isNaN(numId)) return;
-    getUserFollowCounts(numId).then(setFollowCounts).catch(() => {});
     if (isAuthenticated && dbUser && dbUser.id !== numId) {
-      isFollowingUser(numId).then(setIsCurrentUserFollowing).catch(() => {});
+      // Check global cache first, then fall back to server action
+      const cachedState = isFollowingUserGlobal(numId);
+      setIsCurrentUserFollowing(cachedState);
+      // Also verify with server in case cache is stale
+      isFollowingUser(numId).then(serverState => {
+        setIsCurrentUserFollowing(serverState);
+      }).catch(() => {});
     }
-  }, [userId, isAuthenticated, dbUser]);
+  }, [userId, isAuthenticated, dbUser, isFollowingUserGlobal]);
 
   const loadFollowers = useCallback(async () => {
     if (!userId) return;
@@ -211,9 +228,11 @@ export default function PublicProfile() {
                     <Rocket className="w-3 h-3" /> Founder
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-2.5 py-1 rounded-full">
-                  <CheckCircle className="w-3 h-3" /> Verified
-                </span>
+                {(u.emailVerified || u.role === 'admin' || u.role === 'moderator') && (
+                  <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-2.5 py-1 rounded-full">
+                    <CheckCircle className="w-3 h-3" /> Verified
+                  </span>
+                )}
               </div>
             </div>
 

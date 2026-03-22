@@ -198,10 +198,25 @@ export async function getFollowers(userId: number, limit = 50, offset = 0): Prom
   total: number;
 }> {
   try {
+    const currentUser = await getCurrentUser();
+    
+    // Privacy check: only allow viewing followers list if it's the current user,
+    // or if the target user has a public profile
+    if (!currentUser || currentUser.id !== userId) {
+      const targetUser = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: { publicProfile: true }
+      });
+      if (!targetUser || !targetUser.publicProfile) {
+        return { users: [], total: 0 };
+      }
+    }
     const [rows, totalResult] = await Promise.all([
       db.select({
         id: users.id,
         name: users.name,
+        firstName: users.firstName,
+        lastName: users.lastName,
         avatarUrl: users.avatarUrl,
         followedAt: userFollows.createdAt,
       })
@@ -217,7 +232,12 @@ export async function getFollowers(userId: number, limit = 50, offset = 0): Prom
     ]);
 
     return {
-      users: rows,
+      users: rows.map(r => ({
+        id: r.id,
+        name: (r.firstName ? [r.firstName, r.lastName].filter(Boolean).join(" ") : null) || r.name,
+        avatarUrl: r.avatarUrl,
+        followedAt: r.followedAt,
+      })),
       total: totalResult[0]?.count ?? 0,
     };
   } catch (error) {
@@ -234,10 +254,25 @@ export async function getFollowing(userId: number, limit = 50, offset = 0): Prom
   total: number;
 }> {
   try {
+    const currentUser = await getCurrentUser();
+    
+    // Privacy check: only allow viewing following list if it's the current user,
+    // or if the target user has a public profile
+    if (!currentUser || currentUser.id !== userId) {
+      const targetUser = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: { publicProfile: true }
+      });
+      if (!targetUser || !targetUser.publicProfile) {
+        return { users: [], total: 0 };
+      }
+    }
     const [rows, totalResult] = await Promise.all([
       db.select({
         id: users.id,
         name: users.name,
+        firstName: users.firstName,
+        lastName: users.lastName,
         avatarUrl: users.avatarUrl,
         followedAt: userFollows.createdAt,
       })
@@ -253,7 +288,12 @@ export async function getFollowing(userId: number, limit = 50, offset = 0): Prom
     ]);
 
     return {
-      users: rows,
+      users: rows.map(r => ({
+        id: r.id,
+        name: (r.firstName ? [r.firstName, r.lastName].filter(Boolean).join(" ") : null) || r.name,
+        avatarUrl: r.avatarUrl,
+        followedAt: r.followedAt,
+      })),
       total: totalResult[0]?.count ?? 0,
     };
   } catch (error) {
@@ -420,6 +460,19 @@ export async function getFollowedStacks(userId: number, limit = 50, offset = 0):
   total: number;
 }> {
   try {
+    const currentUser = await getCurrentUser();
+    
+    // Privacy check: only allow viewing followed stacks if it's the current user,
+    // or if the target user has a public profile
+    if (!currentUser || currentUser.id !== userId) {
+      const targetUser = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: { publicProfile: true }
+      });
+      if (!targetUser || !targetUser.publicProfile) {
+        return { stacks: [], total: 0 };
+      }
+    }
     const [rows, totalResult] = await Promise.all([
       db.select({
         id: tools.id,

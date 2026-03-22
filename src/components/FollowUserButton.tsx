@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect, useCallback } from 'react';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { toggleFollowUser } from '@/app/actions/follows';
+import { updateFollowedUserId } from '@/hooks/useFollowedUsers';
 
 interface FollowUserButtonProps {
   targetUserId: number;
@@ -54,6 +55,8 @@ export default function FollowUserButton({
         }
         const newState = result.following ?? !wasFollowing;
         setFollowing(newState);
+        // Sync with global useFollowedUsers so all consumers update everywhere
+        updateFollowedUserId(targetUserId, newState);
         onToggle?.(newState);
         if (newState) {
           toast.success(`Following ${targetUserName}`);

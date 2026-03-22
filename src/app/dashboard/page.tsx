@@ -38,6 +38,7 @@ import {
   unfollowUser,
 } from '@/app/actions/follows';
 import { updateFollowedStackId } from '@/hooks/useFollowedStacks';
+import { updateFollowedUserId } from '@/hooks/useFollowedUsers';
 import {
   getBuyerPurchases,
   getBuyerOffers,
@@ -816,6 +817,8 @@ function FollowingTab() {
       const result = await unfollowUser(targetUserId);
       if (result.success) {
         setFollowedUsers(prev => prev.filter(u => u.id !== targetUserId));
+        // Sync with global useFollowedUsers so FollowUserButton updates everywhere
+        updateFollowedUserId(targetUserId, false);
         toast.success(`Unfollowed ${userName}`);
       } else {
         toast.error(result.error || 'Failed to unfollow user');
