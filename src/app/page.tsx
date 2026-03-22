@@ -461,29 +461,39 @@ export default function Home() {
               borderRadius: '24px',
             }}
           >
-            {/* Polished vertical stripes decoration — Flippa-style */}
+                        {/* Premium decorative swirl stripes — flowing curves */}
             <div className="hidden lg:block">
-              {/* Vertical stripes across the background */}
-              <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
-                {/* Left side stripes */}
-                <div className="absolute" style={{ left: '5%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '8%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '12%', top: '0', width: '3px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '16%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '20%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                
-                {/* Center stripes */}
-                <div className="absolute" style={{ left: '35%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '50%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ left: '65%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-                
-                {/* Right side stripes */}
-                <div className="absolute" style={{ right: '20%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '16%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '12%', top: '0', width: '3px', height: '100%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '8%', top: '0', width: '1px', height: '100%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-                <div className="absolute" style={{ right: '5%', top: '0', width: '2px', height: '100%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-              </div>
+              <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }} preserveAspectRatio="none" viewBox="0 0 1200 400">
+                <defs>
+                  <linearGradient id="swirl1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#D9B70B" stopOpacity="0.18" />
+                    <stop offset="50%" stopColor="#D9B70B" stopOpacity="0.06" />
+                    <stop offset="100%" stopColor="#D9B70B" stopOpacity="0.12" />
+                  </linearGradient>
+                  <linearGradient id="swirl2" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.1" />
+                    <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.03" />
+                    <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.08" />
+                  </linearGradient>
+                  <linearGradient id="swirl3" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#D9B70B" stopOpacity="0.14" />
+                    <stop offset="45%" stopColor="#D9B70B" stopOpacity="0.03" />
+                    <stop offset="100%" stopColor="#D9B70B" stopOpacity="0.12" />
+                  </linearGradient>
+                </defs>
+                {/* Left swirl curves */}
+                <path d="M 120 0 Q 100 100, 120 200 T 120 400" stroke="url(#swirl1)" strokeWidth="3" fill="none" strokeLinecap="round" />
+                <path d="M 310 0 Q 290 120, 310 240 T 310 400" stroke="url(#swirl2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Center swirl curves */}
+                <path d="M 600 0 Q 580 110, 600 220 T 600 400" stroke="url(#swirl3)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                <path d="M 620 0 Q 640 100, 620 200 T 620 400" stroke="url(#swirl1)" strokeWidth="2" fill="none" strokeLinecap="round" />
+                {/* Right swirl curves */}
+                <path d="M 890 0 Q 910 120, 890 240 T 890 400" stroke="url(#swirl2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                <path d="M 1080 0 Q 1100 100, 1080 200 T 1080 400" stroke="url(#swirl1)" strokeWidth="3" fill="none" strokeLinecap="round" />
+                {/* Additional flowing accent swirls */}
+                <path d="M 200 0 Q 220 150, 200 300 T 200 400" stroke="url(#swirl2)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6" />
+                <path d="M 1000 0 Q 980 140, 1000 280 T 1000 400" stroke="url(#swirl2)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6" />
+              </svg>
             </div>
 
             {/* Centered content — single column, no side cards */}
