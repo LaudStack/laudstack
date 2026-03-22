@@ -78,7 +78,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: Layers,
     label: "Stacks",
     children: [
-      { href: "/ops-console/stacks/listed", icon: Layers, label: "Listed", badge: "tools", requiredPermission: "stacks.view" },
+      { href: "/ops-console/stacks/listed", icon: Layers, label: "Listed", requiredPermission: "stacks.view" },
       { href: "/ops-console/stacks/launches", icon: Rocket, label: "Launches", badge: "submissions", requiredPermission: "stacks.view" },
       { href: "/ops-console/stacks/claimed", icon: UserPlus, label: "Claimed", badge: "claims", requiredPermission: "stacks.view" },
     ],

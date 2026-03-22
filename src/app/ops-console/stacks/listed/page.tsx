@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
  * Full CRUD: add, edit, status, feature, spotlight, delete.
  */
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Search, Plus, Layers, ExternalLink, Trash2, CheckCircle,
   XCircle, Star, RefreshCw, MoreHorizontal, Sparkles, Eye,
@@ -309,11 +310,12 @@ function AddStackModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function AdminListedStacks() {
+  const searchParams = useSearchParams();
   const [tools, setTools] = useState<Tool[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams?.get("q") ?? "");
   const [status, setStatus] = useState("all");
   const [category, setCategory] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
