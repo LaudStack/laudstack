@@ -804,8 +804,9 @@ export default function Navbar() {
                   <div className="w-10 h-10 rounded-full bg-slate-100 animate-pulse" />
                 ) : isAuthenticated && user ? (
                   <>
+                    {/* Single avatar button: opens mobile drawer on mobile, desktop dropdown on desktop */}
                     <button
-                      onClick={() => { setAvatarOpen(!avatarOpen); setMobileOpen(false); }}
+                      onClick={() => { if (window.innerWidth < 1024) { setMobileProfileOpen(true); } else { setAvatarOpen(!avatarOpen); setMobileOpen(false); } }}
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent border-none cursor-pointer transition-colors hover:bg-slate-100"
                       aria-label="Profile menu"
                     >
@@ -817,23 +818,6 @@ export default function Navbar() {
                         </div>
                       )}
                     </button>
-
-                    {/* Mobile avatar button - opens modal drawer */}
-                    {isAuthenticated && (
-                      <button
-                        onClick={() => setMobileProfileOpen(true)}
-                        className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer transition-colors hover:bg-slate-100"
-                        style={{ background: 'transparent' }}
-                      >
-                        {avatarUrl ? (
-                          <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" style={{ border: `3px solid ${NAVY}`, boxShadow: '0 0 0 1px rgba(30,41,59,0.1)' }} />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-extrabold text-white" style={{ background: NAVY, border: '3px solid #334155', boxShadow: '0 0 0 1px rgba(30,41,59,0.1)' }}>
-                            {getInitials(displayName)}
-                          </div>
-                        )}
-                      </button>
-                    )}
                     {/* Desktop avatar dropdown */}
                     {avatarOpen && (
                       <div
